@@ -79,7 +79,9 @@ struct Reaction: Codable, Hashable {
         }
 
         init?(encodedValue: String) {
-            guard let matchingCase = Style.allCases.first(where: { $0.encodedValue == encodedValue }) else { return nil }
+            guard let matchingCase = Style.allCases.first(where: {
+                $0.encodedValue == encodedValue
+            }) else { return nil }
             self = matchingCase
         }
     }

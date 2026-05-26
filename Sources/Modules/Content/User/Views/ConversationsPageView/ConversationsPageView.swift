@@ -112,7 +112,7 @@ struct ConversationsPageView: View {
                     }
                     .if(!ThemeService.isAppDefaultThemeApplied) {
                         $0.navigationBarItemGlassTint(
-                            .accent,
+                            .accent, // swiftlint:disable:next multiline_arguments
                             for: .leading, .trailing
                         )
                     }

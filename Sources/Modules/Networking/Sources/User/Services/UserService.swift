@@ -99,16 +99,13 @@ final class UserService: @unchecked Sendable {
     // MARK: - Get All Users
 
     func getAllUsers() async throws(Exception) -> [User] {
-        do {
-            let userData: [String: Any] = try await networking.database.getValues(
-                at: NetworkPath.users.rawValue
-            )
-            return try await getUsers(
-                ids: Array(userData.keys)
-            )
-        } catch {
-            throw error
-        }
+        let userData: [String: Any] = try await networking.database.getValues(
+            at: NetworkPath.users.rawValue
+        )
+
+        return try await getUsers(
+            ids: Array(userData.keys)
+        )
     }
 
     // MARK: - Retrieval by ID
@@ -128,7 +125,9 @@ final class UserService: @unchecked Sendable {
         typealias Keys = User.SerializableKey
 
         if let cachedUserDataSnapshots,
-           let match = cachedUserDataSnapshots.first(where: { ($0.data[Keys.id.rawValue] as? String) == id }),
+           let match = cachedUserDataSnapshots.first(where: {
+               ($0.data[Keys.id.rawValue] as? String) == id
+           }),
            !match.isExpired {
             Logger.log(
                 .init(

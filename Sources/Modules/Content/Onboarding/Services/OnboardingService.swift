@@ -77,8 +77,11 @@ final class OnboardingService {
 
     /// - Returns: `true` if the user selected the cancel option.
     func presentAccountDoesNotExistAlert() async -> Bool {
-        let cancelled = LockIsolated(wrappedValue: true)
-        let signUpAction: AKAction = .init("Sign Up", style: .preferred) {
+        let cancelled = LockIsolated(true)
+        let signUpAction: AKAction = .init(
+            "Sign Up",
+            style: .preferred
+        ) {
             cancelled.wrappedValue = false
         }
 
@@ -88,15 +91,21 @@ final class OnboardingService {
                 signUpAction,
                 .cancelAction,
             ]
-        ).present(translating: [.actions([signUpAction]), .message])
+        ).present(translating: [
+            .actions([signUpAction]),
+            .message,
+        ])
 
         return cancelled.wrappedValue
     }
 
     /// - Returns: `true` if the user selected the cancel option.
     func presentAccountExistsAlert() async -> Bool {
-        let cancelled = LockIsolated(wrappedValue: true)
-        let signInAction: AKAction = .init("Sign In", style: .preferred) {
+        let cancelled = LockIsolated(true)
+        let signInAction: AKAction = .init(
+            "Sign In",
+            style: .preferred
+        ) {
             cancelled.wrappedValue = false
         }
 
@@ -106,15 +115,21 @@ final class OnboardingService {
                 signInAction,
                 .cancelAction,
             ]
-        ).present(translating: [.actions([signInAction]), .message])
+        ).present(translating: [
+            .actions([signInAction]),
+            .message,
+        ])
 
         return cancelled.wrappedValue
     }
 
     /// - Returns: `true` if the user selected the cancel option.
     func presentEULAAlert() async -> Bool {
-        let cancelled = LockIsolated(wrappedValue: true)
-        let agreeAction: AKAction = .init("I Agree", style: .preferred) {
+        let cancelled = LockIsolated(true)
+        let agreeAction: AKAction = .init(
+            "I Agree",
+            style: .preferred
+        ) {
             cancelled.wrappedValue = false
         }
 

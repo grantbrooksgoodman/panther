@@ -146,7 +146,9 @@ struct ConversationsPageObserver: Observer {
                   .user
                   .currentUser?
                   .conversations?
-                  .first(where: { $0.id.key == currentConversation.id.key }) else { return }
+                  .first(where: {
+                      $0.id.key == currentConversation.id.key
+                  }) else { return }
 
             let currentMessageIDs = Set(
                 currentConversation.messages?.filteringSystemMessages.map(\.id) ?? []

@@ -16,7 +16,10 @@ import AppSubsystem
 extension RecipientBar: UITableViewDelegate {
     // MARK: - Did Select Row
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
         @Dependency(\.chatPageViewService.recipientBar) var recipientBarService: RecipientBarService?
         guard let contactPair = recipientBarService?.tableView.sections.itemAt(indexPath.section)?.contactPairs.itemAt(indexPath.row) else { return }
         recipientBarService?.contactSelectionUI.selectContactPair(contactPair)

@@ -243,8 +243,10 @@ final class InputBarGestureRecognizerService {
             .noSpeechDetected,
             .transcribeNoSuchFileOrDirectory,
         ]) else {
-            Logger.log(exception, with: .toast)
-            return
+            return Logger.log(
+                exception,
+                with: .toast
+            )
         }
 
         guard exception.descriptor == Strings.noSpeechDetectedExceptionDescriptor else {

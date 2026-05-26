@@ -121,7 +121,10 @@ struct ContactSelectorPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(
+        into state: inout State,
+        action: Action
+    ) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             guard state.entryPoint == .chatInfoPageView else {
@@ -167,7 +170,11 @@ struct ContactSelectorPageReducer: Reducer {
 
         case let .findUserFailed(exception):
             guard exception.isEqual(to: .noUsersWithPhoneNumber) else {
-                Logger.log(exception, with: .toast)
+                Logger.log(
+                    exception,
+                    with: .toast
+                )
+
                 return .none
             }
 
@@ -180,7 +187,11 @@ struct ContactSelectorPageReducer: Reducer {
             viewService.inviteToolbarButtonTapped()
 
         case let .resolveFailed(exception):
-            Logger.log(exception, with: .toast)
+            Logger.log(
+                exception,
+                with: .toast
+            )
+
             state.viewState = .loaded
 
         case let .resolveReturned(strings):

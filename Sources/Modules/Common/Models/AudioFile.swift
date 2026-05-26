@@ -113,7 +113,10 @@ final class AudioFile: Codable, Equatable, Sendable {
 
     // MARK: - Equatable Conformance
 
-    static func == (left: AudioFile, right: AudioFile) -> Bool {
+    static func == (
+        left: AudioFile,
+        right: AudioFile
+    ) -> Bool {
         let sameContentDuration = left.contentDuration == right.contentDuration
         let sameFileExtension = left.fileExtension == right.fileExtension
         let sameName = left.name == right.name

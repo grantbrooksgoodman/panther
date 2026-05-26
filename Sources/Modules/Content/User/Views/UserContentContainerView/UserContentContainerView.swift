@@ -140,7 +140,7 @@ struct UserContentContainerView: View {
             }
             .onPreferenceChange(ChatPageHeaderHeightKey.self) { newHeight in
                 guard newHeight > 0 else { return }
-                chatPageHeaderHeight = newHeight
+                chatPageHeaderHeight = newHeight + Floats.chatPageHeaderContentHeightIncrement
             }
             .toolbar(
                 .hidden,

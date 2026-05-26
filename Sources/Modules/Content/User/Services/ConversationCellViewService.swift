@@ -34,8 +34,11 @@ struct ConversationCellViewService {
     /// `.deleteConversationButtonTapped`
     /// - Returns: `true` if the user selected the cancel option.
     func presentDeletionActionSheet(_ title: String) async -> Bool {
-        let cancelled = LockIsolated(wrappedValue: true)
-        let deleteAction: AKAction = .init("Delete", style: .destructive) {
+        let cancelled = LockIsolated(true)
+        let deleteAction: AKAction = .init(
+            "Delete",
+            style: .destructive
+        ) {
             cancelled.wrappedValue = false
         }
 
@@ -44,7 +47,10 @@ struct ConversationCellViewService {
             message: "Are you sure you'd like to delete this conversation?\nThis operation cannot be undone.",
             actions: [deleteAction],
             cancelButtonTitle: Localized(.cancel).wrappedValue
-        ).present(translating: [.actions(), .message])
+        ).present(translating: [
+            .actions(),
+            .message,
+        ])
 
         return cancelled.wrappedValue
     }

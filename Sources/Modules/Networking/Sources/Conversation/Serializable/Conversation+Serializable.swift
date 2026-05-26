@@ -110,8 +110,10 @@ extension Conversation: Serializable {
                 .init(
                     "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
                     isReportable: false,
-                    userInfo: ["ConversationIDKey": conversationID.key,
-                               "ConversationIDHash": conversationID.hash],
+                    userInfo: [
+                        "ConversationIDKey": conversationID.key,
+                        "ConversationIDHash": conversationID.hash,
+                    ],
                     metadata: .init(sender: Self.self)
                 ),
                 domain: .conversation

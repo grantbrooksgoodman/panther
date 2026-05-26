@@ -162,14 +162,20 @@ final class RegionDetailService {
 
     // MARK: - Region Titles
 
-    func localizedRegionName(regionCode: String, languageCode: String? = nil) -> String {
+    func localizedRegionName(
+        regionCode: String,
+        languageCode: String? = nil
+    ) -> String {
         var cachedValue = cachedLocalizedRegionNamesForRegionCodes ?? .init()
         if let string = cachedValue[regionCode],
            languageCode == nil {
             return string
         }
 
-        func setCacheValue(_ key: String, _ value: String) {
+        func setCacheValue(
+            _ key: String,
+            _ value: String
+        ) {
             guard languageCode == nil else { return }
             cachedValue[key] = value
             cachedLocalizedRegionNamesForRegionCodes = cachedValue
@@ -233,7 +239,10 @@ final class RegionDetailService {
             return tuple.0
         }
 
-        func setCacheValue(_ key: String, _ value: String) {
+        func setCacheValue(
+            _ key: String,
+            _ value: String
+        ) {
             cachedValue[key] = (value, titleFormat)
             cachedRegionTitlesForCallingCodes = cachedValue
         }
@@ -265,7 +274,10 @@ final class RegionDetailService {
             return tuple.0
         }
 
-        func setCacheValue(_ key: String, _ value: String) {
+        func setCacheValue(
+            _ key: String,
+            _ value: String
+        ) {
             cachedValue[key] = (value, titleFormat)
             cachedRegionTitlesForRegionCodes = cachedValue
         }

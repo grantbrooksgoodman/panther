@@ -67,7 +67,10 @@ private struct _CNContactView: UIViewControllerRepresentable {
 
     // MARK: - Init
 
-    init(_ cnContact: CNContact, isUnknown: Bool) {
+    init(
+        _ cnContact: CNContact,
+        isUnknown: Bool
+    ) {
         self.cnContact = cnContact
         self.isUnknown = isUnknown
     }
@@ -88,5 +91,8 @@ private struct _CNContactView: UIViewControllerRepresentable {
 
     // MARK: - Update UIViewController
 
-    func updateUIViewController(_ uiViewController: CNContactViewController, context: Context) {}
+    func updateUIViewController(
+        _ uiViewController: CNContactViewController,
+        context: Context
+    ) {}
 }

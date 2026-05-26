@@ -109,7 +109,7 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
         captureTask = Task { @MainActor in
             while !Task.isCancelled,
                   isCapturing {
-                capture()
+                await capture()
                 try? await Task.sleep(for: captureFrequency)
             }
         }
@@ -147,10 +147,8 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
 
     // MARK: - Auxiliary
 
-    private func capture() {
+    private func capture() async {
         guard Int.random(in: 1 ... 1_000_000) % 3 == 0 else { return }
-
-        // TODO: Show build-info overlay here.
 
         let viewHierarchyID: String? = switch captureGranularity {
         case .broad:
@@ -185,7 +183,7 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
         var captureHistory = captureHistory
         guard let viewHierarchyID,
               !captureHistory.contains(viewHierarchyID),
-              let image = uiApplication.snapshot else { return }
+              let image = await uiApplication.snapshot else { return }
 
         captureHistory.insert(viewHierarchyID)
         self.captureHistory = captureHistory
@@ -199,10 +197,18 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
                 viewHierarchyID: viewHierarchyID
             )
 
-            let filePath = await self.filePath; try? imageData.write(to: filePath)
+            let filePath = await self.filePath
+            try? imageData.write(to: filePath)
 
             guard await self.savesToPhotos else { return }
-            await MainActor.run { UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil) }
+            await MainActor.run {
+                UIImageWriteToSavedPhotosAlbum(
+                    image,
+                    nil,
+                    nil,
+                    nil
+                )
+            }
         }
     }
 

@@ -118,15 +118,25 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: Parallel Initialization */
 
-        // TODO: Make this completely parallel again.
-        // Launch the heaviest independent network call concurrently.
+        // Launch the heaviest independent network calls concurrently.
         async let resolveCurrentUserResult = clientSession.user.resolveCurrentUser()
+        async let resolveLanguageCodeResult: Void = clientSession.user.resolveAndSetLanguageCode()
+        async let resolveValuesResult: Void = services.metadata.resolveValues()
 
-        if User.currentUserID != nil {
-            try await clientSession.user.resolveAndSetLanguageCode()
+        do {
+            if User.currentUserID != nil {
+                try await resolveLanguageCodeResult
+            }
+
+            try await resolveValuesResult
+        } catch let error as Exception {
+            throw error
+        } catch {
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
-
-        try await services.metadata.resolveValues()
 
         initializationProgress += 0.02
 
@@ -229,7 +239,7 @@ final class SplashPageViewService: ObservableObject {
             Task { [weak self] in
                 guard let self else { return }
 
-                // TODO: Audit this being post-launch.
+                // TODO: Audit this being post-splash.
                 do throws(Exception) {
                     try await currentUser
                         .conversations?

@@ -193,7 +193,7 @@ struct PermissionService {
     private func presentCTA(
         with message: String
     ) async -> Bool {
-        let cancelled = LockIsolated(wrappedValue: true)
+        let cancelled = LockIsolated(true)
 
         @Localized(.settings) var settingsString: String
         let settingsURL = URL(string: UIApplication.openSettingsURLString)

@@ -83,7 +83,10 @@ extension SquareIconView {
 
         // MARK: - Equatable Conformance
 
-        static func == (left: Configuration, right: Configuration) -> Bool {
+        static func == (
+            left: Configuration,
+            right: Configuration
+        ) -> Bool {
             left.encodedHash == right.encodedHash
         }
 

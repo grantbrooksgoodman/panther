@@ -10,7 +10,7 @@
 import Foundation
 import SwiftUI
 
-// TODO: Audit this; seems to fix disappearing list refresh control, but unsure of efficacy.
+// NIT: Seems to fix disappearing list refresh control, but unsure of efficacy.
 struct EmptyUIView: UIViewRepresentable {
     // MARK: - Make UIView
 
@@ -20,5 +20,8 @@ struct EmptyUIView: UIViewRepresentable {
 
     // MARK: - Update UIView
 
-    func updateUIView(_ uiView: UIView, context: Context) {}
+    func updateUIView(
+        _ uiView: UIView,
+        context: Context
+    ) {}
 }

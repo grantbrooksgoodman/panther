@@ -35,10 +35,6 @@ struct ReactionDetailsPageReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        let navigationTitle = Localized(
-            .reactionDetails
-        ).wrappedValue.removingOccurrences(of: ["…"]).capitalized
-
         var viewID = UUID()
 
         /* MARK: Computed Properties */
@@ -88,11 +84,22 @@ struct ReactionDetailsPageReducer: Reducer {
                 .sorted { $0.0.orderValue < $1.0.orderValue }
                 .map(\.1)
         }
+
+        var navigationTitle: String {
+            let localizedString = Localized(
+                .reactionDetails
+            ).wrappedValue.removingOccurrences(of: ["…"])
+            guard RuntimeStorage.languageCode == "en" else { return localizedString }
+            return localizedString.capitalized
+        }
     }
 
     // MARK: - Reduce
 
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(
+        into state: inout State,
+        action: Action
+    ) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             uiApplication.resignFirstResponders()

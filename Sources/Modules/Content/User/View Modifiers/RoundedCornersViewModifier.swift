@@ -18,7 +18,10 @@ private struct RoundedCornersViewModifier: Shape {
 
     // MARK: - Init
 
-    init(radius: CGFloat, corners: UIRectCorner) {
+    init(
+        radius: CGFloat,
+        corners: UIRectCorner
+    ) {
         self.radius = radius
         self.corners = corners
     }

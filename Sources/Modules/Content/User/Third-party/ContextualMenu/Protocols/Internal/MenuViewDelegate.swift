@@ -11,5 +11,8 @@ import Foundation
 
 @MainActor
 protocol MenuViewDelegate: AnyObject {
-    func dismissMenuView(menuView: MenuView, uponTapping menuElement: MenuElement)
+    func dismissMenuView(
+        menuView: MenuView,
+        uponTapping menuElement: MenuElement
+    )
 }

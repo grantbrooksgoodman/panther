@@ -32,7 +32,10 @@ final class ChatPageStateService {
 
     // MARK: - Init
 
-    init(isPresented: Bool, isWaitingToUpdateConversations: Bool) {
+    init(
+        isPresented: Bool,
+        isWaitingToUpdateConversations: Bool
+    ) {
         self.isPresented = isPresented
         self.isWaitingToUpdateConversations = isWaitingToUpdateConversations
     }

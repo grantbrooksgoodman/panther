@@ -323,7 +323,10 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
 
     // NB: Ordered cheapest-to-compare first so the guard short-circuits
     // before reaching expensive array comparisons.
-    static func == (left: Conversation, right: Conversation) -> Bool {
+    static func == (
+        left: Conversation,
+        right: Conversation
+    ) -> Bool {
         guard left.id == right.id,
               left.messageIDs == right.messageIDs,
               left.metadata == right.metadata,

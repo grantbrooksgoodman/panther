@@ -68,7 +68,10 @@ struct RootNavigationService: Navigating {
     /// - Parameters:
     ///   - route: The navigation action to perform.
     ///   - state: The current navigation state, modified in place.
-    func navigate(to route: Route, on state: inout RootNavigatorState) {
+    func navigate(
+        to route: Route,
+        on state: inout RootNavigatorState
+    ) {
         switch route {
         case let .chat(chatRoute):
             ChatNavigator.navigate(to: chatRoute, on: &state.chat)

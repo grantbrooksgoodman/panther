@@ -33,7 +33,10 @@ struct ChatNavigatorState: NavigatorState {
 }
 
 enum ChatNavigator {
-    static func navigate(to route: RootNavigationService.Route.ChatRoute, on state: inout ChatNavigatorState) {
+    static func navigate(
+        to route: RootNavigationService.Route.ChatRoute,
+        on state: inout ChatNavigatorState
+    ) {
         switch route {
         case let .sheet(path):
             state.sheet = path

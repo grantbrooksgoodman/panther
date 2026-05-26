@@ -274,7 +274,6 @@ struct MessageService {
         )
     }
 
-    // TODO: Rewrite with Message as the argument for greater efficiency.
     func deleteMessages(
         ids messageIDs: [String],
         in conversation: Conversation? = nil,

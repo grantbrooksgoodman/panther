@@ -84,7 +84,10 @@ struct ConversationsPageReducer: Reducer {
     // MARK: - Reduce
 
     // swiftlint:disable:next function_body_length
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(
+        into state: inout State,
+        action: Action
+    ) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
@@ -142,7 +145,10 @@ struct ConversationsPageReducer: Reducer {
 
         case let .reloadDataFailed(exception):
             state.isRefreshing = false
-            Logger.log(exception, with: .toast)
+            Logger.log(
+                exception,
+                with: .toast
+            )
 
         case let .reloadDataReturned(conversations):
             state.isRefreshing = false

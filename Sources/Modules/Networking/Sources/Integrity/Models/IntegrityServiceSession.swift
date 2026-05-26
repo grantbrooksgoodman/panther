@@ -104,9 +104,8 @@ final class IntegrityServiceSession: @unchecked Sendable {
             metadata: .init(sender: self)
         )
 
-        // FIXME: Audit this approach.
-        // Fetch all data concurrently
-        // Each helper resolves its own @Dependency(\.networking) so no non-Sendable.
+        // Fetch all data concurrently.
+        // Each helper resolves its own @Dependency(\.networking), so no non-Sendable.
         // NetworkServices value is shared (sent) across concurrent child tasks.
 
         async let getConversationValues = fetchDatabaseValues(

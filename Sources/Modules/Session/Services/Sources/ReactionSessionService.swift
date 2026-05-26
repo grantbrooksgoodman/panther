@@ -82,7 +82,9 @@ final class ReactionSessionService {
 
         // Add new reaction to metadata
 
-        if let existingMetadata = reactionMetadata.first(where: { $0.messageID == message.id }) {
+        if let existingMetadata = reactionMetadata.first(where: {
+            $0.messageID == message.id
+        }) {
             var newReactions = existingMetadata.reactions
             newReactions.append(reaction)
 
@@ -252,7 +254,6 @@ final class ReactionSessionService {
         }
 
         isReactingToMessage = false
-
         try await updatedConversation.setMessages(ids: [
             messageData.message.id,
         ])

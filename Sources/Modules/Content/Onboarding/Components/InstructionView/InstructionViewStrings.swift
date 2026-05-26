@@ -19,7 +19,10 @@ struct InstructionViewStrings: Equatable {
 
     // MARK: - Init
 
-    init(titleLabelText: String, subtitleLabelText: String) {
+    init(
+        titleLabelText: String,
+        subtitleLabelText: String
+    ) {
         self.titleLabelText = titleLabelText
         self.subtitleLabelText = subtitleLabelText
     }

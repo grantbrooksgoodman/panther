@@ -21,7 +21,10 @@ struct MessageRecipientConsentAcknowledgementData: Codable, Equatable {
 
     // MARK: - Init
 
-    init(userID: String, consentAcknowledged: Bool) {
+    init(
+        userID: String,
+        consentAcknowledged: Bool
+    ) {
         self.userID = userID
         self.consentAcknowledged = consentAcknowledged
     }

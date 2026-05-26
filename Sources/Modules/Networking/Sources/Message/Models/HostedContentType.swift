@@ -72,7 +72,9 @@ enum HostedContentType: Codable, Equatable {
         guard (components.itemAt(1) ?? hostedValue).isBangQualifiedEmpty == false,
               let fileExtension = MediaFileExtension
               .hostedCases
-              .first(where: { $0.contentTypeString == components.first ?? hostedValue }) else { return nil }
+              .first(where: {
+                  $0.contentTypeString == components.first ?? hostedValue
+              }) else { return nil }
 
         switch components.count {
         case 1:

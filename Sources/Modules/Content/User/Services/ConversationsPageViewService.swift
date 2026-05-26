@@ -182,7 +182,6 @@ final class ConversationsPageViewService {
         }
     }
 
-    // swiftlint:disable function_body_length
     /// `.reloadDataReturned(.success)`
     /// `.updatedCurrentUser`
     /// `.viewAppeared`
@@ -255,14 +254,6 @@ final class ConversationsPageViewService {
             ) { @MainActor in
                 do throws(Exception) {
                     try await User.populateCurrentUserConversationsIfNeeded()
-                } catch {
-                    Logger.log(
-                        error,
-                        domain: .conversation
-                    )
-                }
-
-                do throws(Exception) {
                     _ = try await reloadData()
                 } catch {
                     Logger.log(
@@ -307,7 +298,7 @@ final class ConversationsPageViewService {
         }
 
         state.conversations = bestCandidate.conversations
-    } // swiftlint:enable function_body_length
+    }
 
     // MARK: - Auxiliary
 
@@ -492,33 +483,30 @@ final class ConversationsPageViewService {
         }
 
         defer { currentReloadType = currentReloadType.next }
-        do throws(Exception) {
-            let user = try await clientSession.user.resolveCurrentUser()
-            try await user.setConversations()
-            try await user.conversations?.visibleForCurrentUser.setUsers()
-            var randomBool: Bool {
-                Int.random(in: 1 ... 1_000_000) % 3 == 0
-            }
 
-            guard !services.contact.hasContactsBesidesCurrentUser || randomBool else {
-                return user.conversations ?? []
-            }
-
-            do {
-                try await services.contact.syncContactPairArchive()
-            } catch {
-                if !error.isEqual(toAny: [
-                    .mismatchedHashAndCallingCode,
-                    .notAuthorizedForContacts,
-                ]) {
-                    throw error
-                }
-            }
-
-            return user.conversations ?? []
-        } catch {
-            throw error
+        let user = try await clientSession.user.resolveCurrentUser()
+        try await user.setConversations()
+        try await user.conversations?.visibleForCurrentUser.setUsers()
+        var randomBool: Bool {
+            Int.random(in: 1 ... 1_000_000) % 3 == 0
         }
+
+        guard !services.contact.hasContactsBesidesCurrentUser || randomBool else {
+            return user.conversations ?? []
+        }
+
+        do {
+            try await services.contact.syncContactPairArchive()
+        } catch {
+            if !error.isEqual(toAny: [
+                .mismatchedHashAndCallingCode,
+                .notAuthorizedForContacts,
+            ]) {
+                throw error
+            }
+        }
+
+        return user.conversations ?? []
     }
 
     /// - NOTE: Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.

@@ -107,7 +107,7 @@ enum PLISTGenerator {
             coreUtilities.clearCaches([.Networking.gemini])
         }
 
-        do throws(Exception) {
+        do {
             return enhancementContext == nil ? try await translator.translate(
                 .init(text),
                 languagePair: .init(

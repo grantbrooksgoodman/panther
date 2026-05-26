@@ -58,7 +58,10 @@ struct PermissionPageReducer: Reducer {
     // MARK: - Reduce
 
     // swiftlint:disable:next function_body_length
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(
+        into state: inout State,
+        action: Action
+    ) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
@@ -158,7 +161,10 @@ struct PermissionPageReducer: Reducer {
             state.isBackButtonEnabled = true
             state.isFinishButtonEnabled = false
 
-            Logger.log(exception, with: .toast)
+            Logger.log(
+                exception,
+                with: .toast
+            )
 
         case let .requestContactPermissionReturned(status):
             state.isContactPermissionGranted = status == .granted
@@ -185,7 +191,10 @@ struct PermissionPageReducer: Reducer {
             state.isBackButtonEnabled = true
             state.isFinishButtonEnabled = false
 
-            Logger.log(exception, with: .toast)
+            Logger.log(
+                exception,
+                with: .toast
+            )
 
         case let .requestNotificationPermissionReturned(status):
             state.isNotificationPermissionGranted = status == .granted

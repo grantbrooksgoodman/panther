@@ -477,7 +477,10 @@ struct MessageSessionService {
         ) // swiftlint:enable line_length
     }
 
-    private func incrementDeliveryProgress(in conversation: Conversation?, by: Float) {
+    private func incrementDeliveryProgress(
+        in conversation: Conversation?,
+        by: Float
+    ) {
         guard shouldAnimateDeliveryProgress(in: conversation) else { return }
         Task { @MainActor in
             clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: by)

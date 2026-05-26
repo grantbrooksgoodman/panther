@@ -155,7 +155,10 @@ final class PhoneNumberService {
 
     // MARK: - Length Validation
 
-    func numberIsValidLength(_ length: Int, for callingCode: String) -> Bool {
+    func numberIsValidLength(
+        _ length: Int,
+        for callingCode: String
+    ) -> Bool {
         guard let callingCodesForNumberLength = lookupTables[String(length)],
               callingCodesForNumberLength.contains(callingCode) else { return false }
         return true

@@ -16,7 +16,10 @@ import AppSubsystem
 extension RecipientBar: UITableViewDataSource {
     // MARK: - Cell for Row at Index Path
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
         @Dependency(\.chatPageViewService.recipientBar?.tableView) var tableViewService: RecipientBarTableViewService?
 
         typealias Colors = AppConstants.Colors.ContactPairCellView
@@ -51,7 +54,10 @@ extension RecipientBar: UITableViewDataSource {
 
     // MARK: - Number of Rows in Section
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(
+        _ tableView: UITableView,
+        numberOfRowsInSection section: Int
+    ) -> Int {
         @Dependency(\.chatPageViewService.recipientBar?.tableView) var tableViewService: RecipientBarTableViewService?
         return tableViewService?.sections.itemAt(section)?.contactPairs.count ?? 0
     }
@@ -65,7 +71,10 @@ extension RecipientBar: UITableViewDataSource {
 
     // MARK: - Title for Header in Section
 
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    func tableView(
+        _ tableView: UITableView,
+        titleForHeaderInSection section: Int
+    ) -> String? {
         @Dependency(\.chatPageViewService.recipientBar?.tableView) var tableViewService: RecipientBarTableViewService?
         return tableViewService?.sections.itemAt(section)?.letter
     }

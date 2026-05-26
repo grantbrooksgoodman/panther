@@ -20,7 +20,10 @@ struct PenPalsSharingData: Codable, Equatable {
 
     // MARK: - Init
 
-    init(userID: String, sharesDataWithUserIDs: [String]? = nil) {
+    init(
+        userID: String,
+        sharesDataWithUserIDs: [String]? = nil
+    ) {
         assert(
             sharesDataWithUserIDs == nil ? true : !sharesDataWithUserIDs!.isBangQualifiedEmpty,
             "Instantiated PenPalsSharingData with empty sharesDataWithUserIDs array"

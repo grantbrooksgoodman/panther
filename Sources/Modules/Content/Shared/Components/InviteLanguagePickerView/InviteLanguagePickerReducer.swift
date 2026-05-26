@@ -36,9 +36,6 @@ struct InviteLanguagePickerReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        // TODO: Audit implications of one-time init for localized value.
-        let navigationTitle = Localized(.selectLanguage).wrappedValue.capitalized
-
         @Localized(.cancel) var cancelHeaderItemText: String
         @Localized(.done) var doneHeaderItemText: String
         var isDoneHeaderItemEnabled = false
@@ -53,6 +50,12 @@ struct InviteLanguagePickerReducer: Reducer {
             return localizedLanguageCodeDictionary ?? RuntimeStorage.languageCodeDictionary ?? .init()
         }
 
+        var navigationTitle: String {
+            let localizedString = Localized(.selectLanguage).wrappedValue
+            guard RuntimeStorage.languageCode == "en" else { return localizedString }
+            return localizedString.capitalized
+        }
+
         var queriedLanguageNames: [String: String] {
             localizedLanguageNames.filter {
                 $0.value.lowercasedTrimmingWhitespaceAndNewlines.contains(searchQuery.lowercasedTrimmingWhitespaceAndNewlines)
@@ -62,7 +65,10 @@ struct InviteLanguagePickerReducer: Reducer {
 
     // MARK: - Reduce
 
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(
+        into state: inout State,
+        action: Action
+    ) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.isDoneHeaderItemEnabled = false

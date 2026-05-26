@@ -53,7 +53,10 @@ struct AuthCodePageReducer: Reducer {
 
     // MARK: - Reduce
 
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(
+        into state: inout State,
+        action: Action
+    ) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
@@ -90,7 +93,10 @@ struct AuthCodePageReducer: Reducer {
                 )
             }
 
-            Logger.log(exception, with: .toast)
+            Logger.log(
+                exception,
+                with: .toast
+            )
 
         case let .authenticateUserReturned(userID):
             coreUI.removeOverlay()

@@ -31,7 +31,10 @@ struct SettingsNavigatorState: NavigatorState {
 }
 
 enum SettingsNavigator {
-    static func navigate(to route: RootNavigationService.Route.SettingsRoute, on state: inout SettingsNavigatorState) {
+    static func navigate(
+        to route: RootNavigationService.Route.SettingsRoute,
+        on state: inout SettingsNavigatorState
+    ) {
         switch route {
         case let .sheet(path):
             state.sheet = path

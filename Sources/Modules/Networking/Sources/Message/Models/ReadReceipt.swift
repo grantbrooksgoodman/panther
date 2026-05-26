@@ -20,7 +20,10 @@ struct ReadReceipt: Codable, Equatable {
 
     // MARK: - Init
 
-    init(userID: String, readDate: Date) {
+    init(
+        userID: String,
+        readDate: Date
+    ) {
         self.userID = userID
         self.readDate = readDate
     }

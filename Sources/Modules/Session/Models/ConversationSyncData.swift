@@ -27,7 +27,10 @@ struct ConversationSyncData: Hashable, @unchecked Sendable {
 
     // MARK: - Equatable Conformance
 
-    static func == (left: ConversationSyncData, right: ConversationSyncData) -> Bool {
+    static func == (
+        left: ConversationSyncData,
+        right: ConversationSyncData
+    ) -> Bool {
         let leftObjectCount = left.newData.count + left.newData.compactMapValues { $0 as? [String: Any] }.count
         let rightObjectCount = right.newData.count + right.newData.compactMapValues { $0 as? [String: Any] }.count
 

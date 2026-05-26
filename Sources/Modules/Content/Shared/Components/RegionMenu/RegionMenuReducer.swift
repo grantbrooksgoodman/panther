@@ -38,9 +38,6 @@ struct RegionMenuReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        // TODO: Audit implications of one-time init for localized value.
-        let headerLabelText = Localized(.selectCallingCode).wrappedValue.capitalized
-
         var isPresented: Binding<Bool>
         @Localized(.noResults) var noResultsLabelText
         var searchQuery = ""
@@ -48,6 +45,12 @@ struct RegionMenuReducer: Reducer {
         fileprivate var selectedRegionCode: Binding<String>
 
         /* MARK: Computed Properties */
+
+        var headerLabelText: String {
+            let localizedString = Localized(.selectCallingCode).wrappedValue
+            guard RuntimeStorage.languageCode == "en" else { return localizedString }
+            return localizedString.capitalized
+        }
 
         var queriedRegionTitles: [String]? {
             @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
@@ -74,7 +77,10 @@ struct RegionMenuReducer: Reducer {
 
         /* MARK: Equatable Conformance */
 
-        static func == (left: State, right: State) -> Bool {
+        static func == (
+            left: State,
+            right: State
+        ) -> Bool {
             let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
             let sameHeaderLabelText = left.headerLabelText == right.headerLabelText
             let sameNoResultsLabelText = left.noResultsLabelText == right.noResultsLabelText
@@ -93,7 +99,10 @@ struct RegionMenuReducer: Reducer {
 
     // MARK: - Reduce
 
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(
+        into state: inout State,
+        action: Action
+    ) -> Effect<Action> {
         switch action {
         case let .isPresentedChanged(isPresented):
             return .task(delay: .milliseconds(.init(Floats.delayMilliseconds))) {

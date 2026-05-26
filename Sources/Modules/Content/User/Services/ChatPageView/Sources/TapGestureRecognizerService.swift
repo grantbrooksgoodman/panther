@@ -47,7 +47,9 @@ final class TapGestureRecognizerService {
             .messagesCollectionView
             .gestureRecognizers?
             .compactMap({ $0 as? UITapGestureRecognizer })
-            .first(where: { $0.numberOfTapsRequired == Int(Floats.doubleTapGestureNumberOfTapsRequired) }) {
+            .first(where: {
+                $0.numberOfTapsRequired == Int(Floats.doubleTapGestureNumberOfTapsRequired)
+            }) {
             singleTapGesture.require(toFail: doubleTapGesture)
         }
     }

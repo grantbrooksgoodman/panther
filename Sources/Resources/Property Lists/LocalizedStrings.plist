@@ -242,7 +242,7 @@
 		<key>lt</key>
 		<string>⌘ į pokalbį įtraukė ⁂.</string>
 		<key>mg</key>
-		<string>Nampidirin&apos;i ⌘ tao amin&apos;ny resaka ny ⁂.</string>
+		<string>Nampidirin'i ⌘ tao amin'ny resaka ny ⁂.</string>
 		<key>mi</key>
 		<string>I tāpirihia e ⌘ a ⁂ ki te kōrero.</string>
 		<key>mk</key>
@@ -296,7 +296,7 @@
 		<key>tl</key>
 		<string>Idinagdag ni ⌘ si ⁂ sa usapan.</string>
 		<key>tr</key>
-		<string>⌘, ⁂&apos;yi sohbete ekledi.</string>
+		<string>⌘, ⁂'yi sohbete ekledi.</string>
 		<key>tt</key>
 		<string>⌘ сөйләшүгә ⁂ өстәде.</string>
 		<key>uk</key>
@@ -304,7 +304,7 @@
 		<key>ur</key>
 		<string>⌘ نے ⁂ کو گفتگو میں شامل کیا۔</string>
 		<key>uz</key>
-		<string>⌘ suhbatga ⁂ ni qo&apos;shdi.</string>
+		<string>⌘ suhbatga ⁂ ni qo'shdi.</string>
 		<key>vi</key>
 		<string>⌘ đã thêm ⁂ vào cuộc trò chuyện.</string>
 		<key>yi</key>
@@ -333,7 +333,7 @@
 		<key>cs</key>
 		<string>Vylepšeno umělou inteligencí</string>
 		<key>cy</key>
-		<string>Wedi&apos;i wella gan AI</string>
+		<string>Wedi'i wella gan AI</string>
 		<key>da</key>
 		<string>AI-forbedret</string>
 		<key>de</key>
@@ -355,7 +355,7 @@
 		<key>fi</key>
 		<string>Tekoälyllä parannettu</string>
 		<key>fr</key>
-		<string>Amélioré par l&apos;IA</string>
+		<string>Amélioré par l'IA</string>
 		<key>ga</key>
 		<string>Feabhsaithe ag AI</string>
 		<key>gd</key>
@@ -381,7 +381,7 @@
 		<key>is</key>
 		<string>Gervigreindarbætt</string>
 		<key>it</key>
-		<string>Migliorato dall&apos;intelligenza artificiale</string>
+		<string>Migliorato dall'intelligenza artificiale</string>
 		<key>ja</key>
 		<string>AIによる強化</string>
 		<key>ka</key>
@@ -397,7 +397,7 @@
 		<key>lt</key>
 		<string>Patobulinta dirbtinio intelekto pagalba</string>
 		<key>mg</key>
-		<string>Nohatsaraina tamin&apos;ny AI</string>
+		<string>Nohatsaraina tamin'ny AI</string>
 		<key>mi</key>
 		<string>Whakarei ake i te AI</string>
 		<key>mk</key>
@@ -459,7 +459,7 @@
 		<key>ur</key>
 		<string>AI بڑھا ہوا</string>
 		<key>uz</key>
-		<string>Sun&apos;iy intellekt bilan takomillashtirilgan</string>
+		<string>Sun'iy intellekt bilan takomillashtirilgan</string>
 		<key>vi</key>
 		<string>Được tăng cường bởi trí tuệ nhân tạo</string>
 		<key>yi</key>
@@ -639,7 +639,7 @@
 		<key>bs</key>
 		<string>Audio poruka</string>
 		<key>ca</key>
-		<string>Missatge d&apos;àudio</string>
+		<string>Missatge d'àudio</string>
 		<key>cs</key>
 		<string>Zvuková zpráva</string>
 		<key>cy</key>
@@ -949,7 +949,7 @@
 		<key>bs</key>
 		<string>Blokiraj korisnika</string>
 		<key>ca</key>
-		<string>Bloqueja l&apos;usuari</string>
+		<string>Bloqueja l'usuari</string>
 		<key>cs</key>
 		<string>Blokovat uživatele</string>
 		<key>cy</key>
@@ -975,7 +975,7 @@
 		<key>fi</key>
 		<string>Estä käyttäjä</string>
 		<key>fr</key>
-		<string>Bloquer l&apos;utilisateur</string>
+		<string>Bloquer l'utilisateur</string>
 		<key>ga</key>
 		<string>Úsáideoir blocáilte</string>
 		<key>gd</key>
@@ -1108,7 +1108,7 @@
 		<key>cs</key>
 		<string>Zablokovali jste tohoto uživatele</string>
 		<key>cy</key>
-		<string>Fe wnaethoch chi rwystro&apos;r defnyddiwr hwn</string>
+		<string>Fe wnaethoch chi rwystro'r defnyddiwr hwn</string>
 		<key>da</key>
 		<string>Du blokerede denne bruger</string>
 		<key>de</key>
@@ -1134,7 +1134,7 @@
 		<key>ga</key>
 		<string>Chuir tú bac ar an úsáideoir seo</string>
 		<key>gd</key>
-		<string>Chuir thu bacadh air a&apos; chleachdaiche seo</string>
+		<string>Chuir thu bacadh air a' chleachdaiche seo</string>
 		<key>gl</key>
 		<string>Bloqueaches este usuario</string>
 		<key>gu</key>
@@ -1259,7 +1259,7 @@
 		<key>bs</key>
 		<string>Prikaz ove poruke nije uspio.</string>
 		<key>ca</key>
-		<string>No s&apos;ha pogut mostrar aquest missatge.</string>
+		<string>No s'ha pogut mostrar aquest missatge.</string>
 		<key>cs</key>
 		<string>Tuto zprávu se nepodařilo zobrazit.</string>
 		<key>cy</key>
@@ -1285,7 +1285,7 @@
 		<key>fi</key>
 		<string>Tätä viestiä ei voitu näyttää.</string>
 		<key>fr</key>
-		<string>Ce message n&apos;a pas pu être affiché.</string>
+		<string>Ce message n'a pas pu être affiché.</string>
 		<key>ga</key>
 		<string>Níorbh fhéidir an teachtaireacht seo a thaispeáint.</string>
 		<key>gd</key>
@@ -1389,7 +1389,7 @@
 		<key>ur</key>
 		<string>یہ پیغام ڈسپلے نہیں ہو سکا۔</string>
 		<key>uz</key>
-		<string>Bu xabarni ko&apos;rsatib bo&apos;lmadi.</string>
+		<string>Bu xabarni ko'rsatib bo'lmadi.</string>
 		<key>vi</key>
 		<string>Không thể hiển thị thông báo này.</string>
 		<key>yi</key>
@@ -1442,7 +1442,7 @@
 		<key>fr</key>
 		<string>⌘ a changé la photo de groupe.</string>
 		<key>ga</key>
-		<string>D&apos;athraigh ⌘ an grianghraf grúpa.</string>
+		<string>D'athraigh ⌘ an grianghraf grúpa.</string>
 		<key>gd</key>
 		<string>Dh’atharraich ⌘ dealbh na buidhne.</string>
 		<key>gl</key>
@@ -1482,7 +1482,7 @@
 		<key>lt</key>
 		<string>⌘ pakeitė grupės nuotrauką.</string>
 		<key>mg</key>
-		<string>Nanova ny sarin&apos;ny vondrona ny ⌘.</string>
+		<string>Nanova ny sarin'ny vondrona ny ⌘.</string>
 		<key>mi</key>
 		<string>I whakarerekētia e ⌘ te whakaahua rōpū.</string>
 		<key>mk</key>
@@ -1544,7 +1544,7 @@
 		<key>ur</key>
 		<string>⌘ نے گروپ فوٹو تبدیل کر دیا۔</string>
 		<key>uz</key>
-		<string>⌘ guruh rasmini o&apos;zgartirdi.</string>
+		<string>⌘ guruh rasmini o'zgartirdi.</string>
 		<key>vi</key>
 		<string>⌘ đã thay đổi ảnh nhóm.</string>
 		<key>yi</key>
@@ -2009,7 +2009,7 @@
 		<key>ur</key>
 		<string>حذف کریں۔</string>
 		<key>uz</key>
-		<string>O&apos;chirish</string>
+		<string>O'chirish</string>
 		<key>vi</key>
 		<string>Xóa bỏ</string>
 		<key>yi</key>
@@ -2164,7 +2164,7 @@
 		<key>ur</key>
 		<string>ڈیٹا کو حذف کرنا…</string>
 		<key>uz</key>
-		<string>Ma&apos;lumotlarni o&apos;chirish…</string>
+		<string>Ma'lumotlarni o'chirish…</string>
 		<key>vi</key>
 		<string>Xóa dữ liệu…</string>
 		<key>yi</key>
@@ -2193,7 +2193,7 @@
 		<key>cs</key>
 		<string>Doručeno</string>
 		<key>cy</key>
-		<string>Wedi&apos;i gyflwyno</string>
+		<string>Wedi'i gyflwyno</string>
 		<key>da</key>
 		<string>Leveret</string>
 		<key>de</key>
@@ -2654,7 +2654,7 @@
 		<key>bs</key>
 		<string>Greška uspješno prijavljena</string>
 		<key>ca</key>
-		<string>S&apos;ha notificat l&apos;error correctament</string>
+		<string>S'ha notificat l'error correctament</string>
 		<key>cs</key>
 		<string>Chyba byla úspěšně nahlášena</string>
 		<key>cy</key>
@@ -2732,7 +2732,7 @@
 		<key>mn</key>
 		<string>Алдаа амжилттай мэдээлэгдсэн</string>
 		<key>mt</key>
-		<string>Żball irrappurtat b&apos;suċċess</string>
+		<string>Żball irrappurtat b'suċċess</string>
 		<key>ne</key>
 		<string>त्रुटि सफलतापूर्वक रिपोर्ट गरियो</string>
 		<key>nl</key>
@@ -3032,7 +3032,7 @@
 		<key>lt</key>
 		<string>nuo ⌘</string>
 		<key>mg</key>
-		<string>avy amin&apos;ny ⌘</string>
+		<string>avy amin'ny ⌘</string>
 		<key>mi</key>
 		<string>mai i ⌘</string>
 		<key>mk</key>
@@ -3962,7 +3962,7 @@
 		<key>lt</key>
 		<string>⌘ paliko pokalbį.</string>
 		<key>mg</key>
-		<string>Niala tamin&apos;ny resaka i ⌘.</string>
+		<string>Niala tamin'ny resaka i ⌘.</string>
 		<key>mi</key>
 		<string>I wehe atu a ⌘ i te kōrero.</string>
 		<key>mk</key>
@@ -4049,7 +4049,7 @@
 		<key>bs</key>
 		<string>Učitavanje podataka</string>
 		<key>ca</key>
-		<string>S&apos;estan carregant les dades</string>
+		<string>S'estan carregant les dades</string>
 		<key>cs</key>
 		<string>Načítání dat</string>
 		<key>cy</key>
@@ -4179,7 +4179,7 @@
 		<key>ur</key>
 		<string>ڈیٹا لوڈ ہو رہا ہے</string>
 		<key>uz</key>
-		<string>Ma&apos;lumotlar yuklanmoqda</string>
+		<string>Ma'lumotlar yuklanmoqda</string>
 		<key>vi</key>
 		<string>Đang tải dữ liệu</string>
 		<key>yi</key>
@@ -5109,7 +5109,7 @@
 		<key>ur</key>
 		<string>کوئی نتیجہ نہیں نکلا</string>
 		<key>uz</key>
-		<string>Natija yo&apos;q</string>
+		<string>Natija yo'q</string>
 		<key>vi</key>
 		<string>Không có kết quả</string>
 		<key>yi</key>
@@ -5134,7 +5134,7 @@
 		<key>bs</key>
 		<string>Nije detektovan govor</string>
 		<key>ca</key>
-		<string>No s&apos;ha detectat cap parla</string>
+		<string>No s'ha detectat cap parla</string>
 		<key>cs</key>
 		<string>Nebyla detekována žádná řeč</string>
 		<key>cy</key>
@@ -5275,53 +5275,53 @@
 	<key>not_now</key>
 	<dict>
 		<key>af</key>
-		<string>Nie Nou Nie</string>
+		<string>Nie nou nie</string>
 		<key>ar</key>
 		<string>ليس الآن</string>
 		<key>az</key>
-		<string>İndi Yox</string>
+		<string>İndi yox</string>
 		<key>be</key>
-		<string>Не Цяпер</string>
+		<string>Не цяпер</string>
 		<key>bg</key>
-		<string>Не Сега</string>
+		<string>Не сега</string>
 		<key>bn</key>
 		<string>এখন না</string>
 		<key>bs</key>
-		<string>Ne Sada</string>
+		<string>Ne sada</string>
 		<key>ca</key>
-		<string>Ara No</string>
+		<string>Ara no</string>
 		<key>cs</key>
-		<string>Teď Ne</string>
+		<string>Teď ne</string>
 		<key>cy</key>
-		<string>Nid Nawr</string>
+		<string>Nid nawr</string>
 		<key>da</key>
-		<string>Ikke Nu</string>
+		<string>Ikke nu</string>
 		<key>de</key>
-		<string>Jetzt Nicht</string>
+		<string>Jetzt nicht</string>
 		<key>el</key>
-		<string>Όχι Τώρα</string>
+		<string>Όχι τώρα</string>
 		<key>en</key>
-		<string>Not Now</string>
+		<string>Not now</string>
 		<key>eo</key>
-		<string>Ne Nun</string>
+		<string>Ne nun</string>
 		<key>es</key>
-		<string>Ahora No</string>
+		<string>Ahora no</string>
 		<key>et</key>
-		<string>Mitte Praegu</string>
+		<string>Mitte praegu</string>
 		<key>eu</key>
-		<string>Orain Ez</string>
+		<string>Orain ez</string>
 		<key>fa</key>
 		<string>الان نه</string>
 		<key>fi</key>
-		<string>Ei Nyt</string>
+		<string>Ei nyt</string>
 		<key>fr</key>
-		<string>Pas Maintenant</string>
+		<string>Pas maintenant</string>
 		<key>ga</key>
-		<string>Ní Anois</string>
+		<string>Ní anois</string>
 		<key>gd</key>
-		<string>Chan Ann An-dràsta</string>
+		<string>Chan ann an-dràsta</string>
 		<key>gl</key>
-		<string>Agora Non</string>
+		<string>Agora non</string>
 		<key>gu</key>
 		<string>હમણાં નહીં</string>
 		<key>he</key>
@@ -5329,99 +5329,99 @@
 		<key>hi</key>
 		<string>अभी नहीं</string>
 		<key>hr</key>
-		<string>Ne Sada</string>
+		<string>Ne sada</string>
 		<key>ht</key>
-		<string>Pa Kounye A</string>
+		<string>Pa kounye a</string>
 		<key>hu</key>
-		<string>Most Nem</string>
+		<string>Most nem</string>
 		<key>hy</key>
-		<string>Ոչ Հիմա</string>
+		<string>Ոչ հիմա</string>
 		<key>id</key>
-		<string>Bukan Sekarang</string>
+		<string>Bukan sekarang</string>
 		<key>is</key>
-		<string>Ekki Núna</string>
+		<string>Ekki núna</string>
 		<key>it</key>
-		<string>Non Adesso</string>
+		<string>Non adesso</string>
 		<key>ja</key>
 		<string>今じゃない</string>
 		<key>ka</key>
-		<string>Ახლა Არა</string>
+		<string>Ახლა არა</string>
 		<key>kk</key>
-		<string>Қазір Емес</string>
+		<string>Қазір емес</string>
 		<key>kn</key>
 		<string>ಈಗಲ್ಲ</string>
 		<key>ko</key>
-		<string>지금은 안 돼요</string>
+		<string>지금은 안 돼요.</string>
 		<key>ky</key>
-		<string>Азыр Эмес</string>
+		<string>Азыр эмес</string>
 		<key>lt</key>
-		<string>Ne Dabar</string>
+		<string>Ne dabar</string>
 		<key>mg</key>
-		<string>Tsy Izao</string>
+		<string>Tsy izao</string>
 		<key>mi</key>
-		<string>Kāore I Nāianei</string>
+		<string>Kāore i nāianei</string>
 		<key>mk</key>
-		<string>Не Сега</string>
+		<string>Не сега</string>
 		<key>ml</key>
 		<string>ഇപ്പോൾ വേണ്ട</string>
 		<key>mn</key>
-		<string>Одоо Биш</string>
+		<string>Одоо биш</string>
 		<key>mt</key>
-		<string>Mhux Issa</string>
+		<string>Mhux issa</string>
 		<key>ne</key>
 		<string>अहिले होइन</string>
 		<key>nl</key>
-		<string>Niet Nu</string>
+		<string>Niet nu</string>
 		<key>no</key>
-		<string>Ikke Nå</string>
+		<string>Ikke nå</string>
 		<key>pa</key>
 		<string>ਹਾਲੇ ਨਹੀਂ</string>
 		<key>pl</key>
-		<string>Nie Teraz</string>
+		<string>Nie teraz</string>
 		<key>pt</key>
-		<string>Agora Não</string>
+		<string>Agora não</string>
 		<key>ro</key>
-		<string>Nu Acum</string>
+		<string>Nu acum</string>
 		<key>ru</key>
-		<string>Не Сейчас</string>
+		<string>Не сейчас</string>
 		<key>si</key>
 		<string>දැන් නොවේ</string>
 		<key>sk</key>
-		<string>Teraz Nie</string>
+		<string>Teraz nie</string>
 		<key>sl</key>
-		<string>Ne Zdaj</string>
+		<string>Ne zdaj</string>
 		<key>sq</key>
-		<string>Jo Tani</string>
+		<string>Jo tani</string>
 		<key>sr</key>
-		<string>Не Сада</string>
+		<string>Не сада</string>
 		<key>su</key>
-		<string>Henteu Ayeuna</string>
+		<string>Henteu ayeuna</string>
 		<key>sv</key>
-		<string>Inte Nu</string>
+		<string>Inte nu</string>
 		<key>sw</key>
-		<string>Sio Sasa</string>
+		<string>Sio sasa</string>
 		<key>ta</key>
 		<string>இப்போது இல்லை</string>
 		<key>te</key>
 		<string>ఇప్పుడు కాదు</string>
 		<key>tg</key>
-		<string>Ҳозир Не</string>
+		<string>Ҳозир не</string>
 		<key>th</key>
 		<string>ไม่ใช่ตอนนี้</string>
 		<key>tl</key>
-		<string>Hindi Ngayon</string>
+		<string>Hindi ngayon</string>
 		<key>tr</key>
-		<string>Şimdi Değil</string>
+		<string>Şimdi değil</string>
 		<key>tt</key>
-		<string>Хәзер Түгел</string>
+		<string>Хәзер түгел</string>
 		<key>uk</key>
-		<string>Не Зараз</string>
+		<string>Не зараз</string>
 		<key>ur</key>
 		<string>اب نہیں</string>
 		<key>uz</key>
-		<string>Hozir Emas</string>
+		<string>Hozir emas</string>
 		<key>vi</key>
-		<string>Không Phải Bây Giờ</string>
+		<string>Không phải bây giờ</string>
 		<key>yi</key>
 		<string>נישט איצט</string>
 		<key>zh</key>
@@ -5512,7 +5512,7 @@
 		<key>lt</key>
 		<string>Neprisijungus prie interneto</string>
 		<key>mg</key>
-		<string>Fomba ivelan&apos;ny aterineto</string>
+		<string>Fomba ivelan'ny aterineto</string>
 		<key>mi</key>
 		<string>Aratau tuimotu</string>
 		<key>mk</key>
@@ -5677,7 +5677,7 @@
 		<key>mn</key>
 		<string>In in анхны ⌘</string>
 		<key>mt</key>
-		<string>Oriġinali f &apos;⌘</string>
+		<string>Oriġinali f '⌘</string>
 		<key>ne</key>
 		<string>मूल ⌘ मा</string>
 		<key>nl</key>
@@ -5935,7 +5935,7 @@
 		<key>fi</key>
 		<string>Odota hetki…</string>
 		<key>fr</key>
-		<string>S&apos;il vous plaît attendez…</string>
+		<string>S'il vous plaît attendez…</string>
 		<key>ga</key>
 		<string>Fan le do thoil…</string>
 		<key>gd</key>
@@ -6287,7 +6287,7 @@
 		<key>lt</key>
 		<string>Reakcijos detalės…</string>
 		<key>mg</key>
-		<string>Antsipirian&apos;ny fihetsika…</string>
+		<string>Antsipirian'ny fihetsika…</string>
 		<key>mi</key>
 		<string>Ngā taipitopito tauhohenga…</string>
 		<key>mk</key>
@@ -6504,7 +6504,7 @@
 		<key>ur</key>
 		<string>دیکھا</string>
 		<key>uz</key>
-		<string>Ko&apos;rilgan</string>
+		<string>Ko'rilgan</string>
 		<key>vi</key>
 		<string>Đã xem</string>
 		<key>yi</key>
@@ -6688,7 +6688,7 @@
 		<key>cs</key>
 		<string>⌘ odstranil název konverzace.</string>
 		<key>cy</key>
-		<string>Tynnodd ⌘ enw&apos;r sgwrs.</string>
+		<string>Tynnodd ⌘ enw'r sgwrs.</string>
 		<key>da</key>
 		<string>⌘ fjernede samtalenavnet.</string>
 		<key>de</key>
@@ -6752,7 +6752,7 @@
 		<key>lt</key>
 		<string>⌘ pašalino pokalbio pavadinimą.</string>
 		<key>mg</key>
-		<string>Nesorin&apos;ny ⌘ ny anaran&apos;ny resaka.</string>
+		<string>Nesorin'ny ⌘ ny anaran'ny resaka.</string>
 		<key>mi</key>
 		<string>I tangohia e ⌘ te ingoa kōrero.</string>
 		<key>mk</key>
@@ -6843,7 +6843,7 @@
 		<key>cs</key>
 		<string>⌘ odstranil(a) ⁂ z konverzace.</string>
 		<key>cy</key>
-		<string>Tynnodd ⌘ ⁂ o&apos;r sgwrs.</string>
+		<string>Tynnodd ⌘ ⁂ o'r sgwrs.</string>
 		<key>da</key>
 		<string>⌘ fjernede ⁂ fra samtalen.</string>
 		<key>de</key>
@@ -6907,7 +6907,7 @@
 		<key>lt</key>
 		<string>⌘ pašalino ⁂ iš pokalbio.</string>
 		<key>mg</key>
-		<string>Nesorin&apos;ny ⌘ tamin&apos;ny resaka ny ⁂.</string>
+		<string>Nesorin'ny ⌘ tamin'ny resaka ny ⁂.</string>
 		<key>mi</key>
 		<string>I tangohia e ⌘ a ⁂ i te kōrerorero.</string>
 		<key>mk</key>
@@ -6961,7 +6961,7 @@
 		<key>tl</key>
 		<string>Inalis ng ⌘ ang ⁂ sa usapan.</string>
 		<key>tr</key>
-		<string>⌘, ⁂&apos;yi konuşmadan çıkardı.</string>
+		<string>⌘, ⁂'yi konuşmadan çıkardı.</string>
 		<key>tt</key>
 		<string>⌘ сөйләшүдән ⁂ны алып ташлады.</string>
 		<key>uk</key>
@@ -7062,7 +7062,7 @@
 		<key>lt</key>
 		<string>⌘ pašalino grupės nuotrauką.</string>
 		<key>mg</key>
-		<string>Nesorin&apos;ny ⌘ ny sarin&apos;ny vondrona.</string>
+		<string>Nesorin'ny ⌘ ny sarin'ny vondrona.</string>
 		<key>mi</key>
 		<string>I tangohia e ⌘ te whakaahua rōpū.</string>
 		<key>mk</key>
@@ -7153,7 +7153,7 @@
 		<key>cs</key>
 		<string>⌘ pojmenoval konverzaci ⁂.</string>
 		<key>cy</key>
-		<string>⌘ enwi&apos;r sgwrs ⁂.</string>
+		<string>⌘ enwi'r sgwrs ⁂.</string>
 		<key>da</key>
 		<string>⌘ navngav samtalen ⁂.</string>
 		<key>de</key>
@@ -7334,7 +7334,7 @@
 		<key>ga</key>
 		<string>Sonraí a dheisiú</string>
 		<key>gd</key>
-		<string>A &apos;càradh dàta</string>
+		<string>A 'càradh dàta</string>
 		<key>gl</key>
 		<string>Reparación de datos</string>
 		<key>gu</key>
@@ -7434,7 +7434,7 @@
 		<key>ur</key>
 		<string>ڈیٹا کی مرمت</string>
 		<key>uz</key>
-		<string>Ma&apos;lumotlarni ta&apos;mirlash</string>
+		<string>Ma'lumotlarni ta'mirlash</string>
 		<key>vi</key>
 		<string>Sửa chữa dữ liệu</string>
 		<key>yi</key>
@@ -7459,7 +7459,7 @@
 		<key>bs</key>
 		<string>Prijavi pogrešan prijevod</string>
 		<key>ca</key>
-		<string>Informar d&apos;una traducció incorrecta</string>
+		<string>Informar d'una traducció incorrecta</string>
 		<key>cs</key>
 		<string>Nahlásit chybný překlad</string>
 		<key>cy</key>
@@ -7589,7 +7589,7 @@
 		<key>ur</key>
 		<string>غلط ترجمہ کی اطلاع دیں</string>
 		<key>uz</key>
-		<string>Noto&apos;g&apos;ri tarjima haqida xabar bering</string>
+		<string>Noto'g'ri tarjima haqida xabar bering</string>
 		<key>vi</key>
 		<string>Báo cáo bản dịch sai</string>
 		<key>yi</key>
@@ -7640,7 +7640,7 @@
 		<key>fi</key>
 		<string>Ilmoita käyttäjästä</string>
 		<key>fr</key>
-		<string>Signaler l&apos;utilisateur</string>
+		<string>Signaler l'utilisateur</string>
 		<key>ga</key>
 		<string>Tuairiscigh úsáideoir</string>
 		<key>gd</key>
@@ -7899,7 +7899,7 @@
 		<key>ur</key>
 		<string>پیغامات کے تبادلے کے لیے رضامندی کی درخواست کریں</string>
 		<key>uz</key>
-		<string>Xabar almashish uchun rozilik so&apos;rang</string>
+		<string>Xabar almashish uchun rozilik so'rang</string>
 		<key>vi</key>
 		<string>Yêu cầu sự đồng ý để trao đổi tin nhắn</string>
 		<key>yi</key>
@@ -7928,7 +7928,7 @@
 		<key>cs</key>
 		<string>Zkusit tento překlad znovu</string>
 		<key>cy</key>
-		<string>Ail-geisio&apos;r cyfieithiad hwn</string>
+		<string>Ail-geisio'r cyfieithiad hwn</string>
 		<key>da</key>
 		<string>Prøve denne oversættelse igen</string>
 		<key>de</key>
@@ -8054,7 +8054,7 @@
 		<key>ur</key>
 		<string>اس ترجمہ کی دوبارہ کوشش کریں</string>
 		<key>uz</key>
-		<string>Ushbu tarjimani qayta sinab ko&apos;ring</string>
+		<string>Ushbu tarjimani qayta sinab ko'ring</string>
 		<key>vi</key>
 		<string>Thử lại bản dịch này</string>
 		<key>yi</key>
@@ -8083,7 +8083,7 @@
 		<key>cs</key>
 		<string>Uložit tento soubor</string>
 		<key>cy</key>
-		<string>Cadw&apos;r ffeil hon</string>
+		<string>Cadw'r ffeil hon</string>
 		<key>da</key>
 		<string>Gem denne fil</string>
 		<key>de</key>
@@ -8415,7 +8415,7 @@
 		<key>fi</key>
 		<string>Valitse suuntanumero</string>
 		<key>fr</key>
-		<string>Sélectionner l&apos;indicatif téléphonique</string>
+		<string>Sélectionner l'indicatif téléphonique</string>
 		<key>ga</key>
 		<string>Roghnaigh cód glaonna</string>
 		<key>gd</key>
@@ -8519,7 +8519,7 @@
 		<key>ur</key>
 		<string>کالنگ کوڈ منتخب کریں</string>
 		<key>uz</key>
-		<string>Qo&apos;ng&apos;iroq kodini tanlang</string>
+		<string>Qo'ng'iroq kodini tanlang</string>
 		<key>vi</key>
 		<string>Chọn mã vùng</string>
 		<key>yi</key>
@@ -8544,7 +8544,7 @@
 		<key>bs</key>
 		<string>Odaberite jezik</string>
 		<key>ca</key>
-		<string>Seleccionar l&apos;idioma</string>
+		<string>Seleccionar l'idioma</string>
 		<key>cs</key>
 		<string>Vyberte jazyk</string>
 		<key>cy</key>
@@ -8854,7 +8854,7 @@
 		<key>bs</key>
 		<string>Promjena jezika…</string>
 		<key>ca</key>
-		<string>Canviant l&apos;idioma…</string>
+		<string>Canviant l'idioma…</string>
 		<key>cs</key>
 		<string>Změna jazyka…</string>
 		<key>cy</key>
@@ -8984,7 +8984,7 @@
 		<key>ur</key>
 		<string>زبان بدل رہی ہے…</string>
 		<key>uz</key>
-		<string>Tilni o&apos;zgartirish…</string>
+		<string>Tilni o'zgartirish…</string>
 		<key>vi</key>
 		<string>Đang đổi ngôn ngữ…</string>
 		<key>yi</key>
@@ -9033,7 +9033,7 @@
 		<key>fa</key>
 		<string>برای لغو اسلاید کنید</string>
 		<key>fi</key>
-		<string>Peruuta liu&apos;uttamalla</string>
+		<string>Peruuta liu'uttamalla</string>
 		<key>fr</key>
 		<string>Faites glisser pour annuler</string>
 		<key>ga</key>
@@ -9190,7 +9190,7 @@
 		<key>fi</key>
 		<string>Joku</string>
 		<key>fr</key>
-		<string>Quelqu&apos;un</string>
+		<string>Quelqu'un</string>
 		<key>ga</key>
 		<string>Duine éigin</string>
 		<key>gd</key>
@@ -9397,7 +9397,7 @@
 		<key>mn</key>
 		<string>Чангаар унших</string>
 		<key>mt</key>
-		<string>Aqra b&apos;leħen għoli</string>
+		<string>Aqra b'leħen għoli</string>
 		<key>ne</key>
 		<string>ठूलो स्वरले पढ्नुहोस्</string>
 		<key>nl</key>
@@ -9449,7 +9449,7 @@
 		<key>ur</key>
 		<string>بلند آواز سے پڑھیں</string>
 		<key>uz</key>
-		<string>Ovoz chiqarib o&apos;qing</string>
+		<string>Ovoz chiqarib o'qing</string>
 		<key>vi</key>
 		<string>Đọc to</string>
 		<key>yi</key>
@@ -9604,7 +9604,7 @@
 		<key>ur</key>
 		<string>پڑھنا بند کرو</string>
 		<key>uz</key>
-		<string>O&apos;qishni to&apos;xtating</string>
+		<string>O'qishni to'xtating</string>
 		<key>vi</key>
 		<string>Ngừng đọc</string>
 		<key>yi</key>
@@ -9810,7 +9810,7 @@
 		<key>fi</key>
 		<string>Tänään</string>
 		<key>fr</key>
-		<string>Aujourd&apos;hui</string>
+		<string>Aujourd'hui</string>
 		<key>ga</key>
 		<string>Inniu</string>
 		<key>gd</key>
@@ -10017,7 +10017,7 @@
 		<key>mn</key>
 		<string>Translation in ⌘</string>
 		<key>mt</key>
-		<string>Traduzzjoni f &apos;⌘</string>
+		<string>Traduzzjoni f '⌘</string>
 		<key>ne</key>
 		<string>⌘ मा अनुवाद</string>
 		<key>nl</key>
@@ -10472,7 +10472,7 @@
 		<key>lt</key>
 		<string>Peržiūrėti kaip garso įrašą</string>
 		<key>mg</key>
-		<string>Jereo amin&apos;ny feo</string>
+		<string>Jereo amin'ny feo</string>
 		<key>mi</key>
 		<string>Tirohia hei oro</string>
 		<key>mk</key>
@@ -10534,7 +10534,7 @@
 		<key>ur</key>
 		<string>آڈیو کے بطور دیکھیں</string>
 		<key>uz</key>
-		<string>Audio sifatida ko&apos;rish</string>
+		<string>Audio sifatida ko'rish</string>
 		<key>vi</key>
 		<string>Xem dưới dạng âm thanh</string>
 		<key>yi</key>
@@ -10559,7 +10559,7 @@
 		<key>bs</key>
 		<string>Pogledajte original</string>
 		<key>ca</key>
-		<string>Veure l&apos;original</string>
+		<string>Veure l'original</string>
 		<key>cs</key>
 		<string>Zobrazit originál</string>
 		<key>cy</key>
@@ -10585,7 +10585,7 @@
 		<key>fi</key>
 		<string>Näytä alkuperäinen</string>
 		<key>fr</key>
-		<string>Voir l&apos;original</string>
+		<string>Voir l'original</string>
 		<key>ga</key>
 		<string>Féach ar an mbunleagan</string>
 		<key>gd</key>
@@ -10689,7 +10689,7 @@
 		<key>ur</key>
 		<string>اصل دیکھیں</string>
 		<key>uz</key>
-		<string>Asl nusxasini ko&apos;rish</string>
+		<string>Asl nusxasini ko'rish</string>
 		<key>vi</key>
 		<string>Xem bản gốc</string>
 		<key>yi</key>
@@ -10844,7 +10844,7 @@
 		<key>ur</key>
 		<string>نقل دیکھیں</string>
 		<key>uz</key>
-		<string>Transkripsiyani ko&apos;rish</string>
+		<string>Transkripsiyani ko'rish</string>
 		<key>vi</key>
 		<string>Xem bản ghi</string>
 		<key>yi</key>
@@ -10999,7 +10999,7 @@
 		<key>ur</key>
 		<string>ترجمہ دیکھیں</string>
 		<key>uz</key>
-		<string>Tarjimani ko&apos;rish</string>
+		<string>Tarjimani ko'rish</string>
 		<key>vi</key>
 		<string>Xem bản dịch</string>
 		<key>yi</key>
@@ -11092,7 +11092,7 @@
 		<key>lt</key>
 		<string>Sveiki atvykę į Hello</string>
 		<key>mg</key>
-		<string>Tongasoa eto amin&apos;ny Hello</string>
+		<string>Tongasoa eto amin'ny Hello</string>
 		<key>mi</key>
 		<string>Nau mai ki Hello</string>
 		<key>mk</key>
@@ -11102,7 +11102,7 @@
 		<key>mn</key>
 		<string>Тавтай морил Hello</string>
 		<key>mt</key>
-		<string>Merħba f&apos;Hello</string>
+		<string>Merħba f'Hello</string>
 		<key>ne</key>
 		<string>Hello मा स्वागत छ</string>
 		<key>nl</key>

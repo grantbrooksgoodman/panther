@@ -19,7 +19,10 @@ extension ChatInfoPageViewService {
     /// `.penPalParticipantViewTapped`
     /// `.penPalsSharingDataSwitchToggledOn`
     /// - Returns: `true` if the user selected the confirmation option.
-    func presentPenPalsSharingDataConfirmationActionSheet(_ userID: String, displayName: String) async -> ConversationMetadata? {
+    func presentPenPalsSharingDataConfirmationActionSheet(
+        _ userID: String,
+        displayName: String
+    ) async -> ConversationMetadata? {
         await withCheckedContinuation { continuation in
             presentPenPalsSharingDataConfirmationActionSheet(userID, displayName: displayName) { userID in
                 continuation.resume(returning: userID)
@@ -78,7 +81,10 @@ extension ChatInfoPageViewService {
     // MARK: - Show PenPals Sharing Status Toast
 
     /// `.penPalParticipantViewTapped`
-    func showPenPalsSharingStatusToast(_ userID: String, displayName: String) async {
+    func showPenPalsSharingStatusToast(
+        _ userID: String,
+        displayName: String
+    ) async {
         Toast.show(
             .init(
                 .banner(style: .info, appearanceEdge: .bottom),

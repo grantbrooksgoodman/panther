@@ -12,7 +12,9 @@ import UIKit
 
 extension CALayer {
     func animate(
-        keyPath: WritableKeyPath<CALayer, some Any>, toValue: Float, duration: TimeInterval
+        keyPath: WritableKeyPath<CALayer, some Any>,
+        toValue: Float,
+        duration: TimeInterval
     ) {
         let keyString = NSExpression(forKeyPath: keyPath).keyPath
         let animation = CABasicAnimation(keyPath: keyString)
@@ -24,7 +26,10 @@ extension CALayer {
         add(animation, forKey: animation.keyPath)
     }
 
-    func applyShadow(_ parameters: ShadowParameters, overrideOpacity: Float? = nil) {
+    func applyShadow(
+        _ parameters: ShadowParameters,
+        overrideOpacity: Float? = nil
+    ) {
         shadowColor = parameters.color
         shadowOffset = parameters.offset
         shadowRadius = parameters.radius

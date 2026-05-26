@@ -139,7 +139,9 @@ struct Message: Codable, EncodedHashable, Hashable {
     private func getReactions() -> [Reaction]? {
         @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
         guard let reactionMetadata = conversation?.reactionMetadata,
-              let reactions = reactionMetadata.first(where: { $0.messageID == id })?.reactions else { return nil }
+              let reactions = reactionMetadata.first(where: {
+                  $0.messageID == id
+              })?.reactions else { return nil }
         return reactions
     }
 }

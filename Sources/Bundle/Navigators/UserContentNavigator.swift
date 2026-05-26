@@ -34,7 +34,10 @@ struct UserContentNavigatorState: NavigatorState {
 }
 
 enum UserContentNavigator {
-    static func navigate(to route: RootNavigationService.Route.UserContentRoute, on state: inout UserContentNavigatorState) {
+    static func navigate(
+        to route: RootNavigationService.Route.UserContentRoute,
+        on state: inout UserContentNavigatorState
+    ) {
         switch route {
         case .pop:
             guard !state.stack.isEmpty else { return }

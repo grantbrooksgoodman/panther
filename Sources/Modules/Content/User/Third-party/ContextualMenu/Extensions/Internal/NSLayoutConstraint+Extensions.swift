@@ -11,7 +11,10 @@ import Foundation
 import UIKit
 
 extension NSLayoutConstraint {
-    static func keeping(view: UIView, insideFrameOf contentView: UIView) -> [NSLayoutConstraint] {
+    static func keeping(
+        view: UIView,
+        insideFrameOf contentView: UIView
+    ) -> [NSLayoutConstraint] {
         [
             // Keep accessory view above view top
             view.topAnchor.constraint(

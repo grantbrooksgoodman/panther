@@ -39,7 +39,10 @@ extension UIView {
 
 extension UIView {
     /// Apply a scaling transformation from an anchorPoint
-    func applyTransform(scale: CGFloat, anchorPoint: CGPoint) {
+    func applyTransform(
+        scale: CGFloat,
+        anchorPoint: CGPoint
+    ) {
         layer.anchorPoint = anchorPoint
         let xPadding = 1 / scale * (anchorPoint.x - 0.5) * bounds.width
         let yPadding = 1 / scale * (anchorPoint.y - 0.5) * bounds.height

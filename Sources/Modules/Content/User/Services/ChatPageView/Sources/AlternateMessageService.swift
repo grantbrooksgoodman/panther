@@ -66,7 +66,10 @@ final class AlternateMessageService {
 
     // MARK: - Toggle
 
-    func toggle(_ type: AlternateMessageType, for cell: MessageContentCell) {
+    func toggle(
+        _ type: AlternateMessageType,
+        for cell: MessageContentCell
+    ) {
         @Dependency(\.commonServices.analytics) var analytics: AnalyticsService
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
 

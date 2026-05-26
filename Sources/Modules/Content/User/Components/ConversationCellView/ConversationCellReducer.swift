@@ -91,7 +91,10 @@ struct ConversationCellReducer: Reducer {
 
     // MARK: - Reduce
 
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(
+        into state: inout State,
+        action: Action
+    ) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             guard let cellViewData = ConversationCellViewData(
@@ -138,7 +141,10 @@ struct ConversationCellReducer: Reducer {
                 return .none
             }
 
-            Logger.log(exception, with: .toast)
+            Logger.log(
+                exception,
+                with: .toast
+            )
 
         case let .deletionActionSheetDismissed(cancelled: cancelled):
             guard !cancelled else { return .none }

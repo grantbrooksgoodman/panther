@@ -28,7 +28,10 @@ struct UserInfoBadgeView: View {
 
     // MARK: - Init
 
-    init(_ user: User, action: (() -> Void)? = nil) {
+    init(
+        _ user: User,
+        action: (() -> Void)? = nil
+    ) {
         self.user = user
         self.action = action
 

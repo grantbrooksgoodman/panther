@@ -35,7 +35,10 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
 
     // MARK: - Configure Audio Cell
 
-    func configureAudioCell(_ cell: AudioMessageCell, message: MessageType) {
+    func configureAudioCell(
+        _ cell: AudioMessageCell,
+        message: MessageType
+    ) {
         @Dependency(\.chatPageViewService.audioMessagePlayback) var audioMessagePlaybackService: AudioMessagePlaybackService?
         guard let message = message as? Message else { return }
 

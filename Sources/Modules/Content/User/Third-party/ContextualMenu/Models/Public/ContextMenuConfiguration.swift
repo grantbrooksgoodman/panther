@@ -30,7 +30,10 @@ struct ContextMenuConfiguration {
 
     // MARK: - Init
 
-    init(accessoryView: UIView? = nil, menu: Menu) {
+    init(
+        accessoryView: UIView? = nil,
+        menu: Menu
+    ) {
         self.accessoryView = accessoryView
         self.menu = menu
     }

@@ -87,7 +87,10 @@ extension DevModeAction {
                 }
             }
 
-            return .init(title: "Create New Random Messages", perform: createNewMessages)
+            return DevModeAction(
+                title: "Create New Random Messages",
+                perform: createNewMessages
+            )
         }
 
         private static var dangerZoneAction: DevModeAction {
@@ -129,7 +132,11 @@ extension DevModeAction {
                 }
             }
 
-            return .init(title: "Danger Zone", isDestructive: true, perform: dangerZone)
+            return DevModeAction(
+                title: "Danger Zone",
+                isDestructive: true,
+                perform: dangerZone
+            )
         }
 
         private static var setCurrentUserIDAction: DevModeAction {
@@ -158,7 +165,10 @@ extension DevModeAction {
                 }
             }
 
-            return .init(title: "Set Current User ID", perform: setCurrentUserID)
+            return DevModeAction(
+                title: "Set Current User ID",
+                perform: setCurrentUserID
+            )
         }
 
         private static var triggerForcedUpdateModalAction: DevModeAction {
@@ -168,7 +178,10 @@ extension DevModeAction {
                 updateService.isForcedUpdateRequiredSubject.send(true)
             }
 
-            return .init(title: "Trigger Forced Update Modal", perform: triggerForcedUpdateModal)
+            return DevModeAction(
+                title: "Trigger Forced Update Modal",
+                perform: triggerForcedUpdateModal
+            )
         }
 
         private static var validateDatabaseIntegrityAction: DevModeAction {
@@ -191,7 +204,7 @@ extension DevModeAction {
                 }
             }
 
-            return .init(
+            return DevModeAction(
                 title: "Validate Database Integrity",
                 perform: validateDatabaseIntegrity
             )

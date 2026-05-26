@@ -91,7 +91,10 @@ extension ContextMenuViewController: ContextMenuAnimatable {
 }
 
 extension ContextMenuViewController: MenuViewDelegate {
-    func dismissMenuView(menuView: MenuView, uponTapping menuElement: MenuElement) {
+    func dismissMenuView(
+        menuView: MenuView,
+        uponTapping menuElement: MenuElement
+    ) {
         delegate?.dismissContextMenuViewController(self, interaction: interaction, uponTapping: menuElement)
     }
 }
@@ -108,7 +111,10 @@ extension ContextMenuViewController {
 
         /* MARK: Init */
 
-        init(fixed: [NSLayoutConstraint], animatable: [NSLayoutConstraint]) {
+        init(
+            fixed: [NSLayoutConstraint],
+            animatable: [NSLayoutConstraint]
+        ) {
             self.fixed = fixed
             self.animatable = animatable
         }

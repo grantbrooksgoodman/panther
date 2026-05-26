@@ -204,10 +204,14 @@ extension Message: Serializable {
         let translationReferences = referenceStrings.compactMap { TranslationReference($0) }
         var filteredReferences = translationReferences
 
-        let firstMatchingSource = filteredReferences.first(where: { $0.languagePair.from == languageCode })
+        let firstMatchingSource = filteredReferences.first(where: {
+            $0.languagePair.from == languageCode
+        })
         let firstNearlyMatchingSource = filteredReferences.first(where: \.languagePair.from.isUserReadableLanguageCode)
 
-        let firstMatchingTarget = filteredReferences.first(where: { $0.languagePair.to == languageCode })
+        let firstMatchingTarget = filteredReferences.first(where: {
+            $0.languagePair.to == languageCode
+        })
         let firstNearlyMatchingTarget = filteredReferences.first(where: \.languagePair.to.isUserReadableLanguageCode)
 
         var reference = firstMatchingTarget ?? firstMatchingSource ?? firstNearlyMatchingTarget ?? firstNearlyMatchingSource

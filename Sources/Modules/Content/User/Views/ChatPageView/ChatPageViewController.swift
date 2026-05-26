@@ -25,7 +25,10 @@ final class ChatPageViewController: MessagesViewController {
 
     // MARK: - Init
 
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+    override init(
+        nibName nibNameOrNil: String?,
+        bundle nibBundleOrNil: Bundle?
+    ) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
 

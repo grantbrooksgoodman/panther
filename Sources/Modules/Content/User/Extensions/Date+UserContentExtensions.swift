@@ -20,7 +20,10 @@ extension Date {
     var chatPageMessageSeparatorAttributedDateString: NSAttributedString? {
         typealias Floats = AppConstants.CGFloats.UserContentExtensions.Date
 
-        func attributedForChatPageMessageSeparator(_ string: String, separatorIndex: Int) -> NSAttributedString {
+        func attributedForChatPageMessageSeparator(
+            _ string: String,
+            separatorIndex: Int
+        ) -> NSAttributedString {
             let attributed = NSMutableAttributedString(string: string)
 
             typealias Colors = AppConstants.Colors.UserContentExtensions.Date

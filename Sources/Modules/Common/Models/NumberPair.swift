@@ -18,7 +18,10 @@ struct NumberPair: Codable, Hashable {
 
     // MARK: - Init
 
-    init(phoneNumber: PhoneNumber, users: [User]) {
+    init(
+        phoneNumber: PhoneNumber,
+        users: [User]
+    ) {
         assert(!users.isEmpty, "Initialized NumberPair with empty User array")
         self.phoneNumber = phoneNumber
         self.users = users

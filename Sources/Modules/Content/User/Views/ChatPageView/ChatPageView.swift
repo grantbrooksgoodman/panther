@@ -45,7 +45,10 @@ struct ChatPageView: UIViewControllerRepresentable {
 
         /* MARK: Equatable Conformance */
 
-        static func == (left: Configuration, right: Configuration) -> Bool {
+        static func == (
+            left: Configuration,
+            right: Configuration
+        ) -> Bool {
             switch (left, right) {
             case(.default, .default),
                  (.newChat, .newChat),
@@ -101,5 +104,6 @@ struct ChatPageView: UIViewControllerRepresentable {
     ) {
         guard additionalTopInset > 0 else { return }
         uiViewController.additionalSafeAreaInsets.top = additionalTopInset
+        viewService.deliveryProgressIndicator?.updateYOrigin(additionalTopInset)
     }
 }

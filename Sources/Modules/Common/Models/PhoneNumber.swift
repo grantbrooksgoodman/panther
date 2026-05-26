@@ -77,7 +77,9 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
 
         if let possibleCallingCodes = services.phoneNumber.possibleCallingCodes(for: numberValue),
            possibleCallingCodes.contains(services.phoneNumber.deviceCallingCode) || possibleCallingCodes.count == 1,
-           let derivedCallingCode = possibleCallingCodes.first(where: { $0 == services.phoneNumber.deviceCallingCode }) ?? possibleCallingCodes.first,
+           let derivedCallingCode = possibleCallingCodes.first(where: {
+               $0 == services.phoneNumber.deviceCallingCode
+           }) ?? possibleCallingCodes.first,
            !derivedCallingCode.isBlank {
             callingCode = derivedCallingCode
         } else if let internalFormattedString,
@@ -140,7 +142,10 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
 
     // MARK: - Formatted Strings
 
-    func formattedString(regionCode: String? = nil, useFailsafe: Bool = true) -> String {
+    func formattedString(
+        regionCode: String? = nil,
+        useFailsafe: Bool = true
+    ) -> String {
         let regionCode = regionCode ?? self.regionCode
 
         if let formattedStringRegionCode,
@@ -238,7 +243,10 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
 
     // MARK: - Equatable Conformance
 
-    static func == (left: PhoneNumber, right: PhoneNumber) -> Bool {
+    static func == (
+        left: PhoneNumber,
+        right: PhoneNumber
+    ) -> Bool {
         left.hashFactors == right.hashFactors
     }
 

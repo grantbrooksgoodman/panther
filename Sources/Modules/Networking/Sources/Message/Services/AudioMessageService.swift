@@ -45,7 +45,6 @@ struct AudioMessageService {
 
     // MARK: - Delete Input Audio Component
 
-    // TODO: This is inefficient. Rewrite with Message as the argument.
     func deleteInputAudioComponent(
         for messageID: String
     ) async throws(Exception) {

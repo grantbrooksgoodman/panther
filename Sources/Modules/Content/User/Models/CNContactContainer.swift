@@ -18,12 +18,18 @@ struct CNContactContainer: Equatable {
 
     // MARK: - Init
 
-    init(_ cnContact: CNMutableContact, isUnknown: Bool) {
+    init(
+        _ cnContact: CNMutableContact,
+        isUnknown: Bool
+    ) {
         self.cnContact = cnContact
         self.isUnknown = isUnknown
     }
 
-    init?(_ cnContact: CNMutableContact?, isUnknown: Bool = false) {
+    init?(
+        _ cnContact: CNMutableContact?,
+        isUnknown: Bool = false
+    ) {
         guard let cnContact else { return nil }
         self.init(cnContact, isUnknown: isUnknown)
     }

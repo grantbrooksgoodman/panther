@@ -14,6 +14,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 struct SignInPageReducer: Reducer {
     // MARK: - Dependencies
 
@@ -109,7 +110,10 @@ struct SignInPageReducer: Reducer {
     // MARK: - Reduce
 
     // swiftlint:disable:next function_body_length
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(
+        into state: inout State,
+        action: Action
+    ) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
@@ -187,7 +191,10 @@ struct SignInPageReducer: Reducer {
                 )
             }
 
-            Logger.log(exception, with: .toast)
+            Logger.log(
+                exception,
+                with: .toast
+            )
 
         case let .authenticateUserReturned(userID):
             coreUI.removeOverlay()
@@ -303,7 +310,10 @@ struct SignInPageReducer: Reducer {
                 )
             }
 
-            Logger.log(exception, with: .toast)
+            Logger.log(
+                exception,
+                with: .toast
+            )
 
         case let .verifyPhoneNumberReturned(authID):
             coreUI.removeOverlay()

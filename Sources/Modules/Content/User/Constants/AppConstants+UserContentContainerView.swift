@@ -19,6 +19,7 @@ extension AppConstants.CGFloats {
         static let chatInfoToolbarButtonFrameMinHeight: CGFloat = 30
         static let chatInfoToolbarButtonFrameMinWidth: CGFloat = 30
         static let chatPageHeaderContentHeight: CGFloat = 105
+        static let chatPageHeaderContentHeightIncrement: CGFloat = 5
     }
 }
 

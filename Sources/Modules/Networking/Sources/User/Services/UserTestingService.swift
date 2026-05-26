@@ -149,10 +149,8 @@ struct UserTestingService {
         navigation.navigate(to: .root(.modal(.splash)))
         core.ui.removeOverlay()
         Task.delayed(by: .seconds(1)) { @MainActor in
-            let loggerMessage = "Created \(originalCount) new message\(originalCount == 1 ? "" : "s")"
-            core.hud.showSuccess(text: loggerMessage)
             Logger.log(
-                "\(loggerMessage).",
+                "Created \(originalCount) new message\(originalCount == 1 ? "" : "s").",
                 with: .toastInPrerelease(
                     style: .success,
                     isPersistent: true

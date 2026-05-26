@@ -123,7 +123,10 @@ private enum _ContactImageCache {
 }
 
 private extension UIImage {
-    convenience init?(data: Data?, id: String) {
+    convenience init?(
+        data: Data?,
+        id: String
+    ) {
         guard let data else { return nil }
         if var cachedImagesForContactIDs = _ContactImageCache.cachedImagesForContactIDs {
             cachedImagesForContactIDs[id] = .init(data: data)

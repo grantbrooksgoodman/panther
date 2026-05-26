@@ -35,7 +35,10 @@ struct OnboardingNavigatorState: NavigatorState {
 }
 
 enum OnboardingNavigator {
-    static func navigate(to route: RootNavigationService.Route.OnboardingRoute, on state: inout OnboardingNavigatorState) {
+    static func navigate(
+        to route: RootNavigationService.Route.OnboardingRoute,
+        on state: inout OnboardingNavigatorState
+    ) {
         switch route {
         case .pop:
             guard !state.stack.isEmpty else { return }

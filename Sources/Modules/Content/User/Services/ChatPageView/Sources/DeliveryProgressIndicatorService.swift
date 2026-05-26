@@ -81,6 +81,10 @@ final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
         }
     }
 
+    func updateYOrigin(_ yOrigin: CGFloat) {
+        progressView?.frame.origin.y = yOrigin
+    }
+
     // MARK: - Auxiliary
 
     private func instantiateAppearanceTimer() {

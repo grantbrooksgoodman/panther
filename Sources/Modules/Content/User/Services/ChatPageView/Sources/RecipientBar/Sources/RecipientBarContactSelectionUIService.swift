@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-@MainActor
+@MainActor // swiftlint:disable:next type_body_length
 final class RecipientBarContactSelectionUIService {
     // MARK: - Constants Accessors
 
@@ -75,13 +75,18 @@ final class RecipientBarContactSelectionUIService {
         }
 
         let range = (1 ... Int(Floats.sublevelCount)).reversed()
-        guard let sublevel = range.first(where: { configService.firstContactView(.furthestTrailing(onSublevel: $0)) != nil }) else { return }
+        guard let sublevel = range.first(where: {
+            configService.firstContactView(.furthestTrailing(onSublevel: $0)) != nil
+        }) else { return }
         view = configService.firstContactView(.furthestTrailing(onSublevel: sublevel))
         configService.reconfigureRecipientBar(forSublevel: sublevel)
         configService.reconfigureCollectionView()
     }
 
-    func selectContactPair(_ contactPair: ContactPair, performInputBarFix: Bool = false) {
+    func selectContactPair(
+        _ contactPair: ContactPair,
+        performInputBarFix: Bool = false
+    ) {
         guard !contactPair.containsBlockedUser else {
             Logger.log(
                 .init(
@@ -306,7 +311,10 @@ final class RecipientBarContactSelectionUIService {
 
     // MARK: - View Builders
 
-    private func buildContactView(_ text: String, useRedTextColor: Bool) -> UIView? {
+    private func buildContactView(
+        _ text: String,
+        useRedTextColor: Bool
+    ) -> UIView? {
         guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView,
               let toLabel = chatPageViewService.recipientBar?.layout.toLabel else { return nil }
 

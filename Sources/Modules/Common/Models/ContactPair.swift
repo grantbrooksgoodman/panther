@@ -19,7 +19,10 @@ struct ContactPair: Codable, Hashable {
 
     // MARK: - Init
 
-    init(contact: Contact, numberPairs: [NumberPair]) {
+    init(
+        contact: Contact,
+        numberPairs: [NumberPair]
+    ) {
         assert(!numberPairs.isEmpty, "Initialized ContactPair with empty NumberPair array")
         self.contact = contact
         self.numberPairs = numberPairs

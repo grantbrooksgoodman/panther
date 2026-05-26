@@ -56,7 +56,10 @@ struct ChatPageViewControllerFactory {
 
     // MARK: - UI Configuration
 
-    func configureRecipientBar(_ viewController: ChatPageViewController, service: RecipientBarService) {
+    func configureRecipientBar(
+        _ viewController: ChatPageViewController,
+        service: RecipientBarService
+    ) {
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.Layout
         typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.Layout
 

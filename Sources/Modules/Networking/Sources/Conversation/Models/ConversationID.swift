@@ -17,7 +17,10 @@ struct ConversationID: Codable, Hashable {
 
     // MARK: - Init
 
-    init(key: String, hash: String) {
+    init(
+        key: String,
+        hash: String
+    ) {
         self.key = key
         self.hash = hash
     }

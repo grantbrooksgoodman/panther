@@ -37,7 +37,10 @@ struct PhoneNumberTextField: View {
 
     // MARK: - Init
 
-    init(_ text: Binding<String>, regionCode: Binding<String>) {
+    init(
+        _ text: Binding<String>,
+        regionCode: Binding<String>
+    ) {
         _text = text
         _regionCode = regionCode
     }

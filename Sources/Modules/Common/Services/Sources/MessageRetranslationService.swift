@@ -68,7 +68,10 @@ struct MessageRetranslationService {
         coreHUD.showProgress(isModal: true)
         defer { coreHUD.hide() }
 
-        var attemptedPlatforms: Set<TranslationPlatform> = Set(retranslatedMessageIDs?[message.id] ?? [])
+        var attemptedPlatforms: Set<TranslationPlatform> = Set(
+            retranslatedMessageIDs?[message.id] ?? []
+        )
+
         while let platform = TranslationPlatform
             .allCases
             .sorted(by: { $0.orderValue < $1.orderValue })
@@ -145,7 +148,7 @@ struct MessageRetranslationService {
                     }
                 }
 
-                showSuccessToast(
+                return showSuccessToast(
                     translationReferenceHostingKey: translation.reference.hostingKey,
                     sameRetranslationResult: false
                 )

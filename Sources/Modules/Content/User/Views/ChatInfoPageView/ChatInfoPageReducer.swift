@@ -192,7 +192,10 @@ struct ChatInfoPageReducer: Reducer {
     // MARK: - Reduce
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(
+        into state: inout State,
+        action: Action
+    ) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
@@ -229,7 +232,10 @@ struct ChatInfoPageReducer: Reducer {
             navigation.navigate(to: .chat(.sheet(.none)))
 
             if let exception {
-                Logger.log(exception, with: .toast)
+                Logger.log(
+                    exception,
+                    with: .toast
+                )
             }
 
             if !Application.isInPrevaricationMode,
@@ -395,7 +401,10 @@ struct ChatInfoPageReducer: Reducer {
             navigation.navigate(to: .chat(.sheet(.none)))
 
             if let exception {
-                Logger.log(exception, with: .toast)
+                Logger.log(
+                    exception,
+                    with: .toast
+                )
             }
 
             if !Application.isInPrevaricationMode,
@@ -450,7 +459,11 @@ struct ChatInfoPageReducer: Reducer {
             viewService.traitCollectionChanged()
 
         case let .updateMetadataFailed(exception):
-            Logger.log(exception, with: .toast)
+            Logger.log(
+                exception,
+                with: .toast
+            )
+
             state.isChangeMetadataButtonEnabled = true
 
         case let .updateMetadataReturned(conversation, togglePenPalsDataSharingSwitch):

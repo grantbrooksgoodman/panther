@@ -362,14 +362,9 @@ final class MediaActionHandlerService {
         switch callback {
         case let .success(result):
             switch result {
-            case let .document(url):
-                try await processAndSendDocument(url)
-
-            case let .image(image):
-                try await processAndSendImage(image)
-
-            case let .video(url):
-                try await processAndSendVideo(url)
+            case let .document(url): try await processAndSendDocument(url)
+            case let .image(image): try await processAndSendImage(image)
+            case let .video(url): try await processAndSendVideo(url)
             }
 
         case let .failure(exception):

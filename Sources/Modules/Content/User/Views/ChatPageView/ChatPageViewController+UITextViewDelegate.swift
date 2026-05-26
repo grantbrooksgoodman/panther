@@ -22,7 +22,9 @@ extension ChatPageViewController: UITextViewDelegate {
     override var textInputMode: UITextInputMode? {
         .activeInputModes
             .filter { $0.primaryLanguage != nil }
-            .first(where: { $0.primaryLanguage!.lowercased().hasPrefix(RuntimeStorage.languageCode) })
+            .first(where: {
+                $0.primaryLanguage!.lowercased().hasPrefix(RuntimeStorage.languageCode)
+            })
     }
 
     // MARK: - Should Begin Editing
@@ -58,7 +60,11 @@ extension ChatPageViewController: UITextViewDelegate {
 
     // MARK: - Should Change Text in Range
 
-    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+    func textView(
+        _ textView: UITextView,
+        shouldChangeTextIn range: NSRange,
+        replacementText text: String
+    ) -> Bool {
         @Dependency(\.commonServices.audio.recording) var recordingService: RecordingService
         return !recordingService.isInOrWillTransitionToRecordingState
     }

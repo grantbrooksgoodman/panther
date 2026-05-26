@@ -165,7 +165,7 @@ extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
                 }
             }
 
-            return .init(
+            return DevModeAction(
                 title: "Delete Conversations",
                 isDestructive: true,
                 perform: deleteConversations
@@ -173,14 +173,14 @@ extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
         }
 
         static var destroyConversationDatabaseAction: DevModeAction {
-            .init(
+            DevModeAction(
                 title: Action.destroyConversationDatabase.confirmationAlertTitle,
                 isDestructive: true
             ) { performAction(.destroyConversationDatabase) }
         }
 
         static var resetPushTokensAction: DevModeAction {
-            .init(
+            DevModeAction(
                 title: Action.resetPushTokens.confirmationAlertTitle,
                 isDestructive: true
             ) { performAction(.resetPushTokens) }

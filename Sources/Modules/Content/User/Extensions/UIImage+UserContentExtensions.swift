@@ -84,7 +84,10 @@ extension UIImage {
 
     // MARK: - Methods
 
-    func dataCompressed(toKB kilobytes: Int, toleratedMarginOfError: CGFloat = 0.2) -> Data? {
+    func dataCompressed(
+        toKB kilobytes: Int,
+        toleratedMarginOfError: CGFloat = 0.2
+    ) -> Data? {
         var compressedData: Data?
         var currentKilobytes = kilobytes
 
@@ -132,7 +135,10 @@ extension UIImage {
         return UIGraphicsGetImageFromCurrentImageContext()
     }
 
-    private func resized(toPercentage percentage: CGFloat, isOpaque: Bool = true) -> UIImage? {
+    private func resized(
+        toPercentage percentage: CGFloat,
+        isOpaque: Bool = true
+    ) -> UIImage? {
         let imageSize = CGSize(width: size.width * percentage, height: size.height * percentage)
         let format = imageRendererFormat
         format.opaque = isOpaque
@@ -141,7 +147,10 @@ extension UIImage {
         }
     }
 
-    private func _dataCompressed(toKB kilobytes: Int, toleratedMarginOfError: CGFloat) -> Data? {
+    private func _dataCompressed(
+        toKB kilobytes: Int,
+        toleratedMarginOfError: CGFloat
+    ) -> Data? {
         let bytes = kilobytes * 1024
         let step: CGFloat = 0.05
 

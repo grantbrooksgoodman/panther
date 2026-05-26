@@ -238,7 +238,9 @@ final class AccountDeletionService: @unchecked Sendable {
             let statusString = Localized(.deletingData).wrappedValue
             let progressLabel = presentedViews
                 .compactMap { $0 as? UILabel }
-                .first(where: { $0.text?.contains(statusString) == true })
+                .first(where: {
+                    $0.text?.contains(statusString) == true
+                })
 
             let roundedValue = completionPercent.roundedString
             guard let integer = Int(roundedValue),

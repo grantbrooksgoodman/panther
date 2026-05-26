@@ -259,9 +259,7 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
         try await decodedConversations.merge(
             with: conversationsNeedingUpdate.parallelMap {
                 @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
-                return try await conversationSyncService.synchronizeConversation(
-                    $0
-                )
+                return try await conversationSyncService.synchronizeConversation($0)
             }
         )
 
@@ -290,7 +288,10 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
 
     // MARK: - Equatable Conformance
 
-    static func == (left: User, right: User) -> Bool {
+    static func == (
+        left: User,
+        right: User
+    ) -> Bool {
         left.encodedHash == right.encodedHash
     }
 

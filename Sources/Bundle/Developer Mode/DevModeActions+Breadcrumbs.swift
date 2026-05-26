@@ -54,7 +54,7 @@ extension DevModeAction.AppActions {
                 }
             }
 
-            return .init(
+            return DevModeAction(
                 title: "Manage Breadcrumbs Capture",
                 perform: manageBreadcrumbsCapture
             )
