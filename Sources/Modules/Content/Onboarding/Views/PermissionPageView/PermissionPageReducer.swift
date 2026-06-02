@@ -33,7 +33,7 @@ struct PermissionPageReducer: Reducer {
         case finishButtonTapped // swiftlint:disable:next identifier_name
         case notificationPermissionCapsuleButtonTapped
 
-        case createUserFailed(Exception)
+        case createUserReturned(Exception?)
         case eulaAlertDismissed(cancelled: Bool)
         case requestContactPermissionFailed(Exception)
         case requestContactPermissionReturned(PermissionService.PermissionStatus)
@@ -91,15 +91,20 @@ struct PermissionPageReducer: Reducer {
                 }
             }
 
-        case let .createUserFailed(exception):
+        case let .createUserReturned(exception):
             coreUI.removeOverlay()
-            state.isBackButtonEnabled = true
-            state.isFinishButtonEnabled = true
 
-            Logger.log(
-                exception,
-                with: .toast
-            )
+            if let exception {
+                state.isBackButtonEnabled = true
+                state.isFinishButtonEnabled = true
+
+                Logger.log(
+                    exception,
+                    with: .toast
+                )
+            } else {
+                navigation.navigate(to: .root(.modal(.splash)))
+            }
 
         case let .eulaAlertDismissed(cancelled: cancelled):
             guard !cancelled else {
@@ -113,11 +118,10 @@ struct PermissionPageReducer: Reducer {
                 @Dependency(\.onboardingService) var onboardingService: OnboardingService
                 do throws(Exception) {
                     try await onboardingService.createUser()
+                    return .createUserReturned(nil)
                 } catch {
-                    return .createUserFailed(error)
+                    return .createUserReturned(error)
                 }
-
-                return .none
             }
 
         case .finishButtonTapped:

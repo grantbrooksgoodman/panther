@@ -184,7 +184,9 @@ final class RecordingUIService {
                     }
                 } completion: { _ in
                     cancelLabel.frame.origin.x = maxXToOffset
-                    cancelLabel.addShimmerEffect()
+                    if !Application.isInStagingMode {
+                        cancelLabel.addShimmerEffect()
+                    }
 
                     if self.durationLabelTimer != nil {
                         self.resetSession()

@@ -53,7 +53,7 @@ extension IntegrityService {
             )
         }
 
-        try userSession.stopObservingCurrentUserChanges()
+        try? userSession.stopObservingCurrentUserChanges()
 
         CoreDatabaseStore.clearStore()
         networking.storage.clearStore()

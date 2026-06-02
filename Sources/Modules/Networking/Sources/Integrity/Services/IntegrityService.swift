@@ -883,22 +883,35 @@ final class IntegrityService: @unchecked Sendable {
 
     func resolveOrphanedMedia() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
-        let referencedMediaFilePaths = Set(
-            session
-                .messageData
-                .values
-                .compactMap {
-                    HostedContentType(
-                        hostedValue: (($0 as? [String: Any])?[
-                            Message
-                                .SerializableKey
-                                .contentType
-                                .rawValue
-                        ] as? String) ?? ""
-                    )
-                }
-                .compactMap(\.mediaFilePath)
-        )
+        let contentTypes = session
+            .messageData
+            .values
+            .compactMap {
+                HostedContentType(
+                    hostedValue: (($0 as? [String: Any])?[
+                        Message
+                            .SerializableKey
+                            .contentType
+                            .rawValue
+                    ] as? String) ?? ""
+                )
+            }
+
+        let referencedMediaFilePaths = contentTypes.reduce(
+            into: Set<String>()
+        ) { paths, contentType in
+            guard let mediaFilePath = contentType.mediaFilePath else { return }
+            paths.insert(mediaFilePath)
+
+            if case let .media(
+                id: fileID,
+                extension: fileExtension
+            ) = contentType,
+                fileExtension.isDocument ||
+                fileExtension.isVideo {
+                paths.insert("\(fileID)\(MediaFile.thumbnailImageNameSuffix)")
+            }
+        }
 
         let directoryListing: DirectoryListing
         do {

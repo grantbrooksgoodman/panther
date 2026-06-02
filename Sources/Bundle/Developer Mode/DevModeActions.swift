@@ -43,6 +43,7 @@ extension DevModeAction {
             var actions = [
                 Breadcrumbs.manageBreadcrumbsCaptureAction,
                 AppActions.setCurrentUserIDAction,
+                AppActions.stagingModeOptionsAction,
                 AppActions.triggerForcedUpdateModalAction,
                 AppActions.validateDatabaseIntegrityAction,
                 AppActions.dangerZoneAction,
@@ -92,6 +93,78 @@ extension DevModeAction {
                 perform: createNewMessages
             )
         }
+
+        private static let stagingModeOptionsAction: DevModeAction = {
+            @Sendable
+            func stagingModeOptions() { // swiftlint:disable:next identifier_name
+                @Dependency(\.networking.conversationService.staging) var _conversationStagingService: ConversationStagingService
+                let conversationStagingService = LockIsolated(_conversationStagingService)
+
+                Task { @MainActor in
+                    @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+                    @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+                    @Dependency(\.mainBundle) var mainBundle: Bundle
+
+                    @Persistent(.isInStagingMode) var isInStagingMode: Bool?
+                    let stageConversationsAction = AKAction(
+                        "Stage Conversations",
+                        isEnabled: isInStagingMode == true
+                    ) {
+                        Task { @MainActor in
+                            guard await AKConfirmationAlert(
+                                title: "Stage Conversations",
+                                message: "All conversations for the current user will be deleted and staged versions created for App Store mockup creation."
+                            ).present(translating: []) else { return }
+
+                            do throws(Exception) {
+                                try await conversationStagingService
+                                    .wrappedValue
+                                    .stageConversations()
+                            } catch {
+                                Logger.log(
+                                    error,
+                                    with: .toast
+                                )
+                            }
+                        }
+                    }
+
+                    let toggleStagingModeAction = AKAction(
+                        "\(isInStagingMode == true ? "Disable" : "Enable") Staging Mode",
+                        style: isInStagingMode == true ? .destructivePreferred : .preferred
+                    ) {
+                        @Persistent(.isInStagingMode) var isInStagingMode: Bool?
+                        isInStagingMode = isInStagingMode == true ? nil : true
+                        coreHUD.showSuccess(
+                            text: "Staging Mode \(isInStagingMode == true ? "Enabled" : "Disabled")"
+                        )
+                    }
+
+                    let actions: [AKAction?] = [
+                        currentUser == nil ? nil : stageConversationsAction,
+                        toggleStagingModeAction,
+                    ]
+
+                    guard mainBundle.containsStagingAssets else {
+                        return await AKAlert(
+                            title: "Assets Not Found",
+                            message: "Failed to find the resources necessary for staging.\n\nPlease ensure the app bundle includes the required assets.",
+                            actions: [.cancelAction(title: "OK")]
+                        ).present(translating: [])
+                    }
+
+                    await AKActionSheet(
+                        title: "Staging Mode Options",
+                        actions: actions.compactMap(\.self)
+                    ).present(translating: [])
+                }
+            }
+
+            return DevModeAction(
+                title: "Staging Mode Options",
+                perform: stagingModeOptions
+            )
+        }()
 
         private static var dangerZoneAction: DevModeAction {
             @Sendable

@@ -16,6 +16,7 @@ extension PersistentStorageKey {
     enum ApplicationStorageKey: String {
         case buildMilestoneString
         case hasRunOnce
+        case isInStagingMode
     }
 
     enum AIEnhancedTranslationServiceStorageKey: String { // swiftlint:disable:next identifier_name

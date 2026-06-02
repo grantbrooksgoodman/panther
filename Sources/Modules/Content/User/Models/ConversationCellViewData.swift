@@ -65,6 +65,9 @@ struct ConversationCellViewData: Equatable {
         searchQuery: String? = nil,
         useCachedValue: Bool = true
     ) {
+        @Dependency(\.currentCalendar) var calendar: Calendar
+        @Dependency(\.stagingModeDateFormatter) var stagingModeDateFormatter: DateFormatter
+
         let cacheQuery = (searchQuery == nil || searchQuery?.isBlank == true) ? String.bangQualifiedEmpty : searchQuery!
         if useCachedValue,
            !conversation.isMock,
@@ -142,7 +145,12 @@ struct ConversationCellViewData: Equatable {
         }
 
         if let lastMessage {
-            dateLabelText = lastMessage.sentDate.formattedShortString
+            if Application.isInStagingMode,
+               calendar.isDateInToday(lastMessage.sentDate) {
+                dateLabelText = stagingModeDateFormatter.string(from: lastMessage.sentDate)
+            } else {
+                dateLabelText = lastMessage.sentDate.formattedShortString
+            }
 
             if lastMessage.audioComponent != nil {
                 subtitleLabelText = "🔊 \(Localized(.audioMessage).wrappedValue)"

@@ -22,11 +22,16 @@ struct ConversationService {
     // MARK: - Properties
 
     let archive: ConversationArchiveService
+    let staging: ConversationStagingService
 
     // MARK: - Init
 
-    init(archive: ConversationArchiveService) {
+    init(
+        archive: ConversationArchiveService,
+        staging: ConversationStagingService
+    ) {
         self.archive = archive
+        self.staging = staging
     }
 
     // MARK: - Conversation Creation

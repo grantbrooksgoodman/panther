@@ -70,9 +70,13 @@ struct ConversationsPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        @MainActor
         var shouldShowExtraToolbarButtons: Bool {
             @Dependency(\.build.isDeveloperModeEnabled) var isDeveloperModeEnabled: Bool
-            return Networking.config.environment == .staging && isDeveloperModeEnabled
+            guard !Application.isInStagingMode,
+                  isDeveloperModeEnabled,
+                  Networking.config.environment == .staging else { return false }
+            return true
         }
 
         var shouldShowStorageFullButton: Bool {

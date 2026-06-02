@@ -30,6 +30,7 @@ extension PersistentStorageKey {
         let permanentKeys: [PersistentStorageKey] = [
             .application(.buildMilestoneString),
             .application(.hasRunOnce),
+            .application(.isInStagingMode),
             .breadcrumbsCaptureService(.breadcrumbsCaptureHistory),
             .networking(.isNetworkActivityIndicatorEnabled),
             .networking(.networkEnvironment),

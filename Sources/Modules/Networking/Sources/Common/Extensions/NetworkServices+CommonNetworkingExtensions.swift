@@ -15,7 +15,10 @@ import Networking
 
 extension NetworkServices {
     private enum NetworkServiceStore {
-        static let conversationService = ConversationService(archive: .init())
+        static let conversationService = ConversationService(
+            archive: .init(),
+            staging: .shared
+        )
         static let integrityService = IntegrityService()
         static let messageService = MessageService(
             audio: .init(),

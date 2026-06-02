@@ -34,6 +34,19 @@ enum Application {
     static var isInPrevaricationMode = false
     static var loadStartDate = Date.now
 
+    // MARK: - Computed Properties
+
+    static var isInStagingMode: Bool {
+        @Dependency(\.mainBundle) var mainBundle: Bundle
+        @Persistent(.isInStagingMode) var persistedValue: Bool?
+        guard mainBundle.containsStagingAssets else {
+            persistedValue = nil
+            return false
+        }
+
+        return persistedValue ?? false
+    }
+
     private static var buildMilestone: Build.Milestone {
         @Persistent(.buildMilestoneString) var persistedMilestoneString: String?
         var buildMilestone: Build.Milestone = UIDevice.isSimulator ? .beta : .generalRelease

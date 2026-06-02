@@ -41,6 +41,7 @@ struct MessageService {
     func createMessage(
         fromAccountID: String,
         richContent: RichMessageContent?,
+        sentDate: Date = .now,
         translations: [Translation]?
     ) async throws(Exception) -> Message {
         guard !fromAccountID.isBangQualifiedEmpty,
@@ -58,8 +59,6 @@ struct MessageService {
                 metadata: .init(sender: self)
             )
         }
-
-        let sentDate = Date.now
 
         var contentType: HostedContentType = .text
         if richContent?.audioComponents != nil {
