@@ -55,12 +55,17 @@ extension CoreKit.Utilities {
         @Dependency(\.networking) var networking: NetworkServices
 
         try await currentUser?.setConversations()
-
         var conversationIDKeys: [String]?
+
+        @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
+        let ignoredConversationIDKeys = conversationArchive?
+            .filter { !$0.isVisibleForCurrentUser }
+            .map(\.id.key) ?? []
 
         switch granularity {
         case .allForCurrentUser:
             conversationIDKeys = currentUser?.conversationIDs?.map(\.key)
+            conversationIDKeys?.append(contentsOf: ignoredConversationIDKeys)
 
         case .groupChatsWithoutNameOrPhoto:
             conversationIDKeys = currentUser?.conversations?.filter {
@@ -84,6 +89,7 @@ extension CoreKit.Utilities {
                 .map(\.id.key) else { return }
 
             conversationIDKeys = invisibleConversationIDKeys
+            conversationIDKeys?.append(contentsOf: ignoredConversationIDKeys)
 
         case .oneToOneAndFewerThanFiveMessages:
             conversationIDKeys = currentUser?.conversations?.filter {

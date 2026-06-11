@@ -182,6 +182,7 @@ final class ConversationsPageViewService {
         }
     }
 
+    // swiftlint:disable function_body_length
     /// `.reloadDataReturned(.success)`
     /// `.updatedCurrentUser`
     /// `.viewAppeared`
@@ -201,6 +202,20 @@ final class ConversationsPageViewService {
         )
 
         guard !currentUserConversationHashes.isEmpty else {
+            // If the chat session holds a valid conversation that hasn't been
+            // synced to conversationIDs yet, use it directly so the list
+            // populates immediately without waiting for the server.
+            if let fullConversation = clientSession.conversation.fullConversation,
+               !fullConversation.isMock,
+               fullConversation.isVisibleForCurrentUser {
+                state.conversations = [
+                    fullConversation.injectingCachedUsers,
+                ].filteredAndSorted
+            } else {
+                state.conversations = []
+            }
+
+            resolveUnsyncedConversationIfNeeded()
             return Observables.updateConversationsListSetToReliableDataSource.trigger()
         }
 
@@ -225,7 +240,10 @@ final class ConversationsPageViewService {
         .map {
             .init(
                 $0.name,
-                conversations: $0.conversations.filteredAndSorted.map(\.injectingCachedUsers)
+                conversations: $0
+                    .conversations
+                    .filteredAndSorted
+                    .map(\.injectingCachedUsers)
             )
         }
         .filter { !$0.conversations.isEmpty }
@@ -248,13 +266,11 @@ final class ConversationsPageViewService {
 
             updateConversationsListRetryCount += 1
             Task.delayed(
-                by: .seconds(
-                    Double(updateConversationsListRetryCount) * 3
-                )
+                by: .seconds(Double(updateConversationsListRetryCount) * 3)
             ) { @MainActor in
                 do throws(Exception) {
                     try await User.populateCurrentUserConversationsIfNeeded()
-                    _ = try await reloadData()
+                    _ = try await reloadData(type: .full)
                 } catch {
                     Logger.log(
                         error,
@@ -270,8 +286,7 @@ final class ConversationsPageViewService {
                     "No conversation data source was well-formed (attempt \(updateConversationsListRetryCount) / 3).",
                     metadata: .init(sender: self)
                 ),
-                domain: .conversation,
-                with: .toastInPrerelease
+                domain: .conversation
             )
         }
 
@@ -298,7 +313,7 @@ final class ConversationsPageViewService {
         }
 
         state.conversations = bestCandidate.conversations
-    }
+    } // swiftlint:enable function_body_length
 
     // MARK: - Auxiliary
 
@@ -524,6 +539,36 @@ final class ConversationsPageViewService {
         Observables.updatedCurrentUser.trigger()
     }
 
+    /// Syncs the current user's `conversationIDs` with the server in the background.
+    ///
+    /// After a new conversation is created and the chat page is dismissed, the server
+    /// may not yet have associated the conversation with the user. The caller populates
+    /// the list immediately from local data; this method resolves the authoritative
+    /// server state so that subsequent update cycles use fully resolved data.
+    private func resolveUnsyncedConversationIfNeeded() {
+        guard let currentConversation = clientSession.conversation.currentConversation,
+              !currentConversation.isMock else { return }
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do throws(Exception) {
+                let currentUser = try await clientSession.user.resolveCurrentUser()
+                try await currentUser.setConversations()
+                try await currentUser.conversations?.visibleForCurrentUser.setUsers()
+            } catch {
+                Logger.log(
+                    error,
+                    domain: .conversation
+                )
+            }
+
+            // Don't re-trigger when the server still reports no conversations;
+            // the Firebase observer will fire naturally once it catches up.
+            guard !(clientSession.user.currentUser?.conversationIDs ?? []).isEmpty else { return }
+            Observables.updatedCurrentUser.trigger()
+        }
+    }
+
     /// Evaluates several user-facing prompts in priority order.
     ///
     /// The flow is as follows:
@@ -681,7 +726,10 @@ private extension Conversation {
         guard isVisibleForCurrentUser,
               (users?.count ?? 0) == 0 else { return self }
 
-        let participantUserIDs = Set(participants.map(\.userID).filter { $0 != User.currentUserID })
+        let participantUserIDs = Set(
+            participants.map(\.userID).filter { $0 != User.currentUserID }
+        )
+
         let resolvedUsers = UserCache
             .knownUsers
             .filter { participantUserIDs.contains($0.id) }

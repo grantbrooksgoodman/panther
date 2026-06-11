@@ -75,17 +75,32 @@ extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
             func deleteConversations() {
                 Task {
                     @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+                    @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
+
+                    let ignoredConversationIDKeys = conversationArchive?
+                        .filter { !$0.isVisibleForCurrentUser }
+                        .map(\.id.key) ?? []
+
+                    let allForCurrentUserCount = (
+                        (currentUser?.conversationIDs?.map(\.key) ?? []) +
+                            ignoredConversationIDKeys
+                    ).unique.count
 
                     var actions: [DevModeAction] = [
                         .init(
-                            title: "All for Current User (\(currentUser?.conversationIDs?.count ?? 0))",
+                            title: "All for Current User (\(allForCurrentUserCount))",
                             isDestructive: true
                         ) { performAction(.deleteCurrentUserConversations) },
                     ]
 
                     guard let conversations = currentUser?.conversations else { return }
 
-                    let invisibleToCurrentUserCount = conversations.filter { !$0.isVisibleForCurrentUser }.count
+                    let invisibleToCurrentUserCount = (
+                        conversations
+                            .filter { !$0.isVisibleForCurrentUser }
+                            .map(\.id.key) + ignoredConversationIDKeys
+                    ).unique.count
+
                     let groupChatsWithoutNameOrPhotoCount = conversations.filter {
                         $0.metadata.name.isBangQualifiedEmpty &&
                             $0.metadata.imageData == nil &&

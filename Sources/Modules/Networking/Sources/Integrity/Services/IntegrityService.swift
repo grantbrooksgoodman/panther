@@ -42,6 +42,7 @@ final class IntegrityService: @unchecked Sendable {
 
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.remoteCache) private var remoteCacheService: RemoteCacheService
@@ -124,6 +125,7 @@ final class IntegrityService: @unchecked Sendable {
                     .foregroundColor: UIColor.red,
                 ]))
 
+                coreUI.removeOverlay()
                 let confirmed = await confirmationAlert.present()
                 guard confirmed else { return completion(error) }
 

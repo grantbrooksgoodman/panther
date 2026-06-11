@@ -256,7 +256,10 @@ final class IntegrityServiceSession: @unchecked Sendable {
     ) async -> Callback<Any, Exception> {
         await .asCallback {
             @Dependency(\.networking.database) var database: DatabaseDelegate
-            return try await database.getValues(at: path)
+            return try await database.getValues(
+                at: path,
+                timeout: .seconds(60)
+            )
         }
     }
 

@@ -230,7 +230,12 @@ final class SplashPageViewService: ObservableObject {
 
             /* MARK: Conversation Resolution */
 
+            clientSession.conversation.setCurrentConversation(nil)
             try await currentUser.setConversations()
+            try await currentUser
+                .conversations?
+                .visibleForCurrentUser
+                .setUsers()
 
             initializationProgress = 1
 
@@ -238,19 +243,6 @@ final class SplashPageViewService: ObservableObject {
 
             Task { [weak self] in
                 guard let self else { return }
-
-                // TODO: Audit this being post-splash.
-                do throws(Exception) {
-                    try await currentUser
-                        .conversations?
-                        .visibleForCurrentUser
-                        .setUsers()
-                } catch {
-                    Logger.log(
-                        error,
-                        with: .toastInPrerelease
-                    )
-                }
 
                 let pushTokenService = LockIsolated(services.pushToken)
                 if Networking.config.environment != .staging {

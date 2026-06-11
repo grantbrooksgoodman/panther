@@ -170,6 +170,10 @@ final class ConversationSessionService {
                 conversation.id.key,
             ].joined(separator: "/")
         )
+
+        if currentConversation?.id.key == conversation.id.key {
+            setCurrentConversation(nil)
+        }
     }
 
     private func hideConversation(
@@ -201,6 +205,10 @@ final class ConversationSessionService {
             \.participants,
             to: newParticipants
         )
+
+        if currentConversation?.id.key == conversation.id.key {
+            setCurrentConversation(nil)
+        }
     }
 
     private func withMessagesOffset(_ conversation: Conversation?) -> Conversation? {

@@ -71,7 +71,19 @@ struct ConversationsPageObserver: Observer {
 
         case Observables.updatedCurrentUser:
             Task { @MainActor in
-                guard chatPageState.isPresented else { return updateConversations() }
+                guard chatPageState.isPresented else {
+                    // If a message is still mid-send (e.g. the user dismissed the
+                    // chat page before delivery completed), enqueue an update so
+                    // the conversations list refreshes once delivery finishes.
+                    if messageDeliveryService.isSendingMessage {
+                        messageDeliveryService.addEffectUponIsSendingMessage(
+                            changedTo: false,
+                            id: .updateConversations
+                        ) { updateConversations() }
+                    }
+
+                    return updateConversations()
+                }
 
                 chatPageState.addEffectUponIsPresented(
                     changedTo: false,
