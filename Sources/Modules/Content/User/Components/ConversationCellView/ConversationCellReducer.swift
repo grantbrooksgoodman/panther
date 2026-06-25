@@ -172,7 +172,8 @@ struct ConversationCellReducer: Reducer {
             }
 
         case .userInfoBadgeTapped:
-            viewService.presentUserInfoAlert(state.cellViewData)
+            guard let otherUser = state.cellViewData.otherUser else { return .none }
+            viewService.presentUserInfoAlert(otherUser)
         }
 
         return .none

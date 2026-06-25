@@ -79,7 +79,6 @@ struct ChatInfoPageReducer: Reducer {
         var chatParticipants = [ChatParticipant]()
         @Localized(.done) var doneButtonText: String
         var isChangeMetadataButtonEnabled = true
-        var isLeaveConversationButtonEnabled = true
         var isPenPalsSharingDataSwitchToggled = false
         var segmentedControlSelectionIndex = 0
         var segmentedControlViewID = UUID()
@@ -122,6 +121,12 @@ struct ChatInfoPageReducer: Reducer {
 
         var isDeveloperModeEnabled: Bool {
             Dependency(\.build.isDeveloperModeEnabled).wrappedValue
+        }
+
+        @MainActor
+        var isLeaveConversationButtonEnabled: Bool {
+            chatParticipants.count > 2 &&
+                !Dependency(\.messageDeliveryService.isSendingMessage).wrappedValue
         }
 
         @MainActor
@@ -325,7 +330,6 @@ struct ChatInfoPageReducer: Reducer {
         case let .getChatParticipantsReturned(chatParticipants):
             state.chatParticipants = chatParticipants
             state.visibleParticipants = chatParticipants
-            state.isLeaveConversationButtonEnabled = chatParticipants.count > 2
 
             guard state.viewState == .loading else {
                 state.viewID = UUID()
@@ -494,7 +498,7 @@ struct ChatInfoPageReducer: Reducer {
 
         case let .userInfoBadgeTapped(user):
             guard let user else { return .none }
-            conversationCellViewService.presentUserInfoAlert(.init(user: user))
+            conversationCellViewService.presentUserInfoAlert(user)
 
         case .viewDisappeared:
             NavigationBar.setAppearance(.chatPageView)

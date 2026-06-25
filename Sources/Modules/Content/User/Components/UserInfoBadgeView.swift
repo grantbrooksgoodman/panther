@@ -70,7 +70,8 @@ struct UserInfoBadgeView: View {
         HStack(alignment: .center, spacing: Floats.labelViewHStackSpacing) {
             Components.text(
                 user.languageCode.uppercased(),
-                font: .systemSemibold(scale: .small)
+                font: .systemSemibold(scale: .small),
+                isInspectable: true
             )
             .shadow(
                 color: Colors.labelViewTextShadow,

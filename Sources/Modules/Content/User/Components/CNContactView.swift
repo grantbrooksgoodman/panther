@@ -52,13 +52,13 @@ struct CNContactView: View {
 }
 
 private struct _CNContactView: UIViewControllerRepresentable {
-    // MARK: - Dependencies
-
-    @Dependency(\.cnContactStore) private var cnContactStore: CNContactStore
-
     // MARK: - Type Aliases
 
     typealias UIViewControllerType = CNContactViewController
+
+    // MARK: - Dependencies
+
+    @Dependency(\.cnContactStore) private var cnContactStore: CNContactStore
 
     // MARK: - Properties
 

@@ -14,15 +14,15 @@ import AppSubsystem
 import Networking
 
 struct ConversationsPageObserver: Observer {
+    // MARK: - Type Aliases
+
+    typealias R = ConversationsPageReducer
+
     // MARK: - Types
 
     private enum TaskID: String {
         case showSecondsToLoadToast
     }
-
-    // MARK: - Type Aliases
-
-    typealias R = ConversationsPageReducer
 
     // MARK: - Dependencies
 

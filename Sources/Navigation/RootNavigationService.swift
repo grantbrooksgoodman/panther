@@ -74,19 +74,34 @@ struct RootNavigationService: Navigating {
     ) {
         switch route {
         case let .chat(chatRoute):
-            ChatNavigator.navigate(to: chatRoute, on: &state.chat)
+            ChatNavigator.navigate(
+                to: chatRoute,
+                on: &state.chat
+            )
 
         case let .onboarding(onboardingRoute):
-            OnboardingNavigator.navigate(to: onboardingRoute, on: &state.onboarding)
+            OnboardingNavigator.navigate(
+                to: onboardingRoute,
+                on: &state.onboarding
+            )
 
         case let .root(rootRoute):
-            RootNavigator.navigate(to: rootRoute, on: &state)
+            RootNavigator.navigate(
+                to: rootRoute,
+                on: &state
+            )
 
         case let .settings(settingsRoute):
-            SettingsNavigator.navigate(to: settingsRoute, on: &state.settings)
+            SettingsNavigator.navigate(
+                to: settingsRoute,
+                on: &state.settings
+            )
 
         case let .userContent(userContentRoute):
-            UserContentNavigator.navigate(to: userContentRoute, on: &state.userContent)
+            UserContentNavigator.navigate(
+                to: userContentRoute,
+                on: &state.userContent
+            )
         }
     }
 }

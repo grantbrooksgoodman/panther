@@ -115,7 +115,9 @@ struct ContactPairCellView: View {
             if let user = contactPair.users.first {
                 UserInfoBadgeView(
                     user,
-                    action: build.isDeveloperModeEnabled ? { conversationCellViewService.presentUserInfoAlert(.init(user: user)) } : nil
+                    action: build.isDeveloperModeEnabled ? {
+                        conversationCellViewService.presentUserInfoAlert(user)
+                    } : nil
                 )
             }
         }

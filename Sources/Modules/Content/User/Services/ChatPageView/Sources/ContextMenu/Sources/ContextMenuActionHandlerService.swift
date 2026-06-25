@@ -373,9 +373,19 @@ final class ContextMenuActionHandlerService {
             .alternateMessage?
             .isDisplayingAlternateText(for: message) == true
 
-        guard !avSpeechSynthesizer.isSpeaking,
-              containsLetters == true,
-              let translationCode = translation?.reference.hostingKey.shortCode else { return actions }
+        guard translation?
+            .output
+            .lowercasedTrimmingWhitespaceAndNewlines !=
+            translation?
+            .input
+            .value
+            .lowercasedTrimmingWhitespaceAndNewlines,
+            !avSpeechSynthesizer.isSpeaking,
+            containsLetters == true,
+            let translationCode = translation?
+            .reference
+            .hostingKey
+            .shortCode else { return actions }
 
         let exceptionCode = Exception(
             "A mistranslation has been reported (\(translationCode)).",

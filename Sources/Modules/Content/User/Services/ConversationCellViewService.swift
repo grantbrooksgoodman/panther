@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* Proprietary */
 import AlertKit
@@ -20,6 +21,7 @@ struct ConversationCellViewService {
     @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Methods
 
@@ -56,10 +58,10 @@ struct ConversationCellViewService {
     }
 
     /// `.userInfoBadgeTapped`
-    func presentUserInfoAlert(_ cellViewData: ConversationCellViewData) {
+    func presentUserInfoAlert(
+        _ user: User
+    ) {
         Task { @MainActor in
-            guard let user = cellViewData.otherUser else { return }
-
             var languageName = user.languageCode.uppercased()
             if let languageExonym = languageName.languageExonym {
                 languageName = "\(languageExonym) (\(user.languageCode.uppercased()))"
@@ -68,9 +70,16 @@ struct ConversationCellViewService {
             @Localized(.language) var languageString: String
             @Localized(.region) var regionString: String
 
+            let regionName = regionDetailService.localizedRegionName(
+                regionCode: user.phoneNumber.regionCode
+            )
+
             var actions: [AKAction] = [.cancelAction(title: Localized(.dismiss).wrappedValue)]
             if build.isDeveloperModeEnabled {
-                let setToCurrentUserAction: AKAction = .init("Set to Current User", style: .preferred) {
+                let setToCurrentUserAction: AKAction = .init(
+                    "Set to Current User",
+                    style: .preferred
+                ) {
                     Task { @MainActor in
                         Application.reset()
                         Application.dismissSheets()
@@ -86,11 +95,29 @@ struct ConversationCellViewService {
                 actions.append(setToCurrentUserAction)
             }
 
-            await AKAlert(
-                title: cellViewData.titleLabelText.isEmpty ? nil : cellViewData.titleLabelText, // swiftlint:disable:next line_length
-                message: "\(languageString): \(languageName)\n\(regionString): \(regionDetailService.localizedRegionName(regionCode: user.phoneNumber.regionCode))",
-                actions: actions
-            ).present(translating: [])
+            let alertMessage = "\(languageString): \(languageName)\n\(regionString): \(regionName)"
+            if UIApplication.isFullyV26Compatible {
+                let matchingLabels = uiApplication
+                    .presentedViews
+                    .compactMap { $0 as? UILabel }
+                    .filter { $0.tag == user.languageCode.uppercased().hashValue }
+
+                await AKActionSheet(
+                    title: user.displayName,
+                    message: alertMessage,
+                    actions: actions,
+                    cancelButtonTitle: Localized(.cancel).wrappedValue,
+                    sourceItem: .custom(.view(
+                        matchingLabels.count > 1 ? nil : matchingLabels.first
+                    ))
+                ).present(translating: [])
+            } else {
+                await AKAlert(
+                    title: user.displayName,
+                    message: alertMessage,
+                    actions: actions
+                ).present(translating: [])
+            }
         }
     }
 

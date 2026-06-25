@@ -291,7 +291,9 @@ private extension String {
     }
 
     var normalized: String {
-        lowercasedTrimmingWhitespaceAndNewlines.sanitized
+        lowercasedTrimmingWhitespaceAndNewlines
+            .sanitized
+            .filter { !$0.isPunctuation }
     }
 }
 
