@@ -116,6 +116,13 @@ final class SplashPageViewService: ObservableObject {
 
         services.review.incrementAppOpenCount()
 
+        /* MARK: Anonymous Sign-In */
+
+        if User.currentUserID == nil {
+            let auth = LockIsolated(networking.auth)
+            _ = try? await auth.wrappedValue.signInAnonymously()
+        }
+
         /* MARK: Parallel Initialization */
 
         // Launch the heaviest independent network calls concurrently.
