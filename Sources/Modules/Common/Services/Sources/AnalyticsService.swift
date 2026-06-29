@@ -66,17 +66,22 @@ struct AnalyticsService {
 
     // MARK: - Computed Properties
 
-    static var shouldEnableDataCollection: Bool {
+    static let shouldEnableDataCollection: Bool = {
         @Dependency(\.build) var build: Build
 
-        if !CommandLine.arguments.containsAllStrings(in: ["-FIRAnalyticsDebugEnabled", "-FIRDebugEnabled"]) {
+        if !CommandLine.arguments.containsAllStrings(
+            in: [
+                "-FIRAnalyticsDebugEnabled",
+                "-FIRDebugEnabled",
+            ]
+        ) {
             guard Networking.config.environment == .production,
                   build.milestone == .generalRelease else { return false }
             return true
         }
 
         return true
-    }
+    }()
 
     // MARK: - Properties
 

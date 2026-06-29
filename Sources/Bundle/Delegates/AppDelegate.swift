@@ -87,7 +87,12 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
         _ messaging: Messaging,
         didReceiveRegistrationToken fcmToken: String?
     ) {
-        notificationCenter.post(name: Notification.Name("FCMToken"), object: nil, userInfo: ["token": fcmToken ?? ""])
+        notificationCenter.post(
+            name: Notification.Name("FCMToken"),
+            object: nil,
+            userInfo: ["token": fcmToken ?? ""]
+        )
+
         services.pushToken.setCurrentToken(fcmToken)
     }
 

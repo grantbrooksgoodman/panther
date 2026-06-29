@@ -51,7 +51,7 @@ struct ConversationStagingService: @unchecked Sendable {
         }
 
         do throws(Exception) {
-            try userSession.stopObservingCurrentUserChanges()
+            try? userSession.stopObservingCurrentUserChanges()
             try? await core.utils.deleteConversations(.allForCurrentUser)
 
             core.ui.addOverlay(

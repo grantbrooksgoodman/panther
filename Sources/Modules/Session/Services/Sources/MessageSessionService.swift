@@ -356,7 +356,7 @@ struct MessageSessionService {
             }
         }
 
-        try clientSession.user.stopObservingCurrentUserChanges()
+        try? clientSession.user.stopObservingCurrentUserChanges()
         incrementDeliveryProgress(
             in: conversation.value,
             by: Floats.createMessageDeliveryProgressIncrement

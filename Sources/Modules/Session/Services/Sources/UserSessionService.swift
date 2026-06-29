@@ -15,9 +15,6 @@ import Foundation
 import AppSubsystem
 import Networking
 
-/* 3rd-party */
-import FirebaseDatabase
-
 final class UserSessionService: @unchecked Sendable {
     // MARK: - Types
 
@@ -39,6 +36,7 @@ final class UserSessionService: @unchecked Sendable {
     @Persistent(.currentUserID) private var currentUserID: String?
     @LockIsolated private var isUpdatePending = false
     @LockIsolated private var isUpdatingCurrentUser = false
+    private var observationTask: Task<Void, Never>?
     private var _currentUser = LockIsolated<User?>(nil)
 
     // MARK: - Computed Properties
@@ -46,17 +44,6 @@ final class UserSessionService: @unchecked Sendable {
     private(set) var currentUser: User? {
         get { _currentUser.wrappedValue }
         set { _currentUser.wrappedValue = newValue }
-    }
-
-    private var currentUserDatabaseReference: DatabaseReference? {
-        guard let currentUser else { return nil }
-        return Database.database().reference().child(
-            [
-                Networking.config.environment.shortString,
-                NetworkPath.users.rawValue,
-                currentUser.id,
-            ].joined(separator: "/")
-        )
     }
 
     private var offlineCurrentUser: User? {
@@ -226,8 +213,9 @@ final class UserSessionService: @unchecked Sendable {
     // MARK: - Current User Observation
 
     func startObservingCurrentUserChanges() {
-        guard let currentUserDatabaseReference else { return }
-        currentUserDatabaseReference.removeAllObservers()
+        guard let currentUserID = currentUser?.id else { return }
+        observationTask?.cancel()
+        observationTask = nil
 
         Logger.log(
             "Started observing current user changes.",
@@ -235,44 +223,43 @@ final class UserSessionService: @unchecked Sendable {
             sender: self
         )
 
-        currentUserDatabaseReference.observe(.value) { snapshot in
-            guard let dictionary = snapshot.value as? [String: Any] else {
-                return Logger.log(
-                    .Networking.typecastFailed(
-                        "dictionary",
+        observationTask = Task {
+            do {
+                for try await dictionary: [String: Any] in networking.database.observe(
+                    at: [
+                        NetworkPath.users.rawValue,
+                        currentUserID,
+                    ].joined(separator: "/")
+                ) {
+                    if blockedUserIDsDidChange(dictionary) ||
+                        conversationsDidChange(dictionary) {
+                        updateCurrentUser()
+                    } else if lastSignedInDateDidChange(dictionary) {
+                        signOutToPreserveSingleActiveUser()
+                    } else {
+                        Logger.log(
+                            "Skipping current user update as relevant values do not appear to have changed.",
+                            domain: .userSession,
+                            sender: self
+                        )
+                    }
+                }
+            } catch {
+                Logger.log(
+                    .init(
+                        error,
                         metadata: .init(sender: self)
                     ),
                     domain: .userSession
                 )
             }
-
-            if self.blockedUserIDsDidChange(dictionary) ||
-                self.conversationsDidChange(dictionary) {
-                return self.updateCurrentUser()
-            } else if self.lastSignedInDateDidChange(dictionary) {
-                return self.signOutToPreserveSingleActiveUser()
-            }
-
-            return Logger.log(
-                "Skipping current user update as relevant values do not appear to have changed.",
-                domain: .userSession,
-                sender: self
-            )
-        } withCancel: { error in
-            Logger.log(
-                .init(
-                    error,
-                    metadata: .init(sender: self)
-                ),
-                domain: .userSession
-            )
         }
     }
 
     func stopObservingCurrentUserChanges() throws(Exception) {
-        guard let currentUserDatabaseReference else {
+        guard observationTask != nil else {
             throw Exception(
-                "Current user has not been set.",
+                "No active observers to stop.",
                 metadata: .init(sender: self)
             )
         }
@@ -283,7 +270,8 @@ final class UserSessionService: @unchecked Sendable {
             sender: self
         )
 
-        currentUserDatabaseReference.removeAllObservers()
+        observationTask?.cancel()
+        observationTask = nil
     }
 
     // MARK: - Auxiliary
