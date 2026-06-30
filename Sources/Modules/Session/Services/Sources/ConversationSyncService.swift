@@ -20,6 +20,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.sessionStore) private var store: SessionStore
 
     // MARK: - Properties
 
@@ -304,7 +305,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
     private func resolveConversation(
         _ userInfo: [String: Any]
-    ) throws(Exception) -> Conversation {
+    ) async throws(Exception) -> Conversation {
         defer { syncData = nil }
         guard let conversation = syncData?.conversation else {
             throw Exception(
@@ -313,7 +314,11 @@ final class ConversationSyncService: @unchecked Sendable {
             ).appending(userInfo: userInfo)
         }
 
-        networking.conversationService.archive.addValue(conversation)
+        await store.upsertConversation(conversation)
+        if let messages = conversation.messages {
+            await store.upsertMessages(messages)
+        }
+
         return conversation.withHydratedMessages
     }
 
@@ -362,7 +367,7 @@ final class ConversationSyncService: @unchecked Sendable {
                 throw error.appending(userInfo: userInfo)
             }
 
-            return try resolveConversation(userInfo)
+            return try await resolveConversation(userInfo)
         }
 
         // Resolve values for message comparison.
@@ -422,7 +427,7 @@ final class ConversationSyncService: @unchecked Sendable {
                 throw error.appending(userInfo: userInfo)
             }
 
-            return try resolveConversation(userInfo)
+            return try await resolveConversation(userInfo)
         }
 
         // If no messages to update, synchronize metadata until hashes are sufficiently mismatched.
@@ -438,7 +443,7 @@ final class ConversationSyncService: @unchecked Sendable {
             .syncData?
             .conversation
             .encodedHash == conversation
-            .encodedHash else { return try resolveConversation(userInfo) }
+            .encodedHash else { return try await resolveConversation(userInfo) }
 
         // If metadata ostensibly didn't need an update, reload select or all messages.
 
@@ -478,7 +483,7 @@ final class ConversationSyncService: @unchecked Sendable {
             }
         }
 
-        return try resolveConversation(userInfo)
+        return try await resolveConversation(userInfo)
     }
 
     private func updateHash(

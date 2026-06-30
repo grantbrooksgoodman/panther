@@ -11,8 +11,13 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 actor SessionStore {
+    // MARK: - Dependencies
+
+    @Dependency(\.networking.conversationService.archive) private var conversationArchive: ConversationArchiveService
+
     // MARK: - Properties
 
     fileprivate static let shared = SessionStore()
@@ -41,12 +46,15 @@ actor SessionStore {
 
     func upsertConversation(_ conversation: Conversation) {
         conversations[conversation.id.key] = conversation
+        conversationArchive.addValue(conversation)
     }
 
     func upsertConversations(_ newConversations: [Conversation]) {
         for conversation in newConversations {
             conversations[conversation.id.key] = conversation
         }
+
+        conversationArchive.addValues(Set(newConversations))
     }
 
     // MARK: - Message Methods
@@ -69,6 +77,12 @@ actor SessionStore {
 
     func upsertUser(_ user: User) {
         users[user.id] = user
+    }
+
+    func upsertUsers(_ newUsers: [User]) {
+        for user in newUsers {
+            users[user.id] = user
+        }
     }
 }
 

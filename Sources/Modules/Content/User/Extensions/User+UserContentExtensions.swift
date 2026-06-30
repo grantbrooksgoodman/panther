@@ -109,12 +109,7 @@ extension User {
               .contains(where: { satisfiesConstraints($0) }) == true else { return }
 
         try await userSession.hydrateCurrentUserConversations()
-        // TODO: Audit if this is necessary.
-        @Dependency(\.clientSession.user.currentUser) var updatedUser: User?
-        try await (updatedUser?.conversations ?? [])
-            .visibleForCurrentUser
-            .filter { satisfiesConstraints($0) }
-            .parallelMap { try await $0.settingMessages() }
+        try await userSession.hydrateMessagesOnCurrentUserConversations()
     }
 
     /// - Note: Will set the current user to the result returned by `update`.

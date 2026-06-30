@@ -98,18 +98,9 @@ struct ChangeLanguagePageViewService {
         }
 
         try await userSession.hydrateCurrentUserConversations()
-        let hydratedUser = userSession.currentUser
-        _ = try await (hydratedUser?.conversations ?? [])
-            .visibleForCurrentUser
-            .map(\.filteringSystemMessages)
-            .filter {
-                !$0.messageIDs.isBangQualifiedEmpty &&
-                    ($0.messages == nil || $0.messages?.isEmpty == true) ||
-                    $0.messageIDs.count != $0.messages?.count
-            }
-            .parallelMap { try await $0.settingMessages() }
-
+        try await userSession.hydrateMessagesOnCurrentUserConversations()
         try await userSession.hydrateUsersOnCurrentUserConversations()
+
         let conversations = (
             userSession
                 .currentUser?
