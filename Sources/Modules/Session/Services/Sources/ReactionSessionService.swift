@@ -254,9 +254,11 @@ final class ReactionSessionService {
         }
 
         isReactingToMessage = false
-        try await updatedConversation.setMessages(ids: [
-            messageData.message.id,
-        ])
+        let hydratedConversation = try await updatedConversation.settingMessages(
+            ids: [
+                messageData.message.id,
+            ]
+        )
 
         guard chatPageState.isPresented,
               conversationSession
@@ -264,7 +266,7 @@ final class ReactionSessionService {
               .id
               .key == conversation.id.key else { return }
 
-        conversationSession.setCurrentConversation(updatedConversation)
+        conversationSession.setCurrentConversation(hydratedConversation)
         chatPageViewService.reloadItemsWhenSafe(at: [.init(
             item: 0,
             section: messageData.index

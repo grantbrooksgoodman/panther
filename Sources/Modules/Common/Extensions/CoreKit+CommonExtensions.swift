@@ -51,10 +51,11 @@ extension CoreKit.Utilities {
         _ granularity: ConversationDeletionGranularity
     ) async throws(Exception) {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
         @Dependency(\.networking) var networking: NetworkServices
 
-        try await currentUser?.setConversations()
+        try await userSession.hydrateCurrentUserConversations()
+        let currentUser = userSession.currentUser
         var conversationIDKeys: [String]?
 
         @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?

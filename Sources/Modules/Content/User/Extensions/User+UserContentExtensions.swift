@@ -92,8 +92,8 @@ extension User {
             return false
         }
 
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
-        guard let currentUser else {
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
+        guard let currentUser = userSession.currentUser else {
             throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
@@ -108,11 +108,13 @@ extension User {
               .visibleForCurrentUser
               .contains(where: { satisfiesConstraints($0) }) == true else { return }
 
-        try await currentUser.setConversations()
-        try await (currentUser.conversations ?? [])
+        try await userSession.hydrateCurrentUserConversations()
+        // TODO: Audit if this is necessary.
+        @Dependency(\.clientSession.user.currentUser) var updatedUser: User?
+        try await (updatedUser?.conversations ?? [])
             .visibleForCurrentUser
             .filter { satisfiesConstraints($0) }
-            .parallelMap { try await $0.setMessages() }
+            .parallelMap { try await $0.settingMessages() }
     }
 
     /// - Note: Will set the current user to the result returned by `update`.

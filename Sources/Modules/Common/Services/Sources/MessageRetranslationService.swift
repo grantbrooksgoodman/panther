@@ -119,11 +119,16 @@ struct MessageRetranslationService {
                     ]
                 )
 
-                try await conversation.setMessages(
+                let hydratedConversation = try await conversation.settingMessages(
                     ids: [message.id]
                 )
 
-                clientSession.conversation.setCurrentConversation(conversation)
+                clientSession
+                    .conversation
+                    .setCurrentConversation(
+                        hydratedConversation
+                    )
+
                 chatPageViewService.reloadItemsWhenSafe(
                     at: [indexPath],
                     animated: false

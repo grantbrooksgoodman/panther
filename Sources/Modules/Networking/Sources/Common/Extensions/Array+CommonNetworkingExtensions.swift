@@ -52,15 +52,15 @@ extension [Conversation] {
 
     // MARK: - Methods
 
-    func setMessages() async throws(Exception) {
+    func settingMessages() async throws(Exception) -> [Conversation] {
         try await parallelMap {
-            try await $0.setMessages()
+            try await $0.settingMessages()
         }
     }
 
-    func setUsers() async throws(Exception) {
+    func settingUsers() async throws(Exception) -> [Conversation] {
         try await parallelMap {
-            try await $0.setUsers()
+            try await $0.settingUsers()
         }
     }
 }

@@ -135,10 +135,8 @@ final class SettingsPageViewService {
     func clearCachesButtonTapped() {
         @MainActor
         func clearCaches() async {
-            @Dependency(\.clientSession.user) var userSession: UserSessionService
-
             do throws(Exception) {
-                try userSession.stopObservingCurrentUserChanges()
+                try clientSession.user.stopObservingCurrentUserChanges()
             } catch {
                 Logger.log(
                     error,

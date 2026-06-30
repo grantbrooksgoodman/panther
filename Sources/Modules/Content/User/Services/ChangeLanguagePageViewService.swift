@@ -97,8 +97,9 @@ struct ChangeLanguagePageViewService {
             }
         }
 
-        try await currentUser.setConversations()
-        try await (currentUser.conversations ?? [])
+        try await userSession.hydrateCurrentUserConversations()
+        let hydratedUser = userSession.currentUser
+        _ = try await (hydratedUser?.conversations ?? [])
             .visibleForCurrentUser
             .map(\.filteringSystemMessages)
             .filter {
@@ -106,10 +107,15 @@ struct ChangeLanguagePageViewService {
                     ($0.messages == nil || $0.messages?.isEmpty == true) ||
                     $0.messageIDs.count != $0.messages?.count
             }
-            .parallelMap { try await $0.setMessages() }
+            .parallelMap { try await $0.settingMessages() }
 
-        try await currentUser.conversations?.visibleForCurrentUser.setUsers()
-        let conversations = (currentUser.conversations?.visibleForCurrentUser ?? [])
+        try await userSession.hydrateUsersOnCurrentUserConversations()
+        let conversations = (
+            userSession
+                .currentUser?
+                .conversations?
+                .visibleForCurrentUser ?? []
+        )
 
         let hasIncomingMessagesInCurrentLanguage = conversations
             .filter { !($0.users ?? []).compactMap(\.languageCode).contains(RuntimeStorage.languageCode) }

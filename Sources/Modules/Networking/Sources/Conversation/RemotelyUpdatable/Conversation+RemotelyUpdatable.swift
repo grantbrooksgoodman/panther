@@ -122,7 +122,7 @@ extension Conversation: RemotelyUpdatable {
 
         try await propagateUpdatesToUsers(in: updated)
         if data.keys.contains(\.activities) {
-            try await updated.setUsers(
+            updated = try await updated.settingUsers(
                 forceUpdate: true
             )
         }
@@ -154,11 +154,12 @@ extension Conversation: RemotelyUpdatable {
     ) async throws(Exception) -> Conversation {
         @Dependency(\.networking) var networking: NetworkServices
 
-        defer { networking.conversationService.archive.addValue(updated) }
-        guard updated.id.hash != id.hash else { return updated }
+        var result = updated
+        defer { networking.conversationService.archive.addValue(result) }
+        guard result.id.hash != id.hash else { return result }
 
         try await networking.database.setValue(
-            updated.id.hash,
+            result.id.hash,
             forKey: [
                 networkPath.rawValue,
                 identifier,
@@ -166,10 +167,10 @@ extension Conversation: RemotelyUpdatable {
             ].joined(separator: "/")
         )
 
-        try await propagateUpdatesToUsers(in: updated)
-        guard key == .activities else { return updated }
-        try await updated.setUsers(forceUpdate: true)
-        return updated
+        try await propagateUpdatesToUsers(in: result)
+        guard key == .activities else { return result }
+        result = try await result.settingUsers(forceUpdate: true)
+        return result
     }
 
     // MARK: - Auxiliary
@@ -205,8 +206,8 @@ extension Conversation: RemotelyUpdatable {
     ) async throws(Exception) {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
-        try await conversation.setUsers(forceUpdate: true)
-        guard var users = conversation.users else {
+        let hydrated = try await conversation.settingUsers(forceUpdate: true)
+        guard var users = hydrated.users else {
             throw Exception(
                 "Failed to set users on conversation.",
                 metadata: .init(sender: self)

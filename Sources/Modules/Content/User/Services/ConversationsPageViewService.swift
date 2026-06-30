@@ -148,7 +148,7 @@ final class ConversationsPageViewService {
             guard let currentUser = clientSession.user.currentUser,
                   currentUser.conversations == nil ||
                   currentUser.conversations?.isEmpty == true else { return }
-            try await currentUser.setConversations()
+            try await clientSession.user.hydrateCurrentUserConversations()
         }
 
         Task { @MainActor in
@@ -499,15 +499,15 @@ final class ConversationsPageViewService {
 
         defer { currentReloadType = currentReloadType.next }
 
-        let user = try await clientSession.user.resolveCurrentUser()
-        try await user.setConversations()
-        try await user.conversations?.visibleForCurrentUser.setUsers()
+        _ = try await clientSession.user.resolveCurrentUser()
+        try await clientSession.user.hydrateCurrentUserConversations()
+        try await clientSession.user.hydrateUsersOnCurrentUserConversations()
         var randomBool: Bool {
             Int.random(in: 1 ... 1_000_000) % 3 == 0
         }
 
         guard !services.contact.hasContactsBesidesCurrentUser || randomBool else {
-            return user.conversations ?? []
+            return clientSession.user.currentUser?.conversations ?? []
         }
 
         do {
@@ -521,7 +521,7 @@ final class ConversationsPageViewService {
             }
         }
 
-        return user.conversations ?? []
+        return clientSession.user.currentUser?.conversations ?? []
     }
 
     /// - NOTE: Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.
@@ -552,9 +552,9 @@ final class ConversationsPageViewService {
         Task { @MainActor [weak self] in
             guard let self else { return }
             do throws(Exception) {
-                let currentUser = try await clientSession.user.resolveCurrentUser()
-                try await currentUser.setConversations()
-                try await currentUser.conversations?.visibleForCurrentUser.setUsers()
+                _ = try await clientSession.user.resolveCurrentUser()
+                try await clientSession.user.hydrateCurrentUserConversations()
+                try await clientSession.user.hydrateUsersOnCurrentUserConversations()
             } catch {
                 Logger.log(
                     error,

@@ -48,7 +48,7 @@ extension Conversation: Serializable {
 
     // MARK: - Init
 
-    convenience init(
+    init(
         from data: [String: Any]
     ) async throws(Exception) {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter

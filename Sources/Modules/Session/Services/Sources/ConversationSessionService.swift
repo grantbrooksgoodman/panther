@@ -21,6 +21,7 @@ final class ConversationSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.sessionStore) private var store: SessionStore
 
     // MARK: - Properties
 
@@ -89,6 +90,16 @@ final class ConversationSessionService {
                 .withMessagesOffsetFromCurrentUserAdditionDate
                 .withMessagesSortedByAscendingSentDate
         )
+
+        if let currentConversation {
+            let store = LockIsolated(store)
+            Task {
+                await store.wrappedValue.upsertConversation(currentConversation)
+                if let messages = hydratedMessages {
+                    await store.wrappedValue.upsertMessages(messages)
+                }
+            }
+        }
     }
 
     // MARK: - Message Offset

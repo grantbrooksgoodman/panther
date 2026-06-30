@@ -372,13 +372,17 @@ final class ConversationSyncService: @unchecked Sendable {
             .filteringSystemMessages
             .uniquedByID else {
             do {
-                try await conversation.setMessages()
+                let hydratedConversation = try await conversation.settingMessages()
+                syncData = .init(
+                    hydratedConversation,
+                    newData: syncData?.newData ?? [:]
+                )
+
+                return try await _synchronizeConversation(hydratedConversation)
             } catch {
                 self.syncData = nil
                 throw error.appending(userInfo: userInfo)
             }
-
-            return try await _synchronizeConversation(conversation)
         }
 
         guard let syncData else {

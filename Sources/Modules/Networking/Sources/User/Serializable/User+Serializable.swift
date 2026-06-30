@@ -56,7 +56,7 @@ extension User: Serializable {
 
     // MARK: - Init
 
-    convenience init(
+    init(
         from data: [String: Any]
     ) async throws(Exception) {
         @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter

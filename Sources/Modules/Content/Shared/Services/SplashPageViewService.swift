@@ -238,11 +238,8 @@ final class SplashPageViewService: ObservableObject {
             /* MARK: Conversation Resolution */
 
             clientSession.conversation.setCurrentConversation(nil)
-            try await currentUser.setConversations()
-            try await currentUser
-                .conversations?
-                .visibleForCurrentUser
-                .setUsers()
+            try await clientSession.user.hydrateCurrentUserConversations()
+            try await clientSession.user.hydrateUsersOnCurrentUserConversations()
 
             initializationProgress = 1
 
@@ -276,9 +273,12 @@ final class SplashPageViewService: ObservableObject {
                 }
 
                 do throws(Exception) {
+                    let currentUser = LockIsolated(currentUser)
                     try await services
                         .notification
-                        .setBadgeNumber(currentUser.calculateBadgeNumber())
+                        .setBadgeNumber(
+                            currentUser.wrappedValue.calculateBadgeNumber()
+                        )
                 } catch {
                     Logger.log(
                         error,

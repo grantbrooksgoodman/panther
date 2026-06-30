@@ -14,7 +14,7 @@ import AppSubsystem
 import Networking
 
 @RemotelyUpdatable
-final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
+struct User: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
     @Updatable let aiEnhancedTranslationsEnabled: Bool
@@ -31,8 +31,6 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // NIT: Should be @LockIsolated, but would lose Codable conformance.
     @Updatable private(set) var conversationIDs: [ConversationID]?
     private(set) var conversations: [Conversation]?
-
-    private static let coalescer = SingleSlotCoalescer<Void>()
 
     // MARK: - Computed Properties
 
@@ -112,16 +110,14 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Badge Number Calculation
 
     /// - Note: Will return `0` for users other than the current user.
-    func calculateBadgeNumber(
-        _ returnZeroIfFailedOnce: Bool = false
-    ) async -> Int {
+    func calculateBadgeNumber() async -> Int {
         guard id == User.currentUserID else { return 0 }
 
         if conversationIDs?.isEmpty == false,
            conversations == nil || conversations?.isEmpty == true {
-            guard !returnZeroIfFailedOnce else { return 0 }
+            @Dependency(\.clientSession.user) var userSession: UserSessionService
             do {
-                try await setConversations()
+                try await userSession.hydrateCurrentUserConversations()
             } catch {
                 Logger.log(
                     error,
@@ -130,27 +126,15 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
                 return 0
             }
 
-            guard let conversations,
-                  !conversations.isEmpty else { return 0 }
+            guard let updatedConversations = userSession.currentUser?.conversations,
+                  !updatedConversations.isEmpty else { return 0 }
 
-            for conversation in conversations
+            return updatedConversations
                 .visibleForCurrentUser
-                .filter({
-                    $0.messages == nil ||
-                        $0.messages?.isEmpty == true ||
-                        $0.filteringSystemMessages.messages?.count != $0.filteringSystemMessages.messageIDs.count
-                }) {
-                do {
-                    try await conversation.setMessages()
-                } catch {
-                    Logger.log(
-                        error,
-                        domain: .user
-                    )
-                }
-            }
-
-            return await calculateBadgeNumber(true)
+                .flatMap { $0.messages ?? [] }
+                .filteringSystemMessages
+                .filter { !$0.isFromCurrentUser && $0.currentUserReadReceipt == nil }
+                .count
         }
 
         guard let conversations else { return 0 }
@@ -171,119 +155,42 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
         )
     }
 
-    // MARK: - Inherit Local State
+    // MARK: - Inheriting Local State
 
-    /// Transfers locally-populated properties from a previous `User` instance.
+    /// Returns a copy of this user with `conversations` populated from a previous instance.
     ///
-    /// When `resolveCurrentUser()` creates a new `User` object, `conversations` is `nil`
+    /// When `resolveCurrentUser()` creates a new `User` value, `conversations` is `nil`
     /// because it's populated locally (not from the server). This method carries over
-    /// the prior instance's `conversations` to avoid redundant `setConversations()` calls.
-    func inheritLocalState(from user: User?) {
+    /// the prior instance's `conversations` to avoid redundant hydration calls.
+    func inheritingLocalState(from user: User?) -> User {
         guard let user,
               user.id == id,
               conversations == nil || conversations?.isEmpty == true,
               let sourceConversations = user.conversations,
-              !sourceConversations.isEmpty else { return }
+              !sourceConversations.isEmpty else { return self }
         Logger.log(
-            "<User: 0x\(objectID)> inherited local state from <User: 0x\(user.objectID)>.",
+            "Inherited local state from previous user instance.",
             domain: .user,
             sender: self
         )
 
-        conversations = sourceConversations
+        var result = self
+        result.conversations = sourceConversations
+        return result
     }
 
-    // MARK: - Set Conversations
+    // MARK: - Setting Conversations
 
+    /// Returns a copy of this user with `conversations` and `conversationIDs` populated.
+    ///
     /// - Note: Does nothing if called on a user other than the current user.
-    func setConversations() async throws(Exception) {
-        let setConversations: @Sendable () async throws(Exception) -> Void = {
-            try await self._setConversations()
-        }
-
-        try await Self.coalescer(
-            mode: .lastCallerWins,
-            setConversations
-        )
-    }
-
-    private func _setConversations() async throws(Exception) {
-        @Dependency(\.networking.conversationService) var conversationService: ConversationService
-
-        guard !Task.isCancelled,
-              id == User.currentUserID,
-              var conversationIDs else { return }
-
-        var conversationsNeedingFetch = Set<ConversationID>()
-        var conversationsNeedingUpdate = Set<Conversation>()
-        var decodedConversations = Set<Conversation>()
-
-        @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
-        let ignoredConversations = conversationArchive?
-            .filter { !$0.isVisibleForCurrentUser }
-            .map(\.id.key) ?? []
-        conversationIDs = conversationIDs.filter { !ignoredConversations.contains($0.key) }
-
-        for conversationID in conversationIDs {
-            guard !Task.isCancelled else { return }
-            if let value = conversationService.archive.getValue(id: conversationID) {
-                decodedConversations.merge(with: [value])
-            } else if let value = conversationService.archive.getValue(idKey: conversationID.key) {
-                conversationsNeedingUpdate.insert(value)
-            } else {
-                conversationsNeedingFetch.insert(conversationID)
-            }
-        }
-
-        guard !Task.isCancelled else { return }
-        Logger.log(
-            // swiftlint:disable:next line_length
-            "Conversations needing update: \(conversationsNeedingUpdate.count)\nConversations needing fetch: \(conversationsNeedingFetch.count)\nIgnored conversations: \(ignoredConversations.count)\nDecoded conversations: \(decodedConversations.count)",
-            domain: .user,
-            sender: self
-        )
-
-        if conversationsNeedingFetch.isEmpty,
-           conversationsNeedingUpdate.isEmpty {
-            if let existingConversations = conversations,
-               !existingConversations.isEmpty,
-               Set(existingConversations) == decodedConversations {
-                // Exit early to avoid recommitting the same conversations.
-                return
-            }
-
-            return await commitToMemory(decodedConversations)
-        }
-
-        guard !Task.isCancelled else { return }
-        try await decodedConversations.merge(
-            with: conversationsNeedingUpdate.parallelMap {
-                @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
-                return try await conversationSyncService.synchronizeConversation($0)
-            }
-        )
-
-        guard !conversationsNeedingFetch.isEmpty else {
-            try validateRatio(
-                decodedConversations,
-                conversationIDs
-            )
-
-            return await commitToMemory(decodedConversations)
-        }
-
-        guard !Task.isCancelled else { return }
-        let conversations = try await conversationService.getConversations(
-            idKeys: conversationsNeedingFetch.map(\.key)
-        )
-
-        decodedConversations.merge(with: conversations)
-        try validateRatio(
-            decodedConversations,
-            conversationIDs
-        )
-
-        await commitToMemory(decodedConversations)
+    func settingConversations(
+        _ conversations: Set<Conversation>
+    ) -> User {
+        var result = self
+        result.conversationIDs = conversations.map(\.id)
+        result.conversations = Array(conversations).sortedByLatestMessageSentDate
+        return result
     }
 
     // MARK: - Equatable Conformance
@@ -299,59 +206,5 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(encodedHash)
-    }
-
-    // MARK: - Auxiliary
-
-    private func commitToMemory(_ conversations: Set<Conversation>) async {
-        @Dependency(\.networking.conversationService.archive) var conversationArchive: ConversationArchiveService
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
-
-        guard !Task.isCancelled else { return }
-        await MainActor.run {
-            conversationIDs = conversations.map(\.id)
-            self.conversations = Array(conversations).sortedByLatestMessageSentDate
-        }
-
-        conversationArchive.addValues(conversations)
-
-        // If the session's current user is a different instance (replaced by a
-        // concurrent resolveCurrentUser()), forward conversations to it so both
-        // instances stay in sync without overwriting the newer user entirely.
-        guard let currentUser,
-              currentUser.id == id,
-              currentUser !== self else { return }
-        currentUser.inheritLocalState(from: self)
-    }
-
-    private func validateRatio(
-        _ firstComparator: any Collection,
-        _ secondComparator: any Collection
-    ) throws(Exception) {
-        guard firstComparator.count == secondComparator.count else {
-            throw Exception(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            )
-        }
-    }
-}
-
-private extension User {
-    var objectID: String {
-        let objectIdentifier = ObjectIdentifier(self)
-        guard var memoryAddress = "\(objectIdentifier)"
-            .components(separatedBy: "(")
-            .last?
-            .components(separatedBy: ")")
-            .first?
-            .components(separatedBy: "x")
-            .last else { return "\(objectIdentifier)" }
-
-        while memoryAddress.hasPrefix("0") {
-            memoryAddress = memoryAddress.dropPrefix()
-        }
-
-        return memoryAddress
     }
 }

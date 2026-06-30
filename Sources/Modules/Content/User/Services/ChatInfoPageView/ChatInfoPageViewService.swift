@@ -84,11 +84,11 @@ final class ChatInfoPageViewService {
 
         guard let users = conversation.users,
               conversation.participants.count - 1 == users.count else {
-            try await conversation.setUsers(
+            let hydratedConversation = try await conversation.settingUsers(
                 forceUpdate: true
             )
 
-            clientSession.conversation.setCurrentConversation(conversation)
+            clientSession.conversation.setCurrentConversation(hydratedConversation)
             return try await getChatParticipants()
         }
 

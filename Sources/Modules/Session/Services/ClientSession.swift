@@ -21,6 +21,7 @@ final class ClientSession: @unchecked Sendable {
     let moderation: ModerationSessionService
     let reaction: ReactionSessionService
     let storage: StorageSessionService
+    let store: SessionStore
     let user: UserSessionService
 
     private let _deliveryProgressIndicator = LockIsolated<DeliveryProgressIndicator?>(nil)
@@ -41,6 +42,7 @@ final class ClientSession: @unchecked Sendable {
         moderation: ModerationSessionService,
         reaction: ReactionSessionService,
         storage: StorageSessionService,
+        store: SessionStore,
         user: UserSessionService
     ) {
         self.activity = activity
@@ -49,6 +51,7 @@ final class ClientSession: @unchecked Sendable {
         self.moderation = moderation
         self.reaction = reaction
         self.storage = storage
+        self.store = store
         self.user = user
     }
 

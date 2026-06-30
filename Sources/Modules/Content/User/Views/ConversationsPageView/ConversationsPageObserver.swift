@@ -131,12 +131,7 @@ struct ConversationsPageObserver: Observer {
             networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
 
             do throws(Exception) {
-                try await clientSession
-                    .user
-                    .currentUser?
-                    .conversations?
-                    .visibleForCurrentUser
-                    .setUsers()
+                try await clientSession.user.hydrateUsersOnCurrentUserConversations()
             } catch {
                 Logger.log(
                     error,
@@ -210,9 +205,10 @@ struct ConversationsPageObserver: Observer {
             guard matchesCurrentConversation(updatedConversation.id.key) else { return }
 
             // If a user was added/removed, resolve the users again.
+            var conversationToSet = updatedConversation
             if currentConversation.participants.count != updatedConversation.participants.count {
                 do throws(Exception) {
-                    try await updatedConversation.setUsers(
+                    conversationToSet = try await updatedConversation.settingUsers(
                         forceUpdate: true
                     )
                 } catch {
@@ -224,7 +220,7 @@ struct ConversationsPageObserver: Observer {
                 }
             }
 
-            clientSession.conversation.setCurrentConversation(updatedConversation)
+            clientSession.conversation.setCurrentConversation(conversationToSet)
             chatPageState.setIsWaitingToUpdateConversations(false) // Allow typing indicator to appear.
 
             if chatPageViewService.recipientBar?.layout.recipientBarView == nil,

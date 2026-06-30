@@ -183,8 +183,8 @@ struct UserTestingService {
             }
 
             try? await Task.sleep(for: .seconds(1))
-            try await currentUser.setConversations()
-            try await currentUser.conversations?.setUsers()
+            try await clientSession.user.hydrateCurrentUserConversations()
+            try await clientSession.user.hydrateUsersOnCurrentUserConversations()
 
             guard let conversation = randomBool && randomBool ?
                 currentUser

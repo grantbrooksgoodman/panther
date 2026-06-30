@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 
 enum ClientSessionDependency: DependencyKey {
-    static func resolve(_: DependencyValues) -> ClientSession {
+    static func resolve(_ values: DependencyValues) -> ClientSession {
         .init(
             activity: .init(),
             conversation: .init(),
@@ -21,6 +21,7 @@ enum ClientSessionDependency: DependencyKey {
             moderation: .init(),
             reaction: .init(),
             storage: .init(),
+            store: values.sessionStore,
             user: .init()
         )
     }

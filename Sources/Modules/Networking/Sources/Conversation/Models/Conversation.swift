@@ -14,7 +14,7 @@ import AppSubsystem
 import Networking
 
 @RemotelyUpdatable // swiftlint:disable:next type_body_length
-final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendable {
+struct Conversation: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
     static let empty: Conversation = .init(
@@ -39,8 +39,6 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
     private(set) var messages: [Message]?
     /// When set, contains all users participating in this conversation, other than the current user.
     private(set) var users: [User]?
-
-    private static let coalescer = KeyedCoalescer<String, Void>()
 
     // MARK: - Computed Properties
 
@@ -87,55 +85,73 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
         self.users = users
     }
 
-    // MARK: - Set Messages
+    // MARK: - Setting Messages
 
+    /// Returns a copy of this conversation with messages populated.
+    ///
     /// - Note: Conventionally, this method need only be called for conversations in which the current user is not participating.
-    func setMessages(ids: Set<String>? = nil) async throws(Exception) {
-        let setMessages: @Sendable () async throws(Exception) -> Void = {
-            try await self._setMessages(ids: ids)
-        }
-
-        return try await Self.coalescer(
-            "\(id.key)_MESSAGES",
-            setMessages
-        )
-    }
-
-    private func _setMessages(ids: Set<String>?) async throws(Exception) {
+    func settingMessages(ids: Set<String>? = nil) async throws(Exception) -> Conversation {
         @Dependency(\.networking.messageService) var messageService: MessageService
 
         if let ids {
-            var exceptions = [Exception]()
+            var updatedMessages = messages ?? []
             for id in ids {
-                do {
-                    try await updateMessage(id: id)
-                } catch {
-                    exceptions.append(error)
+                let userInfo: [String: Any] = [
+                    "ConversationIDKey": self.id.key,
+                    "MessageID": id,
+                ]
+
+                guard updatedMessages.contains(where: { $0.id == id }) else {
+                    throw Exception(
+                        "Failed to resolve messages, or no message with the provided ID exists in this conversation.",
+                        userInfo: userInfo,
+                        metadata: .init(sender: self)
+                    )
                 }
+
+                let message: Message
+                do {
+                    message = try await messageService.getMessage(id: id)
+                } catch {
+                    throw error.appending(userInfo: userInfo)
+                }
+
+                guard let messageIndex = updatedMessages.firstIndex(where: {
+                    $0.id == id
+                }) else {
+                    throw Exception(
+                        "Failed to resolve messages.",
+                        userInfo: userInfo,
+                        metadata: .init(sender: self)
+                    )
+                }
+
+                updatedMessages[messageIndex] = message
             }
 
-            if let exception = exceptions.compiledException {
-                throw exception
-            }
-
-            return
+            return .init(
+                id,
+                activities: activities,
+                messageIDs: messageIDs,
+                messages: updatedMessages,
+                metadata: metadata,
+                participants: participants,
+                reactionMetadata: reactionMetadata,
+                users: users
+            )
         }
 
-        let messageIDs = filteringSystemMessages.messageIDs
-        let messages = try await messageService.getMessages(
-            ids: messageIDs
+        let filteredMessageIDs = filteringSystemMessages.messageIDs
+        let fetchedMessages = try await messageService.getMessages(
+            ids: filteredMessageIDs
         )
 
-        guard !messages.isEmpty,
-              messages.count == messageIDs.count else {
+        guard !fetchedMessages.isEmpty,
+              fetchedMessages.count == filteredMessageIDs.count else {
             throw Exception(
                 "Mismatched ratio returned.",
                 metadata: .init(sender: self)
             )
-        }
-
-        await MainActor.run {
-            self.messages = messages.hydrated(with: self.activities)
         }
 
         Logger.log(
@@ -147,67 +163,30 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
             ),
             domain: .conversation
         )
-    }
 
-    private func updateMessage(id: String) async throws(Exception) {
-        @Dependency(\.networking.messageService) var messageService: MessageService
-
-        let userInfo: [String: Any] = [
-            "ConversationIDKey": self.id.key,
-            "MessageID": id,
-        ]
-
-        guard messages?.contains(where: { $0.id == id }) == true else {
-            throw Exception(
-                "Failed to resolve messages, or no message with the provided ID exists in this conversation.",
-                userInfo: userInfo,
-                metadata: .init(sender: self)
-            )
-        }
-
-        let message: Message
-        do {
-            message = try await messageService.getMessage(id: id)
-        } catch {
-            throw error.appending(userInfo: userInfo)
-        }
-
-        guard var messages,
-              let messageIndex = messages.firstIndex(where: { $0.id == id }) else {
-            throw Exception(
-                "Failed to resolve messages.",
-                userInfo: userInfo,
-                metadata: .init(sender: self)
-            )
-        }
-
-        messages[messageIndex] = message // swiftlint:disable:next identifier_name
-        let _messages = messages
-        await MainActor.run { self.messages = _messages }
-    }
-
-    // MARK: - Set Users
-
-    func setUsers(forceUpdate: Bool = false) async throws(Exception) {
-        let setUsers: @Sendable () async throws(Exception) -> Void = {
-            try await self._setUsers(forceUpdate: forceUpdate)
-        }
-
-        try await Self.coalescer(
-            "\(id.key)_USERS",
-            setUsers
+        return .init(
+            id,
+            activities: activities,
+            messageIDs: messageIDs,
+            messages: fetchedMessages.hydrated(with: activities),
+            metadata: metadata,
+            participants: participants,
+            reactionMetadata: reactionMetadata,
+            users: users
         )
     }
 
-    private func _setUsers(forceUpdate: Bool) async throws(Exception) {
+    // MARK: - Setting Users
+
+    /// Returns a copy of this conversation with users populated.
+    func settingUsers(forceUpdate: Bool = false) async throws(Exception) -> Conversation {
         @Dependency(\.networking) var networking: NetworkServices
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         let userInfo = ["ConversationID": id.encoded]
         if forceUpdate {
             networking.database.setGlobalCacheStrategy(.disregardCache)
         } else {
-            guard users == nil else { return }
+            guard users == nil else { return self }
         }
 
         defer {
@@ -224,24 +203,23 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
             ).appending(userInfo: userInfo)
         }
 
-        let users: [User]
+        let fetchedUsers: [User]
         do {
-            users = try await networking.userService.getUsers(
+            fetchedUsers = try await networking.userService.getUsers(
                 ids: userIDs
             )
         } catch {
             throw error.appending(userInfo: userInfo)
         }
 
-        guard !users.isEmpty,
-              users.count == userIDs.count else {
+        guard !fetchedUsers.isEmpty,
+              fetchedUsers.count == userIDs.count else {
             throw Exception(
                 "Mismatched ratio returned.",
                 metadata: .init(sender: self)
             ).appending(userInfo: userInfo)
         }
 
-        await MainActor.run { self.users = users }
         Logger.log(
             .init(
                 "Set users on conversation.",
@@ -250,6 +228,17 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
                 metadata: .init(sender: self)
             ),
             domain: .conversation
+        )
+
+        return .init(
+            id,
+            activities: activities,
+            messageIDs: messageIDs,
+            messages: messages,
+            metadata: metadata,
+            participants: participants,
+            reactionMetadata: reactionMetadata,
+            users: fetchedUsers
         )
     }
 
