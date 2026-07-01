@@ -51,9 +51,9 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
     ) -> NSAttributedString? { // TODO: Refactor this method.
         @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
         guard let currentConversation,
-              let messages = currentConversation.messages,
               let message = message as? Message,
               !message.isMock else { return nil }
+        let messages = displayedMessages
 
         var boldAttributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.boldSystemFont(ofSize: Floats.cellBottomLabelAttributedTextBoldAttributesSystemFontSize),
@@ -166,8 +166,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
-        currentConversation?
-            .messages?
+        displayedMessages
             .itemAt(indexPath.section)?
             .sentDate
             .chatPageMessageSeparatorAttributedDateString
@@ -193,7 +192,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
         in messagesCollectionView: MessageKit.MessagesCollectionView
     ) -> MessageKit.MessageType {
         guard !isSectionReservedForTypingIndicator(indexPath.section),
-              let message = currentConversation?.messages?.itemAt(indexPath.section) else { return Message.empty }
+              let message = displayedMessages.itemAt(indexPath.section) else { return Message.empty }
         return message.systemLocalized
     }
 
@@ -203,7 +202,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
-        guard let sentDate = currentConversation?.messages?.itemAt(indexPath.section)?.sentDate else { return nil }
+        guard let sentDate = displayedMessages.itemAt(indexPath.section)?.sentDate else { return nil }
         return .init(
             string: DateFormatter.localizedString(from: sentDate, dateStyle: .none, timeStyle: .short),
             attributes: [
@@ -223,20 +222,20 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
 
         guard let currentConversation,
               currentConversation.participants.count > 2,
-              let messages = currentConversation.messages,
               let message = message as? Message,
               !message.isFromCurrentUser else { return nil }
+        let messages = displayedMessages
 
         if messages.itemAt(indexPath.section - 1)?.fromAccountID == message.fromAccountID {
             return nil
         }
 
-        guard let users = currentConversation.users,
-              let matchingUser = users
-              .first(where: { $0.id == message.fromAccountID }) ??
-              UserCache
-              .knownUsers
-              .first(where: { $0.id == message.fromAccountID }) else { return nil }
+        guard let matchingUser = currentConversation
+            .users?
+            .first(where: { $0.id == message.fromAccountID }) ??
+            UserCache
+            .knownUsers
+            .first(where: { $0.id == message.fromAccountID }) else { return nil }
 
         let font: UIFont = .init(
             name: Strings.messageTopLabelAttributedTextAttributesFontName,
@@ -269,6 +268,6 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
     // MARK: - Number of Sections
 
     func numberOfSections(in messagesCollectionView: MessageKit.MessagesCollectionView) -> Int {
-        currentConversation?.messages?.count ?? 0
+        displayedMessages.count
     }
 }

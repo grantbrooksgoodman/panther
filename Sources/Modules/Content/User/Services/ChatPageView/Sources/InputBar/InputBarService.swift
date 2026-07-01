@@ -341,7 +341,7 @@ final class InputBarService {
     }
 
     private func getShouldEnableConsentButton() -> Bool {
-        guard let fullConversation = clientSession.conversation.fullConversation else { return false }
+        guard let currentConversation = clientSession.conversation.currentConversation else { return false }
         if let selectedContactPairs = chatPageViewService
             .recipientBar?
             .contactSelectionUI
@@ -350,9 +350,9 @@ final class InputBarService {
             return false
         }
 
-        let didSendConsentMessage = fullConversation.didSendConsentMessage
-        let grantedConsent = fullConversation.currentUserGrantedMessageReceiptConsent
-        let requiresConsent = fullConversation.currentUserInitiatorRequiresMessageReceiptConsent
+        let didSendConsentMessage = currentConversation.didSendConsentMessage
+        let grantedConsent = currentConversation.currentUserGrantedMessageReceiptConsent
+        let requiresConsent = currentConversation.currentUserInitiatorRequiresMessageReceiptConsent
 
         return (!grantedConsent || (requiresConsent && !didSendConsentMessage)) && !isSendingMessage
     }
@@ -405,7 +405,7 @@ final class InputBarService {
 
     private func showConsentButton() {
         guard let consentButton,
-              let fullConversation = clientSession.conversation.fullConversation else { return }
+              let currentConversation = clientSession.conversation.currentConversation else { return }
 
         consentButton.addTarget(
             actionHandler,
@@ -418,8 +418,8 @@ final class InputBarService {
 
         consentButton.setTitle(
             Localized(
-                fullConversation.currentUserInitiatorRequiresMessageReceiptConsent ?
-                    (fullConversation.didSendConsentMessage ? .awaitingConsent : .requestConsent) :
+                currentConversation.currentUserInitiatorRequiresMessageReceiptConsent ?
+                    (currentConversation.didSendConsentMessage ? .awaitingConsent : .requestConsent) :
                     .acknowledgeConsent
             ).wrappedValue,
             for: .normal
@@ -427,8 +427,8 @@ final class InputBarService {
 
         consentButton.setTitleColor(
             shouldEnableConsentButton || (
-                fullConversation
-                    .currentUserInitiatorRequiresMessageReceiptConsent && fullConversation
+                currentConversation
+                    .currentUserInitiatorRequiresMessageReceiptConsent && currentConversation
                     .didSendConsentMessage
             ) ? .accentOrSystemBlue : .disabled,
             for: .normal
@@ -448,7 +448,7 @@ final class InputBarService {
         consentButton.titleLabel?.minimumScaleFactor = Floats.consentButtonTitleLabelMinimumScaleFactor
         consentButton.center = inputBar.center
 
-        if !(fullConversation.currentUserInitiatorRequiresMessageReceiptConsent && fullConversation.didSendConsentMessage) {
+        if !(currentConversation.currentUserInitiatorRequiresMessageReceiptConsent && currentConversation.didSendConsentMessage) {
             consentButton.removeShimmerEffect()
         }
 
@@ -459,8 +459,8 @@ final class InputBarService {
             self.inputTextViewGlassEffectView?.alpha = 0
             consentButton.alpha = 1
         } completion: { _ in
-            guard fullConversation.currentUserInitiatorRequiresMessageReceiptConsent,
-                  fullConversation.didSendConsentMessage else { return }
+            guard currentConversation.currentUserInitiatorRequiresMessageReceiptConsent,
+                  currentConversation.didSendConsentMessage else { return }
             consentButton.addShimmerEffect()
         }
     }

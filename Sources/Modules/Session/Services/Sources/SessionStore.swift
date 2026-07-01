@@ -13,25 +13,39 @@ import Foundation
 import AppSubsystem
 import Networking
 
-actor SessionStore {
+struct SessionStore {
+    // MARK: - Types
+
+    private struct State {
+        var conversations: [String: Conversation] = [:]
+        var messages: [String: Message] = [:]
+        var users: [String: User] = [:]
+    }
+
     // MARK: - Dependencies
 
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.networking.conversationService.archive) private var conversationArchive: ConversationArchiveService
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
 
     // MARK: - Properties
 
-    fileprivate static let shared = SessionStore()
+    static let shared = SessionStore()
 
-    private(set) var conversations: [String: Conversation] = [:]
-    private(set) var currentUserID: String?
-    private(set) var messages: [String: Message] = [:]
-    private(set) var users: [String: User] = [:]
+    private let state = LockIsolated(State())
 
     // MARK: - Computed Properties
 
-    var currentUser: User? {
-        guard let currentUserID else { return nil }
-        return users[currentUserID]
+    var conversations: [String: Conversation] {
+        state.wrappedValue.conversations
+    }
+
+    var messages: [String: Message] {
+        state.wrappedValue.messages
+    }
+
+    var users: [String: User] {
+        state.wrappedValue.users
     }
 
     // MARK: - Init
@@ -40,18 +54,26 @@ actor SessionStore {
 
     // MARK: - Conversation Methods
 
-    func removeConversation(key: String) {
-        conversations.removeValue(forKey: key)
-    }
-
     func upsertConversation(_ conversation: Conversation) {
-        conversations[conversation.id.key] = conversation
+        state.projectedValue.withValue {
+            $0.conversations[conversation.id.key] = conversation
+        }
+
         conversationArchive.addValue(conversation)
+        if RuntimeStorage.updatedReadReceipts == conversation.id.key {
+            Task { @MainActor in
+                redrawConversationsPageView()
+            }
+
+            RuntimeStorage.remove(.updatedReadReceipts)
+        }
     }
 
     func upsertConversations(_ newConversations: [Conversation]) {
-        for conversation in newConversations {
-            conversations[conversation.id.key] = conversation
+        state.projectedValue.withValue {
+            for conversation in newConversations {
+                $0.conversations[conversation.id.key] = conversation
+            }
         }
 
         conversationArchive.addValues(Set(newConversations))
@@ -60,41 +82,41 @@ actor SessionStore {
     // MARK: - Message Methods
 
     func upsertMessages(_ newMessages: [Message]) {
-        for message in newMessages {
-            messages[message.id] = message
+        state.projectedValue.withValue {
+            for message in newMessages {
+                $0.messages[message.id] = message
+            }
         }
     }
 
     // MARK: - User Methods
 
-    func removeUser(id: String) {
-        users.removeValue(forKey: id)
-    }
-
-    func setCurrentUserID(_ id: String?) {
-        currentUserID = id
-    }
-
     func upsertUser(_ user: User) {
-        users[user.id] = user
+        state.projectedValue.withValue { $0.users[user.id] = user }
     }
 
     func upsertUsers(_ newUsers: [User]) {
-        for user in newUsers {
-            users[user.id] = user
+        state.projectedValue.withValue {
+            for user in newUsers {
+                $0.users[user.id] = user
+            }
         }
     }
-}
 
-private enum SessionStoreDependency: DependencyKey {
-    static func resolve(_: DependencyValues) -> SessionStore {
-        .shared
-    }
-}
+    // MARK: - Auxiliary
 
-extension DependencyValues {
-    var sessionStore: SessionStore {
-        get { self[SessionStoreDependency.self] }
-        set { self[SessionStoreDependency.self] = newValue }
+    @MainActor // FIXME: This is a band-aid fix (and not a reliable one) for a problem that shouldn't exist.
+    private func redrawConversationsPageView() {
+        @MainActor
+        func redraw() {
+            coreUtilities.clearCaches([.conversationCellViewData])
+            RootWindowScene.traitCollectionChanged()
+        }
+
+        redraw()
+        chatPageState.addEffectUponIsPresented(
+            changedTo: false,
+            id: .redrawConversationsPageView
+        ) { redraw() }
     }
 }

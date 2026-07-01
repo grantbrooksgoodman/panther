@@ -78,10 +78,7 @@ extension [Conversation] {
         visibleForCurrentUser
             .sortedByLatestMessageSentDate
             .unique
-            .map(
-                \.filteringSystemMessages
-                    .withHydratedMessages
-            )
+            .map(\.filteringSystemMessages)
     }
 
     // MARK: - Methods
@@ -154,6 +151,16 @@ extension [Message] {
         return (filteringSystemMessages + activities.map(\.message))
             .uniquedByID
             .sortedByAscendingSentDate
+    }
+
+    func offsetFromCurrentUserAdditionDate(
+        activities: [Activity]?
+    ) -> [Message] {
+        guard let currentUserAddedActivity = activities?
+            .last(where: \.action.isCurrentUserAdded) else { return self }
+        return filter {
+            $0.isConsentMessage || $0.sentDate >= currentUserAddedActivity.date
+        }
     }
 }
 

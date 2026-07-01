@@ -18,9 +18,8 @@ import Networking
 final class ConversationSyncService: @unchecked Sendable {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.sessionStore) private var store: SessionStore
 
     // MARK: - Properties
 
@@ -104,6 +103,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
         syncData = .init(
             conversation,
+            messages: syncData?.messages ?? [],
             newData: syncData?.newData ?? [:]
         )
     }
@@ -128,7 +128,9 @@ final class ConversationSyncService: @unchecked Sendable {
         // conversation's id.hash so archive lookups match on the server
         // hash rather than the client-computed encodedHash. This avoids
         // writing back to openConversations and triggering a self-event.
-        let serverHash = currentUser?
+        let serverHash = clientSession
+            .user
+            .currentUser?
             .conversationIDs?
             .first(where: { $0.key == syncData.conversation.id.key })?
             .hash ?? syncData.conversation.encodedHash
@@ -141,12 +143,11 @@ final class ConversationSyncService: @unchecked Sendable {
                 ),
                 activities: syncData.conversation.activities,
                 messageIDs: syncData.conversation.messageIDs,
-                messages: syncData.conversation.messages,
                 metadata: syncData.conversation.metadata,
                 participants: syncData.conversation.participants,
-                reactionMetadata: syncData.conversation.reactionMetadata,
-                users: syncData.conversation.users
+                reactionMetadata: syncData.conversation.reactionMetadata
             ),
+            messages: syncData.messages,
             newData: syncData.newData
         )
     }
@@ -172,24 +173,23 @@ final class ConversationSyncService: @unchecked Sendable {
             ids: messageIDs
         )
 
-        let updatedMessages = ((conversation.messages ?? []) + messages)
+        // TODO: Audit whether syncData?.messages should be conversation.messages.
+        let updatedMessages = ((syncData?.messages ?? []) + messages)
             .filteringSystemMessages
             .uniquedByID
             .sortedByAscendingSentDate
 
-        guard let conversation = conversation.modifyKey(
-            .messages,
-            withValue: updatedMessages
-        ) else {
-            throw .Networking.typeMismatch(
-                key: Conversation.SerializableKey.messages,
-                type: type(of: updatedMessages),
-                .init(sender: self)
-            )
-        }
+        let updatedConversation = conversation.copying(
+            messageIDs: updatedMessages.map(\.id).unique
+        )
 
-        try await updateHash(conversation)
-        syncData = .init(conversation, newData: syncData?.newData ?? [:])
+        try await updateHash(updatedConversation)
+        syncData = .init(
+            updatedConversation,
+            messages: updatedMessages,
+            newData: syncData?.newData ?? [:]
+        )
+
         try synchronizeHash()
     }
 
@@ -220,6 +220,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
         syncData = .init(
             conversation,
+            messages: syncData?.messages ?? [],
             newData: syncData?.newData ?? [:]
         )
     }
@@ -249,7 +250,11 @@ final class ConversationSyncService: @unchecked Sendable {
             )
         }
 
-        syncData = .init(conversation, newData: syncData?.newData ?? [:])
+        syncData = .init(
+            conversation,
+            messages: syncData?.messages ?? [],
+            newData: syncData?.newData ?? [:]
+        )
     }
 
     private func synchronizeReactionMetadata() async throws(Exception) {
@@ -277,7 +282,11 @@ final class ConversationSyncService: @unchecked Sendable {
             )
         }
 
-        syncData = .init(conversation, newData: syncData?.newData ?? [:])
+        syncData = .init(
+            conversation,
+            messages: syncData?.messages ?? [],
+            newData: syncData?.newData ?? [:]
+        )
     }
 
     // MARK: - Auxiliary
@@ -291,8 +300,13 @@ final class ConversationSyncService: @unchecked Sendable {
         ]
 
         do {
+            let currentMessages = conversation.messages?
+                .filteringSystemMessages
+                .uniquedByID ?? []
+
             syncData = try await .init(
                 conversation,
+                messages: currentMessages,
                 newData: networking.database.getValues(
                     at: "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)",
                     cacheStrategy: .disregardCache
@@ -307,19 +321,19 @@ final class ConversationSyncService: @unchecked Sendable {
         _ userInfo: [String: Any]
     ) async throws(Exception) -> Conversation {
         defer { syncData = nil }
-        guard let conversation = syncData?.conversation else {
+        guard let syncData else {
             throw Exception(
                 "Failed to resolve updated conversation.",
                 metadata: .init(sender: self)
             ).appending(userInfo: userInfo)
         }
 
-        await store.upsertConversation(conversation)
-        if let messages = conversation.messages {
-            await store.upsertMessages(messages)
+        clientSession.store.upsertConversation(syncData.conversation)
+        if !syncData.messages.isEmpty {
+            clientSession.store.upsertMessages(syncData.messages)
         }
 
-        return conversation.withHydratedMessages
+        return syncData.conversation
     }
 
     // swiftlint:disable:next function_body_length
@@ -377,13 +391,17 @@ final class ConversationSyncService: @unchecked Sendable {
             .filteringSystemMessages
             .uniquedByID else {
             do {
-                let hydratedConversation = try await conversation.settingMessages()
+                try await conversation.resolveMessages()
                 syncData = .init(
-                    hydratedConversation,
+                    conversation,
+                    messages: conversation
+                        .messages?
+                        .filteringSystemMessages
+                        .uniquedByID ?? [],
                     newData: syncData?.newData ?? [:]
                 )
 
-                return try await _synchronizeConversation(hydratedConversation)
+                return try await _synchronizeConversation(conversation)
             } catch {
                 self.syncData = nil
                 throw error.appending(userInfo: userInfo)

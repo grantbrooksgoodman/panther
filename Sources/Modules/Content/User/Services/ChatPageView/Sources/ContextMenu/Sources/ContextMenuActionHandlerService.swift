@@ -52,7 +52,7 @@ final class ContextMenuActionHandlerService {
     var speakingCell: MessageContentCell? {
         viewController.messagesCollectionView.visibleCells.first(where: {
             guard let indexPath = viewController.messagesCollectionView.indexPath(for: $0),
-                  let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
+                  let message = viewController.displayedMessages.itemAt(indexPath.section),
                   message.isSpeakingMessage else { return false }
             return true
         }) as? MessageContentCell
@@ -60,18 +60,33 @@ final class ContextMenuActionHandlerService {
 
     private var selectedCell: UICollectionViewCell? {
         guard let selectedCellIndexPath else { return nil }
-        return viewController.messagesCollectionView.cellForItem(at: selectedCellIndexPath)
+        return viewController.messagesCollectionView.cellForItem(
+            at: selectedCellIndexPath
+        )
     }
 
     private var selectedCellIndexPath: IndexPath? {
-        guard let selectedMessageID = chatPageViewService.contextMenu?.interaction.selectedMessageID,
-              let messageIndex = viewController.currentConversation?.messages?.firstIndex(where: { $0.id == selectedMessageID }) else { return nil }
-        return .init(item: 0, section: messageIndex)
+        guard let selectedMessageID = chatPageViewService
+            .contextMenu?
+            .interaction
+            .selectedMessageID,
+            let messageIndex = viewController
+            .displayedMessages
+            .firstIndex(where: {
+                $0.id == selectedMessageID
+            }) else { return nil }
+
+        return .init(
+            item: 0,
+            section: messageIndex
+        )
     }
 
     private var selectedMessage: Message? {
         guard let selectedMessageID = chatPageViewService.contextMenu?.interaction.selectedMessageID else { return nil }
-        return viewController.currentConversation?.messages?.first(where: { $0.id == selectedMessageID })
+        return viewController.displayedMessages.first(where: {
+            $0.id == selectedMessageID
+        })
     }
 
     // MARK: - Init

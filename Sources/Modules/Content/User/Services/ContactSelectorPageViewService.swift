@@ -91,7 +91,7 @@ struct ContactSelectorPageViewService {
         switch entryPoint {
         case .chatInfoPageView:
             guard let user = selectedContactPair.users.first,
-                  let conversation = clientSession.conversation.fullConversation,
+                  let conversation = clientSession.conversation.currentConversation,
                   !conversation.participants.map(\.userID).contains(user.id) else { return }
 
             let addToConversationAction: AKAction = .init(

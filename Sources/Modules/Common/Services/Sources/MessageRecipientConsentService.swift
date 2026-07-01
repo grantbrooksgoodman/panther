@@ -28,7 +28,7 @@ final class MessageRecipientConsentService {
     // MARK: - Send Consent Message in Current Conversation
 
     func sendConsentMessageInCurrentConversation() async throws(Exception) {
-        guard let conversation = clientSession.conversation.fullConversation,
+        guard let conversation = clientSession.conversation.currentConversation,
               let currentUser = clientSession.user.currentUser else {
             throw Exception(
                 "Failed to resolve either conversation or current user.",

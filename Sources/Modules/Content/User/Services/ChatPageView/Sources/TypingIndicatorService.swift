@@ -205,7 +205,7 @@ final class TypingIndicatorService {
     private func updateIsTypingForCurrentUser(
         _ isTyping: Bool
     ) async throws(Exception) {
-        guard let conversation = clientSession.conversation.fullConversation,
+        guard let conversation = clientSession.conversation.currentConversation,
               conversation.participants.count == 2 else { return }
 
         guard let currentUserParticipant = conversation.currentUserParticipant else {

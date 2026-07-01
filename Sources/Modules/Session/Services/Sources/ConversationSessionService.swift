@@ -21,34 +21,25 @@ final class ConversationSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.sessionStore) private var store: SessionStore
+    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
 
     // MARK: - Properties
 
     private(set) var currentConversation: Conversation?
+    private(set) var displayedMessages: [Message] = []
 
-    private var completeMessageArray: [Message]?
     private var messageOffset = Floats.defaultMessageOffset
 
     // MARK: - Computed Properties
 
-    /// The value of `currentConversation` with the fully populated `messages` array.
-    var fullConversation: Conversation? {
-        guard let currentConversation else { return nil }
-        return .init(
-            currentConversation.id,
-            activities: currentConversation.activities,
-            messageIDs: currentConversation.messageIDs,
-            messages: completeMessageArray,
-            metadata: currentConversation.metadata,
-            participants: currentConversation.participants,
-            reactionMetadata: currentConversation.reactionMetadata,
-            users: currentConversation.users
-        )
-    }
-
     var sync: ConversationSyncService {
         .init()
+    }
+
+    private var hydratedMessages: [Message] {
+        guard let currentConversation else { return [] }
+        return (currentConversation.messages ?? [])
+            .hydrated(with: currentConversation.activities)
     }
 
     // MARK: - Add Messages
@@ -78,60 +69,41 @@ final class ConversationSessionService {
 
     // MARK: - Set Current Conversation
 
-    func setCurrentConversation(_ currentConversation: Conversation?) {
-        let hydratedMessages = currentConversation?
-            .messages?
-            .hydrated(with: currentConversation?.activities)
-
-        completeMessageArray = hydratedMessages
-        self.currentConversation = withMessagesOffset(
-            currentConversation?
-                .withMessages(hydratedMessages)
-                .withMessagesOffsetFromCurrentUserAdditionDate
-                .withMessagesSortedByAscendingSentDate
-        )
-
-        if let currentConversation {
-            let store = LockIsolated(store)
-            Task {
-                await store.wrappedValue.upsertConversation(currentConversation)
-                if let messages = hydratedMessages {
-                    await store.wrappedValue.upsertMessages(messages)
-                }
-            }
+    func setCurrentConversation(_ conversation: Conversation?) {
+        guard let conversation else {
+            currentConversation = nil
+            displayedMessages = []
+            return
         }
+
+        currentConversation = conversation
+        updateDisplayedMessages()
+        sessionStore.upsertConversation(conversation)
     }
 
     // MARK: - Message Offset
 
     func incrementMessageOffset() {
-        guard let fullConversation else { return }
+        guard currentConversation != nil else { return }
         messageOffset += Floats.messageOffsetIncrement
-        currentConversation = withMessagesOffset(
-            fullConversation
-                .withMessagesOffsetFromCurrentUserAdditionDate
-        )
+        updateDisplayedMessages()
     }
 
     func incrementMessageOffset(to messageID: String) {
-        guard let fullConversation,
-              fullConversation.messageIDs.contains(messageID),
-              fullConversation.messages?.map(\.id).contains(messageID) == true else { return }
+        guard let currentConversation,
+              currentConversation.messageIDs.contains(messageID),
+              (currentConversation.messages ?? []).map(\.id).contains(messageID) else { return }
 
-        let offsetConversation = fullConversation.withMessagesOffsetFromCurrentUserAdditionDate
-        let offsetMessageCount = offsetConversation.messages?.count ?? 0
-        guard offsetConversation
-            .messages?
-            .map(\.id)
-            .contains(messageID) == true else { return }
+        let offsetMessages = hydratedMessages
+            .offsetFromCurrentUserAdditionDate(
+                activities: currentConversation.activities
+            )
 
-        while currentConversation?
-            .messages?
-            .map(\.id)
-            .contains(messageID) == false,
-            Int(messageOffset) < offsetMessageCount {
+        guard offsetMessages.map(\.id).contains(messageID) else { return }
+        while !displayedMessages.map(\.id).contains(messageID),
+              Int(messageOffset) < offsetMessages.count {
             messageOffset += 1
-            currentConversation = withMessagesOffset(offsetConversation)
+            displayedMessages = withMessagesOffset(offsetMessages)
         }
     }
 
@@ -187,6 +159,8 @@ final class ConversationSessionService {
         }
     }
 
+    // MARK: - Auxiliary
+
     private func hideConversation(
         _ conversation: Conversation,
         forUser userID: String
@@ -222,21 +196,21 @@ final class ConversationSessionService {
         }
     }
 
-    private func withMessagesOffset(_ conversation: Conversation?) -> Conversation? {
-        let amountToGet = Int(messageOffset)
-        guard let conversation,
-              let messages = conversation.messages?.unique,
-              messages.count > amountToGet else { return conversation }
+    private func updateDisplayedMessages() {
+        displayedMessages = withMessagesOffset(
+            hydratedMessages.offsetFromCurrentUserAdditionDate(
+                activities: currentConversation?.activities
+            ).sortedByAscendingSentDate
+        )
+    }
 
-        return .init(
-            conversation.id,
-            activities: conversation.activities,
-            messageIDs: conversation.messageIDs,
-            messages: messages.reversed()[0 ... amountToGet].reversed(),
-            metadata: conversation.metadata,
-            participants: conversation.participants,
-            reactionMetadata: conversation.reactionMetadata,
-            users: conversation.users
+    private func withMessagesOffset(
+        _ messages: [Message]
+    ) -> [Message] {
+        let amountToGet = Int(messageOffset)
+        guard messages.unique.count > amountToGet else { return messages }
+        return Array(
+            messages.unique.reversed()[0 ... amountToGet].reversed()
         )
     }
 }

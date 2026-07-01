@@ -56,7 +56,7 @@ private final class SizeCalculator: @MainActor MessageSizeCalculator {
     // MARK: - Size for Item
 
     override func sizeForItem(at indexPath: IndexPath) -> CGSize {
-        @Dependency(\.clientSession.conversation.currentConversation) var conversation: Conversation?
+        @Dependency(\.clientSession.conversation.displayedMessages) var displayedMessages: [Message]
 
         guard let layout else { return .zero }
         return MainActor.assumeIsolated {
@@ -67,7 +67,7 @@ private final class SizeCalculator: @MainActor MessageSizeCalculator {
                 layout.sectionInset.left + layout.sectionInset.right
             let cellWidth = (layout.collectionView?.bounds.width ?? 0) - fullInset
 
-            guard let message = conversation?.messages?.itemAt(indexPath.section),
+            guard let message = displayedMessages.itemAt(indexPath.section),
                   let attributedString = message.attributedSystemString else {
                 return .init(width: cellWidth, height: Floats.defaultHeight)
             }

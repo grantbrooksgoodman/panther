@@ -37,7 +37,7 @@ extension ChatInfoPageViewService {
     ) {
         Task {
             let confirmAction: AKAction = .init("Share Phone Number") {
-                @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
+                @Dependency(\.clientSession.conversation.currentConversation) var conversation: Conversation?
                 guard let conversation,
                       let currentUserID = User.currentUserID,
                       let currentUserPenPalsSharingData = conversation.currentUserPenPalsSharingData else {

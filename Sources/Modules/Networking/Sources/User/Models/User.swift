@@ -19,6 +19,7 @@ struct User: Codable, EncodedHashable, Hashable {
 
     @Updatable let aiEnhancedTranslationsEnabled: Bool
     @Updatable(nilIf: .isBangQualifiedEmpty) let blockedUserIDs: [String]?
+    @Updatable let conversationIDs: [ConversationID]?
     let id: String
     @Updatable let isPenPalsParticipant: Bool
     let languageCode: String
@@ -28,10 +29,6 @@ struct User: Codable, EncodedHashable, Hashable {
     @Updatable(nilIf: .isBangQualifiedEmpty) let previousLanguageCodes: [String]?
     @Updatable(nilIf: .isBangQualifiedEmpty) let pushTokens: [String]?
 
-    // NIT: Should be @LockIsolated, but would lose Codable conformance.
-    @Updatable private(set) var conversationIDs: [ConversationID]?
-    private(set) var conversations: [Conversation]?
-
     // MARK: - Computed Properties
 
     var canSendAudioMessages: Bool {
@@ -39,12 +36,19 @@ struct User: Codable, EncodedHashable, Hashable {
         return transcriptionService.isTranscriptionSupported(for: languageCode)
     }
 
+    /// Resolves conversations from the session store using this user's `conversationIDs`.
+    var conversations: [Conversation]? {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        guard let conversationIDs else { return nil }
+        let resolved = conversationIDs.compactMap { sessionStore.conversations[$0.key] }
+        return resolved.isEmpty ? nil : resolved
+    }
+
     var hashFactors: [String] {
         var factors = [String]()
         factors.append(aiEnhancedTranslationsEnabled.description)
         factors.append(contentsOf: blockedUserIDs ?? [])
         factors.append(contentsOf: conversationIDs?.map(\.encoded) ?? [])
-        factors.append(contentsOf: conversations?.map(\.encodedHash) ?? [])
         factors.append(id)
         factors.append(isPenPalsParticipant.description)
         factors.append(languageCode)
@@ -110,34 +114,9 @@ struct User: Codable, EncodedHashable, Hashable {
     // MARK: - Badge Number Calculation
 
     /// - Note: Will return `0` for users other than the current user.
-    func calculateBadgeNumber() async -> Int {
-        guard id == User.currentUserID else { return 0 }
-
-        if conversationIDs?.isEmpty == false,
-           conversations == nil || conversations?.isEmpty == true {
-            @Dependency(\.clientSession.user) var userSession: UserSessionService
-            do {
-                try await userSession.hydrateCurrentUserConversations()
-            } catch {
-                Logger.log(
-                    error,
-                    domain: .user
-                )
-                return 0
-            }
-
-            guard let updatedConversations = userSession.currentUser?.conversations,
-                  !updatedConversations.isEmpty else { return 0 }
-
-            return updatedConversations
-                .visibleForCurrentUser
-                .flatMap { $0.messages ?? [] }
-                .filteringSystemMessages
-                .filter { !$0.isFromCurrentUser && $0.currentUserReadReceipt == nil }
-                .count
-        }
-
-        guard let conversations else { return 0 }
+    func calculateBadgeNumber() -> Int {
+        guard id == User.currentUserID,
+              let conversations else { return 0 }
         return conversations
             .visibleForCurrentUser
             .flatMap { $0.messages ?? [] }
@@ -153,44 +132,6 @@ struct User: Codable, EncodedHashable, Hashable {
         return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(
             for: user.languageCode
         )
-    }
-
-    // MARK: - Inheriting Local State
-
-    /// Returns a copy of this user with `conversations` populated from a previous instance.
-    ///
-    /// When `resolveCurrentUser()` creates a new `User` value, `conversations` is `nil`
-    /// because it's populated locally (not from the server). This method carries over
-    /// the prior instance's `conversations` to avoid redundant hydration calls.
-    func inheritingLocalState(from user: User?) -> User {
-        guard let user,
-              user.id == id,
-              conversations == nil || conversations?.isEmpty == true,
-              let sourceConversations = user.conversations,
-              !sourceConversations.isEmpty else { return self }
-        Logger.log(
-            "Inherited local state from previous user instance.",
-            domain: .user,
-            sender: self
-        )
-
-        var result = self
-        result.conversations = sourceConversations
-        return result
-    }
-
-    // MARK: - Setting Conversations
-
-    /// Returns a copy of this user with `conversations` and `conversationIDs` populated.
-    ///
-    /// - Note: Does nothing if called on a user other than the current user.
-    func settingConversations(
-        _ conversations: Set<Conversation>
-    ) -> User {
-        var result = self
-        result.conversationIDs = conversations.map(\.id)
-        result.conversations = Array(conversations).sortedByLatestMessageSentDate
-        return result
     }
 
     // MARK: - Equatable Conformance

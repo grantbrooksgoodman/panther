@@ -189,8 +189,7 @@ struct ChatInfoPageReducer: Reducer {
         }
 
         fileprivate var conversation: Conversation? {
-            @Dependency(\.clientSession.conversation.fullConversation) var currentConversation: Conversation?
-            return currentConversation
+            Dependency(\.clientSession.conversation.currentConversation).wrappedValue
         }
     }
 

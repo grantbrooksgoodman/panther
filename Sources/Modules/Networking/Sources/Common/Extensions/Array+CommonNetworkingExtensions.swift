@@ -49,20 +49,6 @@ extension [Conversation] {
     var visibleForCurrentUser: [Conversation] {
         filter(\.isVisibleForCurrentUser)
     }
-
-    // MARK: - Methods
-
-    func settingMessages() async throws(Exception) -> [Conversation] {
-        try await parallelMap {
-            try await $0.settingMessages()
-        }
-    }
-
-    func settingUsers() async throws(Exception) -> [Conversation] {
-        try await parallelMap {
-            try await $0.settingUsers()
-        }
-    }
 }
 
 extension [Message] {

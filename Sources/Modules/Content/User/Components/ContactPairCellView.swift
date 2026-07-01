@@ -24,7 +24,7 @@ struct ContactPairCellView: View {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageStateService: ChatPageStateService
     @Dependency(\.conversationCellViewService) private var conversationCellViewService: ConversationCellViewService
-    @Dependency(\.clientSession.conversation.fullConversation) private var fullConversation: Conversation?
+    @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
 
     // MARK: - Properties
 
@@ -40,7 +40,7 @@ struct ContactPairCellView: View {
     private var isParticipantInCurrentConversation: Bool {
         let contactPairUserIDs = contactPair.users.map(\.id)
         guard chatPageStateService.isPresented,
-              let participantUserIDs = fullConversation?.participants.map(\.userID) else { return false }
+              let participantUserIDs = currentConversation?.participants.map(\.userID) else { return false }
         return participantUserIDs.containsAnyString(in: contactPairUserIDs)
     }
 

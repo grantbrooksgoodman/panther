@@ -45,7 +45,7 @@ struct MessageRetranslationService {
     ) async throws(Exception) {
         guard chatPageState.isPresented,
               let translation = message.translation,
-              let conversation = clientSession.conversation.fullConversation,
+              let conversation = clientSession.conversation.currentConversation,
               conversation.messageIDs.contains(message.id),
               conversation.messages?.compactMap(\.id).contains(message.id) == true else {
             throw Exception(
@@ -119,15 +119,13 @@ struct MessageRetranslationService {
                     ]
                 )
 
-                let hydratedConversation = try await conversation.settingMessages(
+                try await conversation.resolveMessages(
                     ids: [message.id]
                 )
 
                 clientSession
                     .conversation
-                    .setCurrentConversation(
-                        hydratedConversation
-                    )
+                    .setCurrentConversation(conversation)
 
                 chatPageViewService.reloadItemsWhenSafe(
                     at: [indexPath],
@@ -266,19 +264,16 @@ struct MessageRetranslationService {
         messageID: String
     ) async throws(Exception) {
         conversationArchive.addValue(
-            .init(
-                .init(
-                    key: conversation.id.key,
-                    hash: .init(Int.random(in: 1 ... 1_000_000)).encodedHash
-                ),
-                activities: conversation.activities,
-                messageIDs: conversation.messageIDs.filter { $0 != messageID },
-                messages: conversation.messages?.filter { $0.id != messageID },
-                metadata: conversation.metadata,
-                participants: conversation.participants,
-                reactionMetadata: conversation.reactionMetadata,
-                users: conversation.users
-            )
+            conversation
+                .copying(
+                    id: .init(
+                        key: conversation.id.key,
+                        hash: .init(Int.random(in: 1 ... 1_000_000)).encodedHash
+                    )
+                )
+                .copying(
+                    messageIDs: conversation.messageIDs.filter { $0 != messageID }
+                )
         )
 
         _ = try await conversation.update(

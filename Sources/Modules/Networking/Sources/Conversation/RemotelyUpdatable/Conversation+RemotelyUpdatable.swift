@@ -41,6 +41,7 @@ extension Conversation: RemotelyUpdatable {
         _ key: SerializableKey,
         withValue value: Any
     ) -> Conversation? {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
         switch key {
         case .encodedHash,
              .id:
@@ -53,12 +54,9 @@ extension Conversation: RemotelyUpdatable {
 
         case .messages:
             guard let value = value as? [Message] else { return nil }
+            sessionStore.upsertMessages(value.uniquedByID)
             return updateIDHash(
-                copying(
-                    messageIDs: value.map(\.id).unique
-                ).copying(
-                    messages: value.uniquedByID
-                )
+                copying(messageIDs: value.map(\.id).unique)
             )
 
         case .metadata:
@@ -86,7 +84,7 @@ extension Conversation: RemotelyUpdatable {
         with data: [PartialKeyPath<Conversation>: Any]
     ) async throws(Exception) -> Conversation {
         @Dependency(\.networking) var networking: NetworkServices
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         var updated = filteringSystemMessages
         for keyPair in data {
@@ -122,12 +120,10 @@ extension Conversation: RemotelyUpdatable {
 
         try await propagateUpdatesToUsers(in: updated)
         if data.keys.contains(\.activities) {
-            updated = try await updated.settingUsers(
-                forceUpdate: true
-            )
+            try await updated.resolveUsers(forceUpdate: true)
         }
 
-        networking.conversationService.archive.addValue(updated)
+        sessionStore.upsertConversation(updated)
         return updated
     }
 
@@ -153,13 +149,13 @@ extension Conversation: RemotelyUpdatable {
         forKey key: SerializableKey
     ) async throws(Exception) -> Conversation {
         @Dependency(\.networking) var networking: NetworkServices
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
-        var result = updated
-        defer { networking.conversationService.archive.addValue(result) }
-        guard result.id.hash != id.hash else { return result }
+        defer { sessionStore.upsertConversation(updated) }
+        guard updated.id.hash != id.hash else { return updated }
 
         try await networking.database.setValue(
-            result.id.hash,
+            updated.id.hash,
             forKey: [
                 networkPath.rawValue,
                 identifier,
@@ -167,10 +163,10 @@ extension Conversation: RemotelyUpdatable {
             ].joined(separator: "/")
         )
 
-        try await propagateUpdatesToUsers(in: result)
-        guard key == .activities else { return result }
-        result = try await result.settingUsers(forceUpdate: true)
-        return result
+        try await propagateUpdatesToUsers(in: updated)
+        guard key == .activities else { return updated }
+        try await updated.resolveUsers(forceUpdate: true)
+        return updated
     }
 
     // MARK: - Auxiliary
@@ -206,8 +202,8 @@ extension Conversation: RemotelyUpdatable {
     ) async throws(Exception) {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
-        let hydrated = try await conversation.settingUsers(forceUpdate: true)
-        guard var users = hydrated.users else {
+        try await conversation.resolveUsers(forceUpdate: true)
+        guard var users = conversation.users else {
             throw Exception(
                 "Failed to set users on conversation.",
                 metadata: .init(sender: self)

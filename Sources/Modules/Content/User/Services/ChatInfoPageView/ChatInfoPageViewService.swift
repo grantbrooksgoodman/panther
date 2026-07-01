@@ -75,7 +75,7 @@ final class ChatInfoPageViewService {
     /// `.viewAppeared`
     func getChatParticipants() async throws(Exception) -> [ChatParticipant] {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
-        guard let conversation = clientSession.conversation.fullConversation else {
+        guard let conversation = clientSession.conversation.currentConversation else {
             throw Exception(
                 "No current conversation.",
                 metadata: .init(sender: self)
@@ -83,12 +83,10 @@ final class ChatInfoPageViewService {
         }
 
         guard let users = conversation.users,
+              !users.isEmpty,
               conversation.participants.count - 1 == users.count else {
-            let hydratedConversation = try await conversation.settingUsers(
-                forceUpdate: true
-            )
-
-            clientSession.conversation.setCurrentConversation(hydratedConversation)
+            try await conversation.resolveUsers(forceUpdate: true)
+            clientSession.conversation.setCurrentConversation(conversation)
             return try await getChatParticipants()
         }
 

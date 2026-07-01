@@ -35,14 +35,14 @@ final class MessageDeliveryService {
 
     // MARK: - Computed Properties
 
-    private var fullConversation: Conversation? {
-        clientSession.conversation.fullConversation
+    private var conversation: Conversation? {
+        clientSession.conversation.currentConversation
     }
 
     private var isPenPalsConversation: Bool {
         // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
         (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName)) ||
-            fullConversation?.metadata.isPenPalsConversation == true
+            conversation?.metadata.isPenPalsConversation == true
     }
 
     private var selectedContactPairs: [ContactPair]? {
@@ -50,7 +50,7 @@ final class MessageDeliveryService {
     }
 
     private var users: [User] {
-        (fullConversation?.users ?? (selectedContactPairs ?? []).users).unique
+        (conversation?.users ?? (selectedContactPairs ?? []).users).unique
     }
 
     // MARK: - Object Lifecycle
@@ -117,7 +117,7 @@ final class MessageDeliveryService {
             chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
             chatPageViewService.inputBar?.toggleSendingUI(on: false)
 
-            if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
+            if clientSession.conversation.currentConversation?.id.key == conversation?.id.key {
                 chatPageViewService
                     .deliveryProgressIndicator?
                     .stopAnimatingDeliveryProgress()
@@ -128,7 +128,7 @@ final class MessageDeliveryService {
             let conversation = try await clientSession.message.sendAudioMessage(
                 inputFile,
                 toUsers: users,
-                inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
+                inConversation: ((conversation?.isMock ?? true) ? nil : conversation, isPenPalsConversation)
             )
 
             services.analytics.logEvent(.sendAudioMessage)
@@ -178,7 +178,7 @@ final class MessageDeliveryService {
             chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
             chatPageViewService.inputBar?.toggleSendingUI(on: false)
 
-            if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
+            if clientSession.conversation.currentConversation?.id.key == conversation?.id.key {
                 chatPageViewService
                     .deliveryProgressIndicator?
                     .stopAnimatingDeliveryProgress()
@@ -188,7 +188,7 @@ final class MessageDeliveryService {
         let conversation = try await clientSession.message.sendMediaMessage(
             mediaFile,
             toUsers: users,
-            inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
+            inConversation: ((conversation?.isMock ?? true) ? nil : conversation, isPenPalsConversation)
         )
 
         services.analytics.logEvent(.sendMediaMessage)
@@ -226,7 +226,7 @@ final class MessageDeliveryService {
             chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
             chatPageViewService.inputBar?.toggleSendingUI(on: false)
 
-            if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
+            if clientSession.conversation.currentConversation?.id.key == conversation?.id.key {
                 chatPageViewService
                     .deliveryProgressIndicator?
                     .stopAnimatingDeliveryProgress()
@@ -236,7 +236,7 @@ final class MessageDeliveryService {
         let conversation = try await clientSession.message.sendTextMessage(
             text,
             toUsers: users,
-            inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
+            inConversation: ((conversation?.isMock ?? true) ? nil : conversation, isPenPalsConversation)
         )
 
         services.analytics.logEvent(.sendTextMessage)
@@ -257,13 +257,15 @@ final class MessageDeliveryService {
         text: String?,
         isPenPalsConversation: Bool
     ) {
-        assert(audioFile != nil || mediaFile != nil || text != nil, "No values provided.")
+        assert(
+            audioFile != nil || mediaFile != nil || text != nil,
+            "No values provided."
+        )
 
-        guard let conversation = clientSession.conversation.fullConversation,
+        guard let conversation = clientSession.conversation.currentConversation,
               let currentUser = clientSession.user.currentUser else { return }
 
         var messages = conversation.messages ?? []
-
         let mockTranslation: Translation = .init(
             input: .init(text?.trimmingTrailingWhitespace ?? ""),
             output: text?.trimmingTrailingWhitespace ?? "",
@@ -318,20 +320,16 @@ final class MessageDeliveryService {
             ))
         }
 
-        let newConversation: Conversation = .init(
-            conversation.id,
-            activities: conversation.activities,
-            messageIDs: conversation.messageIDs,
-            messages: messages,
-            metadata: conversation.metadata.copyWith(
-                isPenPalsConversation: isPenPalsConversation
-            ),
-            participants: conversation.participants,
-            reactionMetadata: conversation.reactionMetadata,
-            users: conversation.users
-        )
+        clientSession.store.upsertMessages(messages)
+        let newConversation = conversation
+            .copying(messageIDs: messages.map(\.id))
+            .copying(
+                metadata: conversation.metadata.copyWith(
+                    isPenPalsConversation: isPenPalsConversation
+                )
+            )
 
-        if let currentConversation = clientSession.conversation.fullConversation,
+        if let currentConversation = clientSession.conversation.currentConversation,
            !currentConversation.isMock {
             guard currentConversation.id.key == conversation.id.key else { return }
         }

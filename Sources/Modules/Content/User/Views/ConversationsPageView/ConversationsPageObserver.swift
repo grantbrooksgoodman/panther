@@ -131,7 +131,10 @@ struct ConversationsPageObserver: Observer {
             networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
 
             do throws(Exception) {
-                try await clientSession.user.hydrateUsersOnCurrentUserConversations()
+                try await clientSession.user.resolveCurrentUserData(
+                    resolveConversations: false,
+                    resolveUsers: true
+                )
             } catch {
                 Logger.log(
                     error,
@@ -148,17 +151,15 @@ struct ConversationsPageObserver: Observer {
             guard chatPageState.isPresented else { return send(.updatedCurrentUser) }
             defer { chatPageState.setIsWaitingToUpdateConversations(false) }
 
-            guard let currentConversation = clientSession.conversation.fullConversation,
+            guard let currentConversation = clientSession.conversation.currentConversation,
                   let updatedConversation = clientSession
                   .user
                   .currentUser?
                   .conversations?
-                  .first(where: {
-                      $0.id.key == currentConversation.id.key
-                  }) else { return }
+                  .first(where: { $0.id.key == currentConversation.id.key }) else { return }
 
             let currentMessageIDs = Set(
-                currentConversation.messages?.filteringSystemMessages.map(\.id) ?? []
+                (currentConversation.messages ?? []).filteringSystemMessages.map(\.id)
             )
 
             if let missingMessages = updatedConversation.messages?
@@ -174,7 +175,7 @@ struct ConversationsPageObserver: Observer {
                         for: missingMessages
                     )
 
-                    if let badgeNumber = await clientSession
+                    if let badgeNumber = clientSession
                         .user
                         .currentUser?
                         .calculateBadgeNumber() {
@@ -205,12 +206,9 @@ struct ConversationsPageObserver: Observer {
             guard matchesCurrentConversation(updatedConversation.id.key) else { return }
 
             // If a user was added/removed, resolve the users again.
-            var conversationToSet = updatedConversation
             if currentConversation.participants.count != updatedConversation.participants.count {
                 do throws(Exception) {
-                    conversationToSet = try await updatedConversation.settingUsers(
-                        forceUpdate: true
-                    )
+                    try await updatedConversation.resolveUsers(forceUpdate: true)
                 } catch {
                     Logger.log(
                         error,
@@ -220,7 +218,7 @@ struct ConversationsPageObserver: Observer {
                 }
             }
 
-            clientSession.conversation.setCurrentConversation(conversationToSet)
+            clientSession.conversation.setCurrentConversation(updatedConversation)
             chatPageState.setIsWaitingToUpdateConversations(false) // Allow typing indicator to appear.
 
             if chatPageViewService.recipientBar?.layout.recipientBarView == nil,

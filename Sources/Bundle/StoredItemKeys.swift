@@ -33,6 +33,8 @@ import AppSubsystem
 extension StoredItemKey {
     static let populatedTemporaryCaches: StoredItemKey = .init("populatedTemporaryCaches")
     static let updatedLastSignInDate: StoredItemKey = .init("updatedLastSignInDate")
+    // TODO: Should be removed once a proper fix is found.
+    static let updatedReadReceipts: StoredItemKey = .init("updatedReadReceipts")
 }
 
 /// Use this extension to add convenience accessors for stored runtime
@@ -54,5 +56,10 @@ extension RuntimeStorage {
 
     static var updatedLastSignInDate: Bool {
         retrieve(.updatedLastSignInDate) as? Bool ?? false
+    }
+
+    // TODO: Should be removed once a proper fix is found.
+    static var updatedReadReceipts: String? {
+        retrieve(.updatedReadReceipts) as? String
     }
 }

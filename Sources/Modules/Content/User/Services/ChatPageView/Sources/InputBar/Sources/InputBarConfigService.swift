@@ -28,11 +28,20 @@ struct InputBarConfigService {
 
     var canShowRecordButton: Bool {
         guard let currentUser = clientSession.user.currentUser,
-              let conversation = clientSession.conversation.currentConversation else { return false }
+              let users = clientSession
+              .conversation
+              .currentConversation?
+              .users else { return false }
 
         guard currentUser.canSendAudioMessages,
-              let users = conversation.users else { return !(audioService.acknowledgedAudioMessagesUnsupported ?? false) }
-        return users.allSatisfy { currentUser.canSendAudioMessages(to: $0) /* TODO: Potential to be unlocked in removing this requirement. */ }
+              !users.isEmpty else {
+            return !(audioService.acknowledgedAudioMessagesUnsupported ?? false)
+        }
+
+        // TODO: Potential to be unlocked in removing this requirement.
+        return users.allSatisfy {
+            currentUser.canSendAudioMessages(to: $0)
+        }
     }
 
     // MARK: - Internal

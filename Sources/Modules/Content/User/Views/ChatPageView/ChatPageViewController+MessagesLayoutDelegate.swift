@@ -29,9 +29,9 @@ extension ChatPageViewController: @MainActor MessagesLayoutDelegate {
     ) -> CGFloat {
         @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
         guard let currentConversation,
-              let messages = currentConversation.messages,
               let message = message as? Message,
               !message.isMock else { return 0 }
+        let messages = displayedMessages
 
         if let alternateMessageService,
            alternateMessageService.isDisplayingAlternateText(for: message) {
@@ -58,8 +58,8 @@ extension ChatPageViewController: @MainActor MessagesLayoutDelegate {
     ) -> CGFloat {
         guard indexPath.section != 0 else { return Floats.cellTopLabelHeight }
 
-        guard let messages = currentConversation?.messages,
-              let message = message as? Message,
+        let messages = displayedMessages
+        guard let message = message as? Message,
               let previousSentDate = messages.itemAt(indexPath.section - 1)?.sentDate,
               message.sentDate.seconds(from: previousSentDate) > Int(Floats.cellTopLabelHeightSentDateSecondsComparator) else { return 0 }
 
@@ -75,8 +75,8 @@ extension ChatPageViewController: @MainActor MessagesLayoutDelegate {
     ) -> CGFloat {
         guard let currentConversation,
               currentConversation.participants.count > 2,
-              let messages = currentConversation.messages,
               let message = message as? Message else { return 0 }
+        let messages = displayedMessages
 
         if messages.itemAt(indexPath.section - 1)?.fromAccountID == message.fromAccountID {
             return 0

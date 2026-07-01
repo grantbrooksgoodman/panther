@@ -97,10 +97,7 @@ struct ChangeLanguagePageViewService {
             }
         }
 
-        try await userSession.hydrateCurrentUserConversations()
-        try await userSession.hydrateMessagesOnCurrentUserConversations()
-        try await userSession.hydrateUsersOnCurrentUserConversations()
-
+        try await userSession.resolveCurrentUserData()
         let conversations = (
             userSession
                 .currentUser?

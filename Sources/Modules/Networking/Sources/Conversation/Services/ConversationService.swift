@@ -18,6 +18,7 @@ struct ConversationService {
 
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
     // MARK: - Properties
 
@@ -56,18 +57,17 @@ struct ConversationService {
             )
         }
 
+        sessionStore.upsertMessages([firstMessage])
         var mockConversation: Conversation = .init(
             .init(key: id, hash: ""),
             activities: nil,
             messageIDs: [firstMessage.id],
-            messages: [firstMessage],
             metadata: .empty(
                 userIDs: participants.map(\.userID),
                 isPenPalsConversation: isPenPalsConversation
             ),
             participants: participants,
-            reactionMetadata: nil,
-            users: nil
+            reactionMetadata: nil
         )
 
         let data = mockConversation.encoded.filter {
@@ -91,17 +91,7 @@ struct ConversationService {
             )
         }
 
-        mockConversation = .init(
-            conversationID,
-            activities: mockConversation.activities,
-            messageIDs: mockConversation.messageIDs,
-            messages: mockConversation.messages,
-            metadata: mockConversation.metadata,
-            participants: mockConversation.participants,
-            reactionMetadata: nil,
-            users: mockConversation.users
-        )
-
+        mockConversation = mockConversation.copying(id: conversationID)
         return mockConversation
     }
 

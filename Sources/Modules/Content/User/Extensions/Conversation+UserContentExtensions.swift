@@ -56,16 +56,8 @@ extension Conversation {
 
     var filteringSystemMessages: Conversation {
         let messageIDs = messageIDs.filter { $0.hasPrefix("-") }
-        let messages = messages?.filteringSystemMessages
-        return .init(
-            id,
-            activities: activities,
-            messageIDs: messageIDs.isEmpty ? .bangQualifiedEmpty : messageIDs,
-            messages: messages?.isEmpty == true ? nil : messages,
-            metadata: metadata,
-            participants: participants,
-            reactionMetadata: reactionMetadata,
-            users: users
+        return copying(
+            messageIDs: messageIDs.isEmpty ? .bangQualifiedEmpty : messageIDs
         )
     }
 
@@ -75,14 +67,6 @@ extension Conversation {
 
     var isMock: Bool {
         id.key == CommonConstants.newConversationID
-    }
-
-    /// - Note: Returns `nil` if the conversation has > 2 total participants.
-    var isOtherUserSharingPenPalsData: Bool? {
-        guard metadata.isPenPalsConversation else { return true }
-        guard participants.count == 2 else { return nil }
-        guard let otherUser = users?.first else { return false }
-        return userSharesPenPalsDataWithCurrentUser(otherUser)
     }
 
     var isVisibleForCurrentUser: Bool {
@@ -153,40 +137,26 @@ extension Conversation {
             }
     }
 
-    var withHydratedMessages: Conversation {
-        guard let messages else { return self }
-        return withMessages(messages.hydrated(with: activities))
-    }
-
     // swiftlint:disable:next identifier_name
     var withMessagesOffsetFromCurrentUserAdditionDate: Conversation {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
         guard let currentUserAddedActivity = activities?
             .last(where: \.action.isCurrentUserAdded) else { return self }
-        return .init(
-            id,
-            activities: activities,
-            messageIDs: messageIDs,
-            messages: messages?.filter {
-                $0.isConsentMessage || $0.sentDate >= currentUserAddedActivity.date
-            },
-            metadata: metadata,
-            participants: participants,
-            reactionMetadata: reactionMetadata,
-            users: users
-        )
+        let filteredIDs = messageIDs.filter { id in
+            guard let message = sessionStore.messages[id] else { return true }
+            return message.isConsentMessage || message.sentDate >= currentUserAddedActivity.date
+        }
+        return copying(messageIDs: filteredIDs)
     }
 
     var withMessagesSortedByAscendingSentDate: Conversation {
-        .init(
-            id,
-            activities: activities,
-            messageIDs: messageIDs,
-            messages: messages?.sortedByAscendingSentDate,
-            metadata: metadata,
-            participants: participants,
-            reactionMetadata: reactionMetadata,
-            users: users
-        )
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        let sortedIDs = messageIDs.sorted { first, second in
+            guard let firstMessage = sessionStore.messages[first],
+                  let secondMessage = sessionStore.messages[second] else { return false }
+            return firstMessage.sentDate < secondMessage.sentDate
+        }
+        return copying(messageIDs: sortedIDs)
     }
 
     // MARK: - Methods
@@ -197,28 +167,34 @@ extension Conversation {
     }
 
     static func empty(withUsers users: [User]) -> Conversation {
-        .init(
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        sessionStore.upsertUsers(users)
+        return .init(
             .init(key: "", hash: ""),
             activities: nil,
             messageIDs: [],
-            messages: nil,
             metadata: .empty(userIDs: users.map(\.id)),
-            participants: [],
-            reactionMetadata: nil,
-            users: users
+            participants: users.map {
+                .init(
+                    userID: $0.id,
+                    hasDeletedConversation: false,
+                    isTyping: false
+                )
+            },
+            reactionMetadata: nil
         )
     }
 
     static func mock(withUsers users: [User]) -> Conversation {
-        .init(
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        sessionStore.upsertUsers(users)
+        return .init(
             .init(key: CommonConstants.newConversationID, hash: ""),
             activities: nil,
             messageIDs: [],
-            messages: nil,
             metadata: .empty(userIDs: users.map(\.id)),
-            participants: [],
-            reactionMetadata: nil,
-            users: users
+            participants: users.map { .init(userID: $0.id) },
+            reactionMetadata: nil
         )
     }
 
@@ -231,18 +207,5 @@ extension Conversation {
         guard metadata.isPenPalsConversation,
               participants.map(\.userID).contains(user.id) else { return true }
         return (participantsSharingPenPalsDataWithCurrentUser ?? []).map(\.userID).contains(user.id)
-    }
-
-    func withMessages(_ messages: [Message]?) -> Conversation {
-        .init(
-            id,
-            activities: activities,
-            messageIDs: messageIDs,
-            messages: messages,
-            metadata: metadata,
-            participants: participants,
-            reactionMetadata: reactionMetadata,
-            users: users
-        )
     }
 }

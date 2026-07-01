@@ -162,18 +162,19 @@ final class AudioMessagePlaybackService {
             removeAfterFirstPost: true
         ) { notification in
             Task { @MainActor in
-                let conversation = self.viewController.currentConversation
                 let collectionView = self.viewController.messagesCollectionView
 
-                guard let messageIndex = conversation?.messages?.firstIndex(where: { $0.id == message.id }),
-                      let audioMessageCell = collectionView.cellForItem(at: .init(
-                          item: 0,
-                          section: messageIndex
-                      )) as? AudioMessageCell,
-                      let duration = notification.audioFileDuration,
-                      let url = notification.audioFileURL,
-                      audioFile.url == url,
-                      duration > 0 else { return }
+                guard let messageIndex = self.viewController.displayedMessages.firstIndex(
+                    where: { $0.id == message.id }
+                ),
+                    let audioMessageCell = collectionView.cellForItem(at: .init(
+                        item: 0,
+                        section: messageIndex
+                    )) as? AudioMessageCell,
+                    let duration = notification.audioFileDuration,
+                    let url = notification.audioFileURL,
+                    audioFile.url == url,
+                    duration > 0 else { return }
 
                 audioMessageCell.durationLabel.text = duration.durationString
             }
@@ -204,7 +205,7 @@ final class AudioMessagePlaybackService {
 
     private func message(for cell: AudioMessageCell) -> Message? {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell) else { return nil }
-        return viewController.currentConversation?.messages?.itemAt(indexPath.section)
+        return viewController.displayedMessages.itemAt(indexPath.section)
     }
 
     private func nextAudioMessageCell(after cell: AudioMessageCell) -> AudioMessageCell? {

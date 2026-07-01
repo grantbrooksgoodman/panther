@@ -30,7 +30,9 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
     ) -> UIColor {
-        currentConversation?.messages?.itemAt(indexPath.section)?.backgroundColor ?? .senderBubble
+        displayedMessages
+            .itemAt(indexPath.section)?
+            .backgroundColor ?? .senderBubble
     }
 
     // MARK: - Configure Audio Cell

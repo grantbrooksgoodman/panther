@@ -74,7 +74,7 @@ final class AlternateMessageService {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
 
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
-              let message = viewController.currentConversation?.messages?.itemAt(indexPath.section) else { return }
+              let message = viewController.displayedMessages.itemAt(indexPath.section) else { return }
 
         func append() {
             analytics.logEvent(.viewAlternate)
@@ -136,11 +136,15 @@ final class AlternateMessageService {
 
         var modelCell: TextMessageCell?
         for textMessageCell in visibleTextMessageCells where !textMessageCell.messageLabel.font.isItalicized {
-            guard let indexPath = viewController.messagesCollectionView.indexPath(for: textMessageCell),
-                  let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
-                  message.contentType == .text,
-                  !isDisplayingAlternateText(for: message),
-                  !isDisplayingAudioTranscription(for: message) else { continue }
+            guard let indexPath = viewController
+                .messagesCollectionView
+                .indexPath(for: textMessageCell),
+                let message = viewController
+                .displayedMessages
+                .itemAt(indexPath.section),
+                message.contentType == .text,
+                !isDisplayingAlternateText(for: message),
+                !isDisplayingAudioTranscription(for: message) else { continue }
             modelCell = textMessageCell
         }
 

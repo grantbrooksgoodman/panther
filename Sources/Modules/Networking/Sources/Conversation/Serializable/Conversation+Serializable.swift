@@ -33,7 +33,7 @@ extension Conversation: Serializable {
     // MARK: - Properties
 
     var encoded: [String: Any] {
-        let messageIDs = messages?.filteringSystemMessages.map(\.id) ?? .bangQualifiedEmpty
+        let messageIDs = messageIDs.filter { $0.hasPrefix("-") }
         let reactionMetadata = reactionMetadata?.map(\.encoded) ?? [ReactionMetadata.empty.encoded]
         return [
             Keys.id.rawValue: id.encoded,
@@ -53,6 +53,7 @@ extension Conversation: Serializable {
     ) async throws(Exception) {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.networking.messageService) var messageService: MessageService
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         // Deserialize raw data
 
@@ -123,11 +124,9 @@ extension Conversation: Serializable {
                 conversationID,
                 activities: activities,
                 messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
-                messages: nil,
                 metadata: metadata,
                 participants: participants,
-                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata,
-                users: nil
+                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata
             )
             return
         }
@@ -137,11 +136,9 @@ extension Conversation: Serializable {
                 conversationID,
                 activities: activities,
                 messageIDs: .bangQualifiedEmpty,
-                messages: nil,
                 metadata: metadata,
                 participants: participants,
-                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata,
-                users: nil
+                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata
             )
             return
         }
@@ -158,15 +155,14 @@ extension Conversation: Serializable {
             )
         }
 
+        sessionStore.upsertMessages(messages)
         self.init(
             conversationID,
             activities: activities,
             messageIDs: messageIDs,
-            messages: messages.hydrated(with: activities),
             metadata: metadata,
             participants: participants,
-            reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata,
-            users: nil
+            reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata
         )
     }
 

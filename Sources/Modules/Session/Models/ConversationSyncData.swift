@@ -13,20 +13,24 @@ struct ConversationSyncData: Hashable, @unchecked Sendable {
     // MARK: - Properties
 
     let conversation: Conversation
+    let messages: [Message]
     let newData: [String: Any]
 
     // MARK: - Init
 
     init(
         _ conversation: Conversation,
+        messages: [Message] = [],
         newData: [String: Any]
     ) {
         self.conversation = conversation.filteringSystemMessages
+        self.messages = messages
         self.newData = newData
     }
 
     // MARK: - Equatable Conformance
 
+    // NIT: Should we be including messages here?
     static func == (
         left: ConversationSyncData,
         right: ConversationSyncData
@@ -42,6 +46,7 @@ struct ConversationSyncData: Hashable, @unchecked Sendable {
 
     // MARK: - Hashable Conformance
 
+    // NIT: Should we be including messages here?
     func hash(into hasher: inout Hasher) {
         hasher.combine(conversation)
         hasher.combine(newData.count + newData.compactMapValues { $0 as? [String: Any] }.count)

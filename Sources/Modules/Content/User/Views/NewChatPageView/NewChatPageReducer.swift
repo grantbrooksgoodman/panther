@@ -92,7 +92,9 @@ struct NewChatPageReducer: Reducer {
 
         case .firstMessageSent:
             guard let currentConversation = clientSession.conversation.currentConversation,
-                  let cellViewData = ConversationCellViewData(currentConversation) else { return .none }
+                  let cellViewData = ConversationCellViewData(
+                      currentConversation
+                  ) else { return .none }
 
             state.doneToolbarButtonText = Localized(.done).wrappedValue
             state.navigationTitle = cellViewData.titleLabelText

@@ -373,9 +373,9 @@ final class ChatPageViewService {
     private func loadMoreMessages(fromScrollToTop: Bool) {
         guard !messageDeliveryService.isSendingMessage else { return }
 
-        let previousMessageCount = clientSession.conversation.currentConversation?.messages?.count
+        let previousMessageCount = clientSession.conversation.displayedMessages.count
         clientSession.conversation.incrementMessageOffset()
-        guard previousMessageCount != clientSession.conversation.currentConversation?.messages?.count else { return }
+        guard previousMessageCount != clientSession.conversation.displayedMessages.count else { return }
         reloadCollectionView()
 
         guard fromScrollToTop else { return }

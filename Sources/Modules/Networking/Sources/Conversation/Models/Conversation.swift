@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-@RemotelyUpdatable // swiftlint:disable:next type_body_length
+@RemotelyUpdatable
 struct Conversation: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
@@ -21,11 +21,9 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         .init(key: "", hash: ""),
         activities: nil,
         messageIDs: [],
-        messages: nil,
         metadata: .empty(userIDs: []),
         participants: [],
-        reactionMetadata: nil,
-        users: nil
+        reactionMetadata: nil
     )
 
     let activities: [Activity]?
@@ -35,22 +33,13 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     let participants: [Participant]
     let reactionMetadata: [ReactionMetadata]?
 
-    /// - Note: Will have an initial value of `nil` if the conversation does not include the current user.
-    private(set) var messages: [Message]?
-    /// When set, contains all users participating in this conversation, other than the current user.
-    private(set) var users: [User]?
-
     // MARK: - Computed Properties
 
     var hashFactors: [String] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
-        let nonSystemMessages = messages?.filteringSystemMessages
         var factors = [id.key]
         factors.append(contentsOf: activities?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: messageIDs.filter { $0.hasPrefix("-") })
-        // NIT: Maybe adding the message IDs & hashes explains the (intermittent) mismatch between client and server hash values?
-        factors.append(contentsOf: nonSystemMessages?.map(\.id) ?? [])
-        factors.append(contentsOf: nonSystemMessages?.map(\.encodedHash) ?? [])
         factors.append(metadata.name)
         factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
         factors.append(metadata.isPenPalsConversation.description)
@@ -63,47 +52,64 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         return factors.sorted()
     }
 
+    /// Resolves messages from the session store using this conversation's `messageIDs`.
+    ///
+    /// Returns `nil` if the conversation does not include the current user or if no messages are in the store.
+    var messages: [Message]? {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        let resolved = messageIDs.compactMap { sessionStore.messages[$0] }
+        return resolved.isEmpty ? nil : resolved
+    }
+
+    /// Resolves non-current-user participants from the session store.
+    ///
+    /// Returns `nil` if no matching users are in the store.
+    var users: [User]? {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        let userIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
+        let resolved = userIDs.compactMap { sessionStore.users[$0] }
+        return resolved.isEmpty ? nil : resolved
+    }
+
     // MARK: - Init
 
     init(
         _ id: ConversationID,
         activities: [Activity]?,
         messageIDs: [String],
-        messages: [Message]?,
         metadata: ConversationMetadata,
         participants: [Participant],
-        reactionMetadata: [ReactionMetadata]?,
-        users: [User]?
+        reactionMetadata: [ReactionMetadata]?
     ) {
         self.id = id
         self.activities = activities
         self.messageIDs = messageIDs
-        self.messages = messages
         self.metadata = metadata
         self.participants = participants
         self.reactionMetadata = reactionMetadata
-        self.users = users
     }
 
-    // MARK: - Setting Messages
+    // MARK: - Resolve Messages
 
-    /// Returns a copy of this conversation with messages populated.
+    /// Fetches messages from the network and upserts them to the session store.
     ///
-    /// - Note: Conventionally, this method need only be called for conversations in which the current user is not participating.
-    func settingMessages(ids: Set<String>? = nil) async throws(Exception) -> Conversation {
+    /// - Parameter ids: If provided, only re-fetches these specific message IDs. Otherwise fetches all non-system messages.
+    func resolveMessages(
+        ids: Set<String>? = nil
+    ) async throws(Exception) {
         @Dependency(\.networking.messageService) var messageService: MessageService
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         if let ids {
-            var updatedMessages = messages ?? []
             for id in ids {
                 let userInfo: [String: Any] = [
                     "ConversationIDKey": self.id.key,
                     "MessageID": id,
                 ]
 
-                guard updatedMessages.contains(where: { $0.id == id }) else {
+                guard messageIDs.contains(id) else {
                     throw Exception(
-                        "Failed to resolve messages, or no message with the provided ID exists in this conversation.",
+                        "No message with the provided ID exists in this conversation.",
                         userInfo: userInfo,
                         metadata: .init(sender: self)
                     )
@@ -116,29 +122,10 @@ struct Conversation: Codable, EncodedHashable, Hashable {
                     throw error.appending(userInfo: userInfo)
                 }
 
-                guard let messageIndex = updatedMessages.firstIndex(where: {
-                    $0.id == id
-                }) else {
-                    throw Exception(
-                        "Failed to resolve messages.",
-                        userInfo: userInfo,
-                        metadata: .init(sender: self)
-                    )
-                }
-
-                updatedMessages[messageIndex] = message
+                sessionStore.upsertMessages([message])
             }
 
-            return .init(
-                id,
-                activities: activities,
-                messageIDs: messageIDs,
-                messages: updatedMessages,
-                metadata: metadata,
-                participants: participants,
-                reactionMetadata: reactionMetadata,
-                users: users
-            )
+            return
         }
 
         let filteredMessageIDs = filteringSystemMessages.messageIDs
@@ -156,7 +143,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
 
         Logger.log(
             .init(
-                "Set messages on conversation.",
+                "Resolved messages for conversation.",
                 isReportable: false,
                 userInfo: ["ConversationID": id.encoded],
                 metadata: .init(sender: self)
@@ -164,29 +151,23 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             domain: .conversation
         )
 
-        return .init(
-            id,
-            activities: activities,
-            messageIDs: messageIDs,
-            messages: fetchedMessages.hydrated(with: activities),
-            metadata: metadata,
-            participants: participants,
-            reactionMetadata: reactionMetadata,
-            users: users
-        )
+        sessionStore.upsertMessages(fetchedMessages)
     }
 
-    // MARK: - Setting Users
+    // MARK: - Resolve Users
 
-    /// Returns a copy of this conversation with users populated.
-    func settingUsers(forceUpdate: Bool = false) async throws(Exception) -> Conversation {
+    /// Fetches users from the network and upserts them to the session store.
+    func resolveUsers(
+        forceUpdate: Bool = false
+    ) async throws(Exception) {
         @Dependency(\.networking) var networking: NetworkServices
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         let userInfo = ["ConversationID": id.encoded]
         if forceUpdate {
             networking.database.setGlobalCacheStrategy(.disregardCache)
         } else {
-            guard users == nil else { return self }
+            guard users == nil else { return }
         }
 
         defer {
@@ -222,7 +203,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
 
         Logger.log(
             .init(
-                "Set users on conversation.",
+                "Resolved users for conversation.",
                 isReportable: false,
                 userInfo: ["ConversationID": id.encoded],
                 metadata: .init(sender: self)
@@ -230,16 +211,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             domain: .conversation
         )
 
-        return .init(
-            id,
-            activities: activities,
-            messageIDs: messageIDs,
-            messages: messages,
-            metadata: metadata,
-            participants: participants,
-            reactionMetadata: reactionMetadata,
-            users: fetchedUsers
-        )
+        sessionStore.upsertUsers(fetchedUsers)
     }
 
     // MARK: - Update Read Date
@@ -247,8 +219,6 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     func updateReadDate(
         for messages: [Message]
     ) async throws(Exception) -> Conversation {
-        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
-
         guard !messages.isEmpty else {
             throw Exception(
                 "No messages provided.",
@@ -302,6 +272,12 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             sender: self
         )
 
+        // TODO: Should be removed once a proper fix is found.
+        RuntimeStorage.store(
+            id.key,
+            as: .updatedReadReceipts
+        )
+
         return try await update(
             \.messages,
             to: modifiedMessages
@@ -321,9 +297,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
               left.metadata == right.metadata,
               left.participants == right.participants,
               left.activities == right.activities,
-              left.reactionMetadata == right.reactionMetadata,
-              left.messages == right.messages,
-              left.users == right.users else { return false }
+              left.reactionMetadata == right.reactionMetadata else { return false }
 
         return true
     }

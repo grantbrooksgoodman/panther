@@ -35,9 +35,6 @@ enum UserCache {
 
         let usersFromCurrentConversation = clientSession
             .conversation
-            .fullConversation?
-            .users ?? clientSession
-            .conversation
             .currentConversation?
             .users ?? []
 

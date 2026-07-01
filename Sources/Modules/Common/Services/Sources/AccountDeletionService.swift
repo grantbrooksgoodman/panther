@@ -73,7 +73,7 @@ final class AccountDeletionService: @unchecked Sendable {
 
             taskGroup.addTask {
                 do throws(Exception) { try await
-                    self.clientSession.user.hydrateCurrentUserConversations()
+                    self.clientSession.user.resolveCurrentUserData()
                     return nil
                 } catch {
                     return error

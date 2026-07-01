@@ -25,11 +25,10 @@ final class UserSessionService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.build.isOnline) private var isOnline: Bool
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.sessionStore) private var store: SessionStore
-    @Dependency(\.clientSession.storage) private var storageSession: StorageSessionService
     @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
 
     // MARK: - Properties
@@ -38,15 +37,13 @@ final class UserSessionService: @unchecked Sendable {
     @LockIsolated private var isUpdatePending = false
     @LockIsolated private var isUpdatingCurrentUser = false
     private var observationTask: Task<Void, Never>?
-    private var _currentUser = LockIsolated<User?>(nil)
-
     private static let coalescer = SingleSlotCoalescer<Void>()
 
     // MARK: - Computed Properties
 
-    private(set) var currentUser: User? {
-        get { _currentUser.wrappedValue }
-        set { _currentUser.wrappedValue = newValue }
+    var currentUser: User? {
+        guard let currentUserID else { return nil }
+        return clientSession.store.users[currentUserID]
     }
 
     private var offlineCurrentUser: User? {
@@ -92,176 +89,34 @@ final class UserSessionService: @unchecked Sendable {
     /// This replaces the former `User.setConversations()` instance method, which relied
     /// on reference-type self-mutation. The logic is identical, but operates on value-type
     /// copies and commits the result back to `currentUser`.
-    func hydrateCurrentUserConversations() async throws(Exception) {
-        let hydrateConversations: @Sendable () async throws(Exception) -> Void = {
-            try await self._hydrateCurrentUserConversations()
-        }
-
-        try await Self.coalescer(
-            mode: .lastCallerWins,
-            hydrateConversations
-        )
-    }
-
-    /// Fetches users for all visible conversations on the current user and writes
-    /// the hydrated conversations back to `currentUser`.
-    ///
-    /// With struct-based models, `settingUsers()` returns new values rather than
-    /// mutating in place. This method ensures the hydrated results are stored.
-    func hydrateUsersOnCurrentUserConversations() async throws(Exception) {
-        guard let user = currentUser,
-              let conversations = user.conversations else { return }
-
-        let hydrated = try await conversations
-            .visibleForCurrentUser
-            .settingUsers()
-
-        let remaining = conversations.filter { conversation in
-            !hydrated.contains(where: { $0.id.key == conversation.id.key })
-        }
-
-        let allConversations = hydrated + remaining
-        await store.upsertConversations(allConversations)
-
-        let allUsers = hydrated.flatMap { $0.users ?? [] }
-        if !allUsers.isEmpty {
-            await store.upsertUsers(allUsers)
-        }
-
-        currentUser = user.settingConversations(Set(allConversations))
-    }
-
-    /// Fetches messages for all visible conversations on the current user that
-    /// do not yet have their messages populated, and writes the hydrated
-    /// conversations back to `currentUser`.
-    ///
-    /// With struct-based models, `settingMessages()` returns new values rather
-    /// than mutating in place. This method ensures the hydrated results are stored.
-    func hydrateMessagesOnCurrentUserConversations() async throws(Exception) {
-        guard let user = currentUser,
-              let conversations = user.conversations else { return }
-
-        let conversationsNeedingMessages = conversations
-            .visibleForCurrentUser
-            .filter { conversation in
-                let filtered = conversation.filteringSystemMessages
-                return !filtered.messageIDs.isBangQualifiedEmpty &&
-                    (
-                        filtered.messages == nil ||
-                            filtered.messages?.isEmpty == true ||
-                            filtered.messageIDs.count != filtered.messages?.count
-                    )
+    func resolveCurrentUserData(
+        resolveConversations: Bool = true,
+        resolveMessages: Bool = true,
+        resolveUsers: Bool = true
+    ) async throws(Exception) {
+        if resolveConversations {
+            let resolveConversations: @Sendable () async throws(Exception) -> Void = {
+                try await self.resolveCurrentUserConversations()
             }
 
-        guard !conversationsNeedingMessages.isEmpty else { return }
-        let hydrated = try await conversationsNeedingMessages
-            .parallelMap { try await $0.settingMessages() }
-
-        let remaining = Array(conversations).filter { conversation in
-            !hydrated.contains(where: { $0.id.key == conversation.id.key })
-        }
-
-        let allConversations = hydrated + remaining
-        await store.upsertConversations(allConversations)
-
-        let allMessages = hydrated.flatMap { $0.messages ?? [] }
-        if !allMessages.isEmpty {
-            await store.upsertMessages(allMessages)
-        }
-
-        currentUser = user.settingConversations(Set(allConversations))
-    }
-
-    private func _hydrateCurrentUserConversations() async throws(Exception) {
-        @Dependency(\.networking.conversationService) var conversationService: ConversationService
-
-        guard !Task.isCancelled,
-              let user = currentUser,
-              user.id == User.currentUserID,
-              var conversationIDs = user.conversationIDs else { return }
-
-        var conversationsNeedingFetch = Set<ConversationID>()
-        var conversationsNeedingUpdate = Set<Conversation>()
-        var decodedConversations = Set<Conversation>()
-
-        @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
-        let ignoredConversations = conversationArchive?
-            .filter { !$0.isVisibleForCurrentUser }
-            .map(\.id.key) ?? []
-        conversationIDs = conversationIDs.filter { !ignoredConversations.contains($0.key) }
-
-        for conversationID in conversationIDs {
-            guard !Task.isCancelled else { return }
-            if let value = conversationService.archive.getValue(id: conversationID) {
-                decodedConversations.merge(with: [value])
-            } else if let value = conversationService.archive.getValue(idKey: conversationID.key) {
-                conversationsNeedingUpdate.insert(value)
-            } else {
-                conversationsNeedingFetch.insert(conversationID)
-            }
-        }
-
-        guard !Task.isCancelled else { return }
-        Logger.log(
-            // swiftlint:disable:next line_length
-            "Conversations needing update: \(conversationsNeedingUpdate.count)\nConversations needing fetch: \(conversationsNeedingFetch.count)\nIgnored conversations: \(ignoredConversations.count)\nDecoded conversations: \(decodedConversations.count)",
-            domain: .user,
-            sender: self
-        )
-
-        if conversationsNeedingFetch.isEmpty,
-           conversationsNeedingUpdate.isEmpty {
-            if let existingConversations = user.conversations,
-               !existingConversations.isEmpty,
-               Set(existingConversations) == decodedConversations {
-                return
-            }
-
-            return await commitConversationsToMemory(
-                decodedConversations,
-                for: user
+            try await Self.coalescer(
+                mode: .lastCallerWins,
+                resolveConversations
             )
         }
 
-        guard !Task.isCancelled else { return }
-        try await decodedConversations.merge(
-            with: conversationsNeedingUpdate.parallelMap {
-                @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
-                return try await conversationSyncService.synchronizeConversation($0)
-            }
-        )
-
-        guard !conversationsNeedingFetch.isEmpty else {
-            try validateRatio(
-                decodedConversations,
-                conversationIDs
-            )
-
-            return await commitConversationsToMemory(
-                decodedConversations,
-                for: user
-            )
+        if resolveMessages {
+            try await resolveMessagesOnCurrentUserConversations()
         }
 
-        guard !Task.isCancelled else { return }
-        let conversations = try await conversationService.getConversations(
-            idKeys: conversationsNeedingFetch.map(\.key)
-        )
-
-        decodedConversations.merge(with: conversations)
-        try validateRatio(
-            decodedConversations,
-            conversationIDs
-        )
-
-        await commitConversationsToMemory(
-            decodedConversations,
-            for: user
-        )
+        if resolveUsers {
+            try await resolveUsersOnCurrentUserConversations()
+        }
     }
 
     // MARK: - Resolve Current User
 
+    @discardableResult
     func resolveCurrentUser(
         _ cacheStrategy: CacheStrategy = .returnCacheOnFailure
     ) async throws(Exception) -> User {
@@ -279,11 +134,8 @@ final class UserSessionService: @unchecked Sendable {
         }
 
         do {
-            var user = try await networking.userService.getUser(id: currentUserID)
-            user = user.inheritingLocalState(from: currentUser)
-            await store.setCurrentUserID(user.id)
-            await store.upsertUser(user)
-            currentUser = user
+            let user = try await networking.userService.getUser(id: currentUserID)
+            clientSession.store.upsertUser(user)
             await MainActor.run { self.currentUserID = user.id }
             return user
         } catch {
@@ -330,12 +182,9 @@ final class UserSessionService: @unchecked Sendable {
                 )
             }
 
-            currentUser = user
-            Task { await store.upsertUser(user) }
+            clientSession.store.upsertUser(user)
             return
         }
-
-        currentUser = user
     }
 
     // MARK: - Offline Current User
@@ -361,11 +210,7 @@ final class UserSessionService: @unchecked Sendable {
             )
         }
 
-        currentUser = offlineCurrentUser
-        Task {
-            await store.setCurrentUserID(offlineCurrentUser.id)
-            await store.upsertUser(offlineCurrentUser)
-        }
+        clientSession.store.upsertUser(offlineCurrentUser)
     }
 
     // MARK: - Resolve & Set Language Code
@@ -472,15 +317,10 @@ final class UserSessionService: @unchecked Sendable {
     }
 
     private func commitConversationsToMemory(
-        _ conversations: Set<Conversation>,
-        for user: User
-    ) async {
+        _ conversations: Set<Conversation>
+    ) {
         guard !Task.isCancelled else { return }
-        await store.upsertConversations(Array(conversations))
-
-        let updatedUser = user.settingConversations(conversations)
-        await store.upsertUser(updatedUser)
-        currentUser = updatedUser
+        clientSession.store.upsertConversations(Array(conversations))
     }
 
     private func conversationsDidChange(_ dictionary: [String: Any]) -> Bool {
@@ -518,6 +358,127 @@ final class UserSessionService: @unchecked Sendable {
               ) else { return false }
 
         return !(currentLastSignedInDate?.isWithinSameSecond(as: updatedLastSignedInDate) ?? true)
+    }
+
+    private func resolveCurrentUserConversations() async throws(Exception) {
+        @Dependency(\.networking.conversationService) var conversationService: ConversationService
+
+        guard !Task.isCancelled,
+              let user = currentUser,
+              user.id == User.currentUserID,
+              var conversationIDs = user.conversationIDs else { return }
+
+        var conversationsNeedingFetch = Set<ConversationID>()
+        var conversationsNeedingUpdate = Set<Conversation>()
+        var decodedConversations = Set<Conversation>()
+
+        @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
+        let ignoredConversations = conversationArchive?
+            .filter { !$0.isVisibleForCurrentUser }
+            .map(\.id.key) ?? []
+        conversationIDs = conversationIDs.filter { !ignoredConversations.contains($0.key) }
+
+        for conversationID in conversationIDs {
+            guard !Task.isCancelled else { return }
+            if let value = conversationService.archive.getValue(id: conversationID) {
+                decodedConversations.merge(with: [value])
+            } else if let value = conversationService.archive.getValue(idKey: conversationID.key) {
+                conversationsNeedingUpdate.insert(value)
+            } else {
+                conversationsNeedingFetch.insert(conversationID)
+            }
+        }
+
+        guard !Task.isCancelled else { return }
+        Logger.log(
+            // swiftlint:disable:next line_length
+            "Conversations needing update: \(conversationsNeedingUpdate.count)\nConversations needing fetch: \(conversationsNeedingFetch.count)\nIgnored conversations: \(ignoredConversations.count)\nDecoded conversations: \(decodedConversations.count)",
+            domain: .user,
+            sender: self
+        )
+
+        if conversationsNeedingFetch.isEmpty,
+           conversationsNeedingUpdate.isEmpty {
+            if let existingConversations = user.conversations,
+               !existingConversations.isEmpty,
+               Set(existingConversations) == decodedConversations {
+                return
+            }
+
+            return commitConversationsToMemory(decodedConversations)
+        }
+
+        guard !Task.isCancelled else { return }
+        try await decodedConversations.merge(
+            with: conversationsNeedingUpdate.parallelMap {
+                @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
+                return try await conversationSyncService.synchronizeConversation($0)
+            }
+        )
+
+        guard !conversationsNeedingFetch.isEmpty else {
+            try validateRatio(
+                decodedConversations,
+                conversationIDs
+            )
+
+            return commitConversationsToMemory(decodedConversations)
+        }
+
+        guard !Task.isCancelled else { return }
+        let conversations = try await conversationService.getConversations(
+            idKeys: conversationsNeedingFetch.map(\.key)
+        )
+
+        decodedConversations.merge(with: conversations)
+        try validateRatio(
+            decodedConversations,
+            conversationIDs
+        )
+
+        commitConversationsToMemory(decodedConversations)
+    }
+
+    // TODO: Audit why this is needed after _resolveCurrentUserConversations.
+    /// Fetches messages for all visible conversations on the current user that
+    /// do not yet have their messages populated, and writes the hydrated
+    /// conversations back to `currentUser`.
+    ///
+    /// With struct-based models, `resolveMessages()` returns new values rather
+    /// than mutating in place. This method ensures the hydrated results are stored.
+    private func resolveMessagesOnCurrentUserConversations() async throws(Exception) {
+        guard let conversations = currentUser?.conversations else { return }
+
+        let conversationsNeedingMessages = conversations
+            .visibleForCurrentUser
+            .filter { conversation in
+                let filtered = conversation.filteringSystemMessages
+                return !filtered.messageIDs.isBangQualifiedEmpty &&
+                    (
+                        filtered.messages == nil ||
+                            filtered.messages?.isEmpty == true ||
+                            filtered.messageIDs.count != filtered.messages?.count
+                    )
+            }
+
+        guard !conversationsNeedingMessages.isEmpty else { return }
+        for conversation in conversationsNeedingMessages {
+            try await conversation.resolveMessages()
+        }
+    }
+
+    /// Fetches users for all visible conversations on the current user and writes
+    /// the hydrated conversations back to `currentUser`.
+    ///
+    /// With struct-based models, `resolveUsers()` returns new values rather than
+    /// mutating in place. This method ensures the hydrated results are stored.
+    private func resolveUsersOnCurrentUserConversations() async throws(Exception) {
+        guard let user = currentUser,
+              let conversations = user.conversations else { return }
+
+        for conversation in conversations.visibleForCurrentUser {
+            try await conversation.resolveUsers()
+        }
     }
 
     private func signOutToPreserveSingleActiveUser() {
@@ -563,7 +524,7 @@ final class UserSessionService: @unchecked Sendable {
                 )
 
                 do throws(Exception) {
-                    try await hydrateCurrentUserConversations()
+                    try await resolveCurrentUserConversations()
                 } catch {
                     Logger.log(
                         error,
@@ -577,7 +538,7 @@ final class UserSessionService: @unchecked Sendable {
                     priority: .utility
                 ) {
                     self.coreUtilities.clearCaches([.user])
-                    _ = try? await self.storageSession.getCurrentUserDataUsage()
+                    _ = try? await self.clientSession.storage.getCurrentUserDataUsage()
                 }
 
                 Observables.updatedCurrentUser.trigger()

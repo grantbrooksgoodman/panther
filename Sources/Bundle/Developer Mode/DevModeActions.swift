@@ -6,6 +6,8 @@
 //  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable type_body_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -42,6 +44,7 @@ extension DevModeAction {
         var appActions: [DevModeAction] {
             var actions = [
                 Breadcrumbs.manageBreadcrumbsCaptureAction,
+                AppActions.markMessagesUnreadAction,
                 AppActions.setCurrentUserIDAction,
                 AppActions.stagingModeOptionsAction,
                 AppActions.triggerForcedUpdateModalAction,
@@ -93,6 +96,69 @@ extension DevModeAction {
                 perform: createNewMessages
             )
         }
+
+        private static let markMessagesUnreadAction: DevModeAction = {
+            @Sendable
+            func markMessagesUnread() {
+                Task { @MainActor in
+                    @Dependency(\.clientSession) var clientSession: ClientSession
+                    @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
+
+                    guard await AKConfirmationAlert(
+                        title: "Mark Messages Unread",
+                        message: "All messages will be marked as unread for the current user."
+                    ).present(translating: []) else { return }
+
+                    try await clientSession.user.resolveCurrentUserData()
+                    guard let conversations = clientSession
+                        .user
+                        .currentUser?
+                        .conversations else { return }
+
+                    coreUI.addOverlay(
+                        alpha: 0.5,
+                        activityIndicator: .largeWhite
+                    )
+
+                    try? clientSession.user.stopObservingCurrentUserChanges()
+                    defer { coreUI.removeOverlay() }
+
+                    do throws(Exception) {
+                        try await clientSession.store.upsertMessages(
+                            conversations
+                                .compactMap(\.messages)
+                                .flatMap(\.self)
+                                .filteringSystemMessages
+                                .filter { $0.currentUserReadReceipt != nil }
+                                .parallelMap { @Sendable in
+                                    let message = $0
+                                    return try await message.update(
+                                        \.readReceipts,
+                                        to: (message.readReceipts ?? [])?.filter {
+                                            $0 != message.currentUserReadReceipt
+                                        }
+                                    )
+                                }
+                        )
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
+                    }
+
+                    Application.reset(
+                        preserveCurrentUserID: true,
+                        onCompletion: .navigateToSplash
+                    )
+                }
+            }
+
+            return DevModeAction(
+                title: "Mark Messages Unread",
+                perform: markMessagesUnread
+            )
+        }()
 
         private static let stagingModeOptionsAction: DevModeAction = {
             @Sendable
@@ -284,3 +350,5 @@ extension DevModeAction {
         }
     }
 }
+
+// swiftlint:enable type_body_length

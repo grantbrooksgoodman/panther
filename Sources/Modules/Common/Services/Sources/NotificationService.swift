@@ -523,7 +523,7 @@ struct NotificationService {
         case true:
             var newBadgeNumber = badgeNumber
             if newBadgeNumber == nil {
-                newBadgeNumber = await user.calculateBadgeNumber()
+                newBadgeNumber = user.calculateBadgeNumber()
             }
 
             guard let newBadgeNumber else {

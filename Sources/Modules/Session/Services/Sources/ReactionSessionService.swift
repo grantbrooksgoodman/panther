@@ -53,9 +53,9 @@ final class ReactionSessionService {
         to message: Message
     ) async throws(Exception) {
         guard !message.isMock else { return }
-        guard let conversation = conversationSession.fullConversation,
+        guard let conversation = conversationSession.currentConversation,
               let currentUserID = User.currentUserID,
-              let messageIndex = conversationSession.currentConversation?.messages?.firstIndex(where: { $0.id == message.id }) else {
+              let messageIndex = conversation.messages?.firstIndex(where: { $0.id == message.id }) else {
             throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
@@ -214,8 +214,8 @@ final class ReactionSessionService {
     private func removeReaction(
         from message: Message
     ) async throws(Exception) {
-        guard let conversation = conversationSession.fullConversation,
-              let messageIndex = conversationSession.currentConversation?.messages?.firstIndex(where: { $0.id == message.id }),
+        guard let conversation = conversationSession.currentConversation,
+              let messageIndex = conversation.messages?.firstIndex(where: { $0.id == message.id }),
               !message.isMock,
               let reactionMetadata = conversation.reactionMetadata?.filteringCurrentUserReactions(to: message.id) else {
             throw Exception(
@@ -254,7 +254,7 @@ final class ReactionSessionService {
         }
 
         isReactingToMessage = false
-        let hydratedConversation = try await updatedConversation.settingMessages(
+        try await updatedConversation.resolveMessages(
             ids: [
                 messageData.message.id,
             ]
@@ -266,7 +266,7 @@ final class ReactionSessionService {
               .id
               .key == conversation.id.key else { return }
 
-        conversationSession.setCurrentConversation(hydratedConversation)
+        conversationSession.setCurrentConversation(conversation)
         chatPageViewService.reloadItemsWhenSafe(at: [.init(
             item: 0,
             section: messageData.index

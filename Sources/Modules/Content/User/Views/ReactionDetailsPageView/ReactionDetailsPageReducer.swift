@@ -59,7 +59,9 @@ struct ReactionDetailsPageReducer: Reducer {
                   .conversation
                   .currentConversation?
                   .messages?
-                  .first(where: { $0.id == chatPageViewService.contextMenu?.interaction.selectedMessageID })?
+                  .first(where: {
+                      $0.id == chatPageViewService.contextMenu?.interaction.selectedMessageID
+                  })?
                   .reactions else { return [] }
 
             let userMap = Dictionary(

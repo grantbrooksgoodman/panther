@@ -21,23 +21,6 @@ import Networking
 final class ConversationsPageViewService {
     // MARK: - Types
 
-    fileprivate struct ConversationSource {
-        /* MARK: Properties */
-
-        let conversations: [Conversation]
-        let name: String
-
-        /* MARK: Init */
-
-        init(
-            _ name: String,
-            conversations: [Conversation]
-        ) {
-            self.name = name
-            self.conversations = conversations
-        }
-    }
-
     private enum ReloadType: String {
         /* MARK: Cases */
 
@@ -76,7 +59,6 @@ final class ConversationsPageViewService {
     private(set) var didShowSecondsToLoadToast = false
 
     private var currentReloadType: ReloadType = .full
-    private var updateConversationsListRetryCount = 0
 
     // MARK: - View Lifecycle
 
@@ -148,7 +130,7 @@ final class ConversationsPageViewService {
             guard let currentUser = clientSession.user.currentUser,
                   currentUser.conversations == nil ||
                   currentUser.conversations?.isEmpty == true else { return }
-            try await clientSession.user.hydrateCurrentUserConversations()
+            try await clientSession.user.resolveCurrentUserData()
         }
 
         Task { @MainActor in
@@ -182,7 +164,6 @@ final class ConversationsPageViewService {
         }
     }
 
-    // swiftlint:disable function_body_length
     /// `.reloadDataReturned(.success)`
     /// `.updatedCurrentUser`
     /// `.viewAppeared`
@@ -190,130 +171,34 @@ final class ConversationsPageViewService {
         with providedConversations: [Conversation]? = nil,
         state: inout ConversationsPageReducer.State
     ) {
-        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
-        let currentStateConversations = state.conversations
-        let currentUserConversations = clientSession.user.currentUser?.conversations
-        let currentUserConversationHashes = Set(
-            clientSession
-                .user
-                .currentUser?
-                .conversationIDs?
-                .compactMap(\.hash) ?? []
+        let conversations = (
+            providedConversations ?? clientSession.user.currentUser?.conversations ?? []
         )
+        .filteredAndSorted
+        .map(\.injectingCachedUsers)
 
-        guard !currentUserConversationHashes.isEmpty else {
+        guard !conversations.isEmpty else {
             // If the chat session holds a valid conversation that hasn't been
             // synced to conversationIDs yet, use it directly so the list
             // populates immediately without waiting for the server.
-            if let fullConversation = clientSession.conversation.fullConversation,
-               !fullConversation.isMock,
-               fullConversation.isVisibleForCurrentUser {
+            if let currentConversation = clientSession.conversation.currentConversation,
+               !currentConversation.isMock,
+               currentConversation.isVisibleForCurrentUser {
                 state.conversations = [
-                    fullConversation.injectingCachedUsers,
+                    currentConversation.injectingCachedUsers,
                 ].filteredAndSorted
             } else {
                 state.conversations = []
             }
 
             resolveUnsyncedConversationIfNeeded()
-            return Observables.updateConversationsListSetToReliableDataSource.trigger()
-        }
-
-        let dataSources: [ConversationSource] = [
-            ConversationSource(
-                "provided conversations",
-                conversations: providedConversations ?? []
-            ),
-            ConversationSource(
-                "current user conversations",
-                conversations: currentUserConversations ?? []
-            ),
-            ConversationSource(
-                "current state conversations",
-                conversations: currentStateConversations
-            ),
-            ConversationSource(
-                "conversation archive",
-                conversations: conversationArchive ?? []
-            ),
-        ]
-        .map {
-            .init(
-                $0.name,
-                conversations: $0
-                    .conversations
-                    .filteredAndSorted
-                    .map(\.injectingCachedUsers)
-            )
-        }
-        .filter { !$0.conversations.isEmpty }
-
-        guard let bestCandidate = dataSources.bestAligned(
-            with: currentUserConversationHashes,
-            andMatchingPredicate: \.isWellFormed
-        ) else {
-            guard updateConversationsListRetryCount < 3 else {
-                updateConversationsListRetryCount = 0
-                return Logger.log(
-                    .init(
-                        "No conversation data source was well-formed after 3 retries.",
-                        metadata: .init(sender: self)
-                    ),
-                    domain: .conversation,
-                    with: .toast
-                )
-            }
-
-            updateConversationsListRetryCount += 1
-            Task.delayed(
-                by: .seconds(Double(updateConversationsListRetryCount) * 3)
-            ) { @MainActor in
-                do throws(Exception) {
-                    try await User.populateCurrentUserConversationsIfNeeded()
-                    _ = try await reloadData(type: .full)
-                } catch {
-                    Logger.log(
-                        error,
-                        domain: .conversation
-                    )
-                }
-
-                Observables.updatedCurrentUser.trigger()
-            }
-
-            return Logger.log(
-                .init(
-                    "No conversation data source was well-formed (attempt \(updateConversationsListRetryCount) / 3).",
-                    metadata: .init(sender: self)
-                ),
-                domain: .conversation
-            )
-        }
-
-        updateConversationsListRetryCount = 0
-        guard build.milestone != .generalRelease else {
-            return state.conversations = bestCandidate.conversations
-        }
-
-        if bestCandidate.name != "current user conversations",
-           bestCandidate.name != "provided conversations" {
-            Logger.log(
-                "⚠️ Best candidate for list update was \(bestCandidate.name).",
-                domain: .conversation,
-                sender: self
-            )
-        } else {
-            Logger.log(
-                "✅ Set to reliable data source.",
-                domain: .conversation,
-                sender: self
-            )
-
             Observables.updateConversationsListSetToReliableDataSource.trigger()
+            return
         }
 
-        state.conversations = bestCandidate.conversations
-    } // swiftlint:enable function_body_length
+        state.conversations = conversations
+        Observables.updateConversationsListSetToReliableDataSource.trigger()
+    }
 
     // MARK: - Auxiliary
 
@@ -447,24 +332,22 @@ final class ConversationsPageViewService {
 
     private func markStale(conversation: Conversation) -> Conversation {
         var newConversationMessageIDs = conversation.messageIDs
-        var newConversationMessages = conversation.messages
 
         if let conversationMessages = conversation.messages,
            conversationMessages.count > 1 {
-            newConversationMessages = .init(conversationMessages[0 ... conversationMessages.count - 2])
-            newConversationMessageIDs = (newConversationMessages ?? []).map(\.id)
+            newConversationMessageIDs = Array(
+                conversationMessages[0 ... conversationMessages.count - 2]
+            ).map(\.id)
         }
 
-        return .init(
-            .init(key: conversation.id.key, hash: .bangQualifiedEmpty),
-            activities: conversation.activities,
-            messageIDs: newConversationMessageIDs,
-            messages: newConversationMessages,
-            metadata: conversation.metadata,
-            participants: conversation.participants,
-            reactionMetadata: conversation.reactionMetadata,
-            users: conversation.users
-        )
+        return conversation
+            .copying(
+                id: .init(
+                    key: conversation.id.key,
+                    hash: .bangQualifiedEmpty
+                )
+            )
+            .copying(messageIDs: newConversationMessageIDs)
     }
 
     private func reloadData(
@@ -499,9 +382,9 @@ final class ConversationsPageViewService {
 
         defer { currentReloadType = currentReloadType.next }
 
-        _ = try await clientSession.user.resolveCurrentUser()
-        try await clientSession.user.hydrateCurrentUserConversations()
-        try await clientSession.user.hydrateUsersOnCurrentUserConversations()
+        try await clientSession.user.resolveCurrentUser()
+        try await clientSession.user.resolveCurrentUserData()
+
         var randomBool: Bool {
             Int.random(in: 1 ... 1_000_000) % 3 == 0
         }
@@ -552,9 +435,8 @@ final class ConversationsPageViewService {
         Task { @MainActor [weak self] in
             guard let self else { return }
             do throws(Exception) {
-                _ = try await clientSession.user.resolveCurrentUser()
-                try await clientSession.user.hydrateCurrentUserConversations()
-                try await clientSession.user.hydrateUsersOnCurrentUserConversations()
+                try await clientSession.user.resolveCurrentUser()
+                try await clientSession.user.resolveCurrentUserData()
             } catch {
                 Logger.log(
                     error,
@@ -667,62 +549,10 @@ extension Conversation: Validatable {
     }
 }
 
-private extension [ConversationsPageViewService.ConversationSource] {
-    func bestAligned(
-        with canonicalHashes: Set<String>,
-        andMatchingPredicate predicate: (Conversation) -> Bool
-    ) -> ConversationsPageViewService.ConversationSource? {
-        func score(_ source: ConversationsPageViewService.ConversationSource) -> (Int, Int) {
-            let sourceHashes = Set(source.conversations.map(\.id.hash))
-
-            let intersectingHashes = sourceHashes.intersection(canonicalHashes).count
-            let extraHashes = sourceHashes.subtracting(canonicalHashes).count
-            let missingHashes = canonicalHashes.subtracting(sourceHashes).count
-
-            let countMatchingPredicate = source
-                .conversations
-                .lazy
-                .filter(predicate)
-                .count
-
-            let alignmentScore = (intersectingHashes * 10) -
-                (extraHashes * 50) -
-                (missingHashes * 10)
-
-            return (alignmentScore, countMatchingPredicate)
-        }
-
-        guard let first else { return nil }
-        var bestCandidate = first
-        var bestScore = score(first)
-
-        defer { Logger.closeStream(domain: .conversation) }
-        Logger.openStream(
-            message: "Alignment score for \(first.name): \(bestScore.0)/\(bestScore.1)",
-            domain: .conversation,
-            sender: self
-        )
-
-        for dataSource in dropFirst() {
-            let alignmentScore = score(dataSource)
-            Logger.logToStream(
-                "Alignment score for \(dataSource.name): \(alignmentScore.0)/\(alignmentScore.1)",
-                domain: .conversation,
-                line: #line
-            )
-
-            guard alignmentScore > bestScore else { continue }
-            bestScore = alignmentScore
-            bestCandidate = dataSource
-        }
-
-        return bestCandidate
-    }
-}
-
 @MainActor
 private extension Conversation {
     var injectingCachedUsers: Conversation {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
         guard isVisibleForCurrentUser,
               (users?.count ?? 0) == 0 else { return self }
 
@@ -739,16 +569,8 @@ private extension Conversation {
             of: resolvedUsers.map(\.id)
         ) else { return self }
 
-        return .init(
-            id,
-            activities: activities,
-            messageIDs: messageIDs,
-            messages: messages,
-            metadata: metadata,
-            participants: participants,
-            reactionMetadata: reactionMetadata,
-            users: resolvedUsers
-        )
+        sessionStore.upsertUsers(resolvedUsers)
+        return self
     }
 }
 

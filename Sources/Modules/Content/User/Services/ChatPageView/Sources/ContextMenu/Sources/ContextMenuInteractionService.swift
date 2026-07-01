@@ -68,7 +68,7 @@ final class ContextMenuInteractionService {
         let upperOffsetRange = (scrollViewMaxContentOffsetY + 1) ... (scrollViewMaxContentOffsetY + Floats.isLastMessageVisibleScrollViewOffsetUpperBoundIncrement)
 
         guard let lastVisibleMessageID,
-              let lastMessageID = viewController.currentConversation?.messages?.last?.id,
+              let lastMessageID = viewController.displayedMessages.last?.id,
               lastVisibleMessageID == lastMessageID,
               lowerOffsetRange.contains(viewController.messagesCollectionView.contentOffset.y) ||
               upperOffsetRange.contains(viewController.messagesCollectionView.contentOffset.y) ||
@@ -150,7 +150,7 @@ final class ContextMenuInteractionService {
             ) { self.reactToSelectedMessage(sender) }
         }
 
-        guard let conversation = viewController.currentConversation else { return }
+        guard viewController.currentConversation != nil else { return }
         func scrollToLastItemIfNeeded(_ message: Message) {
             func scrollToLastItem() {
                 Task.delayed(by: .milliseconds(Floats.reactionScrollToLastItemDelayMilliseconds)) { @MainActor in
@@ -158,7 +158,7 @@ final class ContextMenuInteractionService {
                 }
             }
 
-            guard conversation.messages?.last?.id == message.id else { return }
+            guard viewController.displayedMessages.last?.id == message.id else { return }
             guard clientSession.reaction.isReactingToMessage else { return scrollToLastItem() }
             clientSession.reaction.addEffectUponIsReactingToMessage(
                 changedTo: false,
@@ -166,12 +166,14 @@ final class ContextMenuInteractionService {
             ) { scrollToLastItem() }
         }
 
-        if let message = conversation.messages?.first(where: { $0.id == selectedMessageID }),
-           let buttonText = (sender as? UIButton)?.titleLabel?.text,
-           !buttonText.isBangQualifiedEmpty,
-           buttonText.components.count == 1,
-           let reactionStyle = Reaction.Style(emojiValue: buttonText),
-           let reaction = Reaction(reactionStyle) {
+        if let message = viewController.displayedMessages.first(where: {
+            $0.id == selectedMessageID
+        }),
+            let buttonText = (sender as? UIButton)?.titleLabel?.text,
+            !buttonText.isBangQualifiedEmpty,
+            buttonText.components.count == 1,
+            let reactionStyle = Reaction.Style(emojiValue: buttonText),
+            let reaction = Reaction(reactionStyle) {
             playReactionSound()
             hapticsService.generateFeedback(.medium)
 
@@ -200,8 +202,7 @@ final class ContextMenuInteractionService {
                     .messagesCollectionView
                     .cellForItem(at: indexPath) as? MessageContentCell,
                     let message = viewController
-                    .currentConversation?
-                    .messages?
+                    .displayedMessages
                     .itemAt(indexPath.section),
                     !message.isConsentMessage,
                     !clientSession.storage.atOrAboveDataUsageLimit else { return }
@@ -289,7 +290,7 @@ final class ContextMenuInteractionService {
 
             guard ContextMenuInteraction.canBegin,
                   let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
-                  let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
+                  let message = viewController.displayedMessages.itemAt(indexPath.section),
                   cell.contextMenuMessageID != message.id,
                   !message.isMock,
                   !messageDeliveryService.isSendingMessage else { continue }
@@ -423,9 +424,13 @@ final class ContextMenuInteractionService {
 
     @MainActor
     private func triggerExistingSelection(_ viewController: ReactionsViewController) {
-        guard let messages = self.viewController.currentConversation?.messages,
-              let reactions = messages.first(where: { $0.id == selectedMessageID })?.reactions,
-              let reactionStyle = reactions.first(where: { $0.userID == User.currentUserID })?.style else { return }
+        let messages = self.viewController.displayedMessages
+        guard let reactions = messages.first(where: {
+            $0.id == selectedMessageID
+        })?.reactions,
+            let reactionStyle = reactions.first(where: {
+                $0.userID == User.currentUserID
+            })?.style else { return }
         viewController.markSelected(reactionStyle)
     }
 }

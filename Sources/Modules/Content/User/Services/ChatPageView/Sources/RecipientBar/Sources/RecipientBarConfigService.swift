@@ -95,7 +95,7 @@ final class RecipientBarConfigService {
 
         guard let contactSelectionUIService = chatPageViewService.recipientBar?.contactSelectionUI else { return }
 
-        let isPreviousConversationEmpty = (clientSession.conversation.currentConversation ?? .empty).isEmpty
+        let isPreviousConversationEmpty = clientSession.conversation.currentConversation?.isEmpty ?? true
         let previousConversationIDKey = clientSession.conversation.currentConversation?.id.key ?? ""
 
         let conversations = clientSession.user.currentUser?.conversations?.visibleForCurrentUser.filter { $0.users != nil }

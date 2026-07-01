@@ -171,7 +171,7 @@ extension Message {
 
     var isConsentRequestMessage: Bool {
         if let consentRequestMessageID = Message.consentRequestMessageID { return id == consentRequestMessageID }
-        @Dependency(\.clientSession.conversation.fullConversation) var fullConversation: Conversation?
+        @Dependency(\.clientSession.conversation.currentConversation) var currentConversation: Conversation?
 
         guard let translation else { return false }
         let inputMatches = translation.input.value == Localized(
@@ -179,17 +179,18 @@ extension Message {
             languageCode: translation.languagePair.from
         ).wrappedValue
 
-        guard let fullConversation else { return inputMatches }
-        let firstMessageID = fullConversation
+        guard let currentConversation else { return inputMatches }
+        let firstMessageID = currentConversation
             .messages?
             .filteringSystemMessages
             .first?
             .id ??
-            fullConversation
+            currentConversation
             .messageIDs
             .first
         let isConsentMessage = inputMatches && (id == CommonConstants.newMessageID || id == firstMessageID)
         Message.consentRequestMessageID = (isConsentMessage && id != CommonConstants.newMessageID) ? id : Message.consentRequestMessageID
+
         return isConsentMessage
     }
 
@@ -224,7 +225,7 @@ extension Message {
     /// - Returns: The provided system message, hydrated with localized strings.
     @MainActor
     var systemLocalized: Message {
-        @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
+        @Dependency(\.clientSession.conversation.currentConversation) var conversation: Conversation?
         guard isSystemMessage,
               let activity = conversation?
               .activities?

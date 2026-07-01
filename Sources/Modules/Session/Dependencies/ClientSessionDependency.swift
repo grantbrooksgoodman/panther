@@ -21,7 +21,7 @@ enum ClientSessionDependency: DependencyKey {
             moderation: .init(),
             reaction: .init(),
             storage: .init(),
-            store: values.sessionStore,
+            store: .shared,
             user: .init()
         )
     }

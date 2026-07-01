@@ -238,8 +238,7 @@ final class SplashPageViewService: ObservableObject {
             /* MARK: Conversation Resolution */
 
             clientSession.conversation.setCurrentConversation(nil)
-            try await clientSession.user.hydrateCurrentUserConversations()
-            try await clientSession.user.hydrateUsersOnCurrentUserConversations()
+            try await clientSession.user.resolveCurrentUserData()
 
             initializationProgress = 1
 
