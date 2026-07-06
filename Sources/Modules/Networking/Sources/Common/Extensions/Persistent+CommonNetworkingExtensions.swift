@@ -18,4 +18,10 @@ extension Persistent {
     ) {
         self.init(.conversationArchiveService(conversationArchiveServiceKey))
     }
+
+    convenience init(
+        _ messageArchiveServiceKey: PersistentStorageKey.MessageArchiveServiceStorageKey
+    ) {
+        self.init(.messageArchiveService(messageArchiveServiceKey))
+    }
 }

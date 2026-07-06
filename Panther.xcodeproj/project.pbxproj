@@ -43,6 +43,7 @@
 		A2A7A13D2F03596E00E09921 /* DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13C2F03596E00E09921 /* DataUsageView.swift */; };
 		A2A7A13F2F16DD3B00E09921 /* AppConstants+DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */; };
 		A2A92DC92FE0FE13008C356C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A2A92DC82FE0FE13008C356C /* GoogleService-Info.plist */; };
+		A2AFE0AE2FF5B9A7009E0F6E /* MessageArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AFE0AD2FF5B9A7009E0F6E /* MessageArchiveService.swift */; };
 		A2BD97152F3ABD7D008CAEC9 /* EmptyUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BD97142F3ABD7D008CAEC9 /* EmptyUIView.swift */; };
 		A2BE201F2F2C42420006F7AF /* FeaturePermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE201E2F2C42420006F7AF /* FeaturePermissionPageView.swift */; };
 		A2BE20212F2C42860006F7AF /* FeaturePermissionPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE20202F2C42860006F7AF /* FeaturePermissionPageReducer.swift */; };
@@ -809,6 +810,7 @@
 		A2A7A13C2F03596E00E09921 /* DataUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataUsageView.swift; sourceTree = "<group>"; };
 		A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+DataUsageView.swift"; sourceTree = "<group>"; };
 		A2A92DC82FE0FE13008C356C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		A2AFE0AD2FF5B9A7009E0F6E /* MessageArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageArchiveService.swift; sourceTree = "<group>"; };
 		A2BD97142F3ABD7D008CAEC9 /* EmptyUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyUIView.swift; sourceTree = "<group>"; };
 		A2BE201E2F2C42420006F7AF /* FeaturePermissionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturePermissionPageView.swift; sourceTree = "<group>"; };
 		A2BE20202F2C42860006F7AF /* FeaturePermissionPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturePermissionPageReducer.swift; sourceTree = "<group>"; };
@@ -3046,6 +3048,7 @@
 			children = (
 				B9E0E1032B20FE7100C14274 /* AudioMessageService.swift */,
 				B9E00A532C2B8C7F004E350E /* MediaMessageService.swift */,
+				A2AFE0AD2FF5B9A7009E0F6E /* MessageArchiveService.swift */,
 				B9E0E1052B20FE8600C14274 /* MessageService.swift */,
 			);
 			path = Services;
@@ -4338,6 +4341,7 @@
 				B9CFA7FD2D99C6C20075E02D /* ReactionDetailsPageView.swift in Sources */,
 				B9F47AEC2B576F3B00D86C67 /* ConversationsPageViewStrings.swift in Sources */,
 				B99B1DBA29E4C2AF00117D42 /* CustomColors.swift in Sources */,
+				A2AFE0AE2FF5B9A7009E0F6E /* MessageArchiveService.swift in Sources */,
 				B9F5D1EF2B48994300059B44 /* PhoneNumberTextField.swift in Sources */,
 				B9DEB7B42C1CE93F0098DAAB /* ConnectionStatusServiceEffectID.swift in Sources */,
 				B9E2E6112C72E64F004022FE /* CacheDomains.swift in Sources */,

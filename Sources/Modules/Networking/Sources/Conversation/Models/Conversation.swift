@@ -57,8 +57,14 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     /// Returns `nil` if the conversation does not include the current user or if no messages are in the store.
     var messages: [Message]? {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
-        let resolved = messageIDs.compactMap { sessionStore.messages[$0] }
-        return resolved.isEmpty ? nil : resolved
+        let messages = messageIDs.compactMap { sessionStore.messages[$0] }
+        // Session store does not store system messages.
+        if messages.count != messageIDs.count,
+           isVisibleForCurrentUser {
+            return nil
+        }
+
+        return messages.isEmpty ? nil : messages
     }
 
     /// Resolves non-current-user participants from the session store.
@@ -67,8 +73,9 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     var users: [User]? {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         let userIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
-        let resolved = userIDs.compactMap { sessionStore.users[$0] }
-        return resolved.isEmpty ? nil : resolved
+        let users = userIDs.compactMap { sessionStore.users[$0] }
+        guard users.count == userIDs.count else { return nil }
+        return users.isEmpty ? nil : users
     }
 
     // MARK: - Init
@@ -167,7 +174,8 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         if forceUpdate {
             networking.database.setGlobalCacheStrategy(.disregardCache)
         } else {
-            guard users == nil else { return }
+            guard users == nil ||
+                users!.count != participants.count - 1 else { return }
         }
 
         defer {
@@ -282,24 +290,6 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             \.messages,
             to: modifiedMessages
         )
-    }
-
-    // MARK: - Equatable Conformance
-
-    // NB: Ordered cheapest-to-compare first so the guard short-circuits
-    // before reaching expensive array comparisons.
-    static func == (
-        left: Conversation,
-        right: Conversation
-    ) -> Bool {
-        guard left.id == right.id,
-              left.messageIDs == right.messageIDs,
-              left.metadata == right.metadata,
-              left.participants == right.participants,
-              left.activities == right.activities,
-              left.reactionMetadata == right.reactionMetadata else { return false }
-
-        return true
     }
 
     // MARK: - Hashable Conformance

@@ -263,7 +263,7 @@ struct MessageRetranslationService {
         _ conversation: Conversation,
         messageID: String
     ) async throws(Exception) {
-        conversationArchive.addValue(
+        clientSession.store.upsertConversation(
             conversation
                 .copying(
                     id: .init(

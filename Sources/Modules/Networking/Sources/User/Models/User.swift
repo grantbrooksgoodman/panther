@@ -40,8 +40,9 @@ struct User: Codable, EncodedHashable, Hashable {
     var conversations: [Conversation]? {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         guard let conversationIDs else { return nil }
-        let resolved = conversationIDs.compactMap { sessionStore.conversations[$0.key] }
-        return resolved.isEmpty ? nil : resolved
+        let conversations = conversationIDs.compactMap { sessionStore.conversations[$0.key] }
+        guard conversations.count == conversationIDs.count else { return nil }
+        return conversations.isEmpty ? nil : conversations
     }
 
     var hashFactors: [String] {
@@ -132,15 +133,6 @@ struct User: Codable, EncodedHashable, Hashable {
         return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(
             for: user.languageCode
         )
-    }
-
-    // MARK: - Equatable Conformance
-
-    static func == (
-        left: User,
-        right: User
-    ) -> Bool {
-        left.encodedHash == right.encodedHash
     }
 
     // MARK: - Hashable Conformance

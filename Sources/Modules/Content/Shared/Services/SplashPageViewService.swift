@@ -201,12 +201,8 @@ final class SplashPageViewService: ObservableObject {
 
             // Must complete before the Firebase observer starts (post-splash),
             // otherwise the observer sees the timestamp change and triggers sign-out.
-            if !RuntimeStorage.updatedLastSignInDate {
+            if RuntimeStorage.lastSignInDate == nil {
                 try await currentUser.updateLastSignedInDate()
-                RuntimeStorage.store(
-                    true,
-                    as: .updatedLastSignInDate
-                )
             }
 
             Networking.config.setIsEnhancedDialogTranslationEnabled(
@@ -238,7 +234,7 @@ final class SplashPageViewService: ObservableObject {
             /* MARK: Conversation Resolution */
 
             clientSession.conversation.setCurrentConversation(nil)
-            try await clientSession.user.resolveCurrentUserData()
+            try await clientSession.user.resolveCurrentUserData(resolveMessages: false)
 
             initializationProgress = 1
 

@@ -56,6 +56,7 @@ extension CacheDomain {
                 .conversationArchive,
                 .conversationCellViewData,
                 .mediaMessagePreviewService,
+                .messageArchive,
                 .Networking.database,
                 .Networking.gemini,
                 .Networking.storage,
@@ -87,6 +88,7 @@ extension CacheDomain {
     static let conversationArchive: CacheDomain = .init("conversationArchive") { clearConversationArchiveCache() }
     static let conversationCellViewData: CacheDomain = .init("conversationCellViewData") { clearConversationCellViewDataCache() }
     static let mediaMessagePreviewService: CacheDomain = .init("mediaMessagePreviewService") { clearMediaMessagePreviewServiceCache() }
+    static let messageArchive: CacheDomain = .init("messageArchive") { clearMessageArchiveCache() }
     static let queriedContactPairs: CacheDomain = .init("queriedContactPairs") { clearQueriedContactPairsCache() }
     static let queriedConversations: CacheDomain = .init("queriedConversations") { clearQueriedConversationCache() }
     static let readReceipt: CacheDomain = .init("readReceipt") { clearReadReceiptCache() }
@@ -161,6 +163,11 @@ extension CacheDomain {
             @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
             mediaMessagePreviewService?.clearCache()
         }
+    }
+
+    private static func clearMessageArchiveCache() {
+        @Dependency(\.networking.messageService.archive) var messageArchive: MessageArchiveService
+        messageArchive.clearArchive()
     }
 
     private static func clearQueriedContactPairsCache() {

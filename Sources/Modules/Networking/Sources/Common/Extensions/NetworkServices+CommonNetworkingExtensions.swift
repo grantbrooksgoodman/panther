@@ -21,6 +21,7 @@ extension NetworkServices {
         )
         static let integrityService = IntegrityService()
         static let messageService = MessageService(
+            archive: .init(),
             audio: .init(),
             media: .init()
         )

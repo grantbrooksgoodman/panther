@@ -84,6 +84,7 @@ final class UserSessionService: @unchecked Sendable {
 
     // MARK: - Hydrate Current User Conversations
 
+    // TODO: Make this operate on an enum case set.
     /// Hydrates conversations for the current user from the archive, sync, or network.
     ///
     /// This replaces the former `User.setConversations()` instance method, which relied
@@ -94,6 +95,8 @@ final class UserSessionService: @unchecked Sendable {
         resolveMessages: Bool = true,
         resolveUsers: Bool = true
     ) async throws(Exception) {
+        _ = try await resolveCurrentUser()
+
         if resolveConversations {
             let resolveConversations: @Sendable () async throws(Exception) -> Void = {
                 try await self.resolveCurrentUserConversations()
@@ -347,7 +350,7 @@ final class UserSessionService: @unchecked Sendable {
     }
 
     private func lastSignedInDateDidChange(_ dictionary: [String: Any]) -> Bool {
-        let currentLastSignedInDate = currentUser?.lastSignedIn
+        let currentLastSignedInDate = RuntimeStorage.lastSignInDate ?? currentUser?.lastSignedIn
         let updatedLastSignedInString = dictionary[
             User.SerializableKey.lastSignedIn.rawValue
         ] as? String

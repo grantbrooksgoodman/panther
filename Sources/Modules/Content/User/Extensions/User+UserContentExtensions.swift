@@ -136,6 +136,7 @@ extension User {
         to date: Date = .now
     ) async throws(Exception) {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
+        RuntimeStorage.store(date, as: .lastSignInDate)
         try await userSession.setCurrentUser(
             update(
                 \.lastSignedIn,

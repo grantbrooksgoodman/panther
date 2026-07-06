@@ -16,4 +16,8 @@ extension PersistentStorageKey {
     enum ConversationArchiveServiceStorageKey: String {
         case conversationArchive
     }
+
+    enum MessageArchiveServiceStorageKey: String {
+        case messageArchive
+    }
 }

@@ -90,6 +90,10 @@ struct SignInPageReducer: Reducer {
             strings.value(for: configuration == .phoneNumber ? .phoneNumberInstructionLabelText : .verificationCodeInstructionLabelText)
         }
 
+        fileprivate var isDeveloperModeEnabled: Bool {
+            Dependency(\.build.isDeveloperModeEnabled).wrappedValue
+        }
+
         fileprivate var numberIsValidLength: Bool {
             @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
             return phoneNumberService.numberIsValidLength(phoneNumberString.digits.count, for: phoneNumber.callingCode)
@@ -118,8 +122,19 @@ struct SignInPageReducer: Reducer {
         case .viewAppeared:
             state.viewState = .loading
             state.selectedRegionCode = onboardingService.regionCode ?? services.regionDetail.deviceRegionCode
-            state.phoneNumberString = onboardingService.phoneNumber?.partiallyFormatted(forRegion: state.selectedRegionCode) ?? ""
-            state.isContinueButtonEnabled = state.numberIsValidLength
+
+            if state.isDeveloperModeEnabled {
+                state.isContinueButtonEnabled = true
+                state.phoneNumberString = PhoneNumber("15558885555").partiallyFormatted(
+                    forRegion: state.selectedRegionCode
+                )
+                state.verificationCode = "000000"
+            } else {
+                state.isContinueButtonEnabled = false
+                state.phoneNumberString = onboardingService.phoneNumber?.partiallyFormatted(
+                    forRegion: state.selectedRegionCode
+                ) ?? ""
+            }
 
             return .task {
                 do throws(Exception) {
@@ -319,7 +334,7 @@ struct SignInPageReducer: Reducer {
             coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
-            state.isContinueButtonEnabled = false
+            state.isContinueButtonEnabled = state.isDeveloperModeEnabled
 
             state.authID = authID
             state.configuration = .verificationCode

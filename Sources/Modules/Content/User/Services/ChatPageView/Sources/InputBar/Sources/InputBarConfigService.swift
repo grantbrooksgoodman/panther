@@ -27,11 +27,11 @@ struct InputBarConfigService {
     // MARK: - Computed Properties
 
     var canShowRecordButton: Bool {
-        guard let currentUser = clientSession.user.currentUser,
-              let users = clientSession
-              .conversation
-              .currentConversation?
-              .users else { return false }
+        guard let currentUser = clientSession.user.currentUser else { return false }
+        let users = clientSession
+            .conversation
+            .currentConversation?
+            .users ?? []
 
         guard currentUser.canSendAudioMessages,
               !users.isEmpty else {

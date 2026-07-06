@@ -370,14 +370,11 @@ final class ConversationsPageViewService {
                 }
             }
 
-            let staleConversations = Set(array.map {
-                markStale(conversation: $0)
-            })
-
-            networking
-                .conversationService
-                .archive
-                .addValues(staleConversations)
+            clientSession
+                .store
+                .upsertConversations(
+                    array.map { markStale(conversation: $0) }
+                )
         }
 
         defer { currentReloadType = currentReloadType.next }
@@ -532,6 +529,7 @@ final class ConversationsPageViewService {
     }
 }
 
+// TODO: Audit for deletion.
 extension Conversation: Validatable {
     var isWellFormed: Bool {
         guard !id.key.isBlank,
@@ -542,7 +540,8 @@ extension Conversation: Validatable {
                   !messages.isEmpty,
                   messages.filteringSystemMessages.count == messageIDs.count,
                   let users,
-                  !users.isEmpty else { return false }
+                  !users.isEmpty,
+                  users.count == participants.count - 1 else { return false }
         }
 
         return true
