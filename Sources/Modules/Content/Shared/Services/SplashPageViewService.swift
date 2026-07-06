@@ -127,7 +127,7 @@ final class SplashPageViewService: ObservableObject {
 
         // Launch the heaviest independent network calls concurrently.
         async let resolveCurrentUserResult = clientSession.user.resolveCurrentUser()
-        async let resolveLanguageCodeResult: Void = clientSession.user.resolveAndSetLanguageCode()
+        async let resolveLanguageCodeResult: Void = clientSession.resolveAndSetLanguageCode()
         async let resolveValuesResult: Void = services.metadata.resolveValues()
 
         do {
@@ -187,7 +187,7 @@ final class SplashPageViewService: ObservableObject {
 
         // User resolution likely completed during the metadata + update + cache gates above.
         do {
-            _ = try await resolveCurrentUserResult
+            try await resolveCurrentUserResult
             initializationProgress += 0.2
 
             guard let currentUser = clientSession.user.currentUser else {
@@ -234,7 +234,12 @@ final class SplashPageViewService: ObservableObject {
             /* MARK: Conversation Resolution */
 
             clientSession.conversation.setCurrentConversation(nil)
-            try await clientSession.user.resolveCurrentUserData(resolveMessages: false)
+            try await clientSession.user.resolveCurrentUser(
+                and: [
+                    .conversations,
+                    .users,
+                ]
+            )
 
             initializationProgress = 1
 

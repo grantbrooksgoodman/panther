@@ -33,11 +33,14 @@ final class UserSessionService: @unchecked Sendable {
 
     // MARK: - Properties
 
+    private static let conversationCoalescer = SingleSlotCoalescer<Void>()
+    private static let messageCoalescer = SingleSlotCoalescer<Void>()
+    private static let userCoalescer = SingleSlotCoalescer<Void>()
+
     @Persistent(.currentUserID) private var currentUserID: String?
     @LockIsolated private var isUpdatePending = false
     @LockIsolated private var isUpdatingCurrentUser = false
     private var observationTask: Task<Void, Never>?
-    private static let coalescer = SingleSlotCoalescer<Void>()
 
     // MARK: - Computed Properties
 
@@ -82,78 +85,92 @@ final class UserSessionService: @unchecked Sendable {
         }
     }
 
-    // MARK: - Hydrate Current User Conversations
+    // MARK: - Resolve Current User
 
-    // TODO: Make this operate on an enum case set.
-    /// Hydrates conversations for the current user from the archive, sync, or network.
+    /// Fetches the current user from the server and upserts it
+    /// to the session store, optionally resolving associated
+    /// data.
     ///
-    /// This replaces the former `User.setConversations()` instance method, which relied
-    /// on reference-type self-mutation. The logic is identical, but operates on value-type
-    /// copies and commits the result back to `currentUser`.
-    func resolveCurrentUserData(
-        resolveConversations: Bool = true,
-        resolveMessages: Bool = true,
-        resolveUsers: Bool = true
+    /// Pass one or more ``User/DataType`` values to indicate
+    /// which associated data to resolve after the user itself
+    /// is fetched. Each data type is coalesced independently,
+    /// so concurrent calls converge rather than duplicate work.
+    ///
+    /// ```swift
+    /// try await userSession.resolveCurrentUser(
+    ///     and: [.conversations, .messages, .users]
+    /// )
+    /// ```
+    ///
+    /// - Parameter data: The set of associated data types to
+    ///   resolve. Pass an empty set to resolve only the user.
+    func resolveCurrentUser(
+        and data: Set<User.DataType> = []
     ) async throws(Exception) {
-        _ = try await resolveCurrentUser()
+        try await resolveCurrentUser()
 
-        if resolveConversations {
+        if data.contains(.conversations) {
             let resolveConversations: @Sendable () async throws(Exception) -> Void = {
                 try await self.resolveCurrentUserConversations()
             }
 
-            try await Self.coalescer(
+            try await Self.conversationCoalescer(
                 mode: .lastCallerWins,
                 resolveConversations
             )
         }
 
-        if resolveMessages {
-            try await resolveMessagesOnCurrentUserConversations()
-        }
+        if data.contains(.messages) {
+            let resolveMessages: @Sendable () async throws(Exception) -> Void = {
+                try await self.resolveMessagesOnCurrentUserConversations()
+            }
 
-        if resolveUsers {
-            try await resolveUsersOnCurrentUserConversations()
-        }
-    }
-
-    // MARK: - Resolve Current User
-
-    @discardableResult
-    func resolveCurrentUser(
-        _ cacheStrategy: CacheStrategy = .returnCacheOnFailure
-    ) async throws(Exception) -> User {
-        guard let currentUserID else {
-            throw Exception(
-                "Current user ID has not been set.",
-                metadata: .init(sender: self)
+            try await Self.messageCoalescer(
+                mode: .lastCallerWins,
+                resolveMessages
             )
         }
 
-        if cacheStrategy == .returnCacheFirst,
-           let currentUser,
-           currentUser.id == currentUserID {
-            return currentUser
-        }
-
-        do {
-            let user = try await networking.userService.getUser(id: currentUserID)
-            clientSession.store.upsertUser(user)
-            await MainActor.run { self.currentUserID = user.id }
-            return user
-        } catch {
-            if cacheStrategy == .returnCacheOnFailure,
-               let currentUser,
-               currentUser.id == currentUserID {
-                return currentUser
+        if data.contains(.users) {
+            let resolveUsers: @Sendable () async throws(Exception) -> Void = {
+                try await self.resolveUsersOnCurrentUserConversations()
             }
 
-            throw error
+            try await Self.userCoalescer(
+                mode: .lastCallerWins,
+                resolveUsers
+            )
         }
     }
 
     // MARK: - Set Current User
 
+    /// Validates and upserts a user to the session store as
+    /// the current user.
+    ///
+    /// Use this method after performing a remote write on the
+    /// current user to commit the server-confirmed value to
+    /// the session store:
+    ///
+    /// ```swift
+    /// try await userSession.setCurrentUser(
+    ///     currentUser.update(\.pushTokens, to: newTokens),
+    ///     repopulateValuesIfNeeded: true
+    /// )
+    /// ```
+    ///
+    /// The method guards that the provided user's identifier
+    /// matches ``currentUserID``. If `repopulateValuesIfNeeded`
+    /// is `true`, conversations are repopulated asynchronously
+    /// after the upsert completes.
+    ///
+    /// Pass `nil` to clear the current user during sign-out or
+    /// account deletion.
+    ///
+    /// - Parameters:
+    ///   - user: The user to upsert, or `nil` to clear.
+    ///   - repopulateValuesIfNeeded: Whether to repopulate
+    ///     conversations after the upsert.
     func setCurrentUser(
         _ user: User?,
         repopulateValuesIfNeeded: Bool = false
@@ -214,33 +231,6 @@ final class UserSessionService: @unchecked Sendable {
         }
 
         clientSession.store.upsertUser(offlineCurrentUser)
-    }
-
-    // MARK: - Resolve & Set Language Code
-
-    func resolveAndSetLanguageCode() async throws(Exception) {
-        guard let currentUserID else {
-            throw Exception(
-                "Current user ID has not been set.",
-                metadata: .init(sender: self)
-            )
-        }
-
-        let languageCode: String = try await networking.database.getValues(
-            at: [
-                NetworkPath.users.rawValue,
-                currentUserID,
-                User.SerializableKey.languageCode.rawValue,
-            ].joined(separator: "/")
-        )
-
-        Logger.log(
-            "Setting language code to \(languageCode.englishLanguageName ?? languageCode.uppercased()).",
-            domain: .userSession,
-            sender: self
-        )
-
-        coreUtilities.setLanguageCode(languageCode)
     }
 
     // MARK: - Current User Observation
@@ -363,6 +353,39 @@ final class UserSessionService: @unchecked Sendable {
         return !(currentLastSignedInDate?.isWithinSameSecond(as: updatedLastSignedInDate) ?? true)
     }
 
+    /// Fetches the current user from the server and upserts
+    /// the result to the session store.
+    private func resolveCurrentUser() async throws(Exception) {
+        guard let currentUserID else {
+            throw Exception(
+                "Current user ID has not been set.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        do {
+            try await clientSession.store.upsertUser(
+                networking.userService.getUser(
+                    id: currentUserID
+                )
+            )
+        } catch {
+            throw error
+        }
+    }
+
+    /// Populates conversations for the current user from the
+    /// archive, sync service, or network.
+    ///
+    /// Conversations already present in the archive are used
+    /// directly. Conversations whose identifier matches an
+    /// archived entry but whose hash has changed are
+    /// synchronized. Remaining conversations are fetched from
+    /// the network. The resolved set is committed to the
+    /// session store.
+    ///
+    /// This method resolves conversation objects only; it does
+    /// not fetch their messages or participants.
     private func resolveCurrentUserConversations() async throws(Exception) {
         @Dependency(\.networking.conversationService) var conversationService: ConversationService
 
@@ -442,16 +465,18 @@ final class UserSessionService: @unchecked Sendable {
         commitConversationsToMemory(decodedConversations)
     }
 
-    // TODO: Audit why this is needed after _resolveCurrentUserConversations.
-    /// Fetches messages for all visible conversations on the current user that
-    /// do not yet have their messages populated, and writes the hydrated
-    /// conversations back to `currentUser`.
+    /// Fetches messages for visible conversations on the
+    /// current user whose messages are not yet in the session
+    /// store.
     ///
-    /// With struct-based models, `resolveMessages()` returns new values rather
-    /// than mutating in place. This method ensures the hydrated results are stored.
+    /// Conversation resolution populates conversation objects
+    /// but does not always fetch their messages. This method
+    /// fills that gap for conversations that were loaded from
+    /// the archive or freshly fetched from the network.
     private func resolveMessagesOnCurrentUserConversations() async throws(Exception) {
         guard let conversations = currentUser?.conversations else { return }
 
+        guard !Task.isCancelled else { return }
         let conversationsNeedingMessages = conversations
             .visibleForCurrentUser
             .filter { conversation in
@@ -464,22 +489,25 @@ final class UserSessionService: @unchecked Sendable {
                     )
             }
 
-        guard !conversationsNeedingMessages.isEmpty else { return }
+        guard !Task.isCancelled,
+              !conversationsNeedingMessages.isEmpty else { return }
+
         for conversation in conversationsNeedingMessages {
+            guard !Task.isCancelled else { return }
             try await conversation.resolveMessages()
         }
     }
 
-    /// Fetches users for all visible conversations on the current user and writes
-    /// the hydrated conversations back to `currentUser`.
-    ///
-    /// With struct-based models, `resolveUsers()` returns new values rather than
-    /// mutating in place. This method ensures the hydrated results are stored.
+    /// Fetches users for visible conversations on the current
+    /// user whose participants are not yet in the session
+    /// store.
     private func resolveUsersOnCurrentUserConversations() async throws(Exception) {
         guard let user = currentUser,
               let conversations = user.conversations else { return }
 
+        guard !Task.isCancelled else { return }
         for conversation in conversations.visibleForCurrentUser {
+            guard !Task.isCancelled else { return }
             try await conversation.resolveUsers()
         }
     }
@@ -501,6 +529,12 @@ final class UserSessionService: @unchecked Sendable {
         }
     }
 
+    /// Resolves the current user and their conversations in
+    /// response to an observed change.
+    ///
+    /// Only one update runs at a time. If a second call
+    /// arrives while an update is in progress, it is queued
+    /// and retried after the current update completes.
     private func updateCurrentUser() {
         Task {
             var isUpdatingCurrentUser = false
@@ -519,7 +553,7 @@ final class UserSessionService: @unchecked Sendable {
             }
 
             do throws(Exception) {
-                _ = try await resolveCurrentUser()
+                try await resolveCurrentUser()
                 Logger.log(
                     "Updated current user.",
                     domain: .userSession,

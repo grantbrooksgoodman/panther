@@ -173,8 +173,15 @@ struct UserTestingService {
 
         currentUserID = await (randomBool && randomBool && randomBool) ? randomUserID : currentUserID
 
-        let currentUser = try await clientSession.user.resolveCurrentUser()
-        try await clientSession.user.resolveAndSetLanguageCode()
+        try await clientSession.user.resolveCurrentUser()
+        try await clientSession.resolveAndSetLanguageCode()
+
+        guard let currentUser = clientSession.user.currentUser else {
+            throw Exception(
+                "Current user has not been set.",
+                metadata: .init(sender: self)
+            )
+        }
 
         guard randomBool else {
             if currentUserID != originalCurrentUserID {
@@ -183,7 +190,9 @@ struct UserTestingService {
             }
 
             try? await Task.sleep(for: .seconds(1))
-            try await clientSession.user.resolveCurrentUserData()
+            try await clientSession.user.resolveCurrentUser(
+                and: Set(User.DataType.allCases)
+            )
 
             guard let conversation = randomBool && randomBool ?
                 currentUser

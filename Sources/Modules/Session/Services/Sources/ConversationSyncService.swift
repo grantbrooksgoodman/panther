@@ -173,7 +173,6 @@ final class ConversationSyncService: @unchecked Sendable {
             ids: messageIDs
         )
 
-        // TODO: Audit whether syncData?.messages should be conversation.messages.
         let updatedMessages = ((syncData?.messages ?? []) + messages)
             .filteringSystemMessages
             .uniquedByID
@@ -301,7 +300,6 @@ final class ConversationSyncService: @unchecked Sendable {
 
         do {
             let currentMessages = conversation.messages?
-                .filteringSystemMessages
                 .uniquedByID ?? []
 
             syncData = try await .init(
@@ -388,7 +386,6 @@ final class ConversationSyncService: @unchecked Sendable {
 
         guard let currentMessages = conversation
             .messages?
-            .filteringSystemMessages
             .uniquedByID else {
             do {
                 try await conversation.resolveMessages()
@@ -396,7 +393,6 @@ final class ConversationSyncService: @unchecked Sendable {
                     conversation,
                     messages: conversation
                         .messages?
-                        .filteringSystemMessages
                         .uniquedByID ?? [],
                     newData: syncData?.newData ?? [:]
                 )

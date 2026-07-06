@@ -197,17 +197,15 @@ final class ChatPageViewService {
             self?.inputBar?.configureInputBar(forceUpdate: true)
         }
 
-        if let readReceipts {
-            Task { @MainActor in
-                do throws(Exception) {
-                    try await readReceipts.updateReadDateForUnreadMessages()
-                    try await typingIndicator?.textViewDidChange(to: "")
-                } catch {
-                    Logger.log(
-                        error,
-                        with: .toastInPrerelease
-                    )
-                }
+        Task { @MainActor in
+            do throws(Exception) {
+                try await readReceipts?.updateReadDateForUnreadMessages()
+                try await typingIndicator?.textViewDidChange(to: "")
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toastInPrerelease
+                )
             }
         }
 
@@ -317,7 +315,7 @@ final class ChatPageViewService {
     }
 
     func reloadCollectionView() {
-        guard viewController?.currentConversation?.messages?.count == 1 else {
+        guard viewController?.displayedMessages.count == 1 else {
             viewController?.messagesCollectionView.reloadDataAndKeepOffset()
             return
         }

@@ -131,9 +131,11 @@ struct ConversationsPageObserver: Observer {
             networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
 
             do throws(Exception) {
-                try await clientSession.user.resolveCurrentUserData(
-                    resolveConversations: false,
-                    resolveUsers: true
+                try await clientSession.user.resolveCurrentUser(
+                    and: [
+                        .messages,
+                        .users,
+                    ]
                 )
             } catch {
                 Logger.log(
@@ -159,11 +161,10 @@ struct ConversationsPageObserver: Observer {
                   .first(where: { $0.id.key == currentConversation.id.key }) else { return }
 
             let currentMessageIDs = Set(
-                (currentConversation.messages ?? []).filteringSystemMessages.map(\.id)
+                (currentConversation.messages ?? []).map(\.id)
             )
 
             if let missingMessages = updatedConversation.messages?
-                .filteringSystemMessages
                 .filter({
                     !currentMessageIDs.contains($0.id) &&
                         !$0.isFromCurrentUser &&

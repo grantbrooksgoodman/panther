@@ -121,7 +121,6 @@ struct User: Codable, EncodedHashable, Hashable {
         return conversations
             .visibleForCurrentUser
             .flatMap { $0.messages ?? [] }
-            .filteringSystemMessages
             .filter { !$0.isFromCurrentUser && $0.currentUserReadReceipt == nil }
             .count
     }

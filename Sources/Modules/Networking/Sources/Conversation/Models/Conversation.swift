@@ -98,9 +98,18 @@ struct Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Resolve Messages
 
-    /// Fetches messages from the network and upserts them to the session store.
+    /// Fetches messages from the network and upserts them to
+    /// the session store.
     ///
-    /// - Parameter ids: If provided, only re-fetches these specific message IDs. Otherwise fetches all non-system messages.
+    /// When `ids` is `nil`, all non-system message identifiers
+    /// on this conversation are fetched. When `ids` is
+    /// provided, only the specified messages are fetched.
+    ///
+    /// After this method returns, the fetched messages are
+    /// available through the ``messages`` computed property.
+    ///
+    /// - Parameter ids: A set of message identifiers to fetch.
+    ///   Pass `nil` to fetch all non-system messages.
     func resolveMessages(
         ids: Set<String>? = nil
     ) async throws(Exception) {
@@ -163,7 +172,16 @@ struct Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Resolve Users
 
-    /// Fetches users from the network and upserts them to the session store.
+    /// Fetches non-current-user participants from the network
+    /// and upserts them to the session store.
+    ///
+    /// By default, this method returns early when all
+    /// participants are already available through the
+    /// ``users`` computed property. Pass `forceUpdate` to
+    /// bypass the cache and re-fetch regardless.
+    ///
+    /// - Parameter forceUpdate: When `true`, disregards the
+    ///   cache and fetches all participants from the network.
     func resolveUsers(
         forceUpdate: Bool = false
     ) async throws(Exception) {

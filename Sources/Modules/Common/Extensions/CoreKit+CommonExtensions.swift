@@ -54,7 +54,10 @@ extension CoreKit.Utilities {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
         @Dependency(\.networking) var networking: NetworkServices
 
-        try await userSession.resolveCurrentUserData()
+        try await userSession.resolveCurrentUser(
+            and: Set(User.DataType.allCases)
+        )
+
         let currentUser = userSession.currentUser
         var conversationIDKeys: [String]?
 

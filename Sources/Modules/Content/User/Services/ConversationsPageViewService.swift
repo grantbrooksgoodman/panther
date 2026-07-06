@@ -130,7 +130,9 @@ final class ConversationsPageViewService {
             guard let currentUser = clientSession.user.currentUser,
                   currentUser.conversations == nil ||
                   currentUser.conversations?.isEmpty == true else { return }
-            try await clientSession.user.resolveCurrentUserData()
+            try await clientSession.user.resolveCurrentUser(
+                and: Set(User.DataType.allCases)
+            )
         }
 
         Task { @MainActor in
@@ -378,9 +380,9 @@ final class ConversationsPageViewService {
         }
 
         defer { currentReloadType = currentReloadType.next }
-
-        try await clientSession.user.resolveCurrentUser()
-        try await clientSession.user.resolveCurrentUserData()
+        try await clientSession.user.resolveCurrentUser(
+            and: Set(User.DataType.allCases)
+        )
 
         var randomBool: Bool {
             Int.random(in: 1 ... 1_000_000) % 3 == 0
@@ -432,8 +434,9 @@ final class ConversationsPageViewService {
         Task { @MainActor [weak self] in
             guard let self else { return }
             do throws(Exception) {
-                try await clientSession.user.resolveCurrentUser()
-                try await clientSession.user.resolveCurrentUserData()
+                try await clientSession.user.resolveCurrentUser(
+                    and: Set(User.DataType.allCases)
+                )
             } catch {
                 Logger.log(
                     error,
@@ -538,7 +541,7 @@ extension Conversation: Validatable {
         if isVisibleForCurrentUser {
             guard let messages,
                   !messages.isEmpty,
-                  messages.filteringSystemMessages.count == messageIDs.count,
+                  messages.count == messageIDs.count,
                   let users,
                   !users.isEmpty,
                   users.count == participants.count - 1 else { return false }

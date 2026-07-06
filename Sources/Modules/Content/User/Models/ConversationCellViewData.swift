@@ -133,8 +133,7 @@ struct ConversationCellViewData: Equatable {
 
         let messages = conversation
             .withMessagesOffsetFromCurrentUserAdditionDate
-            .messages?
-            .filteringSystemMessages
+            .messages
 
         var lastMessage = messages?.last
         if let searchQuery,

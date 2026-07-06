@@ -33,7 +33,7 @@ final class ReadReceiptService {
 
     func updateReadDateForUnreadMessages() async throws(Exception) {
         guard let conversation = clientSession.conversation.currentConversation,
-              let messages = conversation.messages?.filteringSystemMessages.filter({
+              let messages = conversation.messages?.filter({
                   !$0.isFromCurrentUser
               }),
               messages.last?.currentUserReadReceipt == nil else { return }

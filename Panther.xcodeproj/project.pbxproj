@@ -44,6 +44,7 @@
 		A2A7A13F2F16DD3B00E09921 /* AppConstants+DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */; };
 		A2A92DC92FE0FE13008C356C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A2A92DC82FE0FE13008C356C /* GoogleService-Info.plist */; };
 		A2AFE0AE2FF5B9A7009E0F6E /* MessageArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AFE0AD2FF5B9A7009E0F6E /* MessageArchiveService.swift */; };
+		A2AFE0B22FFC65E4009E0F6E /* User+SessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AFE0B12FFC65E4009E0F6E /* User+SessionExtensions.swift */; };
 		A2BD97152F3ABD7D008CAEC9 /* EmptyUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BD97142F3ABD7D008CAEC9 /* EmptyUIView.swift */; };
 		A2BE201F2F2C42420006F7AF /* FeaturePermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE201E2F2C42420006F7AF /* FeaturePermissionPageView.swift */; };
 		A2BE20212F2C42860006F7AF /* FeaturePermissionPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE20202F2C42860006F7AF /* FeaturePermissionPageReducer.swift */; };
@@ -811,6 +812,7 @@
 		A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+DataUsageView.swift"; sourceTree = "<group>"; };
 		A2A92DC82FE0FE13008C356C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A2AFE0AD2FF5B9A7009E0F6E /* MessageArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageArchiveService.swift; sourceTree = "<group>"; };
+		A2AFE0B12FFC65E4009E0F6E /* User+SessionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+SessionExtensions.swift"; sourceTree = "<group>"; };
 		A2BD97142F3ABD7D008CAEC9 /* EmptyUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyUIView.swift; sourceTree = "<group>"; };
 		A2BE201E2F2C42420006F7AF /* FeaturePermissionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturePermissionPageView.swift; sourceTree = "<group>"; };
 		A2BE20202F2C42860006F7AF /* FeaturePermissionPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturePermissionPageReducer.swift; sourceTree = "<group>"; };
@@ -2988,6 +2990,7 @@
 				B9223D572CD702D500C05BC6 /* Array+SessionExtensions.swift */,
 				B9DCCAA02B34FB6C00532B12 /* Persistent+SessionExtensions.swift */,
 				B9DCCAA62B34FC8D00532B12 /* PersistentStorageKey+SessionExtensions.swift */,
+				A2AFE0B12FFC65E4009E0F6E /* User+SessionExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -4392,6 +4395,7 @@
 				B9F47AEA2B576EFF00D86C67 /* ConversationsPageView.swift in Sources */,
 				B903CA6A2B6C194900A238A4 /* ChatPageStateServiceDependency.swift in Sources */,
 				B900B54E2B1AE04600BA2F1D /* ContactNameService.swift in Sources */,
+				A2AFE0B22FFC65E4009E0F6E /* User+SessionExtensions.swift in Sources */,
 				B9FE35902CCF71C400D24E41 /* NetworkActivityIndicatorService.swift in Sources */,
 				B99195A82B48963200BD5BBC /* AppConstants+SearchBar.swift in Sources */,
 				B94262572C4632020026CDE8 /* InviteQRCodePageViewStrings.swift in Sources */,

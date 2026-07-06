@@ -107,8 +107,7 @@ extension [Conversation] {
 
             guard let messages = conversation
                 .withMessagesOffsetFromCurrentUserAdditionDate
-                .messages?
-                .filteringSystemMessages else {
+                .messages else {
                 return cellViewDataTitleLabelTextContainsSearchTerm || metadataContainsSearchTerm
             }
 
@@ -148,7 +147,7 @@ extension [Message] {
     func hydrated(with activities: [Activity]?) -> [Message] {
         guard let activities,
               !activities.allSatisfy({ $0 == .empty }) else { return self }
-        return (filteringSystemMessages + activities.map(\.message))
+        return (self + activities.map(\.message))
             .uniquedByID
             .sortedByAscendingSentDate
     }

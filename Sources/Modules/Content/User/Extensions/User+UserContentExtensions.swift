@@ -108,7 +108,12 @@ extension User {
               .visibleForCurrentUser
               .contains(where: { satisfiesConstraints($0) }) == true else { return }
 
-        try await userSession.resolveCurrentUserData(resolveUsers: false)
+        try await userSession.resolveCurrentUser(
+            and: [
+                .conversations,
+                .messages,
+            ]
+        )
     }
 
     /// - Note: Will set the current user to the result returned by `update`.

@@ -458,7 +458,15 @@ struct ConversationStagingService: @unchecked Sendable {
     }
 
     private func resolveStagedUsers() async throws(Exception) -> StagedUsers {
-        try await .init(
+        try await userSession.resolveCurrentUser()
+        guard let currentUser = userSession.currentUser else {
+            throw Exception(
+                "Current user has not been set.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        return try await .init(
             erikaMustermann: resolveOrCreateUser(
                 id: "staged_erika_mustermann",
                 callingCode: "49",
@@ -487,7 +495,7 @@ struct ConversationStagingService: @unchecked Sendable {
                 nationalNumber: "612345678",
                 regionCode: "ES"
             ),
-            mainUser: userSession.resolveCurrentUser(),
+            mainUser: currentUser,
             marioRossi: resolveOrCreateUser(
                 id: "staged_mario_rossi",
                 callingCode: "39",

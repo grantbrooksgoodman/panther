@@ -109,7 +109,10 @@ extension DevModeAction {
                         message: "All messages will be marked as unread for the current user."
                     ).present(translating: []) else { return }
 
-                    try await clientSession.user.resolveCurrentUserData()
+                    try await clientSession.user.resolveCurrentUser(
+                        and: Set(User.DataType.allCases)
+                    )
+
                     guard let conversations = clientSession
                         .user
                         .currentUser?
@@ -128,7 +131,6 @@ extension DevModeAction {
                             conversations
                                 .compactMap(\.messages)
                                 .flatMap(\.self)
-                                .filteringSystemMessages
                                 .filter { $0.currentUserReadReceipt != nil }
                                 .parallelMap { @Sendable in
                                     let message = $0

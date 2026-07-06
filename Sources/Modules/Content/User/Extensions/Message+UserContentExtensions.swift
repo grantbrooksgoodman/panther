@@ -182,7 +182,6 @@ extension Message {
         guard let currentConversation else { return inputMatches }
         let firstMessageID = currentConversation
             .messages?
-            .filteringSystemMessages
             .first?
             .id ??
             currentConversation
