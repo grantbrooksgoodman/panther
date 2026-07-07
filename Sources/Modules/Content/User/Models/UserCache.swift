@@ -24,7 +24,7 @@ enum UserCache {
         @Dependency(\.clientSession) var clientSession: ClientSession
 
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
-        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
+        @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
         @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
 
         let usersFromContactPairArchive = contactPairArchive?

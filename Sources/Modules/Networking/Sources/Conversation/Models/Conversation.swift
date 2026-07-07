@@ -167,7 +167,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             domain: .conversation
         )
 
-        sessionStore.upsertMessages(fetchedMessages)
+        sessionStore.upsertMessages(Set(fetchedMessages))
     }
 
     // MARK: - Resolve Users
@@ -237,7 +237,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             domain: .conversation
         )
 
-        sessionStore.upsertUsers(fetchedUsers)
+        sessionStore.upsertUsers(Set(fetchedUsers))
     }
 
     // MARK: - Update Read Date

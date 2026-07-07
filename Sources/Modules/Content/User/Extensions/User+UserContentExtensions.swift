@@ -78,20 +78,6 @@ extension User {
 
     // NIT: I don't like the fact that this method is needed/useful. Seems like code smell.
     static func populateCurrentUserConversationsIfNeeded() async throws(Exception) {
-        func satisfiesConstraints(_ conversation: Conversation) -> Bool {
-            let filteringSystemMessages = conversation.filteringSystemMessages
-            if !filteringSystemMessages.messageIDs.isBangQualifiedEmpty,
-               filteringSystemMessages.messages == nil ||
-               filteringSystemMessages.messages?.isEmpty == true {
-                return true
-            } else if !filteringSystemMessages.messageIDs.isBangQualifiedEmpty,
-                      filteringSystemMessages.messageIDs.count != filteringSystemMessages.messages?.count {
-                return true
-            }
-
-            return false
-        }
-
         @Dependency(\.clientSession.user) var userSession: UserSessionService
         guard let currentUser = userSession.currentUser else {
             throw Exception(
@@ -102,11 +88,7 @@ extension User {
 
         guard currentUser.conversationIDs?.isEmpty == false,
               currentUser.conversations == nil ||
-              currentUser.conversations?.isEmpty == true ||
-              currentUser
-              .conversations?
-              .visibleForCurrentUser
-              .contains(where: { satisfiesConstraints($0) }) == true else { return }
+              currentUser.conversations?.isEmpty == true else { return }
 
         try await userSession.resolveCurrentUser(
             and: [

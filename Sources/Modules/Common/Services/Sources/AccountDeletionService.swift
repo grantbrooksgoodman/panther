@@ -74,7 +74,7 @@ final class AccountDeletionService: @unchecked Sendable {
             taskGroup.addTask {
                 do throws(Exception) {
                     try await self.clientSession.user.resolveCurrentUser(
-                        and: Set(User.DataType.allCases)
+                        and: [.conversations]
                     )
 
                     return nil
@@ -168,6 +168,7 @@ final class AccountDeletionService: @unchecked Sendable {
 
         // Delete user reference locally and on server.
 
+        // NIT: May technically be unnecessary. Audit the call chain for start..() calls.
         try? clientSession.user.stopObservingCurrentUserChanges()
         completionPercent = 1
 
@@ -193,6 +194,7 @@ final class AccountDeletionService: @unchecked Sendable {
                 exceptions.append(error)
             }
 
+            // NIT: May technically be unnecessary. Audit the call chain for start..() calls.
             try? clientSession.user.stopObservingCurrentUserChanges()
         }
 

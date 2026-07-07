@@ -23,18 +23,15 @@ struct MessageService {
 
     // MARK: - Properties
 
-    let archive: MessageArchiveService
     let audio: AudioMessageService
     let media: MediaMessageService
 
     // MARK: - Init
 
     init(
-        archive: MessageArchiveService,
         audio: AudioMessageService,
         media: MediaMessageService
     ) {
-        self.archive = archive
         self.audio = audio
         self.media = media
     }

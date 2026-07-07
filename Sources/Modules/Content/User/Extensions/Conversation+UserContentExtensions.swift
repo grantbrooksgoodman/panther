@@ -168,7 +168,7 @@ extension Conversation {
 
     static func empty(withUsers users: [User]) -> Conversation {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
-        sessionStore.upsertUsers(users)
+        sessionStore.upsertUsers(Set(users))
         return .init(
             .init(key: "", hash: ""),
             activities: nil,
@@ -187,7 +187,7 @@ extension Conversation {
 
     static func mock(withUsers users: [User]) -> Conversation {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
-        sessionStore.upsertUsers(users)
+        sessionStore.upsertUsers(Set(users))
         return .init(
             .init(key: CommonConstants.newConversationID, hash: ""),
             activities: nil,

@@ -131,7 +131,7 @@ final class ConversationsPageViewService {
                   currentUser.conversations == nil ||
                   currentUser.conversations?.isEmpty == true else { return }
             try await clientSession.user.resolveCurrentUser(
-                and: Set(User.DataType.allCases)
+                and: [.conversations]
             )
         }
 
@@ -227,8 +227,8 @@ final class ConversationsPageViewService {
 
         let suffix = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
 
-        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
-        let allMessages = (currentUser?.conversations ?? conversationArchive)?
+        @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
+        let allMessages = (currentUser?.conversations ?? conversationArchive.map(Array.init))?
             .visibleForCurrentUser
             .compactMap(\.messages)
             .flatMap(\.self) ?? []
@@ -374,9 +374,9 @@ final class ConversationsPageViewService {
 
             clientSession
                 .store
-                .upsertConversations(
+                .upsertConversations(Set(
                     array.map { markStale(conversation: $0) }
-                )
+                ))
         }
 
         defer { currentReloadType = currentReloadType.next }
@@ -571,7 +571,7 @@ private extension Conversation {
             of: resolvedUsers.map(\.id)
         ) else { return self }
 
-        sessionStore.upsertUsers(resolvedUsers)
+        sessionStore.upsertUsers(Set(resolvedUsers))
         return self
     }
 }

@@ -25,6 +25,7 @@ struct ConversationStagingService: @unchecked Sendable {
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.mainBundle) private var mainBundle: Bundle
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Computed Properties
@@ -60,7 +61,7 @@ struct ConversationStagingService: @unchecked Sendable {
             )
 
             let users = try await resolveStagedUsers()
-            networking.conversationService.archive.clearArchive()
+            sessionStore.clearConversationArchive()
             ConversationCellViewDataCache.clearCache()
 
             try await networking.database.setValue(

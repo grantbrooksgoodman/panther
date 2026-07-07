@@ -13,11 +13,8 @@ import Foundation
 import AppSubsystem
 
 extension PersistentStorageKey {
-    enum ConversationArchiveServiceStorageKey: String {
+    enum SessionStoreStorageKey: String {
         case conversationArchive
-    }
-
-    enum MessageArchiveServiceStorageKey: String {
         case messageArchive
     }
 }

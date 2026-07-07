@@ -313,7 +313,7 @@ final class UserSessionService: @unchecked Sendable {
         _ conversations: Set<Conversation>
     ) {
         guard !Task.isCancelled else { return }
-        clientSession.store.upsertConversations(Array(conversations))
+        clientSession.store.upsertConversations(conversations)
     }
 
     private func conversationsDidChange(_ dictionary: [String: Any]) -> Bool {
@@ -331,9 +331,7 @@ final class UserSessionService: @unchecked Sendable {
             .map(\.idKey) where !updatedConversationIDStrings
             .map(\.idKey)
             .contains(idKey) {
-            networking.conversationService.archive.removeValue(
-                idKey: idKey
-            )
+            clientSession.store.removeConversation(idKey: idKey)
         }
 
         return currentConversationIDStrings != updatedConversationIDStrings
@@ -406,9 +404,9 @@ final class UserSessionService: @unchecked Sendable {
 
         for conversationID in conversationIDs {
             guard !Task.isCancelled else { return }
-            if let value = conversationService.archive.getValue(id: conversationID) {
+            if let value = clientSession.store.getConversation(id: conversationID) {
                 decodedConversations.merge(with: [value])
-            } else if let value = conversationService.archive.getValue(idKey: conversationID.key) {
+            } else if let value = clientSession.store.getConversation(idKey: conversationID.key) {
                 conversationsNeedingUpdate.insert(value)
             } else {
                 conversationsNeedingFetch.insert(conversationID)

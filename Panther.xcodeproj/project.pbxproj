@@ -43,7 +43,6 @@
 		A2A7A13D2F03596E00E09921 /* DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13C2F03596E00E09921 /* DataUsageView.swift */; };
 		A2A7A13F2F16DD3B00E09921 /* AppConstants+DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */; };
 		A2A92DC92FE0FE13008C356C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A2A92DC82FE0FE13008C356C /* GoogleService-Info.plist */; };
-		A2AFE0AE2FF5B9A7009E0F6E /* MessageArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AFE0AD2FF5B9A7009E0F6E /* MessageArchiveService.swift */; };
 		A2AFE0B22FFC65E4009E0F6E /* User+SessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AFE0B12FFC65E4009E0F6E /* User+SessionExtensions.swift */; };
 		A2BD97152F3ABD7D008CAEC9 /* EmptyUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BD97142F3ABD7D008CAEC9 /* EmptyUIView.swift */; };
 		A2BE201F2F2C42420006F7AF /* FeaturePermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE201E2F2C42420006F7AF /* FeaturePermissionPageView.swift */; };
@@ -666,7 +665,6 @@
 		B9D3125B2D20A3660007572A /* SquareIconViewConfiguration+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D3125A2D20A3660007572A /* SquareIconViewConfiguration+UserContentExtensions.swift */; };
 		B9D4FD872CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D4FD862CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift */; };
 		B9D5C72C2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */; };
-		B9DCCA9E2B33E31E00532B12 /* ConversationArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCA9D2B33E31E00532B12 /* ConversationArchiveService.swift */; };
 		B9DCCAA12B34FB6C00532B12 /* Persistent+SessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA02B34FB6C00532B12 /* Persistent+SessionExtensions.swift */; };
 		B9DCCAA32B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA22B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift */; };
 		B9DCCAA52B34FC4700532B12 /* PersistentStorageKey+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA42B34FC4700532B12 /* PersistentStorageKey+CommonNetworkingExtensions.swift */; };
@@ -811,7 +809,6 @@
 		A2A7A13C2F03596E00E09921 /* DataUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataUsageView.swift; sourceTree = "<group>"; };
 		A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+DataUsageView.swift"; sourceTree = "<group>"; };
 		A2A92DC82FE0FE13008C356C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		A2AFE0AD2FF5B9A7009E0F6E /* MessageArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageArchiveService.swift; sourceTree = "<group>"; };
 		A2AFE0B12FFC65E4009E0F6E /* User+SessionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+SessionExtensions.swift"; sourceTree = "<group>"; };
 		A2BD97142F3ABD7D008CAEC9 /* EmptyUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyUIView.swift; sourceTree = "<group>"; };
 		A2BE201E2F2C42420006F7AF /* FeaturePermissionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturePermissionPageView.swift; sourceTree = "<group>"; };
@@ -1506,7 +1503,6 @@
 		B9D3125A2D20A3660007572A /* SquareIconViewConfiguration+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SquareIconViewConfiguration+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B9D4FD862CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatPageView+HeaderItems.swift"; sourceTree = "<group>"; };
 		B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+RecipientBarService.swift"; sourceTree = "<group>"; };
-		B9DCCA9D2B33E31E00532B12 /* ConversationArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationArchiveService.swift; sourceTree = "<group>"; };
 		B9DCCAA02B34FB6C00532B12 /* Persistent+SessionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistent+SessionExtensions.swift"; sourceTree = "<group>"; };
 		B9DCCAA22B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistent+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9DCCAA42B34FC4700532B12 /* PersistentStorageKey+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistentStorageKey+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
@@ -2229,7 +2225,6 @@
 		B963F1C12B23D6190087DB83 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				B9DCCA9D2B33E31E00532B12 /* ConversationArchiveService.swift */,
 				B9EFB9F32B26621E00624794 /* ConversationService.swift */,
 				A266A9B02FC90D6A0092225E /* ConversationStagingService.swift */,
 			);
@@ -3051,7 +3046,6 @@
 			children = (
 				B9E0E1032B20FE7100C14274 /* AudioMessageService.swift */,
 				B9E00A532C2B8C7F004E350E /* MediaMessageService.swift */,
-				A2AFE0AD2FF5B9A7009E0F6E /* MessageArchiveService.swift */,
 				B9E0E1052B20FE8600C14274 /* MessageService.swift */,
 			);
 			path = Services;
@@ -4138,7 +4132,6 @@
 				B90249CC2B57457F00D62855 /* PermissionPageReducer.swift in Sources */,
 				B983872A2BBF6407008614AE /* MessageDeliveryServiceDependency.swift in Sources */,
 				B98C40592C40BC0E00C72B0F /* ContentPickerService.swift in Sources */,
-				B9DCCA9E2B33E31E00532B12 /* ConversationArchiveService.swift in Sources */,
 				B969691B2B18259400ADA875 /* UpdateService.swift in Sources */,
 				A2EF5B2D2FCF4E7E00900A66 /* Bundle+CommonExtensions.swift in Sources */,
 				B98D9B1C2C4F1881004949E3 /* DocumentPickerService.swift in Sources */,
@@ -4344,7 +4337,6 @@
 				B9CFA7FD2D99C6C20075E02D /* ReactionDetailsPageView.swift in Sources */,
 				B9F47AEC2B576F3B00D86C67 /* ConversationsPageViewStrings.swift in Sources */,
 				B99B1DBA29E4C2AF00117D42 /* CustomColors.swift in Sources */,
-				A2AFE0AE2FF5B9A7009E0F6E /* MessageArchiveService.swift in Sources */,
 				B9F5D1EF2B48994300059B44 /* PhoneNumberTextField.swift in Sources */,
 				B9DEB7B42C1CE93F0098DAAB /* ConnectionStatusServiceEffectID.swift in Sources */,
 				B9E2E6112C72E64F004022FE /* CacheDomains.swift in Sources */,

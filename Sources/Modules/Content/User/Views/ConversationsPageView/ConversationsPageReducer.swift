@@ -17,8 +17,6 @@ import Networking
 struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
-    // TODO: Audit continued necessity of the below dependency.
-    @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.navigation) private var navigation: Navigation
@@ -87,7 +85,6 @@ struct ConversationsPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    // swiftlint:disable:next function_body_length
     func reduce(
         into state: inout State,
         action: Action
@@ -182,7 +179,7 @@ struct ConversationsPageReducer: Reducer {
                 return .none
             }
 
-            state.conversations = (conversations ?? state.conversations)
+            state.conversations = state.conversations
                 .queried(by: searchQuery)
                 .filteredAndSorted
 
@@ -194,30 +191,6 @@ struct ConversationsPageReducer: Reducer {
             viewService.traitCollectionChanged()
 
         case .updatedCurrentUser:
-            /// - NOTE: Fixes a bug in which mistimed updates would fail to set users on all conversations.
-            /// - Returns: `true` if the page needed refreshing.
-            func refreshUsersIfNeeded() -> Bool {
-                guard let conversations else { return false }
-                guard conversations.allSatisfy({ $0.users != nil }) else {
-                    Logger.log(
-                        "Intercepted badly set users on conversations bug.",
-                        domain: .bugPrevention,
-                        with: isDeveloperModeEnabled ? .toast : nil,
-                        sender: self
-                    )
-
-                    Task.delayed(by: .milliseconds(250)) { @MainActor in
-                        Observables.updatedCurrentUser.trigger()
-                    }
-
-                    return true
-                }
-
-                return false
-            }
-
-            guard !refreshUsersIfNeeded() else { return .none }
-
             viewService.updateConversationsList(state: &state)
             state.isSearching = false
             state.searchQuery = ""

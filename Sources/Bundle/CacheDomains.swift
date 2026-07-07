@@ -148,8 +148,8 @@ extension CacheDomain {
     }
 
     private static func clearConversationArchiveCache() {
-        @Dependency(\.networking.conversationService.archive) var conversationArchive: ConversationArchiveService
-        conversationArchive.clearArchive()
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        sessionStore.clearConversationArchive()
     }
 
     private static func clearConversationCellViewDataCache() {
@@ -166,8 +166,8 @@ extension CacheDomain {
     }
 
     private static func clearMessageArchiveCache() {
-        @Dependency(\.networking.messageService.archive) var messageArchive: MessageArchiveService
-        messageArchive.clearArchive()
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        sessionStore.clearMessageArchive()
     }
 
     private static func clearQueriedContactPairsCache() {

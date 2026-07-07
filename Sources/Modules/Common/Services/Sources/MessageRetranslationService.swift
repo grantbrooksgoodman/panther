@@ -24,7 +24,6 @@ struct MessageRetranslationService {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.networking.conversationService.archive) private var conversationArchive: ConversationArchiveService
     @Dependency(\.conversationsPageViewService) private var conversationsPageViewService: ConversationsPageViewService
     @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool

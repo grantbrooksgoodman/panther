@@ -13,15 +13,7 @@ import Foundation
 import AppSubsystem
 
 extension Persistent {
-    convenience init(
-        _ conversationArchiveServiceKey: PersistentStorageKey.ConversationArchiveServiceStorageKey
-    ) {
-        self.init(.conversationArchiveService(conversationArchiveServiceKey))
-    }
-
-    convenience init(
-        _ messageArchiveServiceKey: PersistentStorageKey.MessageArchiveServiceStorageKey
-    ) {
-        self.init(.messageArchiveService(messageArchiveServiceKey))
+    convenience init(_ sessionStoreKey: PersistentStorageKey.SessionStoreStorageKey) {
+        self.init(.sessionStore(sessionStoreKey))
     }
 }

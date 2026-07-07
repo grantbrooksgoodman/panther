@@ -202,10 +202,9 @@ struct NotificationService {
             )
         }
 
-        guard let conversation = networking
-            .conversationService
-            .archive
-            .getValue(idKey: conversationIDKey),
+        guard let conversation = clientSession
+            .store
+            .getConversation(idKey: conversationIDKey),
             conversation.isVisibleForCurrentUser else {
             throw Exception(
                 "Conversation associated with this notification is not visible to the current user.",

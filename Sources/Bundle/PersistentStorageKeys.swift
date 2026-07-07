@@ -69,18 +69,6 @@ extension PersistentStorageKey {
         .init(key.rawValue)
     }
 
-    static func conversationArchiveService(
-        _ key: ConversationArchiveServiceStorageKey
-    ) -> PersistentStorageKey {
-        .init(key.rawValue)
-    }
-
-    static func messageArchiveService(
-        _ key: MessageArchiveServiceStorageKey
-    ) -> PersistentStorageKey {
-        .init(key.rawValue)
-    }
-
     static func messageRetranslationService(
         _ key: MessageRetranslationServiceStorageKey
     ) -> PersistentStorageKey {
@@ -95,6 +83,12 @@ extension PersistentStorageKey {
 
     static func reviewService(
         _ key: ReviewServiceStorageKey
+    ) -> PersistentStorageKey {
+        .init(key.rawValue)
+    }
+
+    static func sessionStore(
+        _ key: SessionStoreStorageKey
     ) -> PersistentStorageKey {
         .init(key.rawValue)
     }

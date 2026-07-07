@@ -328,7 +328,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
         clientSession.store.upsertConversation(syncData.conversation)
         if !syncData.messages.isEmpty {
-            clientSession.store.upsertMessages(syncData.messages)
+            clientSession.store.upsertMessages(Set(syncData.messages))
         }
 
         return syncData.conversation

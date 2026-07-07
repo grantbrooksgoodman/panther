@@ -54,7 +54,7 @@ extension Conversation: RemotelyUpdatable {
 
         case .messages:
             guard let value = value as? [Message] else { return nil }
-            sessionStore.upsertMessages(value.uniquedByID)
+            sessionStore.upsertMessages(Set(value.uniquedByID))
             return updateIDHash(
                 copying(messageIDs: value.map(\.id).unique)
             )

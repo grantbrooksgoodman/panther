@@ -71,11 +71,13 @@ final class SplashPageViewService: ObservableObject {
         initializationStartDate = .now
         loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
-        _ = Timeout(after: .seconds(3)) {
-            Task { @MainActor [weak self] in
-                guard let self,
-                      initializationProgress <= 0.5 else { return }
-                didSurpassQuickLoadTimeoutDuration = true
+        _ = Timeout(after: .milliseconds(100)) {
+            Task { @MainActor in
+//                guard let self,
+                print("Invoking timeout")
+                guard self.initializationProgress <= 0.7 else { return }
+                print("Guard passed")
+                self.didSurpassQuickLoadTimeoutDuration = true
             }
         }
 
@@ -220,7 +222,7 @@ final class SplashPageViewService: ObservableObject {
                 Logger.log(error)
             }
 
-            @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
+            @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
             if (currentUser.conversationIDs ?? []).count > 20,
                (conversationArchive ?? []).isEmpty {
                 let database = LockIsolated(networking.database)

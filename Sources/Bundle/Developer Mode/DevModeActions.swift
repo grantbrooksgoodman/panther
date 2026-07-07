@@ -110,7 +110,10 @@ extension DevModeAction {
                     ).present(translating: []) else { return }
 
                     try await clientSession.user.resolveCurrentUser(
-                        and: Set(User.DataType.allCases)
+                        and: [
+                            .conversations,
+                            .messages,
+                        ]
                     )
 
                     guard let conversations = clientSession
@@ -127,7 +130,7 @@ extension DevModeAction {
                     defer { coreUI.removeOverlay() }
 
                     do throws(Exception) {
-                        try await clientSession.store.upsertMessages(
+                        try await clientSession.store.upsertMessages(Set(
                             conversations
                                 .compactMap(\.messages)
                                 .flatMap(\.self)
@@ -141,7 +144,7 @@ extension DevModeAction {
                                         }
                                     )
                                 }
-                        )
+                        ))
                     } catch {
                         Logger.log(
                             error,

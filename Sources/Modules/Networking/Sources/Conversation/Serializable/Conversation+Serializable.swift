@@ -155,7 +155,7 @@ extension Conversation: Serializable {
             )
         }
 
-        sessionStore.upsertMessages(messages)
+        sessionStore.upsertMessages(Set(messages))
         self.init(
             conversationID,
             activities: activities,

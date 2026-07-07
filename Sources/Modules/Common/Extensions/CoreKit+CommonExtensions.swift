@@ -51,11 +51,14 @@ extension CoreKit.Utilities {
         _ granularity: ConversationDeletionGranularity
     ) async throws(Exception) {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
         @Dependency(\.networking) var networking: NetworkServices
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         try await userSession.resolveCurrentUser(
-            and: Set(User.DataType.allCases)
+            and: [
+                .conversations,
+                .messages,
+            ]
         )
 
         let currentUser = userSession.currentUser

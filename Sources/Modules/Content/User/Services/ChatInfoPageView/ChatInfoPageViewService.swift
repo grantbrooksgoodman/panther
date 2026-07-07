@@ -36,7 +36,6 @@ final class ChatInfoPageViewService {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.commonServices.contact) private var contactService: ContactService
-    @Dependency(\.networking.conversationService.archive) private var conversationArchive: ConversationArchiveService
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
@@ -235,7 +234,7 @@ final class ChatInfoPageViewService {
                 )
 
                 Application.dismissSheets()
-                conversationArchive.removeValue(idKey: conversation.id.key)
+                clientSession.store.removeConversation(idKey: conversation.id.key)
                 navigation.navigate(to: .userContent(.stack([])))
             } catch {
                 Logger.log(

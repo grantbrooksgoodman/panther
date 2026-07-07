@@ -320,7 +320,7 @@ final class MessageDeliveryService {
             ))
         }
 
-        clientSession.store.upsertMessages(messages)
+        clientSession.store.upsertMessages(Set(messages))
         let newConversation = conversation
             .copying(messageIDs: messages.map(\.id))
             .copying(
