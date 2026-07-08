@@ -746,6 +746,7 @@
 		B9F5D1EF2B48994300059B44 /* PhoneNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F5D1EE2B48994300059B44 /* PhoneNumberTextField.swift */; };
 		B9F627AC2B32767F00462DD9 /* AppConstants+SplashPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F627AB2B32767F00462DD9 /* AppConstants+SplashPageView.swift */; };
 		B9FE35902CCF71C400D24E41 /* NetworkActivityIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */; };
+		BCFA191F8A419DEF1E3DA8E9 /* SessionStoreChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520CADEF63996EC3E433927D /* SessionStoreChange.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -773,6 +774,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		520CADEF63996EC3E433927D /* SessionStoreChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreChange.swift; sourceTree = "<group>"; };
 		A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewService.swift; sourceTree = "<group>"; };
 		A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewServiceDependency.swift; sourceTree = "<group>"; };
@@ -1786,6 +1788,7 @@
 				A242750E2F31B23D00F664C3 /* DataUsageCalculation.swift */,
 				B906C0122C470A2100F414DA /* ModerationType.swift */,
 				B92617712CD8990900877ECE /* ReactionSessionServiceEffectID.swift */,
+				520CADEF63996EC3E433927D /* SessionStoreChange.swift */,
 				A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */,
 			);
 			path = Models;
@@ -4317,6 +4320,7 @@
 				B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */,
 				B9C6964F2B8961FC005F0BFE /* ChatInfoPageView.swift in Sources */,
 				A25F1C2E2FF34E4B00425FC2 /* SessionStore.swift in Sources */,
+				BCFA191F8A419DEF1E3DA8E9 /* SessionStoreChange.swift in Sources */,
 				B94758272BCF8689001E4872 /* ContentPickerContentSource.swift in Sources */,
 				B9EFBA162B2694C500624794 /* Array+CommonNetworkingExtensions.swift in Sources */,
 				B94758252BCF864D001E4872 /* ContentPicker.swift in Sources */,

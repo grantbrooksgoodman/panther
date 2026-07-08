@@ -92,11 +92,19 @@ struct SessionStore {
     // MARK: - Conversation Methods
 
     func clearConversationArchive() {
+        var removedIDKeys = Set<String>()
         state.projectedValue.withValue {
+            removedIDKeys = Set($0.conversations.keys)
             $0.conversations = [:]
         }
 
         persistConversationArchive()
+        if !removedIDKeys.isEmpty {
+            Observables.sessionStoreDidChange.value = .conversations(
+                upsertedIDKeys: [],
+                removedIDKeys: removedIDKeys
+            )
+        }
     }
 
     func getConversation(id: ConversationID) -> Conversation? {
@@ -110,14 +118,14 @@ struct SessionStore {
     }
 
     func removeConversation(idKey: String) {
-        var shouldLogRemoval = false
+        var didRemove = false
         state.projectedValue.withValue {
-            shouldLogRemoval = $0.conversations[idKey] != nil
+            didRemove = $0.conversations[idKey] != nil
             $0.conversations[idKey] = nil
         }
 
         persistConversationArchive()
-        guard shouldLogRemoval else { return }
+        guard didRemove else { return }
         Logger.log(
             .init(
                 "Removed conversation from persisted archive.",
@@ -127,6 +135,11 @@ struct SessionStore {
             ),
             domain: .sessionStore
         )
+
+        Observables.sessionStoreDidChange.value = .conversations(
+            upsertedIDKeys: [],
+            removedIDKeys: [idKey]
+        )
     }
 
     func upsertConversation(_ conversation: Conversation) {
@@ -135,10 +148,14 @@ struct SessionStore {
             conversation.id.hash.isBlank ||
             conversation.id.key.isBlank { return }
 
+        var didChange = false
         var didContainValue = false
         state.projectedValue.withValue {
             if let existingConversation = $0.conversations[conversation.id.key] {
                 didContainValue = existingConversation.id.hash == conversation.id.hash
+                didChange = existingConversation != conversation
+            } else {
+                didChange = true
             }
 
             $0.conversations[conversation.id.key] = conversation
@@ -167,6 +184,13 @@ struct SessionStore {
 
             RuntimeStorage.remove(.updatedReadReceipts)
         }
+
+        if didChange {
+            Observables.sessionStoreDidChange.value = .conversations(
+                upsertedIDKeys: [conversation.id.key],
+                removedIDKeys: []
+            )
+        }
     }
 
     func upsertConversations(_ newConversations: Set<Conversation>) {
@@ -177,8 +201,13 @@ struct SessionStore {
                 !$0.id.key.isBlank
         }
 
+        var changedIDKeys = Set<String>()
         state.projectedValue.withValue {
             for conversation in newConversations {
+                if $0.conversations[conversation.id.key] != conversation {
+                    changedIDKeys.insert(conversation.id.key)
+                }
+
                 $0.conversations[conversation.id.key] = conversation
             }
         }
@@ -189,22 +218,41 @@ struct SessionStore {
             domain: .sessionStore,
             sender: self
         )
+
+        if !changedIDKeys.isEmpty {
+            Observables.sessionStoreDidChange.value = .conversations(
+                upsertedIDKeys: changedIDKeys,
+                removedIDKeys: []
+            )
+        }
     }
 
     // MARK: - Message Methods
 
     func clearMessageArchive() {
+        var clearedIDs = Set<String>()
         state.projectedValue.withValue {
+            clearedIDs = Set($0.messages.keys)
             $0.messages = [:]
         }
 
         persistMessageArchive()
+
+        if !clearedIDs.isEmpty {
+            Observables.sessionStoreDidChange.value = .messages(upsertedIDs: clearedIDs)
+        }
     }
 
     func upsertMessages(_ newMessages: Set<Message>) {
         let messages = Set(Array(newMessages).filteringSystemMessages)
+
+        var changedIDs = Set<String>()
         state.projectedValue.withValue {
             for message in messages {
+                if $0.messages[message.id] != message {
+                    changedIDs.insert(message.id)
+                }
+
                 $0.messages[message.id] = message
             }
         }
@@ -215,36 +263,59 @@ struct SessionStore {
             domain: .sessionStore,
             sender: self
         )
+
+        if !changedIDs.isEmpty {
+            Observables.sessionStoreDidChange.value = .messages(upsertedIDs: changedIDs)
+        }
     }
 
     // MARK: - User Methods
 
     func upsertUser(_ user: User) {
-        state.projectedValue.withValue { $0.users[user.id] = user }
-    }
-
-    func upsertUsers(_ newUsers: Set<User>) {
+        var didChange = false
         state.projectedValue.withValue {
-            for user in newUsers {
-                $0.users[user.id] = user
-            }
+            didChange = $0.users[user.id] != user
+            $0.users[user.id] = user
+        }
+
+        if didChange {
+            Observables.sessionStoreDidChange.value = .users(upsertedIDs: [user.id])
         }
     }
 
-    // MARK: - Auxiliary
+    func upsertUsers(_ newUsers: Set<User>) {
+        var changedIDs = Set<String>()
+        state.projectedValue.withValue {
+            for user in newUsers {
+                if $0.users[user.id] != user {
+                    changedIDs.insert(user.id)
+                }
 
-    private func persistConversationArchive() {
+                $0.users[user.id] = user
+            }
+        }
+
+        if !changedIDs.isEmpty {
+            Observables.sessionStoreDidChange.value = .users(upsertedIDs: changedIDs)
+        }
+    }
+}
+
+// MARK: - Auxiliary
+
+private extension SessionStore {
+    func persistConversationArchive() {
         let snapshot = Set(state.wrappedValue.conversations.values)
         persistedConversationArchive = snapshot.isEmpty ? nil : snapshot
         persistValuesForNotificationExtension(snapshot)
     }
 
-    private func persistMessageArchive() {
+    func persistMessageArchive() {
         let snapshot = Set(state.wrappedValue.messages.values)
         persistedMessageArchive = snapshot.isEmpty ? nil : snapshot
     }
 
-    private func persistValuesForNotificationExtension(_ values: Set<Conversation>) {
+    func persistValuesForNotificationExtension(_ values: Set<Conversation>) {
         Task { @MainActor in
             var conversationNameMap = [String: String]()
 
@@ -263,7 +334,7 @@ struct SessionStore {
     }
 
     @MainActor // FIXME: This is a band-aid fix (and not a reliable one) for a problem that shouldn't exist.
-    private func redrawConversationsPageView() {
+    func redrawConversationsPageView() {
         @MainActor
         func redraw() {
             coreUtilities.clearCaches([.conversationCellViewData])
