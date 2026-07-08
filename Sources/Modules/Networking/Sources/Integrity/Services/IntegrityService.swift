@@ -383,15 +383,6 @@ final class IntegrityService: @unchecked Sendable {
 
         for userID in (userIDs ?? malformedUserIDs).filter({ $0 != .bangQualifiedEmpty }) {
             tookAction = true
-
-            do {
-                try await networking
-                    .userService
-                    .legacy
-                    .convertUser(id: userID)
-                continue
-            } catch {}
-
             if userIDs != nil {
                 do {
                     let _: [String: Any] = try await networking.database.getValues(
@@ -480,7 +471,7 @@ final class IntegrityService: @unchecked Sendable {
         if !pendingRepairs.isEmpty {
             tookAction = true
             do {
-                try await pendingRepairs.parallelMap(
+                try await pendingRepairs.map(
                     failFast: false
                 ) {
                     try await self.networking.database.setValue(
@@ -532,7 +523,7 @@ final class IntegrityService: @unchecked Sendable {
 
         let tookAction = !pendingRepairs.isEmpty || !conversationsToRepair.isEmpty
         do {
-            try await pendingRepairs.parallelMap(
+            try await pendingRepairs.map(
                 failFast: false
             ) {
                 try await self.networking.database.setValue(
@@ -609,7 +600,7 @@ final class IntegrityService: @unchecked Sendable {
         if !pendingRepairs.isEmpty {
             tookAction = true
             do {
-                try await pendingRepairs.parallelMap(
+                try await pendingRepairs.map(
                     failFast: false
                 ) {
                     try await self.networking.database.setValue(
@@ -863,7 +854,7 @@ final class IntegrityService: @unchecked Sendable {
         var exceptions = [Exception]()
 
         do {
-            try await malformedTranslationPaths.parallelMap(
+            try await malformedTranslationPaths.map(
                 failFast: false
             ) {
                 try await self.networking.database.setValue(
@@ -932,7 +923,7 @@ final class IntegrityService: @unchecked Sendable {
         guard !orphanedMediaFilePaths.isEmpty else { return (false, nil) }
 
         do {
-            try await Array(orphanedMediaFilePaths).parallelMap(
+            try await Array(orphanedMediaFilePaths).map(
                 failFast: false
             ) {
                 try await self.networking.storage.deleteItem(

@@ -74,11 +74,7 @@ struct User: Codable, EncodedHashable, Hashable {
                     cacheStrategy: .disregardCache
                 )
             } catch {
-                Logger.log(
-                    error,
-                    domain: .user
-                )
-
+                Logger.log(error)
                 return 0
             }
         }

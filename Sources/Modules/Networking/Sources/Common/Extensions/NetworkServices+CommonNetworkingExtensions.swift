@@ -21,10 +21,7 @@ extension NetworkServices {
             audio: .init(),
             media: .init()
         )
-        static let userService = UserService(
-            legacy: .init(),
-            testing: .init()
-        )
+        static let userService = UserService(testing: .init())
     }
 
     var conversationService: ConversationService {

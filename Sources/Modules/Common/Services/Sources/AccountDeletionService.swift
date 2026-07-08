@@ -168,7 +168,7 @@ final class AccountDeletionService: @unchecked Sendable {
 
         // Delete user reference locally and on server.
 
-        // NIT: May technically be unnecessary. Audit the call chain for start..() calls.
+        // Required because `repairDatabase()` unconditionally restarts observation.
         try? clientSession.user.stopObservingCurrentUserChanges()
         completionPercent = 1
 
@@ -194,7 +194,7 @@ final class AccountDeletionService: @unchecked Sendable {
                 exceptions.append(error)
             }
 
-            // NIT: May technically be unnecessary. Audit the call chain for start..() calls.
+            // Required because `repairDatabase()` unconditionally restarts observation.
             try? clientSession.user.stopObservingCurrentUserChanges()
         }
 

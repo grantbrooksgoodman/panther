@@ -55,7 +55,7 @@ final class PushTokenService {
             }
 
         guard !userIDsAndPrunedTokens.isEmpty else { return }
-        try await userIDsAndPrunedTokens.parallelMap {
+        try await userIDsAndPrunedTokens.map {
             try await self.networking.database.setValue(
                 $0.prunedTokens,
                 forKey: [
@@ -131,7 +131,7 @@ final class PushTokenService {
             }
 
         guard !userIDsAndPrunedTokens.isEmpty else { return }
-        try await userIDsAndPrunedTokens.parallelMap {
+        try await userIDsAndPrunedTokens.map {
             try await self.networking.database.setValue(
                 $0.prunedTokens,
                 forKey: [

@@ -72,7 +72,7 @@ struct NotificationService {
 
         let currentUserFormattedPhoneNumberString = currentUser.phoneNumber.formattedString()
         guard let reaction else {
-            try await users.parallelMap {
+            try await users.map {
                 do throws(Exception) {
                     try await self.notify(
                         $0,
@@ -94,7 +94,7 @@ struct NotificationService {
             return
         }
 
-        try await users.parallelMap {
+        try await users.map {
             let reactedString = Localized(
                 .reacted,
                 languageCode: $0.languageCode
@@ -150,7 +150,7 @@ struct NotificationService {
             }
         }
 
-        try await pushTokens.unique.parallelMap(
+        try await pushTokens.unique.map(
             failFast: false
         ) {
             try await sendNotification(

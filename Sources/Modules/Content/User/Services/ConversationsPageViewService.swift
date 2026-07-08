@@ -92,12 +92,7 @@ final class ConversationsPageViewService {
         reloadIfNeeded()
 
         Task.delayed(by: .seconds(1)) { @MainActor in
-            do throws(Exception) {
-                try await showPromptsIfNeeded()
-            } catch {
-                Logger.log(error)
-            }
-
+            await showPromptsIfNeeded()
             startSettingSearchBarAppearance()
         }
 
@@ -219,6 +214,7 @@ final class ConversationsPageViewService {
             abs(Application.loadStartDate.seconds(from: .now)) - 1,
             0
         )
+
         let secondsPerConversation = String(
             format: "%.2f",
             Float(secondsToLoad) / Float(numberOfConversations)
@@ -380,7 +376,7 @@ final class ConversationsPageViewService {
 
         defer { currentReloadType = currentReloadType.next }
         try await clientSession.user.resolveCurrentUser(
-            and: Set(User.DataType.allCases)
+            and: .allDataTypes
         )
 
         var randomBool: Bool {
@@ -405,16 +401,24 @@ final class ConversationsPageViewService {
         return clientSession.user.currentUser?.conversations ?? []
     }
 
-    /// - NOTE: Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.
+    /// Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.
+    ///
+    /// - NOTE: Since the SSoT refactor, the effective part of this method
+    /// should never execute during normal use.
     private func reloadIfNeeded() {
         guard let currentUser = clientSession.user.currentUser,
               currentUser.conversations == nil || currentUser.conversations?.isEmpty == true,
               (currentUser.conversationIDs?.count ?? 0) > 0 else { return }
 
         Logger.log(
-            "Intercepted empty initial conversations list bug.",
+            .init(
+                "\(#function.components(separatedBy: "(")[0])() was called.",
+                isReportable: false,
+                metadata: .init(sender: self)
+            ),
             domain: .bugPrevention,
-            sender: self
+            with: .toastInPrerelease,
+            showRuntimeWarning: true
         )
 
         Observables.updatedCurrentUser.trigger()
@@ -426,15 +430,29 @@ final class ConversationsPageViewService {
     /// may not yet have associated the conversation with the user. The caller populates
     /// the list immediately from local data; this method resolves the authoritative
     /// server state so that subsequent update cycles use fully resolved data.
+    ///
+    /// - NOTE: Since the SSoT refactor, the effective part of this method
+    /// should never execute during normal use.
     private func resolveUnsyncedConversationIfNeeded() {
         guard let currentConversation = clientSession.conversation.currentConversation,
               !currentConversation.isMock else { return }
+
+        Logger.log(
+            .init(
+                "\(#function.components(separatedBy: "(")[0])() was called.",
+                isReportable: false,
+                metadata: .init(sender: self)
+            ),
+            domain: .bugPrevention,
+            with: .toastInPrerelease,
+            showRuntimeWarning: true
+        )
 
         Task { @MainActor [weak self] in
             guard let self else { return }
             do throws(Exception) {
                 try await clientSession.user.resolveCurrentUser(
-                    and: Set(User.DataType.allCases)
+                    and: .allDataTypes
                 )
             } catch {
                 Logger.log(
@@ -466,14 +484,18 @@ final class ConversationsPageViewService {
     ///
     /// If no pages are eligible, no sheet is presented.
     @MainActor
-    private func showPromptsIfNeeded() async throws(Exception) {
-        _ = try await clientSession.storage.getCurrentUserDataUsage()
-        if clientSession.storage.isApproachingDataUsageLimit {
-            await clientSession.storage.presentStorageWarningAlert()
-        } else if await services.permission.notificationPermissionStatus == .unknown {
-            _ = try await services.permission.requestPermission(for: .notifications)
-        } else if await !(services.invite.suggestInvitationIfNeeded()) {
-            services.review.promptToReview()
+    private func showPromptsIfNeeded() async {
+        do throws(Exception) {
+            _ = try await clientSession.storage.getCurrentUserDataUsage()
+            if clientSession.storage.isApproachingDataUsageLimit {
+                await clientSession.storage.presentStorageWarningAlert()
+            } else if await services.permission.notificationPermissionStatus == .unknown {
+                _ = try await services.permission.requestPermission(for: .notifications)
+            } else if await !(services.invite.suggestInvitationIfNeeded()) {
+                services.review.promptToReview()
+            }
+        } catch {
+            Logger.log(error)
         }
 
         // swiftlint:disable:next identifier_name

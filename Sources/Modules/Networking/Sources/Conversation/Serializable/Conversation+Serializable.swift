@@ -75,7 +75,7 @@ extension Conversation: Serializable {
 
         // Decode activities
 
-        let activities = try await encodedActivities.parallelMap(
+        let activities = try await encodedActivities.map(
             failForEmptyCollection: true
         ) {
             try await Activity(from: $0)
@@ -89,7 +89,7 @@ extension Conversation: Serializable {
 
         // Decode participants
 
-        let participants = try await encodedParticipants.parallelMap(
+        let participants = try await encodedParticipants.map(
             failForEmptyCollection: true
         ) {
             try await Participant(from: $0)
@@ -97,7 +97,7 @@ extension Conversation: Serializable {
 
         // Decode reaction metadata
 
-        let reactionMetadata = try await encodedReactionMetadata.parallelMap(
+        let reactionMetadata = try await encodedReactionMetadata.map(
             failForEmptyCollection: true
         ) {
             try await ReactionMetadata(from: $0)

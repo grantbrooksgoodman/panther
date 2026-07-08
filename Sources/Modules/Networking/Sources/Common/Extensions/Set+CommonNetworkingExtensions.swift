@@ -17,3 +17,9 @@ extension Set<Conversation> {
         formUnion(conversations)
     }
 }
+
+extension Set<User.DataType> {
+    static var allDataTypes: Set<User.DataType> {
+        Set(User.DataType.allCases)
+    }
+}

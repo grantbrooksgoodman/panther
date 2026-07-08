@@ -131,7 +131,8 @@ extension CoreKit.Utilities {
         networking.database.setGlobalCacheStrategy(.disregardCache)
         networking.storage.setGlobalCacheStrategy(.disregardCache)
 
-        for conversationIDKey in conversationIDKeys {
+        var exceptions = [Exception]()
+        for conversationIDKey in conversationIDKeys.unique {
             CoreDatabaseStore.clearStore()
             try await networking.integrityService.resolveSession()
 
@@ -139,9 +140,12 @@ extension CoreKit.Utilities {
                 .integrityService
                 .repairMalformedConversations([conversationIDKey])
                 .exception {
-                throw exception
+                exceptions.append(exception)
             }
         }
+
+        guard let exception = exceptions.compiledException else { return }
+        throw exception
     }
 
     @MainActor
@@ -169,7 +173,7 @@ extension CoreKit.Utilities {
 
         let userIDs = Array(userData.keys)
         let database = LockIsolated(networking.database)
-        try await userIDs.parallelMap { @Sendable in
+        try await userIDs.map { @Sendable in
             try await database.wrappedValue.setValue(
                 [String.bangQualifiedEmpty],
                 forKey: [
@@ -222,7 +226,7 @@ extension CoreKit.Utilities {
 
         let userIDs = Array(userData.keys)
         let database = LockIsolated(networking.database)
-        try await userIDs.parallelMap { @Sendable in
+        try await userIDs.map { @Sendable in
             try await database.wrappedValue.setValue(
                 [String.bangQualifiedEmpty],
                 forKey: [

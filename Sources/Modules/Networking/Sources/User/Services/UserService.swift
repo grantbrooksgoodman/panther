@@ -27,18 +27,13 @@ final class UserService: @unchecked Sendable {
 
     // MARK: - Properties
 
-    let legacy: LegacyUserService
     let testing: UserTestingService
 
     @Cached(CacheKey.userDataSnapshots) private var cachedUserDataSnapshots: [UserDataSnapshot]?
 
     // MARK: - Init
 
-    init(
-        legacy: LegacyUserService,
-        testing: UserTestingService
-    ) {
-        self.legacy = legacy
+    init(testing: UserTestingService) {
         self.testing = testing
     }
 
@@ -186,7 +181,7 @@ final class UserService: @unchecked Sendable {
         }
 
         do {
-            return try await ids.parallelMap(
+            return try await ids.map(
                 failForEmptyCollection: true
             ) {
                 try await self.getUser(id: $0)

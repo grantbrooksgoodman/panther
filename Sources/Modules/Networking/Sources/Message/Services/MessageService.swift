@@ -193,7 +193,7 @@ struct MessageService {
         }
 
         do {
-            return try await ids.parallelMap(
+            return try await ids.map(
                 failForEmptyCollection: true
             ) {
                 try await getMessage(id: $0)
@@ -279,7 +279,7 @@ struct MessageService {
         updateConversationHash: Bool = true,
         failureStrategy: BatchFailureStrategy = .returnOnFailure
     ) async throws(Exception) {
-        try await messageIDs.parallelMap(
+        try await messageIDs.map(
             failFast: failureStrategy == .returnOnFailure
         ) {
             try await deleteMessage(

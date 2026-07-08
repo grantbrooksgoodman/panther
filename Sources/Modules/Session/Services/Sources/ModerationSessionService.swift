@@ -280,13 +280,13 @@ struct ModerationSessionService {
         var exceptions = [Exception]()
 
         do {
-            try await ContactService.populateValuesIfNeeded()
+            try await ContactService.syncIfNeeded()
         } catch {
             exceptions.append(error)
         }
 
         do {
-            try await User.populateCurrentUserConversationsIfNeeded()
+            try await User.resolveCurrentUserConversationsIfNeeded()
         } catch {
             exceptions.append(error)
         }

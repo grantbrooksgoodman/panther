@@ -76,7 +76,7 @@ extension ContactService {
         return match
     }
 
-    static func populateValuesIfNeeded() async throws(Exception) {
+    static func syncIfNeeded() async throws(Exception) {
         @Dependency(\.commonServices) var services: CommonServices
 
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?

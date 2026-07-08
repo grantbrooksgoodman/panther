@@ -79,7 +79,7 @@ struct ConversationService {
             hash: mockConversation.encodedHash
         )
 
-        try await participants.parallelMap {
+        try await participants.map {
             try await addConversationToUser(
                 userID: $0.userID,
                 conversationID: conversationID
@@ -105,7 +105,7 @@ struct ConversationService {
         }
 
         do {
-            return try await idKeys.parallelMap(
+            return try await idKeys.map(
                 failForEmptyCollection: true
             ) {
                 try await getConversation(idKey: $0)
@@ -221,7 +221,7 @@ struct ConversationService {
             }
         }
 
-        try await userIDs.parallelMap(
+        try await userIDs.map(
             failFast: failureStrategy == .returnOnFailure
         ) {
             try await removeConversationFromUser(

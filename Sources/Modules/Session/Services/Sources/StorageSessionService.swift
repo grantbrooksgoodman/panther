@@ -86,7 +86,9 @@ final class StorageSessionService: @unchecked Sendable {
         defer { isCalculatingDataUsage = false }
         var dataUsageInKilobytes = 0
 
-        try await User.populateCurrentUserConversationsIfNeeded()
+        try await User.resolveCurrentUserConversationsIfNeeded(
+            includingMessages: true
+        )
 
         // Size of user object
 
@@ -394,7 +396,7 @@ final class StorageSessionService: @unchecked Sendable {
     private func totalSizeInKilobytes(
         of items: [String]
     ) async throws(Exception) -> Int {
-        try await items.parallelMap { filePath in
+        try await items.map { filePath in
             try await self.networking.storage.sizeInKilobytes(
                 ofItemAt: filePath
             )

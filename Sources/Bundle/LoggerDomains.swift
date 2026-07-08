@@ -56,7 +56,6 @@ extension LoggerDomain {
             .chatPageState,
             .contacts,
             .conversation,
-            .conversationArchive,
             .conversationSync,
             .dataIntegrity,
             .general,
@@ -68,7 +67,6 @@ extension LoggerDomain {
             .sessionStore,
             .storageSession,
             .translation,
-            .user,
             .userSession,
         ]
     }
@@ -78,17 +76,15 @@ extension LoggerDomain {
     static let analytics: LoggerDomain = .init("analytics")
     static let bugPrevention: LoggerDomain = .init("bugPrevention")
     static let chatPageState: LoggerDomain = .init("chatPageState")
+    static let clientSession: LoggerDomain = .init("clientSession")
     static let contacts: LoggerDomain = .init("contacts")
-    static let conversationArchive: LoggerDomain = .init("conversationArchive")
     static let conversation: LoggerDomain = .init("conversation")
     static let conversationSync: LoggerDomain = .init("conversationSync")
     static let dataIntegrity: LoggerDomain = .init("dataIntegrity")
-    static let messageArchive: LoggerDomain = .init("messageArchive")
     static let notifications: LoggerDomain = .init("notifications")
     static let penPals: LoggerDomain = .init("penPals")
     static let queue: LoggerDomain = .init("queue")
     static let sessionStore: LoggerDomain = .init("sessionStore")
     static let storageSession: LoggerDomain = .init("storageSession")
-    static let user: LoggerDomain = .init("user")
     static let userSession: LoggerDomain = .init("userSession")
 }

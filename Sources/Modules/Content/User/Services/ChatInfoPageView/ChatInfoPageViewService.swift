@@ -106,7 +106,7 @@ final class ChatInfoPageViewService {
 
         // Resolve uncached users in parallel (the only async work is the CNContact lookup).
         let participants = try await uncachedUsers
-            .parallelMap { @Sendable user -> (String, ChatParticipant)? in
+            .map { @Sendable user -> (String, ChatParticipant)? in
                 let currentUserSharesData = conversation.currentUserSharesPenPalsData(with: user)
                 // swiftlint:disable:next identifier_name
                 let currentUserDoesNotShareDataButOtherUserDoes = !currentUserSharesData && conversation.userSharesPenPalsDataWithCurrentUser(user)

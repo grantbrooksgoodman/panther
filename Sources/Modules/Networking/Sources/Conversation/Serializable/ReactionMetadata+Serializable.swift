@@ -47,7 +47,7 @@ extension ReactionMetadata: Serializable {
             )
         }
 
-        let reactions = try await encodedReactions.parallelMap(
+        let reactions = try await encodedReactions.map(
             failForEmptyCollection: true
         ) {
             try await Reaction(from: $0)

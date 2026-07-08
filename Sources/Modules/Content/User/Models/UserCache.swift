@@ -21,7 +21,7 @@ enum UserCache {
             return cachedValue
         }
 
-        @Dependency(\.clientSession) var clientSession: ClientSession
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
         @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
@@ -29,8 +29,7 @@ enum UserCache {
         let usersFromContactPairArchive = contactPairArchive?
             .flatMap(\.users) ?? []
 
-        let usersFromSessionStore = clientSession
-            .store
+        let usersFromSessionStore = sessionStore
             .users
             .values
 

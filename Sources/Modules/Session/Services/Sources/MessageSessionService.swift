@@ -274,7 +274,7 @@ struct MessageSessionService {
             userCount: users.count
         )
 
-        let translations = try await uniqueLanguageCodes.parallelMap { languageCode in
+        let translations = try await uniqueLanguageCodes.map { languageCode in
             try await networking.hostedTranslation.translate(
                 .init(text),
                 with: .init(

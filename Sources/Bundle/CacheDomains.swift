@@ -22,7 +22,7 @@ import Translator
 ///
 /// ```swift
 /// extension CacheDomain {
-///     static let avatars: CacheDomain = .init("avatars") {
+///     static let avatars = CacheDomain("avatars") {
 ///         AvatarCache.shared.clear()
 ///     }
 /// }
@@ -77,150 +77,170 @@ extension CacheDomain {
 
     // MARK: - Properties
 
-    static let activityDescription: CacheDomain = .init("activityDescription") { clearActivityDescriptionCache() }
-    static let audioFileDuration: CacheDomain = .init("audioFileDuration") { clearAudioFileDurationCache() }
-    static let chatInfoPageViewService: CacheDomain = .init("chatInfoPageViewService") { clearChatInfoPageViewServiceCache() }
-    static let commonPropertyLists: CacheDomain = .init("commonPropertyLists") { clearCommonPropertyListsCache() }
-    static let contactImage: CacheDomain = .init("contactImage") { clearContactImageCache() }
-    static let contactInitialsImage: CacheDomain = .init("contactInitialsImage") { clearContactInitialsImageCache() }
-    static let contactPairArchive: CacheDomain = .init("contactPairArchive") { clearContactPairArchiveCache() }
-    static let contactService: CacheDomain = .init("contactService") { clearContactServiceCache() }
-    static let conversationArchive: CacheDomain = .init("conversationArchive") { clearConversationArchiveCache() }
-    static let conversationCellViewData: CacheDomain = .init("conversationCellViewData") { clearConversationCellViewDataCache() }
-    static let mediaMessagePreviewService: CacheDomain = .init("mediaMessagePreviewService") { clearMediaMessagePreviewServiceCache() }
-    static let messageArchive: CacheDomain = .init("messageArchive") { clearMessageArchiveCache() }
-    static let queriedContactPairs: CacheDomain = .init("queriedContactPairs") { clearQueriedContactPairsCache() }
-    static let queriedConversations: CacheDomain = .init("queriedConversations") { clearQueriedConversationCache() }
-    static let readReceipt: CacheDomain = .init("readReceipt") { clearReadReceiptCache() }
-    static let regionDetailService: CacheDomain = .init("regionDetailService") { clearRegionDetailServiceCache() }
-    static let settingsPageViewService: CacheDomain = .init("settingsPageViewService") { clearSettingsPageViewServiceCache() }
-    static let squareIconImage: CacheDomain = .init("squareIconImage") { clearSquareIconImageCache() }
-    static let textToSpeechService: CacheDomain = .init("textToSpeechService") { clearTextToSpeechServiceCache() }
-    static let transcriptionService: CacheDomain = .init("transcriptionService") { clearTranscriptionServiceCache() }
-    static let user: CacheDomain = .init("user") { clearUserCache() }
-    static let userDisplayName: CacheDomain = .init("userDisplayName") { clearUserDisplayNameCache() }
-    static let userService: CacheDomain = .init("userService") { clearUserServiceCache() }
-
-    // MARK: - Methods
-
-    private static func clearActivityDescriptionCache() {
+    static let activityDescription = CacheDomain(
+        "activityDescription"
+    ) {
         ActivityDescriptionCache.clearCache()
     }
 
-    private static func clearAudioFileDurationCache() {
+    static let audioFileDuration = CacheDomain(
+        "audioFileDuration"
+    ) {
         AudioFileDurationCache.clearCache()
     }
 
-    private static func clearChatInfoPageViewServiceCache() {
+    static let chatInfoPageViewService = CacheDomain(
+        "chatInfoPageViewService"
+    ) {
         Task { @MainActor in
             @Dependency(\.chatInfoPageViewService) var chatInfoPageViewService: ChatInfoPageViewService
             chatInfoPageViewService.clearCache()
         }
     }
 
-    private static func clearCommonPropertyListsCache() {
+    static let commonPropertyLists = CacheDomain(
+        "commonPropertyLists"
+    ) {
         @Dependency(\.commonServices.propertyLists) var commonPropertyLists: CommonPropertyLists
         commonPropertyLists.clearCache()
     }
 
-    private static func clearContactImageCache() {
+    static let contactImage = CacheDomain(
+        "contactImage"
+    ) {
         ContactImageCache.clearCache()
     }
 
-    private static func clearContactInitialsImageCache() {
+    static let contactInitialsImage = CacheDomain(
+        "contactInitialsImage"
+    ) {
         Task { @MainActor in
             ContactInitialsImageCache.clearCache()
         }
     }
 
-    private static func clearContactPairArchiveCache() {
+    static let contactPairArchive = CacheDomain(
+        "contactPairArchive"
+    ) {
         Task { @MainActor in
             @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
             contactPairArchive.clearArchive()
         }
     }
 
-    private static func clearContactServiceCache() {
+    static let contactService = CacheDomain(
+        "contactService"
+    ) {
         Task { @MainActor in
             @Dependency(\.commonServices.contact) var contactService: ContactService
             contactService.clearCache()
         }
     }
 
-    private static func clearConversationArchiveCache() {
+    static let conversationArchive = CacheDomain(
+        "conversationArchive"
+    ) {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         sessionStore.clearConversationArchive()
     }
 
-    private static func clearConversationCellViewDataCache() {
+    static let conversationCellViewData = CacheDomain(
+        "conversationCellViewData"
+    ) {
         Task { @MainActor in
             ConversationCellViewDataCache.clearCache()
         }
     }
 
-    private static func clearMediaMessagePreviewServiceCache() {
+    static let mediaMessagePreviewService = CacheDomain(
+        "mediaMessagePreviewService"
+    ) {
         Task { @MainActor in
             @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
             mediaMessagePreviewService?.clearCache()
         }
     }
 
-    private static func clearMessageArchiveCache() {
+    static let messageArchive = CacheDomain(
+        "messageArchive"
+    ) {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         sessionStore.clearMessageArchive()
     }
 
-    private static func clearQueriedContactPairsCache() {
+    static let queriedContactPairs = CacheDomain(
+        "queriedContactPairs"
+    ) {
         Task { @MainActor in
             QueriedContactPairCache.clearCache()
         }
     }
 
-    private static func clearQueriedConversationCache() {
+    static let queriedConversations = CacheDomain(
+        "queriedConversations"
+    ) {
         Task { @MainActor in
             QueriedConversationCache.clearCache()
         }
     }
 
-    private static func clearReadReceiptCache() {
+    static let readReceipt = CacheDomain(
+        "readReceipt"
+    ) {
         ReadReceiptCache.clearCache()
     }
 
-    private static func clearRegionDetailServiceCache() {
+    static let regionDetailService = CacheDomain(
+        "regionDetailService"
+    ) {
         @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
         regionDetailService.clearCache()
     }
 
-    private static func clearSettingsPageViewServiceCache() {
+    static let settingsPageViewService = CacheDomain(
+        "settingsPageViewService"
+    ) {
         Task { @MainActor in
             @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
             settingsPageViewService.clearCache()
         }
     }
 
-    private static func clearSquareIconImageCache() {
+    static let squareIconImage = CacheDomain(
+        "squareIconImage"
+    ) {
         SquareIconImageCache.clearCache()
     }
 
-    private static func clearTextToSpeechServiceCache() {
+    static let textToSpeechService = CacheDomain(
+        "textToSpeechService"
+    ) {
         TextToSpeechServiceCache.clearCache()
     }
 
-    private static func clearTranscriptionServiceCache() {
+    static let transcriptionService = CacheDomain(
+        "transcriptionService"
+    ) {
         TranscriptionServiceCache.clearCache()
     }
 
-    private static func clearUserCache() {
+    static let user = CacheDomain(
+        "user"
+    ) {
         Task { @MainActor in
             UserCache.clearCache()
         }
     }
 
-    private static func clearUserDisplayNameCache() {
+    static let userDisplayName = CacheDomain(
+        "userDisplayName"
+    ) {
         UserDisplayNameCache.clearCache()
     }
 
-    private static func clearUserServiceCache() {
+    static let userService = CacheDomain(
+        "userService"
+    ) {
         @Dependency(\.networking.userService) var userService: UserService
         userService.clearCache()
     }

@@ -697,7 +697,6 @@
 		B9E6D7B42B126188000BC88D /* PhoneNumberService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7B22B126188000BC88D /* PhoneNumberService.swift */; };
 		B9E6D7B52B126188000BC88D /* RegionDetailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7B32B126188000BC88D /* RegionDetailService.swift */; };
 		B9E6D7B82B12626F000BC88D /* CommonPropertyLists.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7B72B12626F000BC88D /* CommonPropertyLists.swift */; };
-		B9E6D7C92B1274D8000BC88D /* LegacyUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7C82B1274D8000BC88D /* LegacyUserService.swift */; };
 		B9E6D7CC2B1284EC000BC88D /* PermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7CB2B1284EC000BC88D /* PermissionService.swift */; };
 		B9E6D7D22B12850D000BC88D /* UserNotificationCenterDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7CE2B12850D000BC88D /* UserNotificationCenterDependency.swift */; };
 		B9E6D7D32B12850D000BC88D /* AVAudioSessionDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7CF2B12850D000BC88D /* AVAudioSessionDependency.swift */; };
@@ -1534,7 +1533,6 @@
 		B9E6D7B22B126188000BC88D /* PhoneNumberService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneNumberService.swift; sourceTree = "<group>"; };
 		B9E6D7B32B126188000BC88D /* RegionDetailService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegionDetailService.swift; sourceTree = "<group>"; };
 		B9E6D7B72B12626F000BC88D /* CommonPropertyLists.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonPropertyLists.swift; sourceTree = "<group>"; };
-		B9E6D7C82B1274D8000BC88D /* LegacyUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyUserService.swift; sourceTree = "<group>"; };
 		B9E6D7CB2B1284EC000BC88D /* PermissionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PermissionService.swift; sourceTree = "<group>"; };
 		B9E6D7CE2B12850D000BC88D /* UserNotificationCenterDependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserNotificationCenterDependency.swift; sourceTree = "<group>"; };
 		B9E6D7CF2B12850D000BC88D /* AVAudioSessionDependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVAudioSessionDependency.swift; sourceTree = "<group>"; };
@@ -3132,7 +3130,6 @@
 		B9E6D7CA2B12848F000BC88D /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				B9E6D7C82B1274D8000BC88D /* LegacyUserService.swift */,
 				B9E6D7A32B125BB0000BC88D /* UserService.swift */,
 				B921F40C2CCDC5EB006BB149 /* UserTestingService.swift */,
 			);
@@ -4165,7 +4162,6 @@
 				B90249D82B57536400D62855 /* AppConstants+StatusIndicatorButton.swift in Sources */,
 				B90249C02B573A4500D62855 /* AuthCodePageReducer.swift in Sources */,
 				B998B3C32B68A6810048241B /* InviteLanguagePickerReducer.swift in Sources */,
-				B9E6D7C92B1274D8000BC88D /* LegacyUserService.swift in Sources */,
 				B9EC04CD2B79673400A16700 /* SettingsPageReducer.swift in Sources */,
 				B99880AA2E299B9A002742A8 /* ChangeLanguagePageReducer.swift in Sources */,
 				B99195952B47E89800BD5BBC /* VerifyNumberPageReducer.swift in Sources */,

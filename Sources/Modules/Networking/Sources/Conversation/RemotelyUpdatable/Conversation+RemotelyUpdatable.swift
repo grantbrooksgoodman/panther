@@ -229,7 +229,7 @@ extension Conversation: RemotelyUpdatable {
                 return (user, conversationIDs)
             }
 
-        try await eligibleUsers.parallelMap(
+        try await eligibleUsers.map(
             failFast: false
         ) {
             _ = try await $0.user.update(

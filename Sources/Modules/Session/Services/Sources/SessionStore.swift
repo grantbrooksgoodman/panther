@@ -125,7 +125,7 @@ struct SessionStore {
                 userInfo: ["ConversationIDKey": idKey],
                 metadata: .init(sender: self)
             ),
-            domain: .conversationArchive
+            domain: .sessionStore
         )
     }
 
@@ -156,7 +156,7 @@ struct SessionStore {
                     ],
                     metadata: .init(sender: self)
                 ),
-                domain: .conversationArchive
+                domain: .sessionStore
             )
         }
 
@@ -186,7 +186,7 @@ struct SessionStore {
         persistConversationArchive()
         Logger.log(
             "Added \(newConversations.count) conversations to persisted archive.",
-            domain: .conversationArchive,
+            domain: .sessionStore,
             sender: self
         )
     }
@@ -212,7 +212,7 @@ struct SessionStore {
         persistMessageArchive()
         Logger.log(
             "Added \(messages.count) messages to persisted archive.",
-            domain: .messageArchive,
+            domain: .sessionStore,
             sender: self
         )
     }

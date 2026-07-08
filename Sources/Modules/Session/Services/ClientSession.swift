@@ -90,7 +90,7 @@ final class ClientSession: @unchecked Sendable {
 
         Logger.log(
             "Setting language code to \(languageCode.englishLanguageName ?? languageCode.uppercased()).",
-            domain: .userSession,
+            domain: .clientSession,
             sender: self
         )
 

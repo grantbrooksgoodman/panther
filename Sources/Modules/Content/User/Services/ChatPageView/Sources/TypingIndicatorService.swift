@@ -82,7 +82,7 @@ final class TypingIndicatorService {
             .conversations?
             .filter({ $0.currentUserParticipant?.isTyping ?? false }) else { return }
 
-        try await conversations.parallelMap(
+        try await conversations.map(
             failFast: false
         ) {
             guard let currentUserParticipant = $0.currentUserParticipant else { return }

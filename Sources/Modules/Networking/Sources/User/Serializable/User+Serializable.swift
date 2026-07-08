@@ -82,7 +82,7 @@ extension User: Serializable {
         let phoneNumber = try await PhoneNumber(from: encodedPhoneNumber)
         let conversationIDs = try await conversationIDStrings
             .filter { !$0.isBangQualifiedEmpty }
-            .parallelMap { try await ConversationID(from: $0) }
+            .map { try await ConversationID(from: $0) }
 
         self.init(
             id,

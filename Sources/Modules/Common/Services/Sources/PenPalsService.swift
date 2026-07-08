@@ -113,7 +113,7 @@ struct PenPalsService {
                 return (penPalsConversation, newMetadata)
             }
 
-        try await conversationsAndNewMetadata.parallelMap { conversation, newMetadata in
+        try await conversationsAndNewMetadata.map { conversation, newMetadata in
             _ = try await conversation.update(
                 \.metadata,
                 to: newMetadata
@@ -210,13 +210,13 @@ struct PenPalsService {
         var exceptions = [Exception]()
 
         do {
-            try await ContactService.populateValuesIfNeeded()
+            try await ContactService.syncIfNeeded()
         } catch {
             exceptions.append(error)
         }
 
         do {
-            try await User.populateCurrentUserConversationsIfNeeded()
+            try await User.resolveCurrentUserConversationsIfNeeded()
         } catch {
             exceptions.append(error)
         }

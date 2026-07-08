@@ -191,7 +191,7 @@ struct UserTestingService {
 
             try? await Task.sleep(for: .seconds(1))
             try await clientSession.user.resolveCurrentUser(
-                and: Set(User.DataType.allCases)
+                and: .allDataTypes
             )
 
             guard let conversation = randomBool && randomBool ?

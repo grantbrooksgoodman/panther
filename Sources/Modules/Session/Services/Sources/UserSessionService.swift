@@ -182,7 +182,9 @@ final class UserSessionService: @unchecked Sendable {
                       user?.id == currentUserID else { return }
 
                 do throws(Exception) {
-                    try await User.populateCurrentUserConversationsIfNeeded()
+                    try await User.resolveCurrentUserConversationsIfNeeded(
+                        includingMessages: true
+                    )
                 } catch {
                     Logger.log(
                         error,
@@ -383,7 +385,7 @@ final class UserSessionService: @unchecked Sendable {
     /// session store.
     ///
     /// This method resolves conversation objects only; it does
-    /// not fetch their messages or participants.
+    /// not fetch their associated messages or users.
     private func resolveCurrentUserConversations() async throws(Exception) {
         @Dependency(\.networking.conversationService) var conversationService: ConversationService
 
@@ -417,7 +419,7 @@ final class UserSessionService: @unchecked Sendable {
         Logger.log(
             // swiftlint:disable:next line_length
             "Conversations needing update: \(conversationsNeedingUpdate.count)\nConversations needing fetch: \(conversationsNeedingFetch.count)\nIgnored conversations: \(ignoredConversations.count)\nDecoded conversations: \(decodedConversations.count)",
-            domain: .user,
+            domain: .userSession,
             sender: self
         )
 
@@ -434,7 +436,7 @@ final class UserSessionService: @unchecked Sendable {
 
         guard !Task.isCancelled else { return }
         try await decodedConversations.merge(
-            with: conversationsNeedingUpdate.parallelMap {
+            with: conversationsNeedingUpdate.map {
                 @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
                 return try await conversationSyncService.synchronizeConversation($0)
             }

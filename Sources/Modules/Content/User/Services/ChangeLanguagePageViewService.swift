@@ -98,7 +98,7 @@ struct ChangeLanguagePageViewService {
         }
 
         try await userSession.resolveCurrentUser(
-            and: Set(User.DataType.allCases)
+            and: .allDataTypes
         )
 
         let conversations = (

@@ -87,7 +87,12 @@ extension User {
     ///
     /// The guard prevents an unconditional network fetch that
     /// `resolveCurrentUser(and:)` would otherwise perform.
-    static func populateCurrentUserConversationsIfNeeded() async throws(Exception) {
+    ///
+    /// - NOTE: Since the SSoT refactor, the effective part of this method
+    /// should never execute during normal use.
+    static func resolveCurrentUserConversationsIfNeeded(
+        includingMessages: Bool = false
+    ) async throws(Exception) {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
         guard let currentUser = userSession.currentUser else {
             throw Exception(
@@ -100,11 +105,22 @@ extension User {
               currentUser.conversations == nil ||
               currentUser.conversations?.isEmpty == true else { return }
 
+        Logger.log(
+            .init(
+                "\(#function.components(separatedBy: "(")[0])() was called.",
+                isReportable: false,
+                metadata: .init(sender: self)
+            ),
+            domain: .bugPrevention,
+            with: .toastInPrerelease,
+            showRuntimeWarning: true
+        )
+
         try await userSession.resolveCurrentUser(
-            and: [
+            and: includingMessages ? [
                 .conversations,
                 .messages,
-            ]
+            ] : [.conversations]
         )
     }
 

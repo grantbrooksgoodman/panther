@@ -17,7 +17,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-struct ConversationStagingService: @unchecked Sendable {
+struct ConversationStagingService {
     // MARK: - Dependencies
 
     @Dependency(\.currentCalendar) private var calendar: Calendar
@@ -1056,7 +1056,7 @@ struct ConversationStagingService: @unchecked Sendable {
         toUsers recipientUsers: [User],
         forcedOutputs: [String: String] = [:]
     ) async throws(Exception) -> [Translation] {
-        try await recipientUsers.map(\.languageCode).unique.parallelMap { languageCode in
+        try await recipientUsers.map(\.languageCode).unique.map { languageCode in
             if let forcedOutput = forcedOutputs[languageCode] {
                 let translation = Translation(
                     input: .init(text),

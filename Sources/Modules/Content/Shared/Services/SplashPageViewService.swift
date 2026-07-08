@@ -47,7 +47,6 @@ final class SplashPageViewService: ObservableObject {
     @Published private(set) var percentageLabelText = ""
 
     private var didAttemptDatabaseRepair = false
-    private var didAttemptUserConversion = false
     private var didSurpassQuickLoadTimeoutDuration = false
     private var initializationStartDate = Date(timeIntervalSince1970: 0)
 
@@ -212,7 +211,7 @@ final class SplashPageViewService: ObservableObject {
             /* MARK: Contact Pair Archive + Temporary Cache Population */
 
             do {
-                try await ContactService.populateValuesIfNeeded()
+                try await ContactService.syncIfNeeded()
             } catch {
                 Logger.log(error)
             }
@@ -326,16 +325,7 @@ final class SplashPageViewService: ObservableObject {
             }
         }
 
-        if let currentUserID = User.currentUserID,
-           !didAttemptUserConversion {
-            didAttemptUserConversion = true
-            do {
-                try await networking.userService.legacy.convertUser(id: currentUserID)
-            } catch {
-                Logger.log(error)
-                try await attemptDatabaseRepair()
-            }
-        } else if !didAttemptDatabaseRepair {
+        if !didAttemptDatabaseRepair {
             try await attemptDatabaseRepair()
         } else {
             Application.reset()

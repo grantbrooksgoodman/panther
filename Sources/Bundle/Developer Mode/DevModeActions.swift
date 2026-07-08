@@ -109,33 +109,32 @@ extension DevModeAction {
                         message: "All messages will be marked as unread for the current user."
                     ).present(translating: []) else { return }
 
-                    try await clientSession.user.resolveCurrentUser(
-                        and: [
-                            .conversations,
-                            .messages,
-                        ]
-                    )
-
-                    guard let conversations = clientSession
-                        .user
-                        .currentUser?
-                        .conversations else { return }
-
+                    defer { coreUI.removeOverlay() }
                     coreUI.addOverlay(
                         alpha: 0.5,
                         activityIndicator: .largeWhite
                     )
 
-                    try? clientSession.user.stopObservingCurrentUserChanges()
-                    defer { coreUI.removeOverlay() }
-
                     do throws(Exception) {
+                        try await clientSession.user.resolveCurrentUser(
+                            and: [
+                                .conversations,
+                                .messages,
+                            ]
+                        )
+
+                        guard let conversations = clientSession
+                            .user
+                            .currentUser?
+                            .conversations else { return }
+
+                        try? clientSession.user.stopObservingCurrentUserChanges()
                         try await clientSession.store.upsertMessages(Set(
                             conversations
                                 .compactMap(\.messages)
                                 .flatMap(\.self)
                                 .filter { $0.currentUserReadReceipt != nil }
-                                .parallelMap { @Sendable in
+                                .map { @Sendable in
                                     let message = $0
                                     return try await message.update(
                                         \.readReceipts,
@@ -145,17 +144,17 @@ extension DevModeAction {
                                     )
                                 }
                         ))
+
+                        Application.reset(
+                            preserveCurrentUserID: true,
+                            onCompletion: .navigateToSplash
+                        )
                     } catch {
                         Logger.log(
                             error,
                             with: .toast
                         )
                     }
-
-                    Application.reset(
-                        preserveCurrentUserID: true,
-                        onCompletion: .navigateToSplash
-                    )
                 }
             }
 
