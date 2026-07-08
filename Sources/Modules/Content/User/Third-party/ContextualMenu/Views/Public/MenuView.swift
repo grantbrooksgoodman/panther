@@ -10,6 +10,9 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 final class MenuView: UIView {
     // MARK: - Types
 
@@ -45,6 +48,10 @@ final class MenuView: UIView {
         }
     }
 
+    // MARK: - Dependencies
+
+    @Dependency(\.commonServices.haptics) private var hapticsService: HapticsService
+
     // MARK: - Properties
 
     let anchorPointAlignment: Alignment
@@ -52,6 +59,10 @@ final class MenuView: UIView {
     let style: Style
 
     weak var delegate: MenuViewDelegate?
+
+    private(set) var dragGesture: UILongPressGestureRecognizer?
+
+    private var highlightedElementIndex: Int?
 
     // MARK: - Computed Properties
 
@@ -101,10 +112,102 @@ final class MenuView: UIView {
             stackView.widthAnchor.constraint(equalToConstant: style.width),
             stackView.heightAnchor.constraint(equalToConstant: CGFloat(menu.children.count) * style.element.height),
         ])
+
+        let gesture = UILongPressGestureRecognizer(
+            target: self,
+            action: #selector(handleDragGesture(_:))
+        )
+
+        gesture.allowableMovement = .greatestFiniteMagnitude
+        gesture.isEnabled = false
+        gesture.minimumPressDuration = 0
+        addGestureRecognizer(gesture)
+
+        dragGesture = gesture
     }
 
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Methods
+
+    func element(at point: CGPoint) -> MenuElement? {
+        for case let elementView as MenuElementView in stackView.arrangedSubviews {
+            let pointInElement = elementView.convert(
+                point,
+                from: self
+            )
+
+            if elementView.bounds.contains(pointInElement) {
+                return elementView.element
+            }
+        }
+
+        return nil
+    }
+
+    func highlightElement(at point: CGPoint) {
+        var newHighlightedIndex: Int?
+
+        for (index, view) in stackView.arrangedSubviews.enumerated() {
+            guard let elementView = view as? MenuElementView else { continue }
+            let pointInElement = elementView.convert(
+                point,
+                from: self
+            )
+
+            let isHighlighted = elementView.bounds.contains(pointInElement)
+            elementView.setHighlighted(isHighlighted)
+
+            if isHighlighted { newHighlightedIndex = index }
+        }
+
+        if newHighlightedIndex != highlightedElementIndex {
+            if highlightedElementIndex != nil,
+               newHighlightedIndex != nil {
+                hapticsService.generateFeedback(.selection)
+            }
+
+            highlightedElementIndex = newHighlightedIndex
+        }
+    }
+
+    func unhighlightAllElements() {
+        highlightedElementIndex = nil
+        for case let elementView as MenuElementView in stackView.arrangedSubviews {
+            elementView.setHighlighted(false)
+        }
+    }
+
+    // MARK: - Auxiliary
+
+    @objc
+    private func handleDragGesture(_ sender: UIGestureRecognizer) {
+        let location = sender.location(in: self)
+        switch sender.state {
+        case .began,
+             .changed:
+            highlightElement(at: location)
+
+        case .ended:
+            if let element = element(at: location) {
+                unhighlightAllElements()
+                delegate?.dismissMenuView(
+                    menuView: self,
+                    uponTapping: element
+                )
+            } else {
+                unhighlightAllElements()
+            }
+
+        case .cancelled,
+             .failed:
+            unhighlightAllElements()
+
+        default:
+            break
+        }
     }
 }

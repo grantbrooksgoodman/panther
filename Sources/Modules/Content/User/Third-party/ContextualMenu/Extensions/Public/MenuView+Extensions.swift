@@ -31,7 +31,8 @@ extension MenuView: ContextMenuAnimatable {
                     anchorPoint: anchorPointAlignment == .leading ? .zero : .init(x: 1, y: 0)
                 )
             },
-            completion: { _ in
+            completion: { [weak self] _ in
+                self?.dragGesture?.isEnabled = true
                 completion?()
             }
         )

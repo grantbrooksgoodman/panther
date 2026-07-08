@@ -71,14 +71,9 @@ final class SplashPageViewService: ObservableObject {
         initializationStartDate = .now
         loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
-        _ = Timeout(after: .milliseconds(100)) {
-            Task { @MainActor in
-//                guard let self,
-                print("Invoking timeout")
-                guard self.initializationProgress <= 0.7 else { return }
-                print("Guard passed")
-                self.didSurpassQuickLoadTimeoutDuration = true
-            }
+        Task.delayed(by: .seconds(2)) { @MainActor in
+            guard initializationProgress <= 0.7 else { return }
+            didSurpassQuickLoadTimeoutDuration = true
         }
 
         /* MARK: AKCore Delegate Setup */

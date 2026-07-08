@@ -90,22 +90,58 @@ final class ContextMenuInteractor {
     func beginInteraction(
         _ sender: UIGestureRecognizer
     ) {
-        guard ContextMenuInteraction.canBegin,
-              sender.state == .began,
-              let view = sender.view,
-              let interaction = interactions.object(forKey: view) else { return }
+        switch sender.state {
+        case .began:
+            guard ContextMenuInteraction.canBegin,
+                  contextMenuViewController == nil,
+                  let view = sender.view,
+                  let interaction = interactions.object(forKey: view) else { return }
 
-        contextMenuService?.interaction.setIsPresentingContextMenu(true)
-        interaction.onInteractionBeganEffect?()
+            contextMenuService?.interaction.setIsPresentingContextMenu(true)
+            interaction.onInteractionBeganEffect?()
 
-        guard contextMenuService?.actionHandler.speakingMessage == nil else {
-            Task.delayed(by: .milliseconds(10)) { @MainActor in
-                showContextMenu(on: view, interaction: interaction)
+            guard contextMenuService?.actionHandler.speakingMessage == nil else {
+                Task.delayed(by: .milliseconds(10)) { @MainActor in
+                    self.showContextMenu(
+                        on: view,
+                        interaction: interaction
+                    )
+                }
+                return
             }
-            return
-        }
 
-        showContextMenu(on: view, interaction: interaction)
+            showContextMenu(
+                on: view,
+                interaction: interaction
+            )
+
+        case .changed:
+            guard let contextMenuViewController,
+                  let menuView = contextMenuViewController.menuView else { return }
+            menuView.highlightElement(at: sender.location(in: menuView))
+
+        case .ended:
+            guard let contextMenuViewController,
+                  let menuView = contextMenuViewController.menuView else { return }
+
+            let locationInMenuView = sender.location(in: menuView)
+            if let element = menuView.element(at: locationInMenuView) {
+                menuView.unhighlightAllElements()
+                menuView.delegate?.dismissMenuView(
+                    menuView: menuView,
+                    uponTapping: element
+                )
+            } else {
+                menuView.unhighlightAllElements()
+            }
+
+        case .cancelled,
+             .failed:
+            contextMenuViewController?.menuView?.unhighlightAllElements()
+
+        default:
+            break
+        }
     }
 
     func removeInteraction(
@@ -167,6 +203,7 @@ final class ContextMenuInteractor {
     }
 
     private func restoreWindow() {
+        contextMenuViewController = nil
         window.rootViewController = nil
         window.isHidden = true
         window.windowScene = nil
@@ -179,7 +216,6 @@ final class ContextMenuInteractor {
         guard !isShowing else { return }
         isShowing = true
 
-        interaction.gesture.isEnabled = false
         viewOriginalWindow = view.window
 
         let targetedPreview = interaction.targetedPreviewProvider(view) ?? .init(view: view)

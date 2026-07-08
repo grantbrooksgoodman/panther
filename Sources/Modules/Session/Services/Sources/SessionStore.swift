@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-struct SessionStore: @unchecked Sendable {
+struct SessionStore {
     // MARK: - Types
 
     private struct State {
@@ -135,23 +135,30 @@ struct SessionStore: @unchecked Sendable {
             conversation.id.hash.isBlank ||
             conversation.id.key.isBlank { return }
 
+        var didContainValue = false
         state.projectedValue.withValue {
+            if let existingConversation = $0.conversations[conversation.id.key] {
+                didContainValue = existingConversation.id.hash == conversation.id.hash
+            }
+
             $0.conversations[conversation.id.key] = conversation
         }
 
         persistConversationArchive()
-        Logger.log(
-            .init(
-                "Added conversation to persisted archive.",
-                isReportable: false,
-                userInfo: [
-                    "ConversationIDKey": conversation.id.key,
-                    "ConversationIDHash": conversation.id.hash,
-                ],
-                metadata: .init(sender: self)
-            ),
-            domain: .conversationArchive
-        )
+        if !didContainValue {
+            Logger.log(
+                .init(
+                    "Added conversation to persisted archive.",
+                    isReportable: false,
+                    userInfo: [
+                        "ConversationIDKey": conversation.id.key,
+                        "ConversationIDHash": conversation.id.hash,
+                    ],
+                    metadata: .init(sender: self)
+                ),
+                domain: .conversationArchive
+            )
+        }
 
         if RuntimeStorage.updatedReadReceipts == conversation.id.key {
             Task { @MainActor in

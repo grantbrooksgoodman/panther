@@ -76,7 +76,17 @@ extension User {
 
     // MARK: - Methods
 
-    // NIT: I don't like the fact that this method is needed/useful. Seems like code smell.
+    /// Resolves the current user's conversations and messages if they have not
+    /// yet been loaded into memory.
+    ///
+    /// Under normal operation the splash screen resolves all conversation data
+    /// before navigation occurs, so this method early-returns without performing
+    /// work. It exists as a defensive guard for call sites that cannot
+    /// structurally guarantee prior resolution — for example, code paths
+    /// reachable after an interrupted startup or a mid-session state reset.
+    ///
+    /// The guard prevents an unconditional network fetch that
+    /// `resolveCurrentUser(and:)` would otherwise perform.
     static func populateCurrentUserConversationsIfNeeded() async throws(Exception) {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
         guard let currentUser = userSession.currentUser else {

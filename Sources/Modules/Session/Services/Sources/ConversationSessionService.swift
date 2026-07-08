@@ -78,6 +78,7 @@ final class ConversationSessionService {
 
         currentConversation = conversation
         updateDisplayedMessages()
+        sessionStore.upsertConversation(conversation)
     }
 
     // MARK: - Message Offset

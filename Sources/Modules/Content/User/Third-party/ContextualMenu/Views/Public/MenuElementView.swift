@@ -112,10 +112,16 @@ final class MenuElementView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Methods
+
+    func setHighlighted(_ highlighted: Bool) {
+        backgroundColor = highlighted ? style.highlightedBackgroundColor : style.backgroundColor
+    }
+
     // MARK: - Auxiliary
 
     @objc
-    func onButtonTouchedUpInside(_ sender: Any?) {
+    private func onButtonTouchedUpInside(_ sender: Any?) {
         delegate?.menuElementViewTapped(menuElementView: self)
     }
 }

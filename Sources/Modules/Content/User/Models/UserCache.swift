@@ -24,34 +24,22 @@ enum UserCache {
         @Dependency(\.clientSession) var clientSession: ClientSession
 
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
-        @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
         @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
 
         let usersFromContactPairArchive = contactPairArchive?
             .flatMap(\.users) ?? []
 
-        let usersFromConversationArchive = conversationArchive?
-            .flatMap { $0.users ?? [] } ?? []
-
-        let usersFromCurrentConversation = clientSession
-            .conversation
-            .currentConversation?
-            .users ?? []
-
-        let usersFromCurrentUserConversations = clientSession
-            .user
-            .currentUser?
-            .conversations?
-            .flatMap { $0.users ?? [] } ?? []
+        let usersFromSessionStore = clientSession
+            .store
+            .users
+            .values
 
         let usersFromUnknownContactPairArchive = unknownContactPairArchive?
             .flatMap(\.users) ?? []
 
         let uniqueUsers = (
             usersFromContactPairArchive +
-                usersFromConversationArchive +
-                usersFromCurrentConversation +
-                usersFromCurrentUserConversations +
+                usersFromSessionStore +
                 usersFromUnknownContactPairArchive
         ).uniquedByID
 

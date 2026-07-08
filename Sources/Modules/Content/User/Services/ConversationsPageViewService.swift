@@ -177,7 +177,6 @@ final class ConversationsPageViewService {
             providedConversations ?? clientSession.user.currentUser?.conversations ?? []
         )
         .filteredAndSorted
-        .map(\.injectingCachedUsers)
 
         guard !conversations.isEmpty else {
             // If the chat session holds a valid conversation that hasn't been
@@ -187,7 +186,7 @@ final class ConversationsPageViewService {
                !currentConversation.isMock,
                currentConversation.isVisibleForCurrentUser {
                 state.conversations = [
-                    currentConversation.injectingCachedUsers,
+                    currentConversation,
                 ].filteredAndSorted
             } else {
                 state.conversations = []
@@ -529,50 +528,6 @@ final class ConversationsPageViewService {
         Task.delayed(by: .milliseconds(10)) { @MainActor [weak self] in
             self?.startSettingSearchBarAppearance()
         }
-    }
-}
-
-// TODO: Audit for deletion.
-extension Conversation: Validatable {
-    var isWellFormed: Bool {
-        guard !id.key.isBlank,
-              !id.hash.isBlank else { return false }
-
-        if isVisibleForCurrentUser {
-            guard let messages,
-                  !messages.isEmpty,
-                  messages.count == messageIDs.count,
-                  let users,
-                  !users.isEmpty,
-                  users.count == participants.count - 1 else { return false }
-        }
-
-        return true
-    }
-}
-
-@MainActor
-private extension Conversation {
-    var injectingCachedUsers: Conversation {
-        @Dependency(\.clientSession.store) var sessionStore: SessionStore
-        guard isVisibleForCurrentUser,
-              (users?.count ?? 0) == 0 else { return self }
-
-        let participantUserIDs = Set(
-            participants.map(\.userID).filter { $0 != User.currentUserID }
-        )
-
-        let resolvedUsers = UserCache
-            .knownUsers
-            .filter { participantUserIDs.contains($0.id) }
-            .uniquedByID
-
-        guard participantUserIDs.isSubset(
-            of: resolvedUsers.map(\.id)
-        ) else { return self }
-
-        sessionStore.upsertUsers(Set(resolvedUsers))
-        return self
     }
 }
 
