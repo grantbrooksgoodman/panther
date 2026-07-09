@@ -215,6 +215,10 @@ enum ConversationCellViewDataCache {
     static func clearCache() {
         _ConversationCellViewDataCache.clearCache()
     }
+
+    static func removeValues(forConversationIDKey idKey: String) {
+        _ConversationCellViewDataCache.removeValues(forConversationIDKey: idKey)
+    }
 }
 
 @MainActor
@@ -230,9 +234,21 @@ private enum _ConversationCellViewDataCache {
     // swiftlint:disable:next identifier_name line_length
     @Cached(CacheKey.dataByConversationIDForSearchQueries) fileprivate static var cachedDataByConversationIDForSearchQueries: [String: [ConversationID: ConversationCellViewData]]?
 
-    // MARK: - Clear Cache
+    // MARK: - Methods
 
     fileprivate static func clearCache() {
         cachedDataByConversationIDForSearchQueries = nil
+    }
+
+    fileprivate static func removeValues(forConversationIDKey idKey: String) {
+        guard var cache = cachedDataByConversationIDForSearchQueries else { return }
+
+        for searchQuery in cache.keys {
+            cache[searchQuery] = cache[searchQuery]?.filter { conversationID, _ in
+                conversationID.key != idKey
+            }
+        }
+
+        cachedDataByConversationIDForSearchQueries = cache
     }
 }

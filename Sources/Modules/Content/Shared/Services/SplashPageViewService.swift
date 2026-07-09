@@ -84,6 +84,10 @@ final class SplashPageViewService: ObservableObject {
 
         BreadcrumbsCaptureService.shared.setCaptureGranularity(.narrow)
 
+        /* MARK: Store Observation Setup */
+
+        SessionStoreInvalidationService.shared.startObserving()
+
         /* MARK: Offline User Setup */
 
         guard build.isOnline else {

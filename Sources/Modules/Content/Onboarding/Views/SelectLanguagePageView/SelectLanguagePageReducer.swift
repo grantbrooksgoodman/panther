@@ -96,7 +96,15 @@ struct SelectLanguagePageReducer: Reducer {
             navigation.navigate(to: .onboarding(.pop))
 
         case .continueButtonTapped:
-            coreUtilities.clearCaches([.localization, .regionDetailService])
+            coreUtilities.clearCaches(
+                [
+                    .activityDescription,
+                    .conversationCellViewData,
+                    .localization,
+                    .regionDetailService,
+                ]
+            )
+
             coreUtilities.setLanguageCode(state.selectedLanguageCode)
 
             navigation.navigate(to: .onboarding(.push(.verifyNumber)))

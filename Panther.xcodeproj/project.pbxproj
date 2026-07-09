@@ -231,6 +231,7 @@
 		B955F76F2B3FCE04001D74FC /* CoreKit+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B955F76E2B3FCE04001D74FC /* CoreKit+CommonExtensions.swift */; };
 		B958870D2B323317007FB37B /* SplashPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B958870C2B323317007FB37B /* SplashPageView.swift */; };
 		B958870F2B32331F007FB37B /* SplashPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B958870E2B32331F007FB37B /* SplashPageReducer.swift */; };
+		33261DB5EDC8D88347774727 /* SessionStoreInvalidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B8D4F6D87373A21AC2D9B0 /* SessionStoreInvalidationService.swift */; };
 		B95887132B3234BE007FB37B /* SplashPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95887122B3234BE007FB37B /* SplashPageViewService.swift */; };
 		B95887152B3234F4007FB37B /* SplashPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95887142B3234F4007FB37B /* SplashPageViewServiceDependency.swift */; };
 		B95924882E7E0A8000A31883 /* ConversationsPageView+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95924872E7E0A8000A31883 /* ConversationsPageView+UserContentExtensions.swift */; };
@@ -1071,6 +1072,7 @@
 		B955F76E2B3FCE04001D74FC /* CoreKit+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreKit+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B958870C2B323317007FB37B /* SplashPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashPageView.swift; sourceTree = "<group>"; };
 		B958870E2B32331F007FB37B /* SplashPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashPageReducer.swift; sourceTree = "<group>"; };
+		32B8D4F6D87373A21AC2D9B0 /* SessionStoreInvalidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreInvalidationService.swift; sourceTree = "<group>"; };
 		B95887122B3234BE007FB37B /* SplashPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashPageViewService.swift; sourceTree = "<group>"; };
 		B95887142B3234F4007FB37B /* SplashPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashPageViewServiceDependency.swift; sourceTree = "<group>"; };
 		B95924872E7E0A8000A31883 /* ConversationsPageView+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConversationsPageView+UserContentExtensions.swift"; sourceTree = "<group>"; };
@@ -2188,6 +2190,7 @@
 		B95887112B3234AD007FB37B /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				32B8D4F6D87373A21AC2D9B0 /* SessionStoreInvalidationService.swift */,
 				B95887122B3234BE007FB37B /* SplashPageViewService.swift */,
 			);
 			path = Services;
@@ -4194,6 +4197,7 @@
 				B9A409262B71D333005F2489 /* HapticsService.swift in Sources */,
 				B998B3BE2B68A2540048241B /* UITheme+UserContentExtensions.swift in Sources */,
 				B906C0102C4709B700F414DA /* ModerationSessionService.swift in Sources */,
+				33261DB5EDC8D88347774727 /* SessionStoreInvalidationService.swift in Sources */,
 				B95887132B3234BE007FB37B /* SplashPageViewService.swift in Sources */,
 				B9E6D7E02B1288CD000BC88D /* WelcomePageReducer.swift in Sources */,
 				B923CAA32B758A870042D3E4 /* UIFont+UserContentExtensions.swift in Sources */,

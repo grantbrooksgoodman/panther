@@ -100,10 +100,10 @@ struct SessionStore {
 
         persistConversationArchive()
         if !removedIDKeys.isEmpty {
-            Observables.sessionStoreDidChange.value = .conversations(
+            emitChange(.conversations(
                 upsertedIDKeys: [],
                 removedIDKeys: removedIDKeys
-            )
+            ))
         }
     }
 
@@ -136,10 +136,10 @@ struct SessionStore {
             domain: .sessionStore
         )
 
-        Observables.sessionStoreDidChange.value = .conversations(
+        emitChange(.conversations(
             upsertedIDKeys: [],
             removedIDKeys: [idKey]
-        )
+        ))
     }
 
     func upsertConversation(_ conversation: Conversation) {
@@ -186,10 +186,10 @@ struct SessionStore {
         }
 
         if didChange {
-            Observables.sessionStoreDidChange.value = .conversations(
+            emitChange(.conversations(
                 upsertedIDKeys: [conversation.id.key],
                 removedIDKeys: []
-            )
+            ))
         }
     }
 
@@ -220,10 +220,10 @@ struct SessionStore {
         )
 
         if !changedIDKeys.isEmpty {
-            Observables.sessionStoreDidChange.value = .conversations(
+            emitChange(.conversations(
                 upsertedIDKeys: changedIDKeys,
                 removedIDKeys: []
-            )
+            ))
         }
     }
 
@@ -239,7 +239,7 @@ struct SessionStore {
         persistMessageArchive()
 
         if !clearedIDs.isEmpty {
-            Observables.sessionStoreDidChange.value = .messages(upsertedIDs: clearedIDs)
+            emitChange(.messages(upsertedIDs: clearedIDs))
         }
     }
 
@@ -265,7 +265,7 @@ struct SessionStore {
         )
 
         if !changedIDs.isEmpty {
-            Observables.sessionStoreDidChange.value = .messages(upsertedIDs: changedIDs)
+            emitChange(.messages(upsertedIDs: changedIDs))
         }
     }
 
@@ -279,7 +279,7 @@ struct SessionStore {
         }
 
         if didChange {
-            Observables.sessionStoreDidChange.value = .users(upsertedIDs: [user.id])
+            emitChange(.users(upsertedIDs: [user.id]))
         }
     }
 
@@ -296,7 +296,7 @@ struct SessionStore {
         }
 
         if !changedIDs.isEmpty {
-            Observables.sessionStoreDidChange.value = .users(upsertedIDs: changedIDs)
+            emitChange(.users(upsertedIDs: changedIDs))
         }
     }
 }
@@ -304,6 +304,17 @@ struct SessionStore {
 // MARK: - Auxiliary
 
 private extension SessionStore {
+    func emitChange(_ change: SessionStoreChange) {
+        Observables.sessionStoreDidChange.value = change
+        let handlers = Self.changeHandlers.wrappedValue
+        guard !handlers.isEmpty else { return }
+        Task { @MainActor in
+            for handler in handlers.values {
+                handler(change)
+            }
+        }
+    }
+
     func persistConversationArchive() {
         let snapshot = Set(state.wrappedValue.conversations.values)
         persistedConversationArchive = snapshot.isEmpty ? nil : snapshot
@@ -346,5 +357,24 @@ private extension SessionStore {
             changedTo: false,
             id: .redrawConversationsPageView
         ) { redraw() }
+    }
+}
+
+// MARK: - Change Handlers
+
+extension SessionStore {
+    private static let changeHandlers = LockIsolated<[UUID: @MainActor @Sendable (SessionStoreChange) -> Void]>([:])
+
+    @discardableResult
+    static func addChangeHandler(
+        _ handler: @escaping @MainActor @Sendable (SessionStoreChange) -> Void
+    ) -> UUID {
+        let id = UUID()
+        changeHandlers.projectedValue.withValue { $0[id] = handler }
+        return id
+    }
+
+    static func removeChangeHandler(_ id: UUID) {
+        changeHandlers.projectedValue.withValue { $0[id] = nil }
     }
 }

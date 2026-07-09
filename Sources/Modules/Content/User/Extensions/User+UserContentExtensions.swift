@@ -163,6 +163,10 @@ enum UserDisplayNameCache {
     static func clearCache() {
         _UserDisplayNameCache.clearCache()
     }
+
+    static func removeValues(forUserIDs ids: Set<String>) {
+        _UserDisplayNameCache.removeValues(forUserIDs: ids)
+    }
 }
 
 private enum _UserDisplayNameCache {
@@ -177,9 +181,18 @@ private enum _UserDisplayNameCache {
         set { _cachedDisplayNamesForUserIDs.wrappedValue = newValue }
     }
 
-    // MARK: - Clear Cache
+    // MARK: - Methods
 
     fileprivate static func clearCache() {
         cachedDisplayNamesForUserIDs = nil
+    }
+
+    fileprivate static func removeValues(forUserIDs ids: Set<String>) {
+        guard var cache = cachedDisplayNamesForUserIDs else { return }
+        for id in ids {
+            cache[id] = nil
+        }
+
+        cachedDisplayNamesForUserIDs = cache
     }
 }
