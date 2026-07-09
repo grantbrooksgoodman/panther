@@ -75,7 +75,6 @@ struct ConversationsPageView: View {
                                         reducer: ConversationCellReducer()
                                     )
                                 )
-                                .redrawsOnTraitCollectionChange()
                             }
                         }
                         .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)

@@ -37,6 +37,7 @@ struct ConversationsPageObserver: Observer {
     // MARK: - Properties
 
     let observedValues: [any ObservableProtocol] = [
+        Observables.sessionStoreDidChange,
         Observables.traitCollectionChanged,
         Observables.updateConversationsListSetToReliableDataSource,
         Observables.updatedContactPairArchive,
@@ -55,6 +56,9 @@ struct ConversationsPageObserver: Observer {
 
     func onChange(of observable: Observable<Any>) {
         switch observable {
+        case Observables.sessionStoreDidChange:
+            send(.sessionStoreDidChange)
+
         case Observables.traitCollectionChanged,
              Observables.updatedContactPairArchive:
             send(.traitCollectionChanged)
@@ -172,7 +176,7 @@ struct ConversationsPageObserver: Observer {
                 }),
                 !missingMessages.isEmpty {
                 do throws(Exception) {
-                    let conversation = try await updatedConversation.updateReadDate(
+                    try await updatedConversation.updateReadDate(
                         for: missingMessages
                     )
 
@@ -192,8 +196,8 @@ struct ConversationsPageObserver: Observer {
                         }
                     }
 
-                    guard matchesCurrentConversation(conversation.id.key) else { return }
-                    clientSession.conversation.setCurrentConversation(conversation)
+                    guard matchesCurrentConversation(updatedConversation.id.key) else { return }
+                    clientSession.conversation.setCurrentConversation(updatedConversation)
                     chatPageViewService.reloadCollectionView()
                     return configureInputBarIfNeeded()
                 } catch {

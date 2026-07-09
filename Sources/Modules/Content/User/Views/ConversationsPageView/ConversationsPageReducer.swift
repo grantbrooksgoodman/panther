@@ -38,6 +38,7 @@ struct ConversationsPageReducer: Reducer {
         case deleteConversationsToolbarButtonTapped
 
         case pulledToRefresh
+        case sessionStoreDidChange
         case traitCollectionChanged
         case updatedCurrentUser
 
@@ -182,6 +183,9 @@ struct ConversationsPageReducer: Reducer {
             state.conversations = state.conversations
                 .queried(by: searchQuery)
                 .filteredAndSorted
+
+        case .sessionStoreDidChange:
+            viewService.updateConversationsList(state: &state)
 
         case .settingsToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.settings)))

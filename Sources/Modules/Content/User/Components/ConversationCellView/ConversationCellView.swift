@@ -23,12 +23,14 @@ struct ConversationCellView: View {
 
     // MARK: - Properties
 
+    @StateObject private var observer: ViewObserver<ConversationCellObserver>
     @StateObject private var viewModel: ViewModel<ConversationCellReducer>
 
     // MARK: - Init
 
     init(_ viewModel: ViewModel<ConversationCellReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
+        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - Body
@@ -38,6 +40,7 @@ struct ConversationCellView: View {
             viewModel.send(.cellTapped)
         } label: {
             cellView
+                .redrawsOnTraitCollectionChange()
         }
         .contextMenu {
             contextMenuButtons
@@ -138,12 +141,14 @@ struct ConversationCellView: View {
                 VStack(alignment: .leading) {
                     HStack {
                         HStack {
-                            Components.text(
-                                viewModel.cellViewData.titleLabelText,
-                                font: .systemSemibold(scale: .custom(Floats.titleLabelSystemFontSize))
-                            )
-                            .minimumScaleFactor(Floats.titleLabelMinimumScaleFactor)
-                            .padding(.bottom, Floats.titleLabelBottomPadding)
+                            ThemedView {
+                                Components.text(
+                                    viewModel.cellViewData.titleLabelText,
+                                    font: .systemSemibold(scale: .custom(Floats.titleLabelSystemFontSize))
+                                )
+                                .minimumScaleFactor(Floats.titleLabelMinimumScaleFactor)
+                                .padding(.bottom, Floats.titleLabelBottomPadding)
+                            }
 
                             if let otherUser = viewModel.cellViewData.otherUser {
                                 UserInfoBadgeView(otherUser) {
@@ -154,7 +159,7 @@ struct ConversationCellView: View {
 
                         Spacer()
 
-                        HStack(alignment: .center, spacing: Floats.chevronImageAndDateLabelHStackSpacing) {
+                        HStack(spacing: Floats.chevronImageAndDateLabelHStackSpacing) {
                             Components.text(
                                 viewModel.cellViewData.dateLabelText,
                                 font: .system(scale: .custom(Floats.dateLabelSystemFontSize)),
@@ -166,17 +171,19 @@ struct ConversationCellView: View {
                             )
                             .if(Application.isInPrevaricationMode) { $0.offset(x: Floats.chevronImageFrameMaxWidth) }
 
-                            Components.symbol(
-                                Strings.chevronImageSystemName,
-                                foregroundColor: viewModel.chevronImageForegroundColor,
-                                weight: .semibold,
-                                usesIntrinsicSize: false
-                            )
-                            .frame(
-                                maxWidth: Floats.chevronImageFrameMaxWidth,
-                                maxHeight: Floats.chevronImageFrameMaxHeight
-                            )
-                            .if(Application.isInPrevaricationMode) { $0.opacity(0) }
+                            ThemedView {
+                                Components.symbol(
+                                    Strings.chevronImageSystemName,
+                                    foregroundColor: viewModel.chevronImageForegroundColor,
+                                    weight: .semibold,
+                                    usesIntrinsicSize: false
+                                )
+                                .frame(
+                                    maxWidth: Floats.chevronImageFrameMaxWidth,
+                                    maxHeight: Floats.chevronImageFrameMaxHeight
+                                )
+                                .if(Application.isInPrevaricationMode) { $0.opacity(0) }
+                            }
                         }
                     }
 

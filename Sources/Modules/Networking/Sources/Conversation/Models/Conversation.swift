@@ -58,6 +58,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     var messages: [Message]? {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         let messages = messageIDs.compactMap { sessionStore.messages[$0] }
+
         // Session store does not store system messages.
         if messages.count != messageIDs.count,
            isVisibleForCurrentUser {
@@ -244,7 +245,8 @@ struct Conversation: Codable, EncodedHashable, Hashable {
 
     func updateReadDate(
         for messages: [Message]
-    ) async throws(Exception) -> Conversation {
+    ) async throws(Exception) {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
         guard !messages.isEmpty else {
             throw Exception(
                 "No messages provided.",
@@ -262,51 +264,25 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         let readReceipt = ReadReceipt(userID: currentUserID, readDate: .now)
         let unreadMessages = messages.filter { $0.currentUserReadReceipt == nil }
 
-        var modifiedMessages = self.messages ?? []
-        for unreadMessage in unreadMessages {
-            var readReceipts = unreadMessage.readReceipts?.filter { $0.userID != currentUserID } ?? []
-            readReceipts.append(readReceipt)
-
-            let readMessage = try await unreadMessage.update(
+        let readMessages = try await unreadMessages.map {
+            let unreadMessage = $0
+            return try await unreadMessage.update(
                 \.readReceipts,
-                to: readReceipts.unique
-            )
-
-            if let unreadMessageIndex = modifiedMessages.firstIndex(where: {
-                $0.id == readMessage.id
-            }) {
-                modifiedMessages.remove(at: unreadMessageIndex)
-                modifiedMessages.insert(
-                    readMessage,
-                    at: unreadMessageIndex
-                )
-            } else {
-                modifiedMessages.append(readMessage)
-            }
-        }
-
-        guard modifiedMessages.count == (self.messages ?? []).count else {
-            throw Exception(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
+                to: (
+                    (
+                        unreadMessage
+                            .readReceipts?
+                            .filter { $0.userID != currentUserID } ?? []
+                    ) + [readReceipt]
+                ).unique
             )
         }
 
+        sessionStore.upsertMessages(Set(readMessages))
         Logger.log(
             "Updated read date for \(unreadMessages.count) message\(unreadMessages.count == 1 ? "" : "s").",
             domain: .conversation,
             sender: self
-        )
-
-        // TODO: Should be removed once a proper fix is found.
-        RuntimeStorage.store(
-            id.key,
-            as: .updatedReadReceipts
-        )
-
-        return try await update(
-            \.messages,
-            to: modifiedMessages
         )
     }
 

@@ -24,8 +24,6 @@ struct ChatPageStateServiceEffectID: Hashable {
 extension ChatPageStateServiceEffectID {
     static let deeplinkToOtherChat: ChatPageStateServiceEffectID = .init("deeplinkToOtherChat")
     static let markConversationStale: ChatPageStateServiceEffectID = .init("markConversationStale")
-    // TODO: Should be removed once a proper fix is found.
-    static let redrawConversationsPageView: ChatPageStateServiceEffectID = .init("redrawConversationsPageView")
     static let updateAppearance: ChatPageStateServiceEffectID = .init("updateAppearance")
     static let updateConversations: ChatPageStateServiceEffectID = .init("updateConversations")
     static let updateCurrentUser: ChatPageStateServiceEffectID = .init("updateCurrentUser")

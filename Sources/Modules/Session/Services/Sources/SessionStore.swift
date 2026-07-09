@@ -22,13 +22,6 @@ struct SessionStore {
         var users: [String: User] = [:]
     }
 
-    // MARK: - Dependencies
-
-    @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
-    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
-    @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
-
     // MARK: - Properties
 
     static let shared = SessionStore()
@@ -177,14 +170,6 @@ struct SessionStore {
             )
         }
 
-        if RuntimeStorage.updatedReadReceipts == conversation.id.key {
-            Task { @MainActor in
-                redrawConversationsPageView()
-            }
-
-            RuntimeStorage.remove(.updatedReadReceipts)
-        }
-
         if didChange {
             emitChange(.conversations(
                 upsertedIDKeys: [conversation.id.key],
@@ -318,45 +303,11 @@ private extension SessionStore {
     func persistConversationArchive() {
         let snapshot = Set(state.wrappedValue.conversations.values)
         persistedConversationArchive = snapshot.isEmpty ? nil : snapshot
-        persistValuesForNotificationExtension(snapshot)
     }
 
     func persistMessageArchive() {
         let snapshot = Set(state.wrappedValue.messages.values)
         persistedMessageArchive = snapshot.isEmpty ? nil : snapshot
-    }
-
-    func persistValuesForNotificationExtension(_ values: Set<Conversation>) {
-        Task { @MainActor in
-            var conversationNameMap = [String: String]()
-
-            for conversation in values where conversation.participants.count > 2 {
-                guard let titleLabelText = ConversationCellViewData(conversation)?.titleLabelText,
-                      !titleLabelText.isBangQualifiedEmpty else { continue }
-                conversationNameMap[conversation.id.key] = titleLabelText
-            }
-
-            guard let encoded = try? jsonEncoder.encode(conversationNameMap) else { return }
-            appGroupDefaults.set(
-                encoded,
-                forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName
-            )
-        }
-    }
-
-    @MainActor // FIXME: This is a band-aid fix (and not a reliable one) for a problem that shouldn't exist.
-    func redrawConversationsPageView() {
-        @MainActor
-        func redraw() {
-            coreUtilities.clearCaches([.conversationCellViewData])
-            RootWindowScene.traitCollectionChanged()
-        }
-
-        redraw()
-        chatPageState.addEffectUponIsPresented(
-            changedTo: false,
-            id: .redrawConversationsPageView
-        ) { redraw() }
     }
 }
 

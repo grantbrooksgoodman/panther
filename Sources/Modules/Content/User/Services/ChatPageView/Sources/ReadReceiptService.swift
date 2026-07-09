@@ -33,33 +33,25 @@ final class ReadReceiptService {
 
     func updateReadDateForUnreadMessages() async throws(Exception) {
         guard let conversation = clientSession.conversation.currentConversation,
-              let messages = conversation.messages?.filter({
-                  !$0.isFromCurrentUser
-              }),
+              let messages = conversation.messages?.filter({ !$0.isFromCurrentUser }),
               messages.last?.currentUserReadReceipt == nil else { return }
 
         let unreadMessages = messages.filter { $0.currentUserReadReceipt == nil }
         guard !unreadMessages.isEmpty else { return }
 
-        try clientSession.user.stopObservingCurrentUserChanges()
-        do {
-            let updatedConversation = try await conversation.updateReadDate(
-                for: unreadMessages
+        try await conversation.updateReadDate(
+            for: unreadMessages
+        )
+
+        if let currentUser = clientSession.user.currentUser {
+            try await notificationService.setBadgeNumber(
+                currentUser.calculateBadgeNumber()
             )
+        }
 
-            clientSession.user.startObservingCurrentUserChanges()
-            if let currentUser = clientSession.user.currentUser {
-                try await notificationService.setBadgeNumber(
-                    currentUser.calculateBadgeNumber() - unreadMessages.count
-                )
-            }
-
-            if clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key {
-                clientSession.conversation.setCurrentConversation(updatedConversation)
-            }
-        } catch {
-            clientSession.user.startObservingCurrentUserChanges()
-            throw error
+        // NIT: May no longer be necessary.
+        if clientSession.conversation.currentConversation?.id.key == conversation.id.key {
+            clientSession.conversation.setCurrentConversation(conversation)
         }
     }
 }

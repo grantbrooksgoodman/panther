@@ -112,7 +112,7 @@ extension User {
                 metadata: .init(sender: self)
             ),
             domain: .bugPrevention,
-            with: .toastInPrerelease,
+            with: .toastInPrerelease(style: .warning),
             showRuntimeWarning: true
         )
 

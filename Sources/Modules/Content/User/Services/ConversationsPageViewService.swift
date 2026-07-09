@@ -161,13 +161,14 @@ final class ConversationsPageViewService {
         }
     }
 
-    /// `.reloadDataReturned(.success)`
+    /// `.reloadDataReturned`
     /// `.updatedCurrentUser`
     /// `.viewAppeared`
     func updateConversationsList(
         with providedConversations: [Conversation]? = nil,
         state: inout ConversationsPageReducer.State
     ) {
+        guard navigation.state.modal == .userContent else { return }
         let conversations = (
             providedConversations ?? clientSession.user.currentUser?.conversations ?? []
         )
@@ -417,7 +418,7 @@ final class ConversationsPageViewService {
                 metadata: .init(sender: self)
             ),
             domain: .bugPrevention,
-            with: .toastInPrerelease,
+            with: .toastInPrerelease(style: .warning),
             showRuntimeWarning: true
         )
 
@@ -444,7 +445,7 @@ final class ConversationsPageViewService {
                 metadata: .init(sender: self)
             ),
             domain: .bugPrevention,
-            with: .toastInPrerelease,
+            with: .toastInPrerelease(style: .warning),
             showRuntimeWarning: true
         )
 

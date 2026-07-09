@@ -29,6 +29,7 @@ struct ConversationCellReducer: Reducer {
         case blockUsersButtonTapped
         case cellTapped
         case deleteConversationButtonTapped
+        case refreshCellData
         case reportUsersButtonTapped
         case userInfoBadgeTapped
 
@@ -160,6 +161,15 @@ struct ConversationCellReducer: Reducer {
                     return .deleteConversationReturned(error)
                 }
             }
+
+        case .refreshCellData:
+            guard let cellViewData = ConversationCellViewData(
+                state.conversation,
+                searchQuery: state.searchQuery,
+                useCachedValue: false
+            ), cellViewData != state.cellViewData else { return .none }
+
+            state.cellViewData = cellViewData
 
         case .reportUsersButtonTapped:
             let conversation = state.conversation

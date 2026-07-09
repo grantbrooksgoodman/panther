@@ -14,6 +14,11 @@ import AppSubsystem
 
 @MainActor
 final class SessionStoreInvalidationService {
+    // MARK: - Dependencies
+
+    @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
+    @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
+
     // MARK: - Properties
 
     static let shared = SessionStoreInvalidationService()
@@ -42,6 +47,7 @@ private extension SessionStoreInvalidationService {
     enum TaskID: String {
         case conversationCellViewData
         case conversationCellViewDataTargeted
+        case notificationExtensionNameMap
         case readReceipt
         case user
         case userDisplayName
@@ -102,6 +108,13 @@ private extension SessionStoreInvalidationService {
                 )
             }
         }
+
+        Task.debounced(
+            debounceKey(.notificationExtensionNameMap),
+            delay: .milliseconds(500)
+        ) { @MainActor [weak self] in
+            self?.persistValuesForNotificationExtension()
+        }
     }
 
     func handleMessagesChange() {
@@ -147,5 +160,22 @@ private extension SessionStoreInvalidationService {
             pendingUserIDs = []
             UserDisplayNameCache.removeValues(forUserIDs: ids)
         }
+    }
+
+    func persistValuesForNotificationExtension() {
+        let conversations = SessionStore.shared.conversations.values
+        var conversationNameMap = [String: String]()
+
+        for conversation in conversations where conversation.participants.count > 2 {
+            guard let titleLabelText = ConversationCellViewData(conversation)?.titleLabelText,
+                  !titleLabelText.isBangQualifiedEmpty else { continue }
+            conversationNameMap[conversation.id.key] = titleLabelText
+        }
+
+        guard let encoded = try? jsonEncoder.encode(conversationNameMap) else { return }
+        appGroupDefaults.set(
+            encoded,
+            forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName
+        )
     }
 }

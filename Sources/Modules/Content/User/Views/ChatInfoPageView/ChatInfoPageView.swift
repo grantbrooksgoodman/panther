@@ -266,7 +266,7 @@ struct ChatInfoPageView: View {
             viewModel.send(.chatInfoCellTapped)
         } label: {
             ThemedView {
-                HStack(alignment: .center) {
+                HStack {
                     VStack(alignment: .leading) {
                         Components.text(
                             viewModel.chatInfoCellTitleLabelText,
