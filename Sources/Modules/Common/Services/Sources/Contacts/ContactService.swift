@@ -27,6 +27,7 @@ final class ContactService: @unchecked Sendable {
     @Dependency(\.cnContactStore) private var cnContactStore: CNContactStore
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
     @Dependency(\.networking.userService) private var userService: UserService
 
     // MARK: - Properties
@@ -59,8 +60,11 @@ final class ContactService: @unchecked Sendable {
 
             @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
             services.contact.contactPairArchive.addValues(contactPairs)
-            unknownContactPairArchive = (unknownContactPairArchive ?? []) + users
-                .filter { !contactPairs.users.map(\.id).contains($0.id) }
+            sessionStore.upsertUsers(Set(users))
+
+            let contactPairUserIDs = contactPairs.users.map(\.id)
+            unknownContactPairArchive = users
+                .filter { !contactPairUserIDs.contains($0.id) }
                 .map {
                     ContactPair.withUser(
                         $0,

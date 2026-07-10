@@ -69,6 +69,7 @@ extension CacheDomain {
                 .textToSpeechService,
                 .transcriptionService,
                 .user,
+                .userArchive,
                 .userDisplayName,
                 .userService,
             ]
@@ -230,6 +231,13 @@ extension CacheDomain {
         Task { @MainActor in
             UserCache.clearCache()
         }
+    }
+
+    static let userArchive = CacheDomain(
+        "userArchive"
+    ) {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        sessionStore.clearUserArchive()
     }
 
     static let userDisplayName = CacheDomain(

@@ -37,8 +37,8 @@ enum UserCache {
             .flatMap(\.users) ?? []
 
         let uniqueUsers = (
-            usersFromContactPairArchive +
-                usersFromSessionStore +
+            usersFromSessionStore +
+                usersFromContactPairArchive +
                 usersFromUnknownContactPairArchive
         ).uniquedByID
 

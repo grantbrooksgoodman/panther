@@ -56,10 +56,6 @@ private extension SessionStoreInvalidationService {
 
     // MARK: - Methods
 
-    func debounceKey(_ taskID: TaskID) -> String {
-        "SessionStoreInvalidationService/\(taskID.rawValue)"
-    }
-
     func handleChange(_ change: SessionStoreChange) {
         switch change {
         case let .conversations(upsertedIDKeys, removedIDKeys):
@@ -95,7 +91,7 @@ private extension SessionStoreInvalidationService {
 
         pendingConversationIDKeys.formUnion(affectedIDKeys)
         Task.debounced(
-            debounceKey(.conversationCellViewDataTargeted),
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.conversationCellViewDataTargeted.rawValue)",
             delay: .milliseconds(250)
         ) { @MainActor [weak self] in
             guard let self else { return }
@@ -111,7 +107,7 @@ private extension SessionStoreInvalidationService {
         }
 
         Task.debounced(
-            debounceKey(.notificationExtensionNameMap),
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.notificationExtensionNameMap.rawValue)",
             delay: .milliseconds(500)
         ) { @MainActor [weak self] in
             self?.persistValuesForNotificationExtension()
@@ -120,14 +116,14 @@ private extension SessionStoreInvalidationService {
 
     func handleMessagesChange() {
         Task.debounced(
-            debounceKey(.conversationCellViewData),
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.conversationCellViewData.rawValue)",
             delay: .milliseconds(250)
         ) { @MainActor in
             ConversationCellViewDataCache.clearCache()
         }
 
         Task.debounced(
-            debounceKey(.readReceipt),
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.readReceipt.rawValue)",
             delay: .milliseconds(250)
         ) { @MainActor in
             ReadReceiptCache.clearCache()
@@ -138,21 +134,21 @@ private extension SessionStoreInvalidationService {
         pendingUserIDs.formUnion(upsertedIDs)
 
         Task.debounced(
-            debounceKey(.conversationCellViewData),
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.conversationCellViewData.rawValue)",
             delay: .milliseconds(250)
         ) { @MainActor in
             ConversationCellViewDataCache.clearCache()
         }
 
         Task.debounced(
-            debounceKey(.user),
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.user.rawValue)",
             delay: .milliseconds(250)
         ) { @MainActor in
             UserCache.clearCache()
         }
 
         Task.debounced(
-            debounceKey(.userDisplayName),
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.userDisplayName.rawValue)",
             delay: .milliseconds(250)
         ) { @MainActor [weak self] in
             guard let self else { return }

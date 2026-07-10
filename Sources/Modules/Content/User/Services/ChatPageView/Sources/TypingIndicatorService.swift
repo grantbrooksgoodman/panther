@@ -216,28 +216,22 @@ final class TypingIndicatorService {
         }
 
         guard isTyping != currentUserParticipant.isTyping else { return }
+        let updatedConversation = try await conversation.update(
+            \.participants,
+            to: (
+                conversation
+                    .participants
+                    .filter { $0 != currentUserParticipant }
+            ) + [
+                Participant(
+                    userID: currentUserParticipant.userID,
+                    hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
+                    isTyping: isTyping
+                ),
+            ]
+        )
 
-        var newParticipants = conversation.participants.filter { $0 != currentUserParticipant }
-        newParticipants.append(.init(
-            userID: currentUserParticipant.userID,
-            hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
-            isTyping: isTyping
-        ))
-
-        try clientSession.user.stopObservingCurrentUserChanges()
-        do {
-            let updatedConversation = try await conversation.update(
-                \.participants,
-                to: newParticipants
-            )
-
-            clientSession.user.startObservingCurrentUserChanges()
-            guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return }
-
-            clientSession.conversation.setCurrentConversation(updatedConversation)
-        } catch {
-            clientSession.user.startObservingCurrentUserChanges()
-            throw error
-        }
+        guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return }
+        clientSession.conversation.setCurrentConversation(updatedConversation)
     }
 }

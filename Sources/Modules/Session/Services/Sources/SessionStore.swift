@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 
@@ -30,6 +32,7 @@ struct SessionStore {
 
     @Persistent(.conversationArchive) private var persistedConversationArchive: Set<Conversation>?
     @Persistent(.messageArchive) private var persistedMessageArchive: Set<Message>?
+    @Persistent(.userArchive) private var persistedUserArchive: Set<User>?
 
     // MARK: - Computed Properties
 
@@ -76,6 +79,20 @@ struct SessionStore {
 
             Logger.log(
                 "Loaded \(archive.count) messages into memory.",
+                domain: .sessionStore,
+                sender: self
+            )
+        }
+
+        if let archive = persistedUserArchive {
+            state.projectedValue.withValue {
+                for user in archive where !user.id.isBlank {
+                    $0.users[user.id] = user
+                }
+            }
+
+            Logger.log(
+                "Loaded \(archive.count) users into memory.",
                 domain: .sessionStore,
                 sender: self
             )
@@ -256,11 +273,39 @@ struct SessionStore {
 
     // MARK: - User Methods
 
+    func clearUserArchive() {
+        var clearedIDs = Set<String>()
+        state.projectedValue.withValue {
+            clearedIDs = Set($0.users.keys)
+            $0.users = [:]
+        }
+
+        persistUserArchive()
+        if !clearedIDs.isEmpty {
+            emitChange(.users(upsertedIDs: clearedIDs))
+        }
+    }
+
     func upsertUser(_ user: User) {
+        var didContainValue = false
         var didChange = false
         state.projectedValue.withValue {
+            didContainValue = $0.users[user.id] != nil
             didChange = $0.users[user.id] != user
             $0.users[user.id] = user
+        }
+
+        persistUserArchive()
+        if !didContainValue {
+            Logger.log(
+                .init(
+                    "Added user to persisted archive.",
+                    isReportable: false,
+                    userInfo: ["UserID": user.id],
+                    metadata: .init(sender: self)
+                ),
+                domain: .sessionStore
+            )
         }
 
         if didChange {
@@ -280,41 +325,25 @@ struct SessionStore {
             }
         }
 
+        persistUserArchive()
+        Logger.log(
+            "Added \(newUsers.count) users to persisted archive.",
+            domain: .sessionStore,
+            sender: self
+        )
+
         if !changedIDs.isEmpty {
             emitChange(.users(upsertedIDs: changedIDs))
         }
     }
 }
 
-// MARK: - Auxiliary
-
-private extension SessionStore {
-    func emitChange(_ change: SessionStoreChange) {
-        Observables.sessionStoreDidChange.value = change
-        let handlers = Self.changeHandlers.wrappedValue
-        guard !handlers.isEmpty else { return }
-        Task { @MainActor in
-            for handler in handlers.values {
-                handler(change)
-            }
-        }
-    }
-
-    func persistConversationArchive() {
-        let snapshot = Set(state.wrappedValue.conversations.values)
-        persistedConversationArchive = snapshot.isEmpty ? nil : snapshot
-    }
-
-    func persistMessageArchive() {
-        let snapshot = Set(state.wrappedValue.messages.values)
-        persistedMessageArchive = snapshot.isEmpty ? nil : snapshot
-    }
-}
-
-// MARK: - Change Handlers
-
 extension SessionStore {
+    // MARK: - Properties
+
     private static let changeHandlers = LockIsolated<[UUID: @MainActor @Sendable (SessionStoreChange) -> Void]>([:])
+
+    // MARK: - Methods
 
     @discardableResult
     static func addChangeHandler(
@@ -329,3 +358,58 @@ extension SessionStore {
         changeHandlers.projectedValue.withValue { $0[id] = nil }
     }
 }
+
+private extension SessionStore {
+    // MARK: - Types
+
+    private enum TaskID: String {
+        case persistConversationArchive
+        case persistMessageArchive
+        case persistUserArchive
+    }
+
+    // MARK: - Methods
+
+    func emitChange(_ change: SessionStoreChange) {
+        Observables.sessionStoreDidChange.value = change
+        let handlers = Self.changeHandlers.wrappedValue
+        guard !handlers.isEmpty else { return }
+        Task { @MainActor in
+            for handler in handlers.values {
+                handler(change)
+            }
+        }
+    }
+
+    func persistConversationArchive() {
+        Task.debounced(
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.persistConversationArchive.rawValue)",
+            delay: .milliseconds(250)
+        ) {
+            let snapshot = Set(state.wrappedValue.conversations.values)
+            persistedConversationArchive = snapshot.isEmpty ? nil : snapshot
+        }
+    }
+
+    func persistMessageArchive() {
+        Task.debounced(
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.persistMessageArchive.rawValue)",
+            delay: .milliseconds(250)
+        ) {
+            let snapshot = Set(state.wrappedValue.messages.values)
+            persistedMessageArchive = snapshot.isEmpty ? nil : snapshot
+        }
+    }
+
+    func persistUserArchive() {
+        Task.debounced(
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.persistUserArchive.rawValue)",
+            delay: .milliseconds(250)
+        ) {
+            let snapshot = Set(state.wrappedValue.users.values)
+            persistedUserArchive = snapshot.isEmpty ? nil : snapshot
+        }
+    }
+}
+
+// swiftlint:enable file_length type_body_length

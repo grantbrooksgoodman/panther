@@ -33,7 +33,6 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - UIApplication
 
@@ -54,7 +53,6 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
-        userSession.persistOfflineCurrentUser()
         services.analytics.logEvent(.terminateApp)
     }
 

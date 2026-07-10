@@ -49,29 +49,6 @@ final class UserSessionService: @unchecked Sendable {
         return clientSession.store.users[currentUserID]
     }
 
-    private var offlineCurrentUser: User? {
-        get {
-            @Persistent(.offlineCurrentUser) var offlineCurrentUser: User?
-
-            guard let currentUserID,
-                  let offlineCurrentUser,
-                  currentUserID == offlineCurrentUser.id else { return nil }
-            return offlineCurrentUser
-        }
-        set {
-            @Persistent(.offlineCurrentUser) var offlineCurrentUser: User?
-
-            guard let newValue else {
-                offlineCurrentUser = nil
-                return
-            }
-
-            guard let currentUserID,
-                  newValue.id == currentUserID else { return }
-            offlineCurrentUser = newValue
-        }
-    }
-
     // MARK: - Object Lifecycle
 
     deinit {
@@ -207,32 +184,6 @@ final class UserSessionService: @unchecked Sendable {
             clientSession.store.upsertUser(user)
             return
         }
-    }
-
-    // MARK: - Offline Current User
-
-    func persistOfflineCurrentUser() {
-        offlineCurrentUser = currentUser
-    }
-
-    func setOfflineCurrentUser() throws(Exception) {
-        guard !isOnline else {
-            throw Exception(
-                "Internet connection is not offline.",
-                isReportable: false,
-                metadata: .init(sender: self)
-            )
-        }
-
-        guard let offlineCurrentUser else {
-            throw Exception(
-                "No persisted user exists.",
-                isReportable: false,
-                metadata: .init(sender: self)
-            )
-        }
-
-        clientSession.store.upsertUser(offlineCurrentUser)
     }
 
     // MARK: - Current User Observation
@@ -489,9 +440,9 @@ final class UserSessionService: @unchecked Sendable {
         guard !Task.isCancelled,
               !conversationsNeedingMessages.isEmpty else { return }
 
-        for conversation in conversationsNeedingMessages {
+        try await conversationsNeedingMessages.map {
             guard !Task.isCancelled else { return }
-            try await conversation.resolveMessages()
+            try await $0.resolveMessages()
         }
     }
 
@@ -503,10 +454,12 @@ final class UserSessionService: @unchecked Sendable {
               let conversations = user.conversations else { return }
 
         guard !Task.isCancelled else { return }
-        for conversation in conversations.visibleForCurrentUser {
-            guard !Task.isCancelled else { return }
-            try await conversation.resolveUsers()
-        }
+        try await conversations
+            .visibleForCurrentUser
+            .map {
+                guard !Task.isCancelled else { return }
+                try await $0.resolveUsers()
+            }
     }
 
     private func signOutToPreserveSingleActiveUser() {

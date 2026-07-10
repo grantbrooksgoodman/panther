@@ -91,15 +91,17 @@ final class SplashPageViewService: ObservableObject {
         /* MARK: Offline User Setup */
 
         guard build.isOnline else {
-            do {
-                try clientSession.user.setOfflineCurrentUser()
-            } catch {
-                Logger.log(error)
+            guard let currentUser = clientSession.user.currentUser else {
+                return Logger.log(
+                    .init(
+                        "No persisted user exists.",
+                        isReportable: false,
+                        metadata: .init(sender: self)
+                    )
+                )
             }
 
             initializationProgress = 1
-
-            guard let currentUser = clientSession.user.currentUser else { return }
             return core.utils.setLanguageCode(
                 currentUser.languageCode
             )

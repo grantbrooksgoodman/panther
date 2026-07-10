@@ -118,30 +118,11 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         if let ids {
-            for id in ids {
-                let userInfo: [String: Any] = [
-                    "ConversationIDKey": self.id.key,
-                    "MessageID": id,
-                ]
-
-                guard messageIDs.contains(id) else {
-                    throw Exception(
-                        "No message with the provided ID exists in this conversation.",
-                        userInfo: userInfo,
-                        metadata: .init(sender: self)
-                    )
-                }
-
-                let message: Message
-                do {
-                    message = try await messageService.getMessage(id: id)
-                } catch {
-                    throw error.appending(userInfo: userInfo)
-                }
-
-                sessionStore.upsertMessages([message])
-            }
-
+            try await sessionStore.upsertMessages(Set(
+                ids
+                    .filter { messageIDs.contains($0) }
+                    .map { try await messageService.getMessage(id: $0) }
+            ))
             return
         }
 
