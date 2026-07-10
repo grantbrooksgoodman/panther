@@ -223,11 +223,10 @@ final class ConversationsPageViewService {
 
         let suffix = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
 
-        @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
-        let allMessages = (currentUser?.conversations ?? conversationArchive.map(Array.init))?
+        let allMessages = (currentUser?.conversations ?? Array(clientSession.store.conversations.values))
             .visibleForCurrentUser
             .compactMap(\.messages)
-            .flatMap(\.self) ?? []
+            .flatMap(\.self)
 
         let uniqueMessages = allMessages.uniquedByID
         let audioMessageCount = uniqueMessages.filter(\.contentType.isAudio).count

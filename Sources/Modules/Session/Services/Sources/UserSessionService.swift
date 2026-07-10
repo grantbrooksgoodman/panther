@@ -398,11 +398,8 @@ final class UserSessionService: @unchecked Sendable {
         var conversationsNeedingUpdate = Set<Conversation>()
         var decodedConversations = Set<Conversation>()
 
-        @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
-        let ignoredConversations = conversationArchive?
-            .filter { !$0.isVisibleForCurrentUser }
-            .map(\.id.key) ?? []
-        conversationIDs = conversationIDs.filter { !ignoredConversations.contains($0.key) }
+        let ignoredConversationIDKeys = clientSession.store.ignoredConversationIDKeys
+        conversationIDs = conversationIDs.filter { !ignoredConversationIDKeys.contains($0.key) }
 
         for conversationID in conversationIDs {
             guard !Task.isCancelled else { return }
@@ -418,7 +415,7 @@ final class UserSessionService: @unchecked Sendable {
         guard !Task.isCancelled else { return }
         Logger.log(
             // swiftlint:disable:next line_length
-            "Conversations needing update: \(conversationsNeedingUpdate.count)\nConversations needing fetch: \(conversationsNeedingFetch.count)\nIgnored conversations: \(ignoredConversations.count)\nDecoded conversations: \(decodedConversations.count)",
+            "Conversations needing update: \(conversationsNeedingUpdate.count)\nConversations needing fetch: \(conversationsNeedingFetch.count)\nIgnored conversations: \(ignoredConversationIDKeys.count)\nDecoded conversations: \(decodedConversations.count)",
             domain: .userSession,
             sender: self
         )

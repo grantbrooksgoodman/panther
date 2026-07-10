@@ -220,9 +220,8 @@ final class SplashPageViewService: ObservableObject {
                 Logger.log(error)
             }
 
-            @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
             if (currentUser.conversationIDs ?? []).count > 20,
-               (conversationArchive ?? []).isEmpty {
+               clientSession.store.conversations.isEmpty {
                 let database = LockIsolated(networking.database)
                 do {
                     try await database.wrappedValue.populateTemporaryCaches()

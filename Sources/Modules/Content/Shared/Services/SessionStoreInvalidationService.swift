@@ -18,6 +18,7 @@ final class SessionStoreInvalidationService {
 
     @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
     @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
+    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
 
     // MARK: - Properties
 
@@ -163,7 +164,7 @@ private extension SessionStoreInvalidationService {
     }
 
     func persistValuesForNotificationExtension() {
-        let conversations = SessionStore.shared.conversations.values
+        let conversations = sessionStore.conversations.values
         var conversationNameMap = [String: String]()
 
         for conversation in conversations where conversation.participants.count > 2 {

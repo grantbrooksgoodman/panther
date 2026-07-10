@@ -50,24 +50,21 @@ extension CoreKit.Utilities {
     func deleteConversations(
         _ granularity: ConversationDeletionGranularity
     ) async throws(Exception) {
+        @Dependency(\.clientSession) var clientSession: ClientSession
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         @Dependency(\.networking) var networking: NetworkServices
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
-        try await userSession.resolveCurrentUser(
+        try await clientSession.user.resolveCurrentUser(
             and: [
                 .conversations,
                 .messages,
             ]
         )
 
-        let currentUser = userSession.currentUser
+        let currentUser = clientSession.user.currentUser
         var conversationIDKeys: [String]?
 
-        @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
-        let ignoredConversationIDKeys = conversationArchive?
-            .filter { !$0.isVisibleForCurrentUser }
-            .map(\.id.key) ?? []
+        let ignoredConversationIDKeys = clientSession.store.ignoredConversationIDKeys
 
         switch granularity {
         case .allForCurrentUser:
