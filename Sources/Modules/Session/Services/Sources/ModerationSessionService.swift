@@ -77,7 +77,7 @@ struct ModerationSessionService {
                                 userIDs: contactPair.userIDs
                             )
 
-                            showSuccess(type)
+                            coreHUD.showSuccess()
                         } catch {
                             Logger.log(
                                 error,
@@ -101,7 +101,7 @@ struct ModerationSessionService {
                         userIDs: contactPairs.userIDs
                     )
 
-                    showSuccess(type)
+                    coreHUD.showSuccess()
                 } catch {
                     Logger.log(
                         error,
@@ -143,8 +143,7 @@ struct ModerationSessionService {
             currentUser.update(
                 \.blockedUserIDs,
                 to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
-            ),
-            repopulateValuesIfNeeded: true
+            )
         )
     }
 
@@ -207,7 +206,7 @@ struct ModerationSessionService {
         }
 
         do {
-            try await populateValuesIfNeeded()
+            try await ContactService.syncIfNeeded()
         } catch {
             Logger.log(error)
         }
@@ -239,7 +238,7 @@ struct ModerationSessionService {
                 userIDs: contactPair.userIDs
             )
 
-            return showSuccess(type)
+            return coreHUD.showSuccess()
         }
 
         let alertData = alertData(type, contactPairs: contactPairs)
@@ -262,8 +261,6 @@ struct ModerationSessionService {
             )
         }
 
-        defer { Observables.traitCollectionChanged.trigger() }
-
         switch type {
         case .block:
             try await blockUsers(ids: userIDs)
@@ -273,26 +270,6 @@ struct ModerationSessionService {
 
         case .unblock:
             try await unblockUsers(ids: userIDs)
-        }
-    }
-
-    private func populateValuesIfNeeded() async throws(Exception) {
-        var exceptions = [Exception]()
-
-        do {
-            try await ContactService.syncIfNeeded()
-        } catch {
-            exceptions.append(error)
-        }
-
-        do {
-            try await User.resolveCurrentUserConversationsIfNeeded()
-        } catch {
-            exceptions.append(error)
-        }
-
-        if let compiledException = exceptions.compiledException {
-            throw compiledException
         }
     }
 
@@ -327,12 +304,6 @@ struct ModerationSessionService {
         }
     }
 
-    private func showSuccess(_ type: ModerationType) {
-        coreHUD.showSuccess()
-        guard type == .block || type == .unblock else { return }
-        Observables.updatedCurrentUser.trigger()
-    }
-
     private func unblockUsers(
         ids userIDs: [String]
     ) async throws(Exception) {
@@ -351,8 +322,7 @@ struct ModerationSessionService {
             currentUser.update(
                 \.blockedUserIDs,
                 to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
-            ),
-            repopulateValuesIfNeeded: true
+            )
         )
     }
 }

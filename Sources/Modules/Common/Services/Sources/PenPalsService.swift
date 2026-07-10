@@ -56,10 +56,10 @@ struct PenPalsService {
 
     // MARK: - Update Sharing Data for Known Users
 
-    /// - Note: Will populate the contact pair archive and the current user's conversations if either are `nil` or empty.
+    /// - Note: Will populate the contact pair archive if it is `nil` or empty.
     func updateSharingDataForKnownUsers() async throws(Exception) {
         do {
-            try await populateValuesIfNeeded()
+            try await ContactService.syncIfNeeded()
         } catch {
             Logger.log(
                 error,
@@ -134,7 +134,7 @@ struct PenPalsService {
 
     func getRandomPenPalsParticipant() async throws(Exception) -> User {
         do {
-            try await populateValuesIfNeeded()
+            try await ContactService.syncIfNeeded()
         } catch {
             Logger.log(
                 error,
@@ -181,8 +181,7 @@ struct PenPalsService {
             currentUser.update(
                 \.isPenPalsParticipant,
                 to: didGrantPenPalsPermission
-            ),
-            repopulateValuesIfNeeded: true
+            )
         )
     }
 
@@ -203,25 +202,5 @@ struct PenPalsService {
             .flatMap { $0.users ?? [] }
             .map(\.id)
             .unique ?? []
-    }
-
-    private func populateValuesIfNeeded() async throws(Exception) {
-        var exceptions = [Exception]()
-
-        do {
-            try await ContactService.syncIfNeeded()
-        } catch {
-            exceptions.append(error)
-        }
-
-        do {
-            try await User.resolveCurrentUserConversationsIfNeeded()
-        } catch {
-            exceptions.append(error)
-        }
-
-        if let exception = exceptions.compiledException {
-            throw exception
-        }
     }
 }

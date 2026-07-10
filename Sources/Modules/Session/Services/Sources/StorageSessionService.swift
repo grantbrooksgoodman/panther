@@ -86,10 +86,6 @@ final class StorageSessionService: @unchecked Sendable {
         defer { isCalculatingDataUsage = false }
         var dataUsageInKilobytes = 0
 
-        try await User.resolveCurrentUserConversationsIfNeeded(
-            includingMessages: true
-        )
-
         // Size of user object
 
         dataUsageInKilobytes += try getSizeOfUserObject()

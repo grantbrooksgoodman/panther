@@ -130,47 +130,18 @@ final class UserSessionService: @unchecked Sendable {
     ///
     /// ```swift
     /// try await userSession.setCurrentUser(
-    ///     currentUser.update(\.pushTokens, to: newTokens),
-    ///     repopulateValuesIfNeeded: true
+    ///     currentUser.update(\.pushTokens, to: newTokens)
     /// )
     /// ```
     ///
     /// The method guards that the provided user's identifier
-    /// matches ``currentUserID``. If `repopulateValuesIfNeeded`
-    /// is `true`, conversations are repopulated asynchronously
-    /// after the upsert completes.
+    /// matches ``currentUserID``.
     ///
     /// Pass `nil` to clear the current user during sign-out or
     /// account deletion.
     ///
-    /// - Parameters:
-    ///   - user: The user to upsert, or `nil` to clear.
-    ///   - repopulateValuesIfNeeded: Whether to repopulate
-    ///     conversations after the upsert.
-    func setCurrentUser(
-        _ user: User?,
-        repopulateValuesIfNeeded: Bool = false
-    ) throws(Exception) {
-        defer { // NIT: This seems fishy/unsafe.
-            Task {
-                guard repopulateValuesIfNeeded,
-                      currentUser != nil,
-                      user?.id == currentUserID else { return }
-
-                do throws(Exception) {
-                    try await User.resolveCurrentUserConversationsIfNeeded(
-                        includingMessages: true
-                    )
-                } catch {
-                    Logger.log(
-                        error,
-                        domain: .userSession,
-                        with: .toast
-                    )
-                }
-            }
-        }
-
+    /// - Parameter user: The user to upsert, or `nil` to clear.
+    func setCurrentUser(_ user: User?) throws(Exception) {
         if let user {
             guard let currentUserID,
                   user.id == currentUserID else {
@@ -202,7 +173,7 @@ final class UserSessionService: @unchecked Sendable {
         observationTask = Task {
             do {
                 for try await dictionary: [String: Any] in networking.database.observe(
-                    at: [
+                    path: [
                         NetworkPath.users.rawValue,
                         currentUserID,
                     ].joined(separator: "/")

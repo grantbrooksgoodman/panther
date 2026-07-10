@@ -21,6 +21,10 @@ import Networking
 final class ConversationsPageViewService {
     // MARK: - Types
 
+    private enum TaskID: String {
+        case showSecondsToLoadToast
+    }
+
     private enum ReloadType: String {
         /* MARK: Cases */
 
@@ -89,7 +93,6 @@ final class ConversationsPageViewService {
     /// `.resolveReturned`
     func viewLoaded() {
         networking.database.clearTemporaryCaches()
-        reloadIfNeeded()
 
         Task.delayed(by: .seconds(1)) { @MainActor in
             await showPromptsIfNeeded()
@@ -121,18 +124,12 @@ final class ConversationsPageViewService {
     // MARK: - Reducer Action Handlers
 
     func deleteConversationsToolbarButtonTapped() {
-        func populateValuesIfNeeded() async throws(Exception) {
-            guard let currentUser = clientSession.user.currentUser,
-                  currentUser.conversations == nil ||
-                  currentUser.conversations?.isEmpty == true else { return }
-            try await clientSession.user.resolveCurrentUser(
-                and: [.conversations]
-            )
-        }
-
         Task { @MainActor in
             do throws(Exception) {
-                try await populateValuesIfNeeded()
+                try await clientSession.user.resolveCurrentUser(
+                    and: [.conversations]
+                )
+
                 DevModeAction
                     .AppActions
                     .DangerZone
@@ -168,7 +165,10 @@ final class ConversationsPageViewService {
         with providedConversations: [Conversation]? = nil,
         state: inout ConversationsPageReducer.State
     ) {
-        // TODO: Audit whether this is necessary.
+        // Blocks list rebuilds while user content isn't frontmost. `sessionStoreDidChange`
+        // fires app-wide (e.g. during onboarding resolution and reset teardown, where
+        // clearConversationArchive emits a removal per conversation), and this method is
+        // not relevance-filtered or debounced. Audited 2026-07: necessary.
         guard navigation.state.modal == .userContent else { return }
 
         let conversations = (
@@ -190,13 +190,26 @@ final class ConversationsPageViewService {
                 state.conversations = []
             }
 
-            resolveUnsyncedConversationIfNeeded()
-            Observables.updateConversationsListSetToReliableDataSource.trigger()
+            guard !didShowSecondsToLoadToast else { return }
+            Task.debounced(
+                "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.showSecondsToLoadToast.rawValue)",
+                delay: .seconds(1)
+            ) { @MainActor [weak self] in
+                self?.showSecondsToLoadToastIfNeeded()
+            }
+
             return
         }
 
         state.conversations = conversations
-        Observables.updateConversationsListSetToReliableDataSource.trigger()
+
+        guard !didShowSecondsToLoadToast else { return }
+        Task.debounced(
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.showSecondsToLoadToast.rawValue)",
+            delay: .seconds(1)
+        ) { @MainActor [weak self] in
+            self?.showSecondsToLoadToastIfNeeded()
+        }
     }
 
     // MARK: - Auxiliary
@@ -401,73 +414,6 @@ final class ConversationsPageViewService {
         }
 
         return clientSession.user.currentUser?.conversations ?? []
-    }
-
-    /// Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.
-    ///
-    /// - NOTE: Since the SSoT refactor, the effective part of this method
-    /// should never execute during normal use.
-    private func reloadIfNeeded() {
-        guard let currentUser = clientSession.user.currentUser,
-              currentUser.conversations == nil || currentUser.conversations?.isEmpty == true,
-              (currentUser.conversationIDs?.count ?? 0) > 0 else { return }
-
-        Logger.log(
-            .init(
-                "\(#function.components(separatedBy: "(")[0])() was called.",
-                isReportable: false,
-                metadata: .init(sender: self)
-            ),
-            domain: .bugPrevention,
-            with: .toastInPrerelease(style: .warning),
-            showRuntimeWarning: true
-        )
-
-        Observables.updatedCurrentUser.trigger()
-    }
-
-    /// Syncs the current user's `conversationIDs` with the server in the background.
-    ///
-    /// After a new conversation is created and the chat page is dismissed, the server
-    /// may not yet have associated the conversation with the user. The caller populates
-    /// the list immediately from local data; this method resolves the authoritative
-    /// server state so that subsequent update cycles use fully resolved data.
-    ///
-    /// - NOTE: Since the SSoT refactor, the effective part of this method
-    /// should never execute during normal use.
-    private func resolveUnsyncedConversationIfNeeded() {
-        guard let currentConversation = clientSession.conversation.currentConversation,
-              !currentConversation.isMock else { return }
-
-        Logger.log(
-            .init(
-                "\(#function.components(separatedBy: "(")[0])() was called.",
-                isReportable: false,
-                metadata: .init(sender: self)
-            ),
-            domain: .bugPrevention,
-            with: .toastInPrerelease(style: .warning),
-            showRuntimeWarning: true
-        )
-
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            do throws(Exception) {
-                try await clientSession.user.resolveCurrentUser(
-                    and: .allDataTypes
-                )
-            } catch {
-                Logger.log(
-                    error,
-                    domain: .conversation
-                )
-            }
-
-            // Don't re-trigger when the server still reports no conversations;
-            // the Firebase observer will fire naturally once it catches up.
-            guard !(clientSession.user.currentUser?.conversationIDs ?? []).isEmpty else { return }
-            Observables.updatedCurrentUser.trigger()
-        }
     }
 
     /// Evaluates several user-facing prompts in priority order.

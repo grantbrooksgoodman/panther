@@ -18,12 +18,6 @@ struct ConversationsPageObserver: Observer {
 
     typealias R = ConversationsPageReducer
 
-    // MARK: - Types
-
-    private enum TaskID: String {
-        case showSecondsToLoadToast
-    }
-
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
@@ -39,7 +33,6 @@ struct ConversationsPageObserver: Observer {
     let observedValues: [any ObservableProtocol] = [
         Observables.sessionStoreDidChange,
         Observables.traitCollectionChanged,
-        Observables.updateConversationsListSetToReliableDataSource,
         Observables.updatedContactPairArchive,
         Observables.updatedCurrentUser,
     ]
@@ -62,16 +55,6 @@ struct ConversationsPageObserver: Observer {
         case Observables.traitCollectionChanged,
              Observables.updatedContactPairArchive:
             send(.traitCollectionChanged)
-
-        case Observables.updateConversationsListSetToReliableDataSource:
-            @MainActorIsolated var didShowSecondsToLoadToast = viewService.didShowSecondsToLoadToast
-            guard !didShowSecondsToLoadToast else { return }
-            Task.debounced(
-                "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.showSecondsToLoadToast.rawValue)",
-                delay: .seconds(1)
-            ) { @MainActor in
-                viewService.showSecondsToLoadToastIfNeeded()
-            }
 
         case Observables.updatedCurrentUser:
             Task { @MainActor in

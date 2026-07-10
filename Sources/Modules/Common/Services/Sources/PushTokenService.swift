@@ -98,8 +98,7 @@ final class PushTokenService {
             currentUser.update(
                 \.pushTokens,
                 to: pushTokens.unique
-            ),
-            repopulateValuesIfNeeded: true
+            )
         )
     }
 

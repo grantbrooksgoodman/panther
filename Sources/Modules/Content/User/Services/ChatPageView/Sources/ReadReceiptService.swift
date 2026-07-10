@@ -48,10 +48,5 @@ final class ReadReceiptService {
                 currentUser.calculateBadgeNumber()
             )
         }
-
-        // NIT: May no longer be necessary.
-        if clientSession.conversation.currentConversation?.id.key == conversation.id.key {
-            clientSession.conversation.setCurrentConversation(conversation)
-        }
     }
 }

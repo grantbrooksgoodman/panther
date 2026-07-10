@@ -112,8 +112,7 @@ final class MessageRecipientConsentService {
             currentUser.update(
                 \.messageRecipientConsentRequired,
                 to: messageRecipientConsentRequired
-            ),
-            repopulateValuesIfNeeded: true
+            )
         )
     }
 

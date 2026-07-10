@@ -76,54 +76,6 @@ extension User {
 
     // MARK: - Methods
 
-    /// Resolves the current user's conversations and messages if they have not
-    /// yet been loaded into memory.
-    ///
-    /// Under normal operation the splash screen resolves all conversation data
-    /// before navigation occurs, so this method early-returns without performing
-    /// work. It exists as a defensive guard for call sites that cannot
-    /// structurally guarantee prior resolution — for example, code paths
-    /// reachable after an interrupted startup or a mid-session state reset.
-    ///
-    /// The guard prevents an unconditional network fetch that
-    /// `resolveCurrentUser(and:)` would otherwise perform.
-    ///
-    /// - NOTE: Since the SSoT refactor, the effective part of this method
-    /// should never execute during normal use.
-    static func resolveCurrentUserConversationsIfNeeded(
-        includingMessages: Bool = false
-    ) async throws(Exception) {
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
-        guard let currentUser = userSession.currentUser else {
-            throw Exception(
-                "Current user has not been set.",
-                metadata: .init(sender: self)
-            )
-        }
-
-        guard currentUser.conversationIDs?.isEmpty == false,
-              currentUser.conversations == nil ||
-              currentUser.conversations?.isEmpty == true else { return }
-
-        Logger.log(
-            .init(
-                "\(#function.components(separatedBy: "(")[0])() was called.",
-                isReportable: false,
-                metadata: .init(sender: self)
-            ),
-            domain: .bugPrevention,
-            with: .toastInPrerelease(style: .warning),
-            showRuntimeWarning: true
-        )
-
-        try await userSession.resolveCurrentUser(
-            and: includingMessages ? [
-                .conversations,
-                .messages,
-            ] : [.conversations]
-        )
-    }
-
     /// - Note: Will set the current user to the result returned by `update`.
     func removeCurrentPushToken() async throws(Exception) {
         @Dependency(\.commonServices.pushToken.currentToken) var currentPushToken: String?

@@ -40,8 +40,7 @@ struct AIEnhancedTranslationService {
             currentUser.update(
                 \.aiEnhancedTranslationsEnabled,
                 to: didGrantAIEnhancedTranslationPermission
-            ),
-            repopulateValuesIfNeeded: true
+            )
         )
     }
 }
