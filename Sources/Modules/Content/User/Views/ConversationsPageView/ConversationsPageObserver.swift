@@ -129,8 +129,13 @@ struct ConversationsPageObserver: Observer {
         _updateConversations()
     }
 
+    // swiftlint:disable:next function_body_length
     private func _updateConversations() {
         Task { @MainActor in
+            let previousConversationHash = clientSession.conversation.baselineConversationHash
+            let previousMessageIDs = clientSession.conversation.baselineMessageIDs
+            let previousParticipantCount = clientSession.conversation.baselineParticipantCount
+
             networking.database.setGlobalCacheStrategy(.returnCacheOnFailure)
             networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
 
@@ -164,13 +169,25 @@ struct ConversationsPageObserver: Observer {
                   .conversations?
                   .first(where: { $0.id.key == currentConversation.id.key }) else { return }
 
-            let currentMessageIDs = Set(
-                (currentConversation.messages ?? []).map(\.id)
-            )
+            // Re-fetch the last message in 1:1 conversations to pick up
+            // read receipt changes that don't affect the conversation hash.
+            if currentConversation.participants.count == 2,
+               let lastMessageID = currentConversation.messages?.last?.id ?? currentConversation.messageIDs.last {
+                do throws(Exception) {
+                    try await currentConversation.resolveMessages(
+                        ids: [lastMessageID]
+                    )
+                } catch {
+                    Logger.log(
+                        error,
+                        domain: .conversation
+                    )
+                }
+            }
 
             if let missingMessages = updatedConversation.messages?
                 .filter({
-                    !currentMessageIDs.contains($0.id) &&
+                    !previousMessageIDs.contains($0.id) &&
                         !$0.isFromCurrentUser &&
                         $0.currentUserReadReceipt == nil
                 }),
@@ -211,7 +228,7 @@ struct ConversationsPageObserver: Observer {
             guard matchesCurrentConversation(updatedConversation.id.key) else { return }
 
             // If a user was added/removed, resolve the users again.
-            if currentConversation.participants.count != updatedConversation.participants.count {
+            if previousParticipantCount != updatedConversation.participants.count {
                 do throws(Exception) {
                     try await updatedConversation.resolveUsers(forceUpdate: true)
                 } catch {
@@ -229,12 +246,12 @@ struct ConversationsPageObserver: Observer {
             if chatPageViewService.recipientBar?.layout.recipientBarView == nil,
                let navigationTitle = ConversationCellViewData(
                    updatedConversation,
-                   useCachedValue: currentConversation.participants.count == updatedConversation.participants.count
+                   useCachedValue: previousParticipantCount == updatedConversation.participants.count
                )?.titleLabelText {
                 chatPageViewService.setNavigationTitle(navigationTitle)
             }
 
-            guard currentConversation.id.hash != updatedConversation.id.hash else { return }
+            guard previousConversationHash != updatedConversation.id.hash else { return }
             chatPageViewService.reloadCollectionView() // Reload to display updated read date / reactions.
             configureInputBarIfNeeded()
             Observables.currentConversationMetadataChanged.trigger()

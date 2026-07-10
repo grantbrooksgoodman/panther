@@ -70,8 +70,8 @@ final class SplashPageViewService: ObservableObject {
         initializationStartDate = .now
         loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
-        Task.delayed(by: .seconds(2)) { @MainActor in
-            guard initializationProgress <= 0.7 else { return }
+        Task.delayed(by: .milliseconds(2500)) { @MainActor in
+            guard initializationProgress <= 0.6 else { return }
             didSurpassQuickLoadTimeoutDuration = true
         }
 

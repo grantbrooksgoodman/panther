@@ -21,33 +21,16 @@ struct ChatPageHeaderView: View {
     private typealias Floats = AppConstants.CGFloats.ChatPageHeaderView
     private typealias Strings = AppConstants.Strings.ChatPageHeaderView
 
-    // MARK: - Dependencies
-
-    @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
-
     // MARK: - Properties
 
-    private let backButtonAction: () -> Void
-    private let chatInfoButtonAction: () -> Void
-
-    // MARK: - Computed Properties
-
-    private var cellViewData: ConversationCellViewData {
-        .init(conversation) ?? .empty
-    }
-
-    private var conversation: Conversation {
-        currentConversation ?? .empty
-    }
+    @StateObject private var observer: ViewObserver<ChatPageHeaderObserver>
+    @StateObject private var viewModel: ViewModel<ChatPageHeaderReducer>
 
     // MARK: - Init
 
-    init(
-        backButtonAction: @escaping () -> Void,
-        chatInfoButtonAction: @escaping () -> Void
-    ) {
-        self.backButtonAction = backButtonAction
-        self.chatInfoButtonAction = chatInfoButtonAction
+    init(_ viewModel: ViewModel<ChatPageHeaderReducer>) {
+        _viewModel = .init(wrappedValue: viewModel)
+        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
@@ -57,6 +40,7 @@ struct ChatPageHeaderView: View {
             .padding(.vertical, Floats.contentViewVerticalPadding)
             .frame(maxWidth: .infinity)
             .background { backgroundView }
+            .id(viewModel.viewID)
     }
 
     // MARK: - Background View
@@ -110,7 +94,9 @@ struct ChatPageHeaderView: View {
     // MARK: - Back Button
 
     private var backButton: some View {
-        Button(action: backButtonAction) {
+        Button {
+            viewModel.send(.backButtonTapped)
+        } label: {
             Components.symbol(
                 Strings.backButtonImageSystemName,
                 weight: .medium,
@@ -134,11 +120,13 @@ struct ChatPageHeaderView: View {
     // MARK: - Chat Info Button
 
     private var chatInfoButton: some View {
-        Button(action: chatInfoButtonAction) {
+        Button {
+            viewModel.send(.chatInfoButtonTapped)
+        } label: {
             VStack(spacing: Floats.avatarViewSpacing) {
                 AvatarImageView(
-                    cellViewData.thumbnailImage,
-                    badgeCount: conversation.participants.count > Int(Floats.avatarImageViewBadgeCountComparator) ? -1 : 0,
+                    viewModel.cellViewData.thumbnailImage,
+                    badgeCount: viewModel.conversation.participants.count > Int(Floats.avatarImageViewBadgeCountComparator) ? -1 : 0,
                     size: .init(
                         width: Floats.avatarImageSize,
                         height: Floats.avatarImageSize
@@ -152,7 +140,7 @@ struct ChatPageHeaderView: View {
 
                 HStack(spacing: Floats.avatarViewNameLabelSpacing) {
                     Components.text(
-                        conversation.chatPageHeaderLabelText ?? cellViewData.titleLabelText,
+                        viewModel.conversation.chatPageHeaderLabelText ?? viewModel.cellViewData.titleLabelText,
                         font: .systemSemibold(scale: .custom(
                             Floats.avatarViewNameLabelFontSize
                         ))

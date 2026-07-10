@@ -138,6 +138,8 @@ extension AppConstants.CGFloats {
         }
 
         enum TypingIndicator {
+            static let debounceDurationMilliseconds: CGFloat = 500
+            static let participantCountThreshold: CGFloat = 2
             static let timerTimeInterval: CGFloat = 3
         }
     }

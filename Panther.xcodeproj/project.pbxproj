@@ -8,7 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		33261DB5EDC8D88347774727 /* SessionStoreInvalidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B8D4F6D87373A21AC2D9B0 /* SessionStoreInvalidationService.swift */; };
-		FC0174F277EC2B91EC5821FA /* SessionStore+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A614D5D4A6F3B22606AB10D0 /* SessionStore+UserContentExtensions.swift */; };
+		A200C552300180C3002D9651 /* ChatPageHeaderReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */; };
+		A200C554300180CA002D9651 /* ChatPageHeaderObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200C553300180CA002D9651 /* ChatPageHeaderObserver.swift */; };
 		A2110CEA2EDC122200954DA2 /* UIColor+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */; };
 		A21951122ECD8340000A6177 /* ContactSelectorPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */; };
 		A21951142ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */; };
@@ -750,6 +751,7 @@
 		B9F627AC2B32767F00462DD9 /* AppConstants+SplashPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F627AB2B32767F00462DD9 /* AppConstants+SplashPageView.swift */; };
 		B9FE35902CCF71C400D24E41 /* NetworkActivityIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */; };
 		BCFA191F8A419DEF1E3DA8E9 /* SessionStoreChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520CADEF63996EC3E433927D /* SessionStoreChange.swift */; };
+		FC0174F277EC2B91EC5821FA /* SessionStore+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A614D5D4A6F3B22606AB10D0 /* SessionStore+UserContentExtensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -779,6 +781,8 @@
 /* Begin PBXFileReference section */
 		32B8D4F6D87373A21AC2D9B0 /* SessionStoreInvalidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreInvalidationService.swift; sourceTree = "<group>"; };
 		520CADEF63996EC3E433927D /* SessionStoreChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreChange.swift; sourceTree = "<group>"; };
+		A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageHeaderReducer.swift; sourceTree = "<group>"; };
+		A200C553300180CA002D9651 /* ChatPageHeaderObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageHeaderObserver.swift; sourceTree = "<group>"; };
 		A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewService.swift; sourceTree = "<group>"; };
 		A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewServiceDependency.swift; sourceTree = "<group>"; };
@@ -795,7 +799,6 @@
 		A25A21A32FA02C1800B670C1 /* AppConstants+ChatPageHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChatPageHeaderView.swift"; sourceTree = "<group>"; };
 		A25A21A52FA02C4200B670C1 /* ChatPageHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageHeaderView.swift; sourceTree = "<group>"; };
 		A25F1C2D2FF34E4B00425FC2 /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
-		A614D5D4A6F3B22606AB10D0 /* SessionStore+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SessionStore+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A266A9B02FC90D6A0092225E /* ConversationStagingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationStagingService.swift; sourceTree = "<group>"; };
 		A26C65E82F370002005BFDEC /* Reaction.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Reaction.caf; sourceTree = "<group>"; };
 		A26C65EA2F370030005BFDEC /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
@@ -846,6 +849,7 @@
 		A2EF5B2C2FCF4E7E00900A66 /* Bundle+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+CommonExtensions.swift"; sourceTree = "<group>"; };
 		A2F2DB7D2FA06EAC00DBBC9D /* UserContentContainerObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserContentContainerObserver.swift; sourceTree = "<group>"; };
 		A2FE37612EA7354000931829 /* MessageRetranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRetranslationService.swift; sourceTree = "<group>"; };
+		A614D5D4A6F3B22606AB10D0 /* SessionStore+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SessionStore+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B9002AD62DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStatusBarStyle+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarActionHandlerService.swift; sourceTree = "<group>"; };
 		B90071D12B7B41F300BE8654 /* RecipientBarTableViewService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipientBarTableViewService.swift; sourceTree = "<group>"; };
@@ -1618,6 +1622,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A200C550300180B3002D9651 /* ChatPageHeaderView */ = {
+			isa = PBXGroup;
+			children = (
+				A200C553300180CA002D9651 /* ChatPageHeaderObserver.swift */,
+				A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */,
+				A25A21A52FA02C4200B670C1 /* ChatPageHeaderView.swift */,
+			);
+			path = ChatPageHeaderView;
+			sourceTree = "<group>";
+		};
 		A2BE201B2F2C41240006F7AF /* FeaturePermissionPageView */ = {
 			isa = PBXGroup;
 			children = (
@@ -3321,12 +3335,12 @@
 		B9F47AF02B585FAB00D86C67 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				A200C550300180B3002D9651 /* ChatPageHeaderView */,
 				B96C12532BAE2E7F0063687C /* ContentPickerView */,
 				B9F47AFF2B5864D600D86C67 /* ConversationCellView */,
 				B9C0D2592B796AAC00119B85 /* RecipientBar */,
 				B9F47AF22B585FBF00D86C67 /* AvatarImageView.swift */,
 				B96EDD902B6360C500CB925B /* CNContactView.swift */,
-				A25A21A52FA02C4200B670C1 /* ChatPageHeaderView.swift */,
 				B9DD42BF2E2F0B7C009A318B /* ChatParticipantView.swift */,
 				B96EDD942B636A0500CB925B /* ContactDetailView.swift */,
 				B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */,
@@ -4098,6 +4112,7 @@
 				B903389B2E02862800C21A5B /* HeaderView+SharedContentExtensions.swift in Sources */,
 				B9F47AF32B585FBF00D86C67 /* AvatarImageView.swift in Sources */,
 				B9E6D7B42B126188000BC88D /* PhoneNumberService.swift in Sources */,
+				A200C554300180CA002D9651 /* ChatPageHeaderObserver.swift in Sources */,
 				B90249D62B57533900D62855 /* StatusIndicatorButton.swift in Sources */,
 				B98C3BA32B7AF6AD00CDA3E9 /* RecipientBarService.swift in Sources */,
 				B98C3BA52B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift in Sources */,
@@ -4178,6 +4193,7 @@
 				B99880AA2E299B9A002742A8 /* ChangeLanguagePageReducer.swift in Sources */,
 				B99195952B47E89800BD5BBC /* VerifyNumberPageReducer.swift in Sources */,
 				B90071ED2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift in Sources */,
+				A200C552300180C3002D9651 /* ChatPageHeaderReducer.swift in Sources */,
 				B98D9B1E2C500BD3004949E3 /* QLThumbnailGeneratorDependency.swift in Sources */,
 				A276DC052FCF447F00CACAB5 /* StagedText.swift in Sources */,
 				B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */,

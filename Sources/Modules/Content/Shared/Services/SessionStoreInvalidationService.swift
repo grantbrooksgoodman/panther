@@ -17,8 +17,10 @@ final class SessionStoreInvalidationService {
     // MARK: - Dependencies
 
     @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
+    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
-    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
 
     // MARK: - Properties
 
@@ -46,6 +48,7 @@ private extension SessionStoreInvalidationService {
     // MARK: - Types
 
     enum TaskID: String {
+        case chatPageReload
         case conversationCellViewData
         case conversationCellViewDataTargeted
         case notificationExtensionNameMap
@@ -70,6 +73,8 @@ private extension SessionStoreInvalidationService {
         case let .users(upsertedIDs):
             handleUsersChange(upsertedIDs: upsertedIDs)
         }
+
+        reloadChatPageIfNeeded(for: change)
     }
 
     func handleConversationsChange(
@@ -78,16 +83,6 @@ private extension SessionStoreInvalidationService {
     ) {
         let affectedIDKeys = upsertedIDKeys.union(removedIDKeys)
         guard !affectedIDKeys.isEmpty else { return }
-
-        // Cache eviction is debounced; any observer that re-renders
-        // before this fires may read stale ConversationCellViewData.
-        // Part III closes the window by giving views a direct,
-        // non-debounced store signal.
-        Logger.log(
-            "Debouncing cell-view-data eviction for \(affectedIDKeys.count) conversation(s).",
-            domain: .bugPrevention,
-            sender: self
-        )
 
         pendingConversationIDKeys.formUnion(affectedIDKeys)
         Task.debounced(
@@ -160,7 +155,7 @@ private extension SessionStoreInvalidationService {
     }
 
     func persistValuesForNotificationExtension() {
-        let conversations = sessionStore.conversations.values
+        let conversations = clientSession.store.conversations.values
         var conversationNameMap = [String: String]()
 
         for conversation in conversations where conversation.participants.count > 2 {
@@ -174,5 +169,32 @@ private extension SessionStoreInvalidationService {
             encoded,
             forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName
         )
+    }
+
+    func reloadChatPageIfNeeded(for change: SessionStoreChange) {
+        guard chatPageState.isPresented,
+              let currentConversation = clientSession
+              .conversation
+              .currentConversation else { return }
+
+        let shouldReload: Bool = switch change {
+        case let .conversations(upsertedIDKeys, _):
+            upsertedIDKeys.contains(currentConversation.id.key)
+
+        case let .messages(upsertedIDs):
+            !Set(currentConversation.messageIDs)
+                .isDisjoint(with: upsertedIDs)
+
+        case .users:
+            false
+        }
+
+        guard shouldReload else { return }
+        Task.debounced(
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.chatPageReload.rawValue)",
+            delay: .milliseconds(250)
+        ) { @MainActor [weak self] in
+            self?.chatPageViewService.reloadCollectionView()
+        }
     }
 }

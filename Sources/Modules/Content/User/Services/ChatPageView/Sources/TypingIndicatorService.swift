@@ -17,6 +17,12 @@ final class TypingIndicatorService {
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.TypingIndicator
 
+    // MARK: - Types
+
+    private enum TaskID: String {
+        case updateIsTyping = "updateIsTypingForCurrentUser"
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
@@ -123,8 +129,13 @@ final class TypingIndicatorService {
         to text: String,
         completion: @escaping (Exception?) -> Void
     ) {
-        Task.background { @MainActor in
-            guard !isUpdatingIsTypingForCurrentUser else { return completion(nil) }
+        Task.debounced(
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.updateIsTyping.rawValue)",
+            delay: text.isBlank ? .zero : .milliseconds(Floats.debounceDurationMilliseconds),
+            priority: .background
+        ) { @MainActor [weak self] in
+            guard let self,
+                  !isUpdatingIsTypingForCurrentUser else { return completion(nil) }
             isUpdatingIsTypingForCurrentUser = true
 
             var didComplete = false
@@ -136,12 +147,14 @@ final class TypingIndicatorService {
 
             guard !messageDeliveryService.isSendingMessage else {
                 isUpdatingIsTypingForCurrentUser = false
-                messageDeliveryService.addEffectUponIsSendingMessage(changedTo: false, id: .updateIsTypingForCurrentUser) {
+                return messageDeliveryService.addEffectUponIsSendingMessage(
+                    changedTo: false,
+                    id: .updateIsTypingForCurrentUser
+                ) {
                     self._textViewDidChange(to: text) { exception in
                         completion(exception)
                     }
                 }
-                return
             }
 
             do throws(Exception) {
@@ -150,7 +163,7 @@ final class TypingIndicatorService {
                 guard canComplete else { return }
                 completion(nil)
             } catch {
-                self.isUpdatingIsTypingForCurrentUser = false
+                isUpdatingIsTypingForCurrentUser = false
                 guard canComplete else { return }
                 completion(error)
             }
@@ -206,7 +219,7 @@ final class TypingIndicatorService {
         _ isTyping: Bool
     ) async throws(Exception) {
         guard let conversation = clientSession.conversation.currentConversation,
-              conversation.participants.count == 2 else { return }
+              conversation.participants.count == Int(Floats.participantCountThreshold) else { return }
 
         guard let currentUserParticipant = conversation.currentUserParticipant else {
             throw Exception(

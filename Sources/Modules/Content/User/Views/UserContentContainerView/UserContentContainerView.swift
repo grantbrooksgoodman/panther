@@ -125,10 +125,10 @@ struct UserContentContainerView: View {
             )
             .ignoresSafeArea(.keyboard)
             .overlay(alignment: .top) {
-                ChatPageHeaderView(
-                    backButtonAction: { navigation.navigate(to: .userContent(.pop)) },
-                    chatInfoButtonAction: { viewModel.send(.chatInfoToolbarButtonTapped) }
-                )
+                ChatPageHeaderView(.init(
+                    initialState: .init(),
+                    reducer: ChatPageHeaderReducer()
+                ))
                 .background(
                     GeometryReader { proxy in
                         Color.clear.preference(

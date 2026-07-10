@@ -265,6 +265,21 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             domain: .conversation,
             sender: self
         )
+
+        // Update lastModifiedDate in 1:1 conversations so the hash changes,
+        // propagating the read receipt update to the other participant.
+        guard participants.count == 2 else { return }
+        do throws(Exception) {
+            _ = try await update(
+                \.metadata,
+                to: metadata.copyWith(lastModifiedDate: .now)
+            )
+        } catch {
+            Logger.log(
+                error,
+                domain: .conversation
+            )
+        }
     }
 
     // MARK: - Hashable Conformance

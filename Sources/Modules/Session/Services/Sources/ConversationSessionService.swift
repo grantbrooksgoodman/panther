@@ -13,10 +13,18 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class ConversationSessionService {
+final class ConversationSessionService: @unchecked Sendable {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ConversationSessionService
+
+    // MARK: - Types
+
+    private enum CurrentConversationReference {
+        case draft(Conversation)
+        case none
+        case stored(idKey: String)
+    }
 
     // MARK: - Dependencies
 
@@ -25,12 +33,24 @@ final class ConversationSessionService {
 
     // MARK: - Properties
 
-    private(set) var currentConversation: Conversation?
+    private(set) var baselineConversationHash: String?
+    private(set) var baselineMessageIDs: Set<String> = []
+    private(set) var baselineParticipantCount: Int = 0
     private(set) var displayedMessages: [Message] = []
 
+    private var changeHandlerID: UUID?
+    private var currentConversationReference: CurrentConversationReference = .none
     private var messageOffset = Floats.defaultMessageOffset
 
     // MARK: - Computed Properties
+
+    var currentConversation: Conversation? {
+        switch currentConversationReference {
+        case let .draft(conversation): conversation
+        case let .stored(idKey): sessionStore.getConversation(idKey: idKey)
+        case .none: nil
+        }
+    }
 
     var sync: ConversationSyncService {
         .init()
@@ -40,6 +60,15 @@ final class ConversationSessionService {
         guard let currentConversation else { return [] }
         return (currentConversation.messages ?? [])
             .hydrated(with: currentConversation.activities)
+    }
+
+    // MARK: - Init
+
+    init() {
+        changeHandlerID = SessionStore.addChangeHandler { [weak self] change in
+            guard let self else { return }
+            handleStoreChange(change)
+        }
     }
 
     // MARK: - Add Messages
@@ -70,15 +99,20 @@ final class ConversationSessionService {
     // MARK: - Set Current Conversation
 
     func setCurrentConversation(_ conversation: Conversation?) {
-        guard let conversation else {
-            currentConversation = nil
-            displayedMessages = []
-            return
+        guard let conversation else { return clearPointer() }
+
+        if conversation.isEmpty || conversation.isMock {
+            currentConversationReference = .draft(conversation)
+        } else {
+            sessionStore.upsertConversation(conversation)
+            currentConversationReference = .stored(idKey: conversation.id.key)
         }
 
-        currentConversation = conversation
+        baselineConversationHash = conversation.id.hash
+        baselineMessageIDs = Set(conversation.messageIDs)
+        baselineParticipantCount = conversation.participants.count
+
         updateDisplayedMessages()
-        sessionStore.upsertConversation(conversation)
     }
 
     // MARK: - Message Offset
@@ -160,6 +194,46 @@ final class ConversationSessionService {
     }
 
     // MARK: - Auxiliary
+
+    private func clearPointer() {
+        baselineConversationHash = nil
+        baselineMessageIDs = []
+        baselineParticipantCount = 0
+        currentConversationReference = .none
+        displayedMessages = []
+    }
+
+    private func handleStoreChange(_ change: SessionStoreChange) {
+        guard case let .stored(idKey) = currentConversationReference else { return }
+
+        switch change {
+        case let .conversations(upsertedIDKeys, removedIDKeys):
+            if removedIDKeys.contains(idKey) {
+                Logger.log(
+                    .init(
+                        "Current conversation was removed from the store.",
+                        isReportable: false,
+                        userInfo: ["ConversationIDKey": idKey],
+                        metadata: .init(sender: self)
+                    ),
+                    domain: .conversation
+                )
+
+                return
+            }
+
+            guard upsertedIDKeys.contains(idKey) else { return }
+            updateDisplayedMessages()
+
+        case let .messages(upsertedIDs):
+            guard let conversation = currentConversation,
+                  !Set(conversation.messageIDs).isDisjoint(with: upsertedIDs) else { return }
+            updateDisplayedMessages()
+
+        case .users:
+            break
+        }
+    }
 
     private func hideConversation(
         _ conversation: Conversation,
