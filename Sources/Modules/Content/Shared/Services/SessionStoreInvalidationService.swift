@@ -20,11 +20,12 @@ final class SessionStoreInvalidationService {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
 
     // MARK: - Properties
 
-    static let shared = SessionStoreInvalidationService()
+    fileprivate static let shared = SessionStoreInvalidationService()
 
     private var changeHandlerID: UUID?
     private var pendingConversationIDKeys = Set<String>()
@@ -35,6 +36,10 @@ final class SessionStoreInvalidationService {
     private init() {}
 
     // MARK: - Methods
+
+    func refreshNotificationExtensionNameMap() {
+        persistValuesForNotificationExtension()
+    }
 
     func startObserving() {
         guard changeHandlerID == nil else { return }
@@ -49,12 +54,10 @@ private extension SessionStoreInvalidationService {
 
     enum TaskID: String {
         case chatPageReload
-        case conversationCellViewData
-        case conversationCellViewDataTargeted
+        case conversationInvalidation
+        case messageInvalidation
         case notificationExtensionNameMap
-        case readReceipt
-        case user
-        case userDisplayName
+        case userInvalidation
     }
 
     // MARK: - Methods
@@ -86,10 +89,16 @@ private extension SessionStoreInvalidationService {
 
         pendingConversationIDKeys.formUnion(affectedIDKeys)
         Task.debounced(
-            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.conversationCellViewDataTargeted.rawValue)",
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.conversationInvalidation.rawValue)",
             delay: .milliseconds(250)
         ) { @MainActor [weak self] in
             guard let self else { return }
+
+            Logger.log(
+                "Invalidating caches for conversation changes.",
+                domain: .sessionStoreInvalidation,
+                sender: self
+            )
 
             let idKeys = pendingConversationIDKeys
             pendingConversationIDKeys = []
@@ -111,17 +120,21 @@ private extension SessionStoreInvalidationService {
 
     func handleMessagesChange() {
         Task.debounced(
-            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.conversationCellViewData.rawValue)",
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.messageInvalidation.rawValue)",
             delay: .milliseconds(250)
-        ) { @MainActor in
-            ConversationCellViewDataCache.clearCache()
-        }
+        ) { @MainActor [weak self] in
+            guard let self else { return }
 
-        Task.debounced(
-            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.readReceipt.rawValue)",
-            delay: .milliseconds(250)
-        ) { @MainActor in
-            ReadReceiptCache.clearCache()
+            Logger.log(
+                "Invalidating caches for message changes.",
+                domain: .sessionStoreInvalidation,
+                sender: self
+            )
+
+            coreUtilities.clearCaches([
+                .conversationCellViewData,
+                .readReceipt,
+            ])
         }
     }
 
@@ -129,27 +142,21 @@ private extension SessionStoreInvalidationService {
         pendingUserIDs.formUnion(upsertedIDs)
 
         Task.debounced(
-            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.conversationCellViewData.rawValue)",
-            delay: .milliseconds(250)
-        ) { @MainActor in
-            ConversationCellViewDataCache.clearCache()
-        }
-
-        Task.debounced(
-            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.user.rawValue)",
-            delay: .milliseconds(250)
-        ) { @MainActor in
-            UserCache.clearCache()
-        }
-
-        Task.debounced(
-            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.userDisplayName.rawValue)",
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.userInvalidation.rawValue)",
             delay: .milliseconds(250)
         ) { @MainActor [weak self] in
             guard let self else { return }
 
+            Logger.log(
+                "Invalidating caches for user changes.",
+                domain: .sessionStoreInvalidation,
+                sender: self
+            )
+
             let ids = pendingUserIDs
             pendingUserIDs = []
+
+            coreUtilities.clearCaches([.conversationCellViewData])
             UserDisplayNameCache.removeValues(forUserIDs: ids)
         }
     }
@@ -196,5 +203,21 @@ private extension SessionStoreInvalidationService {
         ) { @MainActor [weak self] in
             self?.chatPageViewService.reloadCollectionView()
         }
+    }
+}
+
+// swiftlint:disable:next type_name
+enum SessionStoreInvalidationServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> SessionStoreInvalidationService {
+        // swiftformat:disable all
+        @MainActorIsolated var sessionStoreInvalidationService = SessionStoreInvalidationService.shared
+        return sessionStoreInvalidationService // swiftformat:enable all
+    }
+}
+
+extension DependencyValues {
+    var sessionStoreInvalidationService: SessionStoreInvalidationService {
+        get { self[SessionStoreInvalidationServiceDependency.self] }
+        set { self[SessionStoreInvalidationServiceDependency.self] = newValue }
     }
 }

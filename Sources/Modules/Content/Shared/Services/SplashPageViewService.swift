@@ -29,6 +29,7 @@ final class SplashPageViewService: ObservableObject {
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
+    @Dependency(\.sessionStoreInvalidationService) private var sessionStoreInvalidationService: SessionStoreInvalidationService
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
@@ -86,7 +87,7 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: Store Observation Setup */
 
-        SessionStoreInvalidationService.shared.startObserving()
+        sessionStoreInvalidationService.startObserving()
 
         /* MARK: Offline User Setup */
 

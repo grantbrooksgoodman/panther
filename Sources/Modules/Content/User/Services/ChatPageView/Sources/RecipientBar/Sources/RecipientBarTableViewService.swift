@@ -75,7 +75,7 @@ final class RecipientBarTableViewService {
                 return knownContactPairs.uniquedByPhoneNumber
             }
 
-            let knownUserIDs = Set(knownContactPairs.users.map(\.id))
+            let knownUserIDs = Set(knownContactPairs.userIDs)
 
             var obfuscatedUserIDs = Set<String>()
             var seenUserIDs = Set<String>()

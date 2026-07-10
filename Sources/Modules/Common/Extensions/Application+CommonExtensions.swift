@@ -62,6 +62,7 @@ extension Application {
         preserveCurrentUserID: Bool = false,
         onCompletion procedure: ResetCompletionProcedure? = nil
     ) {
+        @Dependency(\.appGroupDefaults) var appGroupDefaults: UserDefaults
         @Dependency(\.coreKit) var core: CoreKit
         @Dependency(\.userDefaults) var defaults: UserDefaults
         @Dependency(\.navigation) var navigation: Navigation
@@ -76,6 +77,14 @@ extension Application {
         try? core.utils.eraseApplicationSupportDirectory()
         try? core.utils.eraseDocumentsDirectory()
         try? core.utils.eraseTemporaryDirectory()
+
+        appGroupDefaults.removeObject(
+            forKey: NotificationExtensionConstants.contactArchiveDefaultsKeyName
+        )
+
+        appGroupDefaults.removeObject(
+            forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName
+        )
 
         defaults.reset(preserving: .permanentAndSubsystemKeys(
             plus: preserveCurrentUserID ? [.userSessionService(.currentUserID)] : nil

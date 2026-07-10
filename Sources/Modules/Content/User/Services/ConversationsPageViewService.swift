@@ -168,7 +168,9 @@ final class ConversationsPageViewService {
         with providedConversations: [Conversation]? = nil,
         state: inout ConversationsPageReducer.State
     ) {
+        // TODO: Audit whether this is necessary.
         guard navigation.state.modal == .userContent else { return }
+
         let conversations = (
             providedConversations ?? clientSession.user.currentUser?.conversations ?? []
         )

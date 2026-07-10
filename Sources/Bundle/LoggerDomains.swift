@@ -41,6 +41,7 @@ extension LoggerDomain {
         /// console, but are not written to the session record file.
         let domainsExcludedFromSessionRecord: [LoggerDomain] = [
             .caches,
+            .concurrency,
             .observer,
         ]
 
@@ -56,6 +57,7 @@ extension LoggerDomain {
             .chatPageState,
             .contacts,
             .conversation,
+            .conversationStore,
             .conversationSync,
             .dataIntegrity,
             .general,
@@ -64,10 +66,10 @@ extension LoggerDomain {
             .notifications,
             .penPals,
             .queue,
-            .sessionStore,
             .storageSession,
             .translation,
             .userSession,
+            .userStore,
         ]
     }
 
@@ -79,12 +81,15 @@ extension LoggerDomain {
     static let clientSession: LoggerDomain = .init("clientSession")
     static let contacts: LoggerDomain = .init("contacts")
     static let conversation: LoggerDomain = .init("conversation")
+    static let conversationStore: LoggerDomain = .init("conversationStore")
     static let conversationSync: LoggerDomain = .init("conversationSync")
     static let dataIntegrity: LoggerDomain = .init("dataIntegrity")
+    static let messageStore: LoggerDomain = .init("messageStore")
     static let notifications: LoggerDomain = .init("notifications")
     static let penPals: LoggerDomain = .init("penPals")
     static let queue: LoggerDomain = .init("queue")
-    static let sessionStore: LoggerDomain = .init("sessionStore")
+    static let sessionStoreInvalidation: LoggerDomain = .init("sessionStoreInvalidation")
     static let storageSession: LoggerDomain = .init("storageSession")
     static let userSession: LoggerDomain = .init("userSession")
+    static let userStore: LoggerDomain = .init("userStore")
 }

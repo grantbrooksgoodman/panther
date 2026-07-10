@@ -68,7 +68,6 @@ extension CacheDomain {
                 .squareIconImage,
                 .textToSpeechService,
                 .transcriptionService,
-                .user,
                 .userArchive,
                 .userDisplayName,
                 .userService,
@@ -223,14 +222,6 @@ extension CacheDomain {
         "transcriptionService"
     ) {
         TranscriptionServiceCache.clearCache()
-    }
-
-    static let user = CacheDomain(
-        "user"
-    ) {
-        Task { @MainActor in
-            UserCache.clearCache()
-        }
     }
 
     static let userArchive = CacheDomain(

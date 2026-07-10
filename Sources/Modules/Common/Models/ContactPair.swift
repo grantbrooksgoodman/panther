@@ -23,7 +23,11 @@ struct ContactPair: Codable, Hashable {
         contact: Contact,
         numberPairs: [NumberPair]
     ) {
-        assert(!numberPairs.isEmpty, "Initialized ContactPair with empty NumberPair array")
+        assert(
+            !numberPairs.isEmpty,
+            "Initialized ContactPair with empty NumberPair array"
+        )
+
         self.contact = contact
         self.numberPairs = numberPairs
     }
@@ -33,6 +37,6 @@ struct ContactPair: Codable, Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(contact.id)
         hasher.combine(numberPairs.map(\.phoneNumber.compiledNumberString))
-        hasher.combine(numberPairs.map { $0.users.map(\.id) }.flatMap(\.self))
+        hasher.combine(numberPairs.flatMap(\.userIDs))
     }
 }

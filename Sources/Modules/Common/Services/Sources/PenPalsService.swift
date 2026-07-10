@@ -24,7 +24,7 @@ struct PenPalsService {
 
     private var contactPairArchiveUserIDs: [String] {
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
-        return contactPairArchive?.flatMap(\.users).map(\.id).unique ?? []
+        return contactPairArchive?.flatMap(\.userIDs).unique ?? []
     }
 
     @MainActor
@@ -34,8 +34,7 @@ struct PenPalsService {
             .recipientBar?
             .contactSelectionUI
             .selectedContactPairs
-            .users
-            .map(\.id) ?? []
+            .userIDs ?? []
     }
 
     // MARK: - Is Known to Current User

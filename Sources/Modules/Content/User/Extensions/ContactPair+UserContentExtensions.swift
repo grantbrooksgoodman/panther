@@ -22,12 +22,12 @@ extension ContactPair {
     var containsBlockedUser: Bool {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         guard let currentUser else { return false }
-        return (currentUser.blockedUserIDs ?? []).containsAnyString(in: users.map(\.id))
+        return (currentUser.blockedUserIDs ?? []).containsAnyString(in: userIDs)
     }
 
     // TODO: Audit this – contains(where:) might be better.
     var containsCurrentUser: Bool {
-        users.map(\.id).allSatisfy { $0 == User.currentUserID }
+        userIDs.allSatisfy { $0 == User.currentUserID }
     }
 
     var isMock: Bool {
@@ -37,13 +37,8 @@ extension ContactPair {
               contact.imageData == nil,
               numberPairs.count == 1,
               let firstNumberPair = numberPairs.first,
-              firstNumberPair.users.count == 1,
-              let firstUser = firstNumberPair.users.first,
-              firstUser.id.isBlank,
-              firstUser.conversationIDs == nil,
-              firstUser.languageCode.isBlank,
-              firstUser.pushTokens == nil,
-              firstUser.blockedUserIDs == nil else { return false }
+              firstNumberPair.userIDs.count == 1,
+              firstNumberPair.userIDs.first?.isBlank == true else { return false }
         return true
     }
 
@@ -53,6 +48,11 @@ extension ContactPair {
         return (selectedContactPairs ?? []).contains(self)
     }
 
+    var userIDs: [String] {
+        numberPairs.flatMap(\.userIDs)
+    }
+
+    /// Resolves users from the session store using this contact pair's user IDs.
     var users: [User] {
         numberPairs.flatMap(\.users)
     }
@@ -71,21 +71,7 @@ extension ContactPair {
             numberPairs: [
                 .init(
                     phoneNumber: .init(""),
-                    users: [
-                        .init(
-                            "",
-                            aiEnhancedTranslationsEnabled: false,
-                            blockedUserIDs: nil,
-                            conversationIDs: nil,
-                            isPenPalsParticipant: false,
-                            languageCode: "",
-                            lastSignedIn: nil,
-                            messageRecipientConsentRequired: false,
-                            phoneNumber: .init(""),
-                            previousLanguageCodes: nil,
-                            pushTokens: nil
-                        ),
-                    ]
+                    userIDs: [""]
                 ),
             ]
         )
@@ -106,7 +92,7 @@ extension ContactPair {
             numberPairs: [
                 .init(
                     phoneNumber: user.phoneNumber,
-                    users: [user]
+                    userIDs: [user.id]
                 ),
             ]
         )

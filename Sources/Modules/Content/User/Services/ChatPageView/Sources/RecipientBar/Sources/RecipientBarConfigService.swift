@@ -99,6 +99,7 @@ final class RecipientBarConfigService {
         let previousConversationIDKey = clientSession.conversation.currentConversation?.id.key ?? ""
 
         let conversations = clientSession.user.currentUser?.conversations?.visibleForCurrentUser.filter { $0.users != nil }
+        let userIDs = contactSelectionUIService.selectedContactPairs.userIDs
         let users = contactSelectionUIService.selectedContactPairs.users
 
         // NIT: Observed bugs with this disabled, but iMessage does it this way.
@@ -115,7 +116,7 @@ final class RecipientBarConfigService {
         guard let existingConversation = conversations?
             .sortedByLatestMessageSentDate
             .first(where: {
-                users.map(\.id).sorted() == $0.users?.map(\.id).sorted()
+                userIDs.sorted() == $0.users?.map(\.id).sorted()
             }) else {
             defer { shouldReload = !isPreviousConversationEmpty }
 

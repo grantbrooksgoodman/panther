@@ -90,10 +90,9 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
             guard let penPalsIconColor = (
                 currentConversation?
                     .users?
-                    .first(where: { $0.id == message.fromAccountID }) ??
-                    UserCache
-                    .knownUsers
-                    .first(where: { $0.id == message.fromAccountID })
+                    .first(where: {
+                        $0.id == message.fromAccountID
+                    }) ?? clientSession.store.users[message.fromAccountID]
             )?
                 .penPalsIconColor else {
                 avatarView.image = SquareIconView.image(.penPalsIcon())
@@ -108,10 +107,9 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
         guard let users = currentConversation?.users,
               let currentUser = clientSession.user.currentUser,
               let matchingUser = (users + [currentUser])
-              .first(where: { $0.id == message.fromAccountID }) ??
-              UserCache
-              .knownUsers
-              .first(where: { $0.id == message.fromAccountID }) else {
+              .first(where: {
+                  $0.id == message.fromAccountID
+              }) ?? clientSession.store.users[message.fromAccountID] else {
             return configureGenericAvatar()
         }
 

@@ -31,6 +31,10 @@ extension [ContactPair] {
         return contactPairs
     }
 
+    var userIDs: [String] {
+        flatMap(\.userIDs)
+    }
+
     var users: [User] {
         flatMap(\.users)
     }

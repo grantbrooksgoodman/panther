@@ -50,10 +50,10 @@ final class ContactService: @unchecked Sendable {
             let contactPairs = try await fetchContactPairs(
                 for: users
             )
+
             coreUtilities.clearCaches([
                 .conversationCellViewData,
                 .queriedContactPairs,
-                .user,
             ])
 
             services.contact.contactPairArchive.clearArchive()
@@ -62,7 +62,7 @@ final class ContactService: @unchecked Sendable {
             services.contact.contactPairArchive.addValues(contactPairs)
             sessionStore.upsertUsers(Set(users))
 
-            let contactPairUserIDs = contactPairs.users.map(\.id)
+            let contactPairUserIDs = contactPairs.userIDs
             unknownContactPairArchive = users
                 .filter { !contactPairUserIDs.contains($0.id) }
                 .map {
@@ -186,7 +186,10 @@ final class ContactService: @unchecked Sendable {
                 contactPairs.append(contentsOf: matchingContacts.reduce(into: []) { partialResult, cnContact in
                     let contactPair = ContactPair(
                         contact: .init(cnContact),
-                        numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
+                        numberPairs: [.init(
+                            phoneNumber: user.phoneNumber,
+                            userIDs: [user.id]
+                        )]
                     )
 
                     if let existingIndex = partialResult.firstIndex(where: { $0.contact == contactPair.contact }),

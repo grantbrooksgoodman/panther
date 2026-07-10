@@ -26,7 +26,6 @@ final class UserSessionService: @unchecked Sendable {
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.build.isOnline) private var isOnline: Bool
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
@@ -199,6 +198,7 @@ final class UserSessionService: @unchecked Sendable {
             sender: self
         )
 
+        SessionStore.setChangeEmissionSuppressed(false)
         observationTask = Task {
             do {
                 for try await dictionary: [String: Any] in networking.database.observe(
@@ -233,19 +233,24 @@ final class UserSessionService: @unchecked Sendable {
     }
 
     func stopObservingCurrentUserChanges() throws(Exception) {
-        guard observationTask != nil else {
-            throw Exception(
-                "No active observers to stop.",
-                metadata: .init(sender: self)
+        if observationTask == nil {
+            Logger.log(
+                .init(
+                    "No active observers to stop.",
+                    isReportable: false,
+                    metadata: .init(sender: self)
+                ),
+                domain: .userSession
+            )
+        } else {
+            Logger.log(
+                "Stopped observing current user changes.",
+                domain: .userSession,
+                sender: self
             )
         }
 
-        Logger.log(
-            "Stopped observing current user changes.",
-            domain: .userSession,
-            sender: self
-        )
-
+        SessionStore.setChangeEmissionSuppressed(true)
         observationTask?.cancel()
         observationTask = nil
     }
@@ -524,7 +529,6 @@ final class UserSessionService: @unchecked Sendable {
                     delay: .seconds(5),
                     priority: .utility
                 ) {
-                    self.coreUtilities.clearCaches([.user])
                     _ = try? await self.clientSession.storage.getCurrentUserDataUsage()
                 }
 

@@ -74,7 +74,7 @@ struct ModerationSessionService {
                         do throws(Exception) {
                             try await performModeration(
                                 type,
-                                userIDs: contactPair.users.map(\.id)
+                                userIDs: contactPair.userIDs
                             )
 
                             showSuccess(type)
@@ -98,7 +98,7 @@ struct ModerationSessionService {
                 do throws(Exception) {
                     try await performModeration(
                         type,
-                        userIDs: contactPairs.users.map(\.id)
+                        userIDs: contactPairs.userIDs
                     )
 
                     showSuccess(type)
@@ -218,7 +218,7 @@ struct ModerationSessionService {
             for user in users where currentUserConversations.contains(where: {
                 !$0.userSharesPenPalsDataWithCurrentUser(user) && !penPalsService.isKnownToCurrentUser(user.id)
             }) {
-                guard let index = contactPairs.firstIndex(where: { $0.users.contains(user) }) else { continue }
+                guard let index = contactPairs.firstIndex(where: { $0.userIDs.contains(user.id) }) else { continue }
                 contactPairs[index] = .withUser(user, name: user.penPalsName)
             }
         }
@@ -236,7 +236,7 @@ struct ModerationSessionService {
 
             try await performModeration(
                 type,
-                userIDs: contactPair.users.map(\.id)
+                userIDs: contactPair.userIDs
             )
 
             return showSuccess(type)

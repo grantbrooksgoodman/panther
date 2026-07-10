@@ -38,10 +38,9 @@ struct ContactPairCellView: View {
     // MARK: - Computed Properties
 
     private var isParticipantInCurrentConversation: Bool {
-        let contactPairUserIDs = contactPair.users.map(\.id)
         guard chatPageStateService.isPresented,
               let participantUserIDs = currentConversation?.participants.map(\.userID) else { return false }
-        return participantUserIDs.containsAnyString(in: contactPairUserIDs)
+        return participantUserIDs.containsAnyString(in: contactPair.userIDs)
     }
 
     private var isSelectionEnabled: Bool {

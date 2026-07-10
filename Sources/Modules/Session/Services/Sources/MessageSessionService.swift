@@ -497,10 +497,8 @@ private extension Conversation {
     var messageReadout: String? {
         guard let messages else { return nil }
 
-        let knownUsersByID = Dictionary(
-            UserCache.knownUsers.map { ($0.id, $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        let knownUsersByID = sessionStore.users
 
         var messageStrings = [String]()
         for message in messages.sortedByDescendingSentDate where message.contentType == .text {

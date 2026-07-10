@@ -26,9 +26,10 @@ import Networking
 final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSceneDelegate {
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
     @Dependency(\.build) private var build: Build
-    @Dependency(\.clientSession.user.currentUser?.phoneNumber) private var currentUserPhoneNumber: PhoneNumber?
+    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.sessionStoreInvalidationService) private var sessionStoreInvalidationService: SessionStoreInvalidationService
 
     // MARK: - Properties
 
@@ -90,12 +91,12 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
+        sessionStoreInvalidationService.refreshNotificationExtensionNameMap()
+
         Task.background {
-            @Dependency(\.clientSession.user.currentUser) var currentUser: User?
-            @Dependency(\.commonServices.notification) var notificationService: NotificationService
-            if let badgeNumber = currentUser?.calculateBadgeNumber() {
+            if let badgeNumber = await currentUser?.calculateBadgeNumber() {
                 do throws(Exception) {
-                    try await notificationService.setBadgeNumber(badgeNumber)
+                    try await services.notification.setBadgeNumber(badgeNumber)
                 } catch {
                     Logger.log(error)
                 }
@@ -131,12 +132,12 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
         guard build.milestone == .generalRelease,
               Networking.config.environment == .production,
               let view = touch.view,
-              let currentUserPhoneNumber,
+              let currentUserPhoneNumber = currentUser?.phoneNumber,
               ["15555555555", "18888888888"].contains(
                   currentUserPhoneNumber.compiledNumberString
               ) else { return false }
 
-        analyticsService.logEvent(
+        services.analytics.logEvent(
             .touchUiElement,
             additionalUserInfo: ["ui_element": view.descriptor]
         )

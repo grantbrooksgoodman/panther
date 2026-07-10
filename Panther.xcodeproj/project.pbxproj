@@ -41,7 +41,6 @@
 		A276DC072FCF44AB00CACAB5 /* StagedUsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A276DC062FCF44AB00CACAB5 /* StagedUsers.swift */; };
 		A28371A32ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28371A22ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift */; };
 		A29DFA972ED5749800171C04 /* ActivitySessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DFA962ED5749800171C04 /* ActivitySessionService.swift */; };
-		A29DFA992ED636FA00171C04 /* UserCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DFA982ED636FA00171C04 /* UserCache.swift */; };
 		A2A094E42F2C43EB00AD185B /* FeaturePermissionPageViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A094E32F2C43EB00AD185B /* FeaturePermissionPageViewConfiguration.swift */; };
 		A2A7A13D2F03596E00E09921 /* DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13C2F03596E00E09921 /* DataUsageView.swift */; };
 		A2A7A13F2F16DD3B00E09921 /* AppConstants+DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */; };
@@ -813,7 +812,6 @@
 		A276DC062FCF44AB00CACAB5 /* StagedUsers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StagedUsers.swift; sourceTree = "<group>"; };
 		A28371A22ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActivityAction+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A29DFA962ED5749800171C04 /* ActivitySessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitySessionService.swift; sourceTree = "<group>"; };
-		A29DFA982ED636FA00171C04 /* UserCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCache.swift; sourceTree = "<group>"; };
 		A2A094E32F2C43EB00AD185B /* FeaturePermissionPageViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturePermissionPageViewConfiguration.swift; sourceTree = "<group>"; };
 		A2A7A13C2F03596E00E09921 /* DataUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataUsageView.swift; sourceTree = "<group>"; };
 		A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+DataUsageView.swift"; sourceTree = "<group>"; };
@@ -2340,7 +2338,6 @@
 				B99880A02E2974E3002742A8 /* QueriedConversationCache.swift */,
 				B9627C642B6ED056004EE9DA /* RecordButtonCommand.swift */,
 				B9D312582D20A2C60007572A /* SquareIconViewConfiguration.swift */,
-				A29DFA982ED636FA00171C04 /* UserCache.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -4370,7 +4367,6 @@
 				B983872C2BBFCB0B008614AE /* CommonConstants.swift in Sources */,
 				B96EDD952B636A0500CB925B /* ContactDetailView.swift in Sources */,
 				B9223D562CD6EB4F00C05BC6 /* ReactionSessionService.swift in Sources */,
-				A29DFA992ED636FA00171C04 /* UserCache.swift in Sources */,
 				B9E6D7D32B12850D000BC88D /* AVAudioSessionDependency.swift in Sources */,
 				B986C4B32CD42E7800414E57 /* ReactionMetadata+Serializable.swift in Sources */,
 				B98792962B708B3C0032942C /* RecordingService+UserContentExtensions.swift in Sources */,

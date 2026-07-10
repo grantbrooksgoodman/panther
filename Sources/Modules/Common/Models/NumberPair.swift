@@ -9,28 +9,43 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 // NIT: Need to either use phone number strings or conform PhoneNumber to not auto-resolve a calling code.
 struct NumberPair: Codable, Hashable {
     // MARK: - Properties
 
     let phoneNumber: PhoneNumber
-    let users: [User]
+    let userIDs: [String]
+
+    // MARK: - Computed Properties
+
+    /// Resolves users from the session store using this number pair's `userIDs`.
+    var users: [User] {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        return userIDs.compactMap { sessionStore.users[$0] }
+    }
 
     // MARK: - Init
 
     init(
         phoneNumber: PhoneNumber,
-        users: [User]
+        userIDs: [String]
     ) {
-        assert(!users.isEmpty, "Initialized NumberPair with empty User array")
+        assert(
+            !userIDs.isEmpty,
+            "Initialized NumberPair with empty userIDs array"
+        )
+
         self.phoneNumber = phoneNumber
-        self.users = users
+        self.userIDs = userIDs
     }
 
     // MARK: - Hashable Conformance
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(phoneNumber)
-        hasher.combine(users)
+        hasher.combine(userIDs)
     }
 }

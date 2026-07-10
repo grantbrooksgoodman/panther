@@ -64,7 +64,7 @@ struct SessionStore {
 
             Logger.log(
                 "Loaded \(archive.count) conversations into memory.",
-                domain: .sessionStore,
+                domain: .conversationStore,
                 sender: self
             )
         }
@@ -79,7 +79,7 @@ struct SessionStore {
 
             Logger.log(
                 "Loaded \(archive.count) messages into memory.",
-                domain: .sessionStore,
+                domain: .messageStore,
                 sender: self
             )
         }
@@ -93,7 +93,7 @@ struct SessionStore {
 
             Logger.log(
                 "Loaded \(archive.count) users into memory.",
-                domain: .sessionStore,
+                domain: .userStore,
                 sender: self
             )
         }
@@ -143,7 +143,7 @@ struct SessionStore {
                 userInfo: ["ConversationIDKey": idKey],
                 metadata: .init(sender: self)
             ),
-            domain: .sessionStore
+            domain: .conversationStore
         )
 
         emitChange(.conversations(
@@ -183,7 +183,7 @@ struct SessionStore {
                     ],
                     metadata: .init(sender: self)
                 ),
-                domain: .sessionStore
+                domain: .conversationStore
             )
         }
 
@@ -217,7 +217,7 @@ struct SessionStore {
         persistConversationArchive()
         Logger.log(
             "Added \(newConversations.count) conversations to persisted archive.",
-            domain: .sessionStore,
+            domain: .conversationStore,
             sender: self
         )
 
@@ -262,7 +262,7 @@ struct SessionStore {
         persistMessageArchive()
         Logger.log(
             "Added \(messages.count) messages to persisted archive.",
-            domain: .sessionStore,
+            domain: .messageStore,
             sender: self
         )
 
@@ -304,7 +304,7 @@ struct SessionStore {
                     userInfo: ["UserID": user.id],
                     metadata: .init(sender: self)
                 ),
-                domain: .sessionStore
+                domain: .userStore
             )
         }
 
@@ -328,7 +328,7 @@ struct SessionStore {
         persistUserArchive()
         Logger.log(
             "Added \(newUsers.count) users to persisted archive.",
-            domain: .sessionStore,
+            domain: .userStore,
             sender: self
         )
 
@@ -342,6 +342,11 @@ extension SessionStore {
     // MARK: - Properties
 
     private static let changeHandlers = LockIsolated<[UUID: @MainActor @Sendable (SessionStoreChange) -> Void]>([:])
+    private static let _isChangeEmissionSuppressed = LockIsolated(false)
+
+    static var isChangeEmissionSuppressed: Bool {
+        _isChangeEmissionSuppressed.wrappedValue
+    }
 
     // MARK: - Methods
 
@@ -357,6 +362,10 @@ extension SessionStore {
     static func removeChangeHandler(_ id: UUID) {
         changeHandlers.projectedValue.withValue { $0[id] = nil }
     }
+
+    static func setChangeEmissionSuppressed(_ suppressed: Bool) {
+        _isChangeEmissionSuppressed.projectedValue.withValue { $0 = suppressed }
+    }
 }
 
 private extension SessionStore {
@@ -371,6 +380,7 @@ private extension SessionStore {
     // MARK: - Methods
 
     func emitChange(_ change: SessionStoreChange) {
+        guard !Self.isChangeEmissionSuppressed else { return }
         Observables.sessionStoreDidChange.value = change
         let handlers = Self.changeHandlers.wrappedValue
         guard !handlers.isEmpty else { return }

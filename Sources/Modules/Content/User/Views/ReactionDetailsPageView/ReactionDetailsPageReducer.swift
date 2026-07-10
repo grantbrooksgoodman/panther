@@ -65,8 +65,9 @@ struct ReactionDetailsPageReducer: Reducer {
                   .reactions else { return [] }
 
             let userMap = Dictionary(
-                uniqueKeysWithValues: (UserCache.knownUsers + [currentUser]).uniquedByID
-                    .map { ($0.id, $0.reactionDisplayName) }
+                uniqueKeysWithValues: (
+                    Array(clientSession.store.users.values) + [currentUser]
+                ).uniquedByID.map { ($0.id, $0.reactionDisplayName) }
             )
 
             return Dictionary(grouping: reactions, by: \.style)

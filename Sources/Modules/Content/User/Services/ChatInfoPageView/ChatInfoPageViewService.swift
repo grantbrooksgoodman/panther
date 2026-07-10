@@ -127,7 +127,10 @@ final class ChatInfoPageViewService {
 
                         let contactPair: ContactPair = .init(
                             contact: .init(cnContact),
-                            numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
+                            numberPairs: [.init(
+                                phoneNumber: user.phoneNumber,
+                                userIDs: [user.id]
+                            )]
                         )
 
                         chatParticipant = .init(
@@ -147,7 +150,10 @@ final class ChatInfoPageViewService {
 
                         let contactPair: ContactPair = .init(
                             contact: .init(cnContact),
-                            numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
+                            numberPairs: [.init(
+                                phoneNumber: user.phoneNumber,
+                                userIDs: [user.id]
+                            )]
                         )
 
                         chatParticipant = .init(

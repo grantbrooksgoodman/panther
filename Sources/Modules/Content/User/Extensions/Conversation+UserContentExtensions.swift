@@ -79,20 +79,22 @@ extension Conversation {
 
     @MainActor
     var mediaItemMetadata: [MediaItemView.Metadata] {
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession) var clientSession: ClientSession
 
         var users = users ?? []
-        if let currentUser { users += [currentUser] }
+        if let currentUser = clientSession.user.currentUser {
+            users += [currentUser]
+        }
+
         let messages = (messages?.filter { $0.richContent?.mediaComponent != nil } ?? []).sortedByDescendingSentDate
 
         var mediaMetadata = [MediaItemView.Metadata]()
         for mediaMessage in messages {
             guard let mediaFile = mediaMessage.richContent?.mediaComponent,
                   let user = users
-                  .first(where: { $0.id == mediaMessage.fromAccountID }) ??
-                  UserCache
-                  .knownUsers
-                  .first(where: { $0.id == mediaMessage.fromAccountID }) else { continue }
+                  .first(where: {
+                      $0.id == mediaMessage.fromAccountID
+                  }) ?? clientSession.store.users[mediaMessage.fromAccountID] else { continue }
 
             var senderLabelText = Localized(.fromYou).wrappedValue.firstLowercase
             if user.id != User.currentUserID {

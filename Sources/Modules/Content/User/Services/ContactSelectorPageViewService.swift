@@ -91,8 +91,9 @@ struct ContactSelectorPageViewService {
         switch entryPoint {
         case .chatInfoPageView:
             guard let user = selectedContactPair.users.first,
+                  let userID = selectedContactPair.userIDs.first,
                   let conversation = clientSession.conversation.currentConversation,
-                  !conversation.participants.map(\.userID).contains(user.id) else { return }
+                  !conversation.participants.map(\.userID).contains(userID) else { return }
 
             let addToConversationAction: AKAction = .init(
                 "Add to Conversation",
@@ -108,10 +109,11 @@ struct ContactSelectorPageViewService {
                     do throws(Exception) {
                         try await clientSession.conversation.setCurrentConversation(
                             clientSession.activity.addToConversation(
-                                user.id,
+                                userID,
                                 conversation: conversation
                             )
                         )
+
                         chatPageViewService.reloadCollectionView()
                         Observables.currentConversationActivityChanged.trigger()
                     } catch {

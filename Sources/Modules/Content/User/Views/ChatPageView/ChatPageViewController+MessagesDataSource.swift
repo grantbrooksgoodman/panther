@@ -219,6 +219,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
         at indexPath: IndexPath
     ) -> NSAttributedString? {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         guard let currentConversation,
               currentConversation.participants.count > 2,
@@ -232,10 +233,9 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
 
         guard let matchingUser = currentConversation
             .users?
-            .first(where: { $0.id == message.fromAccountID }) ??
-            UserCache
-            .knownUsers
-            .first(where: { $0.id == message.fromAccountID }) else { return nil }
+            .first(where: {
+                $0.id == message.fromAccountID
+            }) ?? sessionStore.users[message.fromAccountID] else { return nil }
 
         let font: UIFont = .init(
             name: Strings.messageTopLabelAttributedTextAttributesFontName,

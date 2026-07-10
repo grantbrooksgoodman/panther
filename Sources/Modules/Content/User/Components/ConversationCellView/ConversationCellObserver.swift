@@ -42,6 +42,9 @@ struct ConversationCellObserver: Observer {
     func onChange(of observable: Observable<Any>) {
         switch observable {
         case Observables.sessionStoreDidChange:
+            guard let sessionStoreChange = Observables.sessionStoreDidChange.value,
+                  isRelevantChange(sessionStoreChange) else { break }
+
             @MainActorIsolated var conversationIDKey = viewModel.conversation.id.key
             Task.debounced(
                 "\(String.fromCurrentEditorContext(sender: self))/\(conversationIDKey)/\(TaskID.refreshCellData.rawValue)",
@@ -51,6 +54,27 @@ struct ConversationCellObserver: Observer {
             }
 
         default: ()
+        }
+    }
+}
+
+private extension ConversationCellObserver {
+    func isRelevantChange(_ change: SessionStoreChange) -> Bool {
+        @MainActorIsolated var conversation = viewModel.conversation
+        switch change {
+        case let .conversations(upsertedIDKeys, removedIDKeys):
+            return upsertedIDKeys.contains(conversation.id.key) ||
+                removedIDKeys.contains(conversation.id.key)
+
+        case let .messages(upsertedIDs):
+            return !Set(
+                conversation.messageIDs
+            ).isDisjoint(with: upsertedIDs)
+
+        case let .users(upsertedIDs):
+            return !Set(
+                conversation.participants.map(\.userID)
+            ).isDisjoint(with: upsertedIDs)
         }
     }
 }

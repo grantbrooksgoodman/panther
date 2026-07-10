@@ -149,11 +149,9 @@ struct Activity: Codable, EncodedHashable, Equatable {
 
     @MainActor
     private func displayName(for userID: String) -> String {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
         guard userID != User.currentUserID else { return Localized(.you).wrappedValue }
-        return UserCache
-            .knownUsers
-            .first(where: { $0.id == userID })?
-            .displayName ?? Localized(.someone).wrappedValue
+        return sessionStore.users[userID]?.displayName ?? Localized(.someone).wrappedValue
     }
 }
 
