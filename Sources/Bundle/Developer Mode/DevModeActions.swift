@@ -132,21 +132,19 @@ extension DevModeAction {
                             disableChangeEmission: true
                         )
 
-                        try await clientSession.store.upsertMessages(Set(
-                            conversations
-                                .compactMap(\.messages)
-                                .flatMap(\.self)
-                                .filter { $0.currentUserReadReceipt != nil }
-                                .map { @Sendable in
-                                    let message = $0
-                                    return try await message.update(
-                                        \.readReceipts,
-                                        to: (message.readReceipts ?? [])?.filter {
-                                            $0 != message.currentUserReadReceipt
-                                        }
-                                    )
-                                }
-                        ))
+                        try await conversations
+                            .compactMap(\.messages)
+                            .flatMap(\.self)
+                            .filter { $0.currentUserReadReceipt != nil }
+                            .map { @Sendable in
+                                let message = $0
+                                return try await message.update(
+                                    \.readReceipts,
+                                    to: (message.readReceipts ?? [])?.filter {
+                                        $0 != message.currentUserReadReceipt
+                                    }
+                                )
+                            }
 
                         Application.reset(
                             preserveCurrentUserID: true,

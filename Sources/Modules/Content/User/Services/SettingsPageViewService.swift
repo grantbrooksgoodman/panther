@@ -135,15 +135,7 @@ final class SettingsPageViewService {
     func clearCachesButtonTapped() {
         @MainActor
         func clearCaches() async {
-            do throws(Exception) {
-                try clientSession.user.stopObservingCurrentUserChanges()
-            } catch {
-                Logger.log(
-                    error,
-                    domain: .userSession
-                )
-            }
-
+            clientSession.user.stopObservingCurrentUserChanges()
             services.analytics.logEvent(.clearCaches)
             Application.reset(preserveCurrentUserID: true)
 

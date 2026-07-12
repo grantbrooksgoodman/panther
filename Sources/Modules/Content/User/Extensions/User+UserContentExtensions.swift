@@ -76,10 +76,8 @@ extension User {
 
     // MARK: - Methods
 
-    /// - Note: Will set the current user to the result returned by `update`.
     func removeCurrentPushToken() async throws(Exception) {
         @Dependency(\.commonServices.pushToken.currentToken) var currentPushToken: String?
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard let currentPushToken else { return }
 
@@ -88,25 +86,19 @@ extension User {
             filteredPushTokens = .bangQualifiedEmpty
         }
 
-        try await userSession.setCurrentUser(
-            update(
-                \.pushTokens,
-                to: filteredPushTokens
-            )
+        _ = try await update(
+            \.pushTokens,
+            to: filteredPushTokens
         )
     }
 
-    /// - Note: Will set the current user to the result returned by `update`.
     func updateLastSignedInDate(
         to date: Date = .now
     ) async throws(Exception) {
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
         RuntimeStorage.store(date, as: .lastSignInDate)
-        try await userSession.setCurrentUser(
-            update(
-                \.lastSignedIn,
-                to: date
-            )
+        _ = try await update(
+            \.lastSignedIn,
+            to: date
         )
     }
 }

@@ -104,7 +104,7 @@ struct ContactSelectorPageViewService {
                     Observables.chatInfoPageLoadingStateUpdated.trigger()
 
                     do throws(Exception) {
-                        _ = try await clientSession.activity.addToConversation(
+                        try await clientSession.activity.addToConversation(
                             userID,
                             conversation: conversation
                         )

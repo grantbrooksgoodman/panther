@@ -23,7 +23,7 @@ struct ActivitySessionService {
     func addToConversation(
         _ userID: String,
         conversation: Conversation
-    ) async throws(Exception) -> Conversation {
+    ) async throws(Exception) {
         guard let activity = Activity(.addedToConversation(userID: userID)) else {
             throw Exception(
                 "Failed to synthesize activity.",
@@ -65,8 +65,6 @@ struct ActivitySessionService {
             userID: userID,
             conversationID: updatedConversation.id
         )
-
-        return updatedConversation
     }
 
     private func addUserToConversation(
@@ -88,7 +86,7 @@ struct ActivitySessionService {
         _ userID: String,
         conversation: Conversation,
         removeFromUser: Bool = true
-    ) async throws(Exception) -> Conversation {
+    ) async throws(Exception) {
         guard let activity = Activity(
             userID == User.currentUserID ? .leftConversation : .removedFromConversation(userID: userID)
         ) else {
@@ -128,7 +126,5 @@ struct ActivitySessionService {
                 conversationIDKey: updatedConversation.id.key
             )
         }
-
-        return updatedConversation
     }
 }

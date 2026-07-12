@@ -105,43 +105,6 @@ final class UserSessionService: @unchecked Sendable {
         }
     }
 
-    // MARK: - Set Current User
-
-    /// Validates and upserts a user to the session store as
-    /// the current user.
-    ///
-    /// Use this method after performing a remote write on the
-    /// current user to commit the server-confirmed value to
-    /// the session store:
-    ///
-    /// ```swift
-    /// try await userSession.setCurrentUser(
-    ///     currentUser.update(\.pushTokens, to: newTokens)
-    /// )
-    /// ```
-    ///
-    /// The method guards that the provided user's identifier
-    /// matches ``currentUserID``.
-    ///
-    /// Pass `nil` to clear the current user during sign-out or
-    /// account deletion.
-    ///
-    /// - Parameter user: The user to upsert, or `nil` to clear.
-    func setCurrentUser(_ user: User?) throws(Exception) {
-        if let user {
-            guard let currentUserID,
-                  user.id == currentUserID else {
-                throw Exception(
-                    "Either current user ID has not been set, or provided user's ID does not match its value.",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            clientSession.store.upsertUser(user)
-            return
-        }
-    }
-
     // MARK: - Current User Observation
 
     func startObservingCurrentUserChanges(
@@ -238,6 +201,7 @@ final class UserSessionService: @unchecked Sendable {
         _ conversations: Set<Conversation>
     ) {
         guard !Task.isCancelled else { return }
+        // Resolved from archive or network; bypasses RemotelyUpdatable.update.
         clientSession.store.upsertConversations(conversations)
     }
 
@@ -287,6 +251,7 @@ final class UserSessionService: @unchecked Sendable {
         }
 
         do {
+            // Fetched from server; bypasses RemotelyUpdatable.update.
             try await clientSession.store.upsertUser(
                 networking.userService.getUser(
                     id: currentUserID
@@ -399,13 +364,13 @@ final class UserSessionService: @unchecked Sendable {
         guard !Task.isCancelled else { return }
         let conversationsNeedingMessages = conversations
             .visibleForCurrentUser
-            .filter { conversation in
-                let filtered = conversation.filteringSystemMessages
-                return !filtered.messageIDs.isBangQualifiedEmpty &&
+            .map(\.filteringSystemMessages)
+            .filter {
+                !$0.messageIDs.isBangQualifiedEmpty &&
                     (
-                        filtered.messages == nil ||
-                            filtered.messages?.isEmpty == true ||
-                            filtered.messageIDs.count != filtered.messages?.count
+                        $0.messages == nil ||
+                            $0.messages?.isEmpty == true ||
+                            $0.messageIDs.count != $0.messages?.count
                     )
             }
 

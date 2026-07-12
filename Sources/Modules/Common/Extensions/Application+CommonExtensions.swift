@@ -72,7 +72,6 @@ extension Application {
 
         if !preserveCurrentUserID {
             userSession.stopObservingCurrentUserChanges()
-            try? userSession.setCurrentUser(nil)
         }
 
         core.utils.clearCaches()

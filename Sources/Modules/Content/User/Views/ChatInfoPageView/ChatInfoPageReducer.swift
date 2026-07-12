@@ -66,8 +66,7 @@ struct ChatInfoPageReducer: Reducer {
         case traitCollectionChanged
 
         case updateMetadataFailed(Exception)
-        // TODO: Remove Conversation – it's unused.
-        case updateMetadataReturned(Conversation, togglePenPalsSharingDataSwitch: Bool = false)
+        case updateMetadataReturned(togglePenPalsSharingDataSwitch: Bool = false)
         case userInfoBadgeTapped(User?)
     }
 
@@ -261,13 +260,13 @@ struct ChatInfoPageReducer: Reducer {
 
             return .task {
                 do throws(Exception) {
-                    return try await .updateMetadataReturned(
-                        viewService.updateMetadata(
-                            conversation,
-                            action: action,
-                            newMetadata: newMetadata
-                        )
+                    try await viewService.updateMetadata(
+                        conversation,
+                        action: action,
+                        newMetadata: newMetadata
                     )
+
+                    return .updateMetadataReturned()
                 } catch {
                     return .updateMetadataFailed(error)
                 }
@@ -281,13 +280,13 @@ struct ChatInfoPageReducer: Reducer {
 
             return .task {
                 do throws(Exception) {
-                    return try await .updateMetadataReturned(
-                        viewService.updateMetadata(
-                            conversation,
-                            action: .removedGroupPhoto,
-                            newMetadata: newMetadata
-                        )
+                    try await viewService.updateMetadata(
+                        conversation,
+                        action: .removedGroupPhoto,
+                        newMetadata: newMetadata
                     )
+
+                    return .updateMetadataReturned()
                 } catch {
                     return .updateMetadataFailed(error)
                 }
@@ -358,11 +357,12 @@ struct ChatInfoPageReducer: Reducer {
                   let newMetadata else { return .none }
             return .task {
                 do throws(Exception) {
-                    return try await .updateMetadataReturned(
-                        conversation.update(
-                            \.metadata,
-                            to: newMetadata
-                        ),
+                    _ = try await conversation.update(
+                        \.metadata,
+                        to: newMetadata
+                    )
+
+                    return .updateMetadataReturned(
                         togglePenPalsSharingDataSwitch: true
                     )
                 } catch {
@@ -447,13 +447,13 @@ struct ChatInfoPageReducer: Reducer {
 
             return .task {
                 do throws(Exception) {
-                    return try await .updateMetadataReturned(
-                        viewService.updateMetadata(
-                            conversation,
-                            action: .changedGroupPhoto,
-                            newMetadata: conversation.metadata.copyWith(imageData: imageData)
-                        )
+                    try await viewService.updateMetadata(
+                        conversation,
+                        action: .changedGroupPhoto,
+                        newMetadata: conversation.metadata.copyWith(imageData: imageData)
                     )
+
+                    return .updateMetadataReturned()
                 } catch {
                     return .updateMetadataFailed(error)
                 }
@@ -470,7 +470,7 @@ struct ChatInfoPageReducer: Reducer {
 
             state.isChangeMetadataButtonEnabled = true
 
-        case let .updateMetadataReturned(_, togglePenPalsDataSharingSwitch):
+        case let .updateMetadataReturned(togglePenPalsDataSharingSwitch):
             let oldConversationIsPenPalsConversation = state.conversation?.metadata.isPenPalsConversation == true
 
             chatPageViewService.reloadCollectionView() // TODO: Audit why this didn't seem necessary before, but is now.

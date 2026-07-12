@@ -54,6 +54,7 @@ extension Conversation: RemotelyUpdatable {
 
         case .messages:
             guard let value = value as? [Message] else { return nil }
+            // Messages set via updateValues bypass Message.didWrite.
             sessionStore.upsertMessages(Set(value.uniquedByID))
             return updateIDHash(
                 copying(messageIDs: value.map(\.id).unique)
@@ -123,6 +124,7 @@ extension Conversation: RemotelyUpdatable {
             try await updated.resolveUsers(forceUpdate: true)
         }
 
+        // updateValues bypasses didWrite; this is its only upsert.
         sessionStore.upsertConversation(updated)
         return updated
     }
@@ -151,6 +153,7 @@ extension Conversation: RemotelyUpdatable {
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
+        // Single source of upsert for single-field update calls.
         defer { sessionStore.upsertConversation(updated) }
         guard updated.id.hash != id.hash else { return updated }
 

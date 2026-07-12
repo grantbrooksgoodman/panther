@@ -52,6 +52,7 @@ struct ConversationService {
             )
         }
 
+        // Optimistic insert before remote write; didWrite does not apply.
         sessionStore.upsertMessages([firstMessage])
         var mockConversation: Conversation = .init(
             .init(key: id, hash: ""),

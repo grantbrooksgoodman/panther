@@ -139,11 +139,9 @@ struct ModerationSessionService {
         blockedUserIDs.append(contentsOf: userIDs)
         blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
-        try await userSession.setCurrentUser(
-            currentUser.update(
-                \.blockedUserIDs,
-                to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
-            )
+        _ = try await currentUser.update(
+            \.blockedUserIDs,
+            to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
         )
     }
 
@@ -318,11 +316,9 @@ struct ModerationSessionService {
         blockedUserIDs = blockedUserIDs.filter { !userIDs.contains($0) }
         blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
-        try await userSession.setCurrentUser(
-            currentUser.update(
-                \.blockedUserIDs,
-                to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
-            )
+        _ = try await currentUser.update(
+            \.blockedUserIDs,
+            to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
         )
     }
 }

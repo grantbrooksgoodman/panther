@@ -170,6 +170,7 @@ extension Conversation {
 
     static func empty(withUsers users: [User]) -> Conversation {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        // Stores users so the conversation's computed properties can resolve them.
         sessionStore.upsertUsers(Set(users))
         return .init(
             .init(key: "", hash: ""),
@@ -189,6 +190,7 @@ extension Conversation {
 
     static func mock(withUsers users: [User]) -> Conversation {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        // Stores users so the conversation's computed properties can resolve them.
         sessionStore.upsertUsers(Set(users))
         return .init(
             .init(key: CommonConstants.newConversationID, hash: ""),

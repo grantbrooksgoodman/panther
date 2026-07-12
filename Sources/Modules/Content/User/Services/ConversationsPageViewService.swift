@@ -384,6 +384,7 @@ final class ConversationsPageViewService {
                 }
             }
 
+            // Marks conversations stale to force re-fetch on next resolve.
             clientSession
                 .store
                 .upsertConversations(Set(

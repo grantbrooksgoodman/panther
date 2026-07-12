@@ -155,6 +155,7 @@ extension Conversation: Serializable {
             )
         }
 
+        // Fetched during deserialization; bypasses RemotelyUpdatable.update.
         sessionStore.upsertMessages(Set(messages))
         self.init(
             conversationID,

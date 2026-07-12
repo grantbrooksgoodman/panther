@@ -108,11 +108,9 @@ final class MessageRecipientConsentService {
             )
         }
 
-        try await clientSession.user.setCurrentUser(
-            currentUser.update(
-                \.messageRecipientConsentRequired,
-                to: messageRecipientConsentRequired
-            )
+        _ = try await currentUser.update(
+            \.messageRecipientConsentRequired,
+            to: messageRecipientConsentRequired
         )
     }
 

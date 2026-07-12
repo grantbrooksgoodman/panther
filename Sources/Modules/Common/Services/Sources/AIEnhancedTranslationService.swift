@@ -36,11 +36,9 @@ struct AIEnhancedTranslationService {
             didGrantAIEnhancedTranslationPermission
         )
 
-        try await userSession.setCurrentUser(
-            currentUser.update(
-                \.aiEnhancedTranslationsEnabled,
-                to: didGrantAIEnhancedTranslationPermission
-            )
+        _ = try await currentUser.update(
+            \.aiEnhancedTranslationsEnabled,
+            to: didGrantAIEnhancedTranslationPermission
         )
     }
 }

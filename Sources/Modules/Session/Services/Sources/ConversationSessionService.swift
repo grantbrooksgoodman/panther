@@ -101,6 +101,7 @@ final class ConversationSessionService: @unchecked Sendable {
         if conversation.isEmpty || conversation.isMock {
             currentConversationReference = .draft(conversation)
         } else {
+            // Ensures the store contains the conversation before setting the pointer.
             sessionStore.upsertConversation(conversation)
             currentConversationReference = .stored(idKey: conversation.id.key)
         }

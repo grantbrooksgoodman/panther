@@ -94,11 +94,9 @@ final class PushTokenService {
         }
 
         pushTokens.append(currentToken)
-        try await userSession.setCurrentUser(
-            currentUser.update(
-                \.pushTokens,
-                to: pushTokens.unique
-            )
+        _ = try await currentUser.update(
+            \.pushTokens,
+            to: pushTokens.unique
         )
     }
 

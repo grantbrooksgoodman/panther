@@ -129,11 +129,9 @@ struct ChangeLanguagePageViewService {
         loadedData.wrappedValue = true
         timeout.cancel()
 
-        try await userSession.setCurrentUser(
-            currentUser.update(
-                \.previousLanguageCodes,
-                to: newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes
-            )
+        _ = try await currentUser.update(
+            \.previousLanguageCodes,
+            to: newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes
         )
 
         try await database.setValue(

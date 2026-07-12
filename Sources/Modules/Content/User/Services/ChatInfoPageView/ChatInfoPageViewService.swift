@@ -231,7 +231,7 @@ final class ChatInfoPageViewService {
             Observables.chatInfoPageLoadingStateUpdated.trigger()
 
             do throws(Exception) {
-                _ = try await clientSession.activity.removeFromConversation(
+                try await clientSession.activity.removeFromConversation(
                     currentUserID,
                     conversation: conversation
                 )
@@ -290,7 +290,7 @@ final class ChatInfoPageViewService {
             Observables.chatInfoPageLoadingStateUpdated.trigger()
 
             do throws(Exception) {
-                _ = try await clientSession.activity.removeFromConversation(
+                try await clientSession.activity.removeFromConversation(
                     user.id,
                     conversation: conversation
                 )
@@ -321,7 +321,7 @@ final class ChatInfoPageViewService {
         _ conversation: Conversation,
         action: Activity.Action,
         newMetadata: ConversationMetadata
-    ) async throws(Exception) -> Conversation {
+    ) async throws(Exception) {
         guard let activity = Activity(action) else {
             throw Exception(
                 "Failed to synthesize activity.",
@@ -329,7 +329,7 @@ final class ChatInfoPageViewService {
             )
         }
 
-        return try await conversation.updateValues(
+        _ = try await conversation.updateValues(
             with: [
                 \.activities: ((conversation.activities ?? []) + [activity]).filter { $0 != .empty },
                 \.metadata: newMetadata,

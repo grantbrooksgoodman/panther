@@ -118,6 +118,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         if let ids {
+            // Fetched from network; bypasses RemotelyUpdatable.update.
             try await sessionStore.upsertMessages(Set(
                 ids
                     .filter { messageIDs.contains($0) }
@@ -149,6 +150,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             domain: .conversation
         )
 
+        // Fetched from network; bypasses RemotelyUpdatable.update.
         sessionStore.upsertMessages(Set(fetchedMessages))
     }
 
@@ -219,6 +221,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             domain: .conversation
         )
 
+        // Fetched from network; bypasses RemotelyUpdatable.update.
         sessionStore.upsertUsers(Set(fetchedUsers))
     }
 
@@ -227,7 +230,6 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     func updateReadDate(
         for messages: [Message]
     ) async throws(Exception) {
-        @Dependency(\.clientSession.store) var sessionStore: SessionStore
         guard !messages.isEmpty else {
             throw Exception(
                 "No messages provided.",
@@ -245,7 +247,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         let readReceipt = ReadReceipt(userID: currentUserID, readDate: .now)
         let unreadMessages = messages.filter { $0.currentUserReadReceipt == nil }
 
-        let readMessages = try await unreadMessages.map {
+        try await unreadMessages.map {
             let unreadMessage = $0
             return try await unreadMessage.update(
                 \.readReceipts,
@@ -259,7 +261,6 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             )
         }
 
-        sessionStore.upsertMessages(Set(readMessages))
         Logger.log(
             "Updated read date for \(unreadMessages.count) message\(unreadMessages.count == 1 ? "" : "s").",
             domain: .conversation,

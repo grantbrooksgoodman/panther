@@ -60,6 +60,7 @@ final class ContactService: @unchecked Sendable {
 
             @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
             services.contact.contactPairArchive.addValues(contactPairs)
+            // Fetched from network; bypasses RemotelyUpdatable.update.
             sessionStore.upsertUsers(Set(users))
 
             let contactPairUserIDs = contactPairs.userIDs

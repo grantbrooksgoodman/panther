@@ -20,6 +20,18 @@ extension User: RemotelyUpdatable {
         id
     }
 
+    // MARK: - Did Write
+
+    func didWrite(
+        _ updated: User,
+        forKey key: SerializableKey
+    ) async throws(Exception) -> User {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        // Single source of upsert for single-field update calls.
+        sessionStore.upsertUser(updated)
+        return updated
+    }
+
     // MARK: - Will Write
 
     func willWrite(

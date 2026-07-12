@@ -174,7 +174,6 @@ final class AccountDeletionService: @unchecked Sendable {
 
         @Persistent(.currentUserID) var persistedCurrentUserID: String?
         persistedCurrentUserID = nil
-        try? clientSession.user.setCurrentUser(nil)
 
         do {
             try await networking.database.setValue(

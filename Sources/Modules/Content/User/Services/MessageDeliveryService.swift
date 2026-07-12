@@ -320,6 +320,7 @@ final class MessageDeliveryService {
             ))
         }
 
+        // Optimistic insert before remote send; didWrite does not apply.
         clientSession.store.upsertMessages(Set(messages))
         let newConversation = conversation
             .copying(messageIDs: messages.map(\.id))

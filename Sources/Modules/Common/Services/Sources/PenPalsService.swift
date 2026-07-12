@@ -177,11 +177,9 @@ struct PenPalsService {
         }
 
         Observables.didGrantPenPalsPermission.value = didGrantPenPalsPermission
-        try await userSession.setCurrentUser(
-            currentUser.update(
-                \.isPenPalsParticipant,
-                to: didGrantPenPalsPermission
-            )
+        _ = try await currentUser.update(
+            \.isPenPalsParticipant,
+            to: didGrantPenPalsPermission
         )
     }
 

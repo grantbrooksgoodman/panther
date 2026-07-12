@@ -258,6 +258,7 @@ struct MessageRetranslationService {
         _ conversation: Conversation,
         messageID: String
     ) async throws(Exception) {
+        // Local hash/messageID modification to force re-fetch; no remote write.
         clientSession.store.upsertConversation(
             conversation
                 .copying(

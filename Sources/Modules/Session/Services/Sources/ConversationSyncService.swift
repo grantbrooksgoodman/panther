@@ -326,8 +326,10 @@ final class ConversationSyncService: @unchecked Sendable {
             ).appending(userInfo: userInfo)
         }
 
+        // Synced from network; bypasses RemotelyUpdatable.update.
         clientSession.store.upsertConversation(syncData.conversation)
         if !syncData.messages.isEmpty {
+            // Synced from network; bypasses RemotelyUpdatable.update.
             clientSession.store.upsertMessages(Set(syncData.messages))
         }
 
