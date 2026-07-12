@@ -68,8 +68,10 @@ extension Application {
         @Dependency(\.navigation) var navigation: Navigation
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
+        SessionStore.setChangeEmissionSuppressed(true)
+
         if !preserveCurrentUserID {
-            try? userSession.stopObservingCurrentUserChanges()
+            userSession.stopObservingCurrentUserChanges()
             try? userSession.setCurrentUser(nil)
         }
 

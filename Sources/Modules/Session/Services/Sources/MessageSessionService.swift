@@ -320,7 +320,6 @@ struct MessageSessionService {
                 by: Floats.addMessageDeliveryProgressIncrement
             )
 
-            defer { clientSession.user.startObservingCurrentUserChanges() }
             return try await clientSession.conversation.addMessages(
                 [message],
                 to: conversation
@@ -356,7 +355,6 @@ struct MessageSessionService {
             }
         }
 
-        try? clientSession.user.stopObservingCurrentUserChanges()
         incrementDeliveryProgress(
             in: conversation.value,
             by: Floats.createMessageDeliveryProgressIncrement
@@ -370,7 +368,6 @@ struct MessageSessionService {
                 translations: translations
             )
         } catch {
-            clientSession.user.startObservingCurrentUserChanges()
             throw error
         }
 
@@ -413,7 +410,6 @@ struct MessageSessionService {
                     )
                 )
             } catch {
-                clientSession.user.startObservingCurrentUserChanges()
                 throw error
             }
         } else {
@@ -425,7 +421,6 @@ struct MessageSessionService {
                 in: conversation.value,
                 by: Floats.createConversationDeliveryProgressIncrement
             )
-            clientSession.user.startObservingCurrentUserChanges()
 
             let createdConversation = try await networking.conversationService.createConversation(
                 firstMessage: message,

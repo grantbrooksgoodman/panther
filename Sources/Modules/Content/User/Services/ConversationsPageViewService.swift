@@ -69,7 +69,9 @@ final class ConversationsPageViewService {
     func viewAppeared() {
         didShowSecondsToLoadToast = false
         NavigationBar.setAppearance(.conversationsPageView)
-        clientSession.user.startObservingCurrentUserChanges()
+        clientSession.user.startObservingCurrentUserChanges(
+            enableChangeEmission: true
+        )
 
         Task.delayed(by: .milliseconds(500)) { @MainActor [weak self] in
             StatusBar.overrideStyle(.appAware)

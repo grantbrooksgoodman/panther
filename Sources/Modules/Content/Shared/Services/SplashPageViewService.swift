@@ -87,6 +87,7 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: Store Observation Setup */
 
+        SessionStore.setChangeEmissionSuppressed(false)
         sessionStoreInvalidationService.startObserving()
 
         /* MARK: Offline User Setup */

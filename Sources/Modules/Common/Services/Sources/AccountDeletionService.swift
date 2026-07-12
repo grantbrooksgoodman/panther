@@ -41,9 +41,11 @@ final class AccountDeletionService: @unchecked Sendable {
             )
         }
 
-        try clientSession.user.stopObservingCurrentUserChanges()
-        defer { core.hud.hide() }
+        clientSession.user.stopObservingCurrentUserChanges(
+            disableChangeEmission: true
+        )
 
+        defer { core.hud.hide() }
         await MainActor.run {
             core.ui.addOverlay(
                 alpha: 0.5,
@@ -168,8 +170,6 @@ final class AccountDeletionService: @unchecked Sendable {
 
         // Delete user reference locally and on server.
 
-        // Required because `repairDatabase()` unconditionally restarts observation.
-        try? clientSession.user.stopObservingCurrentUserChanges()
         completionPercent = 1
 
         @Persistent(.currentUserID) var persistedCurrentUserID: String?
@@ -193,9 +193,6 @@ final class AccountDeletionService: @unchecked Sendable {
             } catch {
                 exceptions.append(error)
             }
-
-            // Required because `repairDatabase()` unconditionally restarts observation.
-            try? clientSession.user.stopObservingCurrentUserChanges()
         }
 
         if let exception = exceptions.compiledException {

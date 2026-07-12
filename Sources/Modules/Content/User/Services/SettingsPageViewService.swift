@@ -450,10 +450,12 @@ final class SettingsPageViewService {
                     guard let currentUser = self.clientSession.user.currentUser else { return }
 
                     do throws(Exception) {
-                        try self
+                        self
                             .clientSession
                             .user
-                            .stopObservingCurrentUserChanges()
+                            .stopObservingCurrentUserChanges(
+                                disableChangeEmission: true
+                            )
 
                         try await currentUser.removeCurrentPushToken()
                         try await currentUser.updateLastSignedInDate(

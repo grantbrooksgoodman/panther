@@ -18,7 +18,6 @@ struct ConversationCellReducer: Reducer {
 
     @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
     @Dependency(\.navigation) private var navigation: Navigation
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.conversationCellViewService) private var viewService: ConversationCellViewService
 
     // MARK: - Actions
@@ -135,8 +134,6 @@ struct ConversationCellReducer: Reducer {
             }
 
         case let .deleteConversationReturned(exception):
-            defer { userSession.startObservingCurrentUserChanges() }
-
             guard let exception else {
                 analyticsService.logEvent(.deleteConversation)
                 return .none
@@ -150,7 +147,6 @@ struct ConversationCellReducer: Reducer {
         case let .deletionActionSheetDismissed(cancelled: cancelled):
             guard !cancelled else { return .none }
 
-            try? userSession.stopObservingCurrentUserChanges()
             let conversation = state.conversation
             return .task {
                 @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService

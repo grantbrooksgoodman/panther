@@ -229,8 +229,6 @@ final class ChatInfoPageViewService {
                   ]) else { return }
 
             Observables.chatInfoPageLoadingStateUpdated.trigger()
-            try? clientSession.user.stopObservingCurrentUserChanges()
-            defer { clientSession.user.startObservingCurrentUserChanges() }
 
             do throws(Exception) {
                 _ = try await clientSession.activity.removeFromConversation(

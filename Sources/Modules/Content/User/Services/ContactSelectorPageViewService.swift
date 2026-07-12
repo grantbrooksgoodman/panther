@@ -103,9 +103,6 @@ struct ContactSelectorPageViewService {
                     navigation.navigate(to: .chat(.sheet(.none)))
                     Observables.chatInfoPageLoadingStateUpdated.trigger()
 
-                    try clientSession.user.stopObservingCurrentUserChanges()
-                    defer { clientSession.user.startObservingCurrentUserChanges() }
-
                     do throws(Exception) {
                         _ = try await clientSession.activity.addToConversation(
                             userID,

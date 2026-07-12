@@ -52,7 +52,10 @@ struct ConversationStagingService {
         }
 
         do throws(Exception) {
-            try? userSession.stopObservingCurrentUserChanges()
+            userSession.stopObservingCurrentUserChanges(
+                disableChangeEmission: true
+            )
+
             try? await core.utils.deleteConversations(.allForCurrentUser)
 
             core.ui.addOverlay(

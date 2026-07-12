@@ -47,19 +47,6 @@ final class UserSessionService: @unchecked Sendable {
         return clientSession.store.users[currentUserID]
     }
 
-    // MARK: - Object Lifecycle
-
-    deinit {
-        do {
-            try stopObservingCurrentUserChanges()
-        } catch {
-            Logger.log(
-                error,
-                domain: .userSession
-            )
-        }
-    }
-
     // MARK: - Resolve Current User
 
     /// Fetches the current user from the server and upserts it
@@ -157,10 +144,16 @@ final class UserSessionService: @unchecked Sendable {
 
     // MARK: - Current User Observation
 
-    func startObservingCurrentUserChanges() {
+    func startObservingCurrentUserChanges(
+        enableChangeEmission: Bool = false
+    ) {
         guard let currentUserID = currentUser?.id else { return }
         observationTask?.cancel()
         observationTask = nil
+
+        if enableChangeEmission {
+            SessionStore.setChangeEmissionSuppressed(false)
+        }
 
         Logger.log(
             "Started observing current user changes.",
@@ -168,7 +161,6 @@ final class UserSessionService: @unchecked Sendable {
             sender: self
         )
 
-        SessionStore.setChangeEmissionSuppressed(false)
         observationTask = Task {
             do {
                 for try await dictionary: [String: Any] in networking.database.observe(
@@ -202,7 +194,13 @@ final class UserSessionService: @unchecked Sendable {
         }
     }
 
-    func stopObservingCurrentUserChanges() throws(Exception) {
+    func stopObservingCurrentUserChanges(
+        disableChangeEmission: Bool = false
+    ) {
+        if disableChangeEmission {
+            SessionStore.setChangeEmissionSuppressed(true)
+        }
+
         if observationTask == nil {
             Logger.log(
                 .init(
@@ -220,7 +218,6 @@ final class UserSessionService: @unchecked Sendable {
             )
         }
 
-        SessionStore.setChangeEmissionSuppressed(true)
         observationTask?.cancel()
         observationTask = nil
     }

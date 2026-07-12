@@ -124,7 +124,10 @@ struct UserTestingService {
         let originalCount = count
         var count = count
 
-        try? clientSession.user.stopObservingCurrentUserChanges()
+        clientSession.user.stopObservingCurrentUserChanges(
+            disableChangeEmission: true
+        )
+
         while count > 0 {
             do {
                 try await createRandomMessage()

@@ -128,7 +128,10 @@ extension DevModeAction {
                             .currentUser?
                             .conversations else { return }
 
-                        try? clientSession.user.stopObservingCurrentUserChanges()
+                        clientSession.user.stopObservingCurrentUserChanges(
+                            disableChangeEmission: true
+                        )
+
                         try await clientSession.store.upsertMessages(Set(
                             conversations
                                 .compactMap(\.messages)

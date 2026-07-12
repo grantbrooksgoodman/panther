@@ -238,7 +238,10 @@ extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
                     }
 
                 case .deleteConversationsInvisibleToCurrentUser:
-                    try? userSession.stopObservingCurrentUserChanges()
+                    userSession.stopObservingCurrentUserChanges(
+                        disableChangeEmission: true
+                    )
+
                     do throws(Exception) {
                         try await core.utils.deleteConversations(
                             .notVisibleForCurrentUser
@@ -252,7 +255,10 @@ extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
                     }
 
                 case .deleteCurrentUserConversations:
-                    try? userSession.stopObservingCurrentUserChanges()
+                    userSession.stopObservingCurrentUserChanges(
+                        disableChangeEmission: true
+                    )
+
                     do throws(Exception) {
                         try await core.utils.deleteConversations(
                             .allForCurrentUser
@@ -266,7 +272,10 @@ extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
                     }
 
                 case .deleteGroupChatsWithoutNameOrPhoto:
-                    try? userSession.stopObservingCurrentUserChanges()
+                    userSession.stopObservingCurrentUserChanges(
+                        disableChangeEmission: true
+                    )
+
                     do throws(Exception) {
                         try await core.utils.deleteConversations(
                             .groupChatsWithoutNameOrPhoto
@@ -280,7 +289,10 @@ extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
                     }
 
                 case .deleteMRCConversations:
-                    try? userSession.stopObservingCurrentUserChanges()
+                    userSession.stopObservingCurrentUserChanges(
+                        disableChangeEmission: true
+                    )
+
                     do throws(Exception) {
                         try await core.utils.deleteConversations(
                             .messageRecipientConsentEnabled
@@ -294,7 +306,10 @@ extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
                     }
 
                 case .deleteOneToOneConversationsWithFewerThanFiveMessages:
-                    try? userSession.stopObservingCurrentUserChanges()
+                    userSession.stopObservingCurrentUserChanges(
+                        disableChangeEmission: true
+                    )
+
                     do throws(Exception) {
                         try await core.utils.deleteConversations(
                             .oneToOneAndFewerThanFiveMessages
@@ -308,7 +323,10 @@ extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
                     }
 
                 case .deletePenPalsConversations:
-                    try? userSession.stopObservingCurrentUserChanges()
+                    userSession.stopObservingCurrentUserChanges(
+                        disableChangeEmission: true
+                    )
+
                     do throws(Exception) {
                         try await core.utils.deleteConversations(
                             .penPals
@@ -328,7 +346,10 @@ extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
                         confirmButtonStyle: .destructivePreferred
                     ).present(translating: []) else { return }
 
-                    try? userSession.stopObservingCurrentUserChanges()
+                    userSession.stopObservingCurrentUserChanges(
+                        disableChangeEmission: true
+                    )
+
                     do throws(Exception) {
                         try await core.utils.destroyConversationDatabase()
                         showSuccessAndReset()

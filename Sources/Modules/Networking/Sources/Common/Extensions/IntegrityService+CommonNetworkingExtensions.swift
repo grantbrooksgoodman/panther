@@ -27,7 +27,6 @@ extension IntegrityService {
         @Dependency(\.build) var build: Build
         @Dependency(\.commonServices.metadata) var metadataService: MetadataService
         @Dependency(\.networking) var networking: NetworkServices
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         if isFirstRun {
             do {
@@ -53,8 +52,6 @@ extension IntegrityService {
             )
         }
 
-        try? userSession.stopObservingCurrentUserChanges()
-
         CoreDatabaseStore.clearStore()
         networking.storage.clearStore()
 
@@ -69,7 +66,6 @@ extension IntegrityService {
         do {
             try await resolveSession()
         } catch {
-            userSession.startObservingCurrentUserChanges()
             throw error
         }
 
@@ -217,7 +213,6 @@ extension IntegrityService {
         defer {
             networking.database.setGlobalCacheStrategy(nil)
             networking.storage.setGlobalCacheStrategy(nil)
-            userSession.startObservingCurrentUserChanges()
         }
 
         var logMessage = "Hosted data integrity was validated."
