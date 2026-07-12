@@ -85,7 +85,6 @@ final class ChatInfoPageViewService {
               !users.isEmpty,
               conversation.participants.count - 1 == users.count else {
             try await conversation.resolveUsers(forceUpdate: true)
-            clientSession.conversation.setCurrentConversation(conversation)
             return try await getChatParticipants()
         }
 
@@ -293,11 +292,9 @@ final class ChatInfoPageViewService {
             Observables.chatInfoPageLoadingStateUpdated.trigger()
 
             do throws(Exception) {
-                try await clientSession.conversation.setCurrentConversation(
-                    clientSession.activity.removeFromConversation(
-                        user.id,
-                        conversation: conversation
-                    )
+                _ = try await clientSession.activity.removeFromConversation(
+                    user.id,
+                    conversation: conversation
                 )
 
                 chatPageViewService.reloadCollectionView()

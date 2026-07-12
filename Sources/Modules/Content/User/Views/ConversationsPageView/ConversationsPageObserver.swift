@@ -18,6 +18,12 @@ struct ConversationsPageObserver: Observer {
 
     typealias R = ConversationsPageReducer
 
+    // MARK: - Types
+
+    private enum TaskID: String {
+        case handleChatPageStoreChange
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
@@ -34,7 +40,6 @@ struct ConversationsPageObserver: Observer {
         Observables.sessionStoreDidChange,
         Observables.traitCollectionChanged,
         Observables.updatedContactPairArchive,
-        Observables.updatedCurrentUser,
     ]
 
     let viewModel: ViewModel<ConversationsPageReducer>
@@ -51,42 +56,17 @@ struct ConversationsPageObserver: Observer {
         switch observable {
         case Observables.sessionStoreDidChange:
             send(.sessionStoreDidChange)
+            Task.debounced(
+                "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.handleChatPageStoreChange.rawValue)",
+                delay: .milliseconds(250),
+                priority: .userInitiated
+            ) { @MainActor [self] in
+                handleChatPageStoreChange()
+            }
 
         case Observables.traitCollectionChanged,
              Observables.updatedContactPairArchive:
             send(.traitCollectionChanged)
-
-        case Observables.updatedCurrentUser:
-            Task { @MainActor in
-                guard chatPageState.isPresented else {
-                    // If a message is still mid-send (e.g. the user dismissed the
-                    // chat page before delivery completed), enqueue an update so
-                    // the conversations list refreshes once delivery finishes.
-                    if messageDeliveryService.isSendingMessage {
-                        messageDeliveryService.addEffectUponIsSendingMessage(
-                            changedTo: false,
-                            id: .updateConversations
-                        ) { updateConversations() }
-                    }
-
-                    return updateConversations()
-                }
-
-                chatPageState.addEffectUponIsPresented(
-                    changedTo: false,
-                    id: .updateCurrentUser
-                ) { send(.updatedCurrentUser) }
-
-                // The signal may have already fired before this Task ran.
-                // If it did, call updateConversations() directly rather than
-                // waiting for a transition that already happened.
-                guard !chatPageState.isWaitingToUpdateConversations else { return updateConversations() }
-
-                chatPageState.addEffectUponIsWaitingToUpdateConversations(
-                    changedTo: true,
-                    id: .updateConversations
-                ) { updateConversations() }
-            }
 
         default: ()
         }
@@ -94,11 +74,16 @@ struct ConversationsPageObserver: Observer {
 
     // MARK: - Auxiliary
 
+    /// Handles chat-page–specific behaviors (read receipts, badge number,
+    /// 1:1 read-receipt re-fetch, navigation title, consent button) in
+    /// response to debounced store changes.
     @MainActor
-    private func updateConversations() {
-        guard !chatPageState.isPresented || !messageDeliveryService.isSendingMessage else {
+    private func handleChatPageStoreChange() {
+        guard chatPageState.isPresented else { return }
+
+        guard !messageDeliveryService.isSendingMessage else {
             Logger.log(
-                "Awaiting message send completion before updating conversations...",
+                "Awaiting message send completion before handling chat page store change...",
                 domain: .conversation,
                 sender: self
             )
@@ -106,51 +91,20 @@ struct ConversationsPageObserver: Observer {
             return messageDeliveryService.addEffectUponIsSendingMessage(
                 changedTo: false,
                 id: .updateConversations
-            ) { _updateConversations() }
+            ) { handleChatPageStoreChange() }
         }
 
-        _updateConversations()
-    }
-
-    // swiftlint:disable:next function_body_length
-    private func _updateConversations() {
+        // swiftlint:disable:next closure_body_length
         Task { @MainActor in
-            let previousConversationHash = clientSession.conversation.baselineConversationHash
-            let previousMessageIDs = clientSession.conversation.baselineMessageIDs
-            let previousParticipantCount = clientSession.conversation.baselineParticipantCount
+            guard let currentConversation = clientSession.conversation.currentConversation else { return }
 
             networking.database.setGlobalCacheStrategy(.returnCacheOnFailure)
             networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
-
-            do throws(Exception) {
-                try await clientSession.user.resolveCurrentUser(
-                    and: [
-                        .messages,
-                        .users,
-                    ]
-                )
-            } catch {
-                Logger.log(
-                    error,
-                    domain: .conversation,
-                    with: .toastInPrerelease
-                )
-            }
 
             defer {
                 networking.database.setGlobalCacheStrategy(nil)
                 networking.storage.setGlobalCacheStrategy(nil)
             }
-
-            guard chatPageState.isPresented else { return send(.updatedCurrentUser) }
-            defer { chatPageState.setIsWaitingToUpdateConversations(false) }
-
-            guard let currentConversation = clientSession.conversation.currentConversation,
-                  let updatedConversation = clientSession
-                  .user
-                  .currentUser?
-                  .conversations?
-                  .first(where: { $0.id.key == currentConversation.id.key }) else { return }
 
             // Re-fetch the last message in 1:1 conversations to pick up
             // read receipt changes that don't affect the conversation hash.
@@ -168,16 +122,16 @@ struct ConversationsPageObserver: Observer {
                 }
             }
 
-            if let missingMessages = updatedConversation.messages?
+            // Mark unread messages as read and update the badge.
+            if let unreadMessages = currentConversation.messages?
                 .filter({
-                    !previousMessageIDs.contains($0.id) &&
-                        !$0.isFromCurrentUser &&
+                    !$0.isFromCurrentUser &&
                         $0.currentUserReadReceipt == nil
                 }),
-                !missingMessages.isEmpty {
+                !unreadMessages.isEmpty {
                 do throws(Exception) {
-                    try await updatedConversation.updateReadDate(
-                        for: missingMessages
+                    try await currentConversation.updateReadDate(
+                        for: unreadMessages
                     )
 
                     if let badgeNumber = clientSession
@@ -196,9 +150,7 @@ struct ConversationsPageObserver: Observer {
                         }
                     }
 
-                    guard matchesCurrentConversation(updatedConversation.id.key) else { return }
-                    clientSession.conversation.setCurrentConversation(updatedConversation)
-                    chatPageViewService.reloadCollectionView()
+                    guard matchesCurrentConversation(currentConversation.id.key) else { return }
                     return configureInputBarIfNeeded()
                 } catch {
                     return Logger.log(
@@ -208,34 +160,16 @@ struct ConversationsPageObserver: Observer {
                 }
             }
 
-            guard matchesCurrentConversation(updatedConversation.id.key) else { return }
-
-            // If a user was added/removed, resolve the users again.
-            if previousParticipantCount != updatedConversation.participants.count {
-                do throws(Exception) {
-                    try await updatedConversation.resolveUsers(forceUpdate: true)
-                } catch {
-                    Logger.log(
-                        error,
-                        domain: .conversation,
-                        with: .toastInPrerelease
-                    )
-                }
-            }
-
-            clientSession.conversation.setCurrentConversation(updatedConversation)
-            chatPageState.setIsWaitingToUpdateConversations(false) // Allow typing indicator to appear.
+            guard matchesCurrentConversation(currentConversation.id.key) else { return }
 
             if chatPageViewService.recipientBar?.layout.recipientBarView == nil,
                let navigationTitle = ConversationCellViewData(
-                   updatedConversation,
-                   useCachedValue: previousParticipantCount == updatedConversation.participants.count
+                   currentConversation,
+                   useCachedValue: true
                )?.titleLabelText {
                 chatPageViewService.setNavigationTitle(navigationTitle)
             }
 
-            guard previousConversationHash != updatedConversation.id.hash else { return }
-            chatPageViewService.reloadCollectionView() // Reload to display updated read date / reactions.
             configureInputBarIfNeeded()
             Observables.currentConversationMetadataChanged.trigger()
         }

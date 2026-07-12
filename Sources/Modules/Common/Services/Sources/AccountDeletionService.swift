@@ -107,7 +107,7 @@ final class AccountDeletionService: @unchecked Sendable {
             for groupChat in groupChats {
                 taskGroup.addTask {
                     do throws(Exception) {
-                        _ = try await self.clientSession.activity.removeFromConversation(
+                        try await self.clientSession.activity.removeFromConversation(
                             currentUserID,
                             conversation: groupChat,
                             removeFromUser: false

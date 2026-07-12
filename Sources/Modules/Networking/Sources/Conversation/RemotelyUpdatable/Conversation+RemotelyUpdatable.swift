@@ -172,7 +172,7 @@ extension Conversation: RemotelyUpdatable {
     // MARK: - Auxiliary
 
     /// Ensures updates take into account any messages sent during execution of `update` logic.
-    /// We disregard modification of the local value, since this scenario should trigger a latent call to `ConversationsPageViewObserver.updateConversations()`.
+    /// We disregard modification of the local value, since the store upsert propagates the change via `sessionStoreDidChange`.
     private func addMessageIDs(
         _ messageIDs: [String]
     ) async throws(Exception) {

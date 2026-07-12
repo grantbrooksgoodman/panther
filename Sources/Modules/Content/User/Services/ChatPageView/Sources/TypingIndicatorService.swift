@@ -25,7 +25,6 @@ final class TypingIndicatorService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
 
@@ -194,8 +193,7 @@ final class TypingIndicatorService {
     @MainActor
     @objc
     private func checkForTypingIndicatorChanges() {
-        guard !chatPageState.isWaitingToUpdateConversations,
-              canSafelyToggleTypingIndicator else { return }
+        guard canSafelyToggleTypingIndicator else { return }
 
         // FIXME: Still encounter crashing bugs with this. Seems to be a MessageKit issue.
         // https://github.com/MessageKit/MessageKit/issues/1788
@@ -229,7 +227,7 @@ final class TypingIndicatorService {
         }
 
         guard isTyping != currentUserParticipant.isTyping else { return }
-        let updatedConversation = try await conversation.update(
+        _ = try await conversation.update(
             \.participants,
             to: (
                 conversation
@@ -243,8 +241,5 @@ final class TypingIndicatorService {
                 ),
             ]
         )
-
-        guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return }
-        clientSession.conversation.setCurrentConversation(updatedConversation)
     }
 }

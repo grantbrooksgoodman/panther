@@ -272,7 +272,6 @@ final class ReactionSessionService {
               .id
               .key == conversation.id.key else { return }
 
-        conversationSession.setCurrentConversation(updatedConversation)
         chatPageViewService.reloadItemsWhenSafe(at: [.init(
             item: 0,
             section: messageData.index

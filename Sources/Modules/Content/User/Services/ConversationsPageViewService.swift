@@ -159,7 +159,7 @@ final class ConversationsPageViewService {
     }
 
     /// `.reloadDataReturned`
-    /// `.updatedCurrentUser`
+    /// `.sessionStoreDidChange`
     /// `.viewAppeared`
     func updateConversationsList(
         with providedConversations: [Conversation]? = nil,

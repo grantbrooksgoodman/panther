@@ -66,6 +66,7 @@ struct ChatInfoPageReducer: Reducer {
         case traitCollectionChanged
 
         case updateMetadataFailed(Exception)
+        // TODO: Remove Conversation – it's unused.
         case updateMetadataReturned(Conversation, togglePenPalsSharingDataSwitch: Bool = false)
         case userInfoBadgeTapped(User?)
     }
@@ -469,10 +470,9 @@ struct ChatInfoPageReducer: Reducer {
 
             state.isChangeMetadataButtonEnabled = true
 
-        case let .updateMetadataReturned(conversation, togglePenPalsDataSharingSwitch):
+        case let .updateMetadataReturned(_, togglePenPalsDataSharingSwitch):
             let oldConversationIsPenPalsConversation = state.conversation?.metadata.isPenPalsConversation == true
 
-            conversationSession.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView() // TODO: Audit why this didn't seem necessary before, but is now.
             Observables.currentConversationMetadataChanged.trigger()
 

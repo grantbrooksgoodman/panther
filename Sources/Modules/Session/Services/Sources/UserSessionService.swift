@@ -24,7 +24,6 @@ final class UserSessionService: @unchecked Sendable {
 
     // MARK: - Dependencies
 
-    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.build.isOnline) private var isOnline: Bool
     @Dependency(\.networking) private var networking: NetworkServices
@@ -495,6 +494,20 @@ final class UserSessionService: @unchecked Sendable {
                     )
                 }
 
+                do throws(Exception) {
+                    try await resolveCurrentUser(
+                        and: [
+                            .messages,
+                            .users,
+                        ]
+                    )
+                } catch {
+                    Logger.log(
+                        error,
+                        domain: .userSession
+                    )
+                }
+
                 Task.debounced(
                     "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.getDataUsage.rawValue)",
                     delay: .seconds(5),
@@ -502,11 +515,6 @@ final class UserSessionService: @unchecked Sendable {
                 ) {
                     _ = try? await self.clientSession.storage.getCurrentUserDataUsage()
                 }
-
-                Observables.updatedCurrentUser.trigger()
-                chatPageState.setIsWaitingToUpdateConversations(
-                    chatPageState.isPresented
-                )
             } catch {
                 Logger.log(
                     error,

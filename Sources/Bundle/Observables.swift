@@ -47,5 +47,4 @@ extension Observables {
     static let sessionStoreDidChange = Observable<SessionStoreChange?>(nil)
     static let traitCollectionChanged = Observable<Nil>()
     static let updatedContactPairArchive = Observable<Nil>()
-    static let updatedCurrentUser = Observable<Nil>()
 }

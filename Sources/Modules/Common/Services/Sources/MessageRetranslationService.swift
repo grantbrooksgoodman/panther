@@ -122,10 +122,6 @@ struct MessageRetranslationService {
                     ids: [message.id]
                 )
 
-                clientSession
-                    .conversation
-                    .setCurrentConversation(conversation)
-
                 chatPageViewService.reloadItemsWhenSafe(
                     at: [indexPath],
                     animated: false

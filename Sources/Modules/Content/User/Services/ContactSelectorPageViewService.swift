@@ -107,11 +107,9 @@ struct ContactSelectorPageViewService {
                     defer { clientSession.user.startObservingCurrentUserChanges() }
 
                     do throws(Exception) {
-                        try await clientSession.conversation.setCurrentConversation(
-                            clientSession.activity.addToConversation(
-                                userID,
-                                conversation: conversation
-                            )
+                        _ = try await clientSession.activity.addToConversation(
+                            userID,
+                            conversation: conversation
                         )
 
                         chatPageViewService.reloadCollectionView()

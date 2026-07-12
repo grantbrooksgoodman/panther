@@ -17,7 +17,6 @@ import Networking
 struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices.review) private var reviewService: ReviewService
@@ -40,7 +39,6 @@ struct ConversationsPageReducer: Reducer {
         case pulledToRefresh
         case sessionStoreDidChange
         case traitCollectionChanged
-        case updatedCurrentUser
 
         case isSearchingChanged(Bool)
         case searchQueryChanged(String)
@@ -193,16 +191,6 @@ struct ConversationsPageReducer: Reducer {
         case .traitCollectionChanged:
             state.composeToolbarButtonViewID = UUID()
             viewService.traitCollectionChanged()
-
-        case .updatedCurrentUser:
-            viewService.updateConversationsList(state: &state)
-            state.isSearching = false
-            state.searchQuery = ""
-            coreUtilities.clearCaches([.queriedConversations])
-
-            return .task {
-                .composeToolbarButtonAnimationAmountSet(1)
-            }
 
         case .viewDisappeared:
             viewService.viewDisappeared()

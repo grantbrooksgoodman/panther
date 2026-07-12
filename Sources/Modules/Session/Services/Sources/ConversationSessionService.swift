@@ -33,9 +33,6 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Properties
 
-    private(set) var baselineConversationHash: String?
-    private(set) var baselineMessageIDs: Set<String> = []
-    private(set) var baselineParticipantCount: Int = 0
     private(set) var displayedMessages: [Message] = []
 
     private var changeHandlerID: UUID?
@@ -107,10 +104,6 @@ final class ConversationSessionService: @unchecked Sendable {
             sessionStore.upsertConversation(conversation)
             currentConversationReference = .stored(idKey: conversation.id.key)
         }
-
-        baselineConversationHash = conversation.id.hash
-        baselineMessageIDs = Set(conversation.messageIDs)
-        baselineParticipantCount = conversation.participants.count
 
         updateDisplayedMessages()
     }
@@ -196,9 +189,6 @@ final class ConversationSessionService: @unchecked Sendable {
     // MARK: - Auxiliary
 
     private func clearPointer() {
-        baselineConversationHash = nil
-        baselineMessageIDs = []
-        baselineParticipantCount = 0
         currentConversationReference = .none
         displayedMessages = []
     }

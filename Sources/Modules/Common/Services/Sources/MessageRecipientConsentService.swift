@@ -137,13 +137,11 @@ final class MessageRecipientConsentService {
             newAcknowledgementData = emptyAcknowledgementData
         }
 
-        try await clientSession.conversation.setCurrentConversation(
-            conversation.update(
-                \.metadata,
-                to: conversation.metadata.copyWith(
-                    messageRecipientConsentAcknowledgementData: newAcknowledgementData,
-                    nilRequiresConsentFromInitiator: newAcknowledgementData == emptyAcknowledgementData
-                )
+        _ = try await conversation.update(
+            \.metadata,
+            to: conversation.metadata.copyWith(
+                messageRecipientConsentAcknowledgementData: newAcknowledgementData,
+                nilRequiresConsentFromInitiator: newAcknowledgementData == emptyAcknowledgementData
             )
         )
     }
