@@ -128,9 +128,7 @@ extension CoreKit.Utilities {
         networking.database.setGlobalCacheStrategy(.disregardCache)
         networking.storage.setGlobalCacheStrategy(.disregardCache)
 
-        clientSession.user.stopObservingCurrentUserChanges(
-            disableChangeEmission: true
-        )
+        clientSession.user.stopObservingCurrentUserChanges()
 
         var exceptions = [Exception]()
         for conversationIDKey in conversationIDKeys.unique {

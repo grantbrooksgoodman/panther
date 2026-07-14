@@ -123,9 +123,7 @@ struct UserTestingService {
         let originalCount = count
         var count = count
 
-        clientSession.user.stopObservingCurrentUserChanges(
-            disableChangeEmission: true
-        )
+        clientSession.user.stopObservingCurrentUserChanges()
 
         while count > 0 {
             do {

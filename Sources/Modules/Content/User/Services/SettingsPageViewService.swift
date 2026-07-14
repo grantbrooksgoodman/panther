@@ -445,9 +445,7 @@ final class SettingsPageViewService {
                         self
                             .clientSession
                             .user
-                            .stopObservingCurrentUserChanges(
-                                disableChangeEmission: true
-                            )
+                            .stopObservingCurrentUserChanges()
 
                         try await currentUser.removeCurrentPushToken()
                         try await currentUser.updateLastSignedInDate(

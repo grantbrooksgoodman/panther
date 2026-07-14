@@ -65,14 +65,12 @@ extension Application {
         @Dependency(\.appGroupDefaults) var appGroupDefaults: UserDefaults
         @Dependency(\.networking.auth) var auth: AuthDelegate
         @Dependency(\.clientSession) var clientSession: ClientSession
-        @Dependency(\.clientSession.conversationObserver) var conversationObserver: ConversationObserverService
         @Dependency(\.coreKit) var core: CoreKit
         @Dependency(\.userDefaults) var defaults: UserDefaults
         @Dependency(\.navigation) var navigation: Navigation
 
         clientSession.store.advanceEpoch()
-        SessionStore.setChangeEmissionSuppressed(true)
-        conversationObserver.stopObserving()
+        clientSession.conversationObserver.stopObserving()
         if !preserveCurrentUserID {
             clientSession.user.stopObservingCurrentUserChanges()
         }

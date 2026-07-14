@@ -189,17 +189,9 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         let userInfo = ["ConversationID": id.encoded]
-        if forceUpdate {
-            networking.database.setGlobalCacheStrategy(.disregardCache)
-        } else {
+        if !forceUpdate {
             guard users == nil ||
                 users!.count != participants.count - 1 else { return }
-        }
-
-        defer {
-            if forceUpdate {
-                networking.database.setGlobalCacheStrategy(nil)
-            }
         }
 
         let userIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
@@ -213,7 +205,9 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         let fetchedUsers: [User]
         do {
             fetchedUsers = try await networking.userService.getUsers(
-                ids: userIDs
+                ids: userIDs,
+                bypassSnapshotCache: forceUpdate,
+                cacheStrategy: forceUpdate ? .disregardCache : nil
             )
         } catch {
             throw error.appending(userInfo: userInfo)

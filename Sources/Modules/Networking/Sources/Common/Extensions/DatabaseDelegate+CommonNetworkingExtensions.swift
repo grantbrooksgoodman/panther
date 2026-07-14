@@ -110,4 +110,13 @@ extension DatabaseDelegate {
             as: .populatedTemporaryCaches
         )
     }
+
+    func withGlobalCacheStrategy<T: Sendable>(
+        _ strategy: CacheStrategy,
+        perform body: @Sendable () async throws -> T
+    ) async throws -> T {
+        setGlobalCacheStrategy(strategy)
+        defer { setGlobalCacheStrategy(nil) }
+        return try await body()
+    }
 }

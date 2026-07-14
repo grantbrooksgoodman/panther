@@ -98,25 +98,24 @@ struct ConversationsPageObserver: Observer {
         Task { @MainActor in
             guard let currentConversation = clientSession.conversation.currentConversation else { return }
 
-            networking.database.setGlobalCacheStrategy(.returnCacheOnFailure)
-            networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
-
-            defer {
-                networking.database.setGlobalCacheStrategy(nil)
-                networking.storage.setGlobalCacheStrategy(nil)
-            }
-
             // Re-fetch the last message in 1:1 conversations to pick up
             // read receipt changes that don't affect the conversation hash.
             if currentConversation.participants.count == 2,
                let lastMessageID = currentConversation.messages?.last?.id ?? currentConversation.messageIDs.last {
-                do throws(Exception) {
-                    try await currentConversation.resolveMessages(
-                        ids: [lastMessageID]
-                    )
+                do {
+                    try await networking.database.withGlobalCacheStrategy(
+                        .returnCacheOnFailure
+                    ) {
+                        try await currentConversation.resolveMessages(
+                            ids: [lastMessageID]
+                        )
+                    }
                 } catch {
                     Logger.log(
-                        error,
+                        .init(
+                            error,
+                            metadata: .init(sender: self)
+                        ),
                         domain: .conversation
                     )
                 }

@@ -41,10 +41,7 @@ final class AccountDeletionService: @unchecked Sendable {
             )
         }
 
-        clientSession.user.stopObservingCurrentUserChanges(
-            disableChangeEmission: true
-        )
-
+        clientSession.user.stopObservingCurrentUserChanges()
         defer { core.hud.hide() }
         await MainActor.run {
             core.ui.addOverlay(

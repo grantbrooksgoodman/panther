@@ -508,11 +508,6 @@ extension SessionStore {
     // MARK: - Properties
 
     private static let changeHandlers = LockIsolated<[UUID: @MainActor @Sendable (SessionStoreChange) -> Void]>([:])
-    private static let _isChangeEmissionSuppressed = LockIsolated(false)
-
-    static var isChangeEmissionSuppressed: Bool {
-        _isChangeEmissionSuppressed.wrappedValue
-    }
 
     // MARK: - Methods
 
@@ -527,10 +522,6 @@ extension SessionStore {
 
     static func removeChangeHandler(_ id: UUID) {
         changeHandlers.projectedValue.withValue { $0[id] = nil }
-    }
-
-    static func setChangeEmissionSuppressed(_ suppressed: Bool) {
-        _isChangeEmissionSuppressed.projectedValue.withValue { $0 = suppressed }
     }
 }
 
@@ -547,7 +538,6 @@ private extension SessionStore {
     // MARK: - Methods
 
     func emitChange(_ change: SessionStoreChange) {
-        guard !Self.isChangeEmissionSuppressed else { return }
         Observables.sessionStoreDidChange.value = change
         let handlers = Self.changeHandlers.wrappedValue
         guard !handlers.isEmpty else { return }

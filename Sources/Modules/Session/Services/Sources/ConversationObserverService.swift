@@ -166,18 +166,21 @@ final class ConversationObserverService: @unchecked Sendable {
         _ data: [String: Any],
         conversationIDKey: String
     ) async {
+        let data = makeDecodable(
+            data,
+            conversationIDKey: conversationIDKey
+        )
+
         guard Conversation.canDecode(from: data) else {
-            Logger.log(
+            return Logger.log(
                 .init(
                     "Received non-decodable conversation snapshot.",
-                    isReportable: false,
                     userInfo: ["ConversationIDKey": conversationIDKey],
                     metadata: .init(sender: self)
                 ),
-                domain: .conversationObserver
+                domain: .conversationObserver,
+                with: .toastInPrerelease
             )
-
-            return
         }
 
         do throws(Exception) {
@@ -210,6 +213,20 @@ final class ConversationObserverService: @unchecked Sendable {
                 domain: .conversationObserver
             )
         }
+    }
+
+    private func makeDecodable(
+        _ data: [String: Any],
+        conversationIDKey: String
+    ) -> [String: Any] {
+        let hash = data[
+            Conversation.SerializableKey.encodedHash.rawValue
+        ] ?? String.bangQualifiedEmpty
+        var data = data
+        data[
+            Conversation.SerializableKey.id.rawValue
+        ] = "\(conversationIDKey) | \(hash)"
+        return data
     }
 
     private func observe(

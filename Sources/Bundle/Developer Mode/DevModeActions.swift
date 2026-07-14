@@ -128,9 +128,7 @@ extension DevModeAction {
                             .currentUser?
                             .conversations else { return }
 
-                        clientSession.user.stopObservingCurrentUserChanges(
-                            disableChangeEmission: true
-                        )
+                        clientSession.user.stopObservingCurrentUserChanges()
 
                         try await conversations
                             .compactMap(\.messages)

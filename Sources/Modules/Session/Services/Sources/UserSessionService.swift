@@ -112,16 +112,10 @@ final class UserSessionService: @unchecked Sendable {
 
     // MARK: - Current User Observation
 
-    func startObservingCurrentUserChanges(
-        enableChangeEmission: Bool = false
-    ) {
+    func startObservingCurrentUserChanges() {
         guard let currentUserID = currentUser?.id else { return }
         observationTask?.cancel()
         observationTask = nil
-
-        if enableChangeEmission {
-            SessionStore.setChangeEmissionSuppressed(false)
-        }
 
         Logger.log(
             "Started observing current user changes.",
@@ -162,13 +156,7 @@ final class UserSessionService: @unchecked Sendable {
         }
     }
 
-    func stopObservingCurrentUserChanges(
-        disableChangeEmission: Bool = false
-    ) {
-        if disableChangeEmission {
-            SessionStore.setChangeEmissionSuppressed(true)
-        }
-
+    func stopObservingCurrentUserChanges() {
         if observationTask == nil {
             Logger.log(
                 .init(
