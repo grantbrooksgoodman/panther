@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class TypingIndicatorService {
+final class TypingIndicatorService: @unchecked Sendable {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.TypingIndicator
@@ -33,8 +33,8 @@ final class TypingIndicatorService {
 
     private let viewController: ChatPageViewController
 
+    private var changeHandlerID: UUID?
     private var isUpdatingIsTypingForCurrentUser = false
-    private var typingIndicatorTimer: Timer?
 
     // MARK: - Computed Properties
 
@@ -65,18 +65,26 @@ final class TypingIndicatorService {
 
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
+        changeHandlerID = SessionStore.addChangeHandler { [weak self] change in
+            guard let self else { return }
+            handleStoreChange(change)
+        }
     }
 
     // MARK: - Object Lifecycle
 
     deinit {
-        stopCheckingForTypingIndicatorChanges()
+        if let changeHandlerID {
+            SessionStore.removeChangeHandler(changeHandlerID)
+        }
     }
 
     // MARK: - Reset Typing Indicator Status for Current User
 
     static func resetTypingIndicatorStatusForCurrentUser() async throws(Exception) {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+
         guard let currentUser else {
             throw Exception(
                 "Current user has not been set.",
@@ -105,7 +113,6 @@ final class TypingIndicatorService {
             updates[path] = false
         }
 
-        @Dependency(\.networking.database) var database: DatabaseDelegate
         try await database.commit(updates)
     }
 
@@ -172,29 +179,9 @@ final class TypingIndicatorService {
         }
     }
 
-    // MARK: - Typing Indicator Timer
-
-    @MainActor
-    func startCheckingForTypingIndicatorChanges() {
-        stopCheckingForTypingIndicatorChanges()
-        typingIndicatorTimer = .scheduledTimer(
-            timeInterval: .init(Floats.timerTimeInterval),
-            target: self,
-            selector: #selector(checkForTypingIndicatorChanges),
-            userInfo: nil,
-            repeats: true
-        )
-    }
-
-    func stopCheckingForTypingIndicatorChanges() {
-        typingIndicatorTimer?.invalidate()
-        typingIndicatorTimer = nil
-    }
-
     // MARK: - Auxiliary
 
     @MainActor
-    @objc
     private func checkForTypingIndicatorChanges() {
         guard canSafelyToggleTypingIndicator else { return }
 
@@ -216,9 +203,18 @@ final class TypingIndicatorService {
     }
 
     @MainActor
+    private func handleStoreChange(_ change: SessionStoreChange) {
+        guard case let .conversations(upsertedIDKeys, _) = change,
+              let currentConversation = viewController.currentConversation,
+              upsertedIDKeys.contains(currentConversation.id.key) else { return }
+        checkForTypingIndicatorChanges()
+    }
+
+    @MainActor
     private func updateIsTypingForCurrentUser(
         _ isTyping: Bool
     ) async throws(Exception) {
+        @Dependency(\.networking.database) var database: DatabaseDelegate
         guard let conversation = clientSession.conversation.currentConversation,
               conversation.participants.count == Int(Floats.participantCountThreshold) else { return }
 
@@ -240,8 +236,6 @@ final class TypingIndicatorService {
             currentUserParticipant.userID,
             "isTyping",
         ].joined(separator: "/")
-
-        @Dependency(\.networking.database) var database: DatabaseDelegate
         try await database.commit([path: isTyping])
     }
 }

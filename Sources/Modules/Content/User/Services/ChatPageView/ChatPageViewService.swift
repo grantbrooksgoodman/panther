@@ -140,7 +140,6 @@ final class ChatPageViewService {
 
     func onViewDidAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
-        typingIndicator?.startCheckingForTypingIndicatorChanges()
         InteractivePopGestureRecognizer.setIsEnabled(true)
 
         guard configuration != .preview else {
@@ -164,6 +163,16 @@ final class ChatPageViewService {
                 }
             }
             return
+        }
+
+        // Start observer for stored conversations
+        // (skips drafts and mocks).
+        if let currentConversation = clientSession.conversation.currentConversation,
+           !currentConversation.isEmpty,
+           !currentConversation.isMock {
+            clientSession.conversationObserver.startObserving(
+                conversationIDKey: currentConversation.id.key
+            )
         }
 
         contextMenu?.interaction.addKeyboardWillShowObserver()
@@ -225,13 +234,13 @@ final class ChatPageViewService {
         Message.consentRequestMessageID = nil
         NavigationBar.setAppearance(.conversationsPageView)
         contextMenu?.interaction.stopAddingContextMenuInteractionToVisibleCells()
-        typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
 
     func onViewDidDisappear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
         chatPageState.setIsPresented(false)
+        clientSession.conversationObserver.stopObserving()
         contextMenu?.interaction.removeKeyboardWillShowObserver()
 
         Task.background { @MainActor in

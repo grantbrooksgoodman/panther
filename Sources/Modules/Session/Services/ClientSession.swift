@@ -23,6 +23,7 @@ final class ClientSession: @unchecked Sendable {
 
     let activity: ActivitySessionService
     let conversation: ConversationSessionService
+    let conversationObserver: ConversationObserverService
     let message: MessageSessionService
     let moderation: ModerationSessionService
     let reaction: ReactionSessionService
@@ -44,6 +45,7 @@ final class ClientSession: @unchecked Sendable {
     init(
         activity: ActivitySessionService,
         conversation: ConversationSessionService,
+        conversationObserver: ConversationObserverService,
         message: MessageSessionService,
         moderation: ModerationSessionService,
         reaction: ReactionSessionService,
@@ -53,6 +55,7 @@ final class ClientSession: @unchecked Sendable {
     ) {
         self.activity = activity
         self.conversation = conversation
+        self.conversationObserver = conversationObserver
         self.message = message
         self.moderation = moderation
         self.reaction = reaction

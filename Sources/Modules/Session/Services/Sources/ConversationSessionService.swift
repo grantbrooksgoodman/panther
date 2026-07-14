@@ -28,6 +28,7 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Dependencies
 
+    @Dependency(\.clientSession.conversationObserver) private var conversationObserver: ConversationObserverService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.clientSession.store) private var sessionStore: SessionStore
 
@@ -98,12 +99,22 @@ final class ConversationSessionService: @unchecked Sendable {
     func setCurrentConversation(_ conversation: Conversation?) {
         guard let conversation else { return clearPointer() }
 
+        let previousReference = currentConversationReference
+
         if conversation.isEmpty || conversation.isMock {
             currentConversationReference = .draft(conversation)
         } else {
             // Ensures the store contains the conversation before setting the pointer.
             sessionStore.upsertConversation(conversation)
             currentConversationReference = .stored(idKey: conversation.id.key)
+
+            // First send in a new chat: start observing
+            // now that the conversation is stored.
+            if case .draft = previousReference {
+                conversationObserver.startObserving(
+                    conversationIDKey: conversation.id.key
+                )
+            }
         }
 
         updateDisplayedMessages()
@@ -190,6 +201,7 @@ final class ConversationSessionService: @unchecked Sendable {
     // MARK: - Auxiliary
 
     private func clearPointer() {
+        conversationObserver.stopObserving()
         currentConversationReference = .none
         displayedMessages = []
     }

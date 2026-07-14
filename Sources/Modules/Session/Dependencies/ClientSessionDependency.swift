@@ -17,6 +17,7 @@ enum ClientSessionDependency: DependencyKey {
         .init(
             activity: .init(),
             conversation: .init(),
+            conversationObserver: .init(),
             message: .init(),
             moderation: .init(),
             reaction: .init(),

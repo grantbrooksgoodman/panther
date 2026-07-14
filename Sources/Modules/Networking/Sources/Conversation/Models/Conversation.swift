@@ -230,6 +230,10 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     func updateReadDate(
         for messages: [Message]
     ) async throws(Exception) {
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+
         guard !messages.isEmpty else {
             throw Exception(
                 "No messages provided.",
@@ -244,21 +248,94 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             )
         }
 
-        let readReceipt = ReadReceipt(userID: currentUserID, readDate: .now)
-        let unreadMessages = messages.filter { $0.currentUserReadReceipt == nil }
+        let now = Date.now
+        let readReceipt = ReadReceipt(
+            userID: currentUserID,
+            readDate: now
+        )
 
-        try await unreadMessages.map {
-            let unreadMessage = $0
-            return try await unreadMessage.update(
-                \.readReceipts,
-                to: (
-                    (
-                        unreadMessage
-                            .readReceipts?
-                            .filter { $0.userID != currentUserID } ?? []
-                    ) + [readReceipt]
-                ).unique
+        let unreadMessages = messages.filter {
+            $0.currentUserReadReceipt == nil
+        }
+
+        guard !unreadMessages.isEmpty else { return }
+        var updates = [String: Any]()
+        var updatedMessages = [Message]()
+
+        // Per-message read receipt entries. Array retained:
+        // a message's receipts are small and only ever
+        // written by readers of that message. Group-chat
+        // concurrent-readers remain last-writer-wins at
+        // per-message granularity (accepted residual).
+        for message in unreadMessages {
+            let updatedReceipts = (
+                (
+                    message
+                        .readReceipts?
+                        .filter { $0.userID != currentUserID } ?? []
+                ) + [readReceipt]
+            ).unique
+
+            let path = [
+                NetworkPath.messages.rawValue,
+                message.id,
+                Message.SerializableKey.readReceipts.rawValue,
+            ].joined(separator: "/")
+
+            updates[path] = updatedReceipts.map(\.encoded)
+            updatedMessages.append(
+                message.copying(readReceipts: updatedReceipts)
             )
+        }
+
+        // For 1:1 conversations, add lastModifiedDate +
+        // hash + participant token entries.
+        var updatedConversation: Conversation?
+        if participants.count == 2 {
+            let conversationPath = [
+                NetworkPath.conversations.rawValue,
+                id.key,
+            ].joined(separator: "/")
+
+            let lastModifiedPath = [
+                conversationPath,
+                Conversation.SerializableKey.metadata.rawValue,
+                ConversationMetadata.SerializableKey.lastModifiedDate.rawValue,
+            ].joined(separator: "/")
+
+            updates[lastModifiedPath] = dateFormatter.string(from: now)
+
+            let withMetadata = copying(
+                metadata: metadata.copyWith(lastModifiedDate: now)
+            )
+
+            let newHash = withMetadata.encodedHash
+
+            updates["\(conversationPath)/\(Conversation.SerializableKey.encodedHash.rawValue)"] = newHash
+
+            for participant in participants {
+                let tokenPath = [
+                    NetworkPath.users.rawValue,
+                    participant.userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                    id.key,
+                ].joined(separator: "/")
+
+                updates[tokenPath] = newHash
+            }
+
+            updatedConversation = withMetadata.copying(
+                id: .init(
+                    key: id.key,
+                    hash: newHash
+                )
+            )
+        }
+
+        try await database.commit(updates)
+        sessionStore.upsertMessages(Set(updatedMessages))
+        if let updatedConversation {
+            sessionStore.upsertConversation(updatedConversation)
         }
 
         Logger.log(
@@ -266,21 +343,6 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             domain: .conversation,
             sender: self
         )
-
-        // Update lastModifiedDate in 1:1 conversations so the hash changes,
-        // propagating the read receipt update to the other participant.
-        guard participants.count == 2 else { return }
-        do throws(Exception) {
-            _ = try await update(
-                \.metadata,
-                to: metadata.copyWith(lastModifiedDate: .now)
-            )
-        } catch {
-            Logger.log(
-                error,
-                domain: .conversation
-            )
-        }
     }
 
     // MARK: - Hashable Conformance

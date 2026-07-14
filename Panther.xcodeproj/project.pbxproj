@@ -212,6 +212,7 @@
 		B942625B2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B942625A2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift */; };
 		B942625D2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B942625C2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift */; };
 		B94388692B3217B6002D94FF /* ConversationSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388682B3217B6002D94FF /* ConversationSessionService.swift */; };
+		A25C30295F0D467B8DCDB797 /* ConversationObserverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C30285F0D467B8DCDB796 /* ConversationObserverService.swift */; };
 		B943886F2B321951002D94FF /* ClientSessionDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943886E2B321951002D94FF /* ClientSessionDependency.swift */; };
 		B94388712B3219CE002D94FF /* UserSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388702B3219CE002D94FF /* UserSessionService.swift */; };
 		B943F2482C41EA610047EDD5 /* MediaMessagePreviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943F2472C41EA610047EDD5 /* MediaMessagePreviewService.swift */; };
@@ -1058,6 +1059,7 @@
 		B942625A2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteQRCodePageViewService.swift; sourceTree = "<group>"; };
 		B942625C2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteQRCodePageViewServiceDependency.swift; sourceTree = "<group>"; };
 		B94388682B3217B6002D94FF /* ConversationSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationSessionService.swift; sourceTree = "<group>"; };
+		A25C30285F0D467B8DCDB796 /* ConversationObserverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationObserverService.swift; sourceTree = "<group>"; };
 		B943886E2B321951002D94FF /* ClientSessionDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientSessionDependency.swift; sourceTree = "<group>"; };
 		B94388702B3219CE002D94FF /* UserSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionService.swift; sourceTree = "<group>"; };
 		B943F2472C41EA610047EDD5 /* MediaMessagePreviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaMessagePreviewService.swift; sourceTree = "<group>"; };
@@ -2090,6 +2092,7 @@
 			isa = PBXGroup;
 			children = (
 				A29DFA962ED5749800171C04 /* ActivitySessionService.swift */,
+				A25C30285F0D467B8DCDB796 /* ConversationObserverService.swift */,
 				B94388682B3217B6002D94FF /* ConversationSessionService.swift */,
 				B99E48E12CE16AC2006D6AFC /* ConversationSyncService.swift */,
 				B9E1BB922B2F8F0100ADEA71 /* MessageSessionService.swift */,
@@ -4183,6 +4186,7 @@
 				B9AD411F2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift in Sources */,
 				B9D5C72C2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift in Sources */,
 				B9975C8B2B201AA4008CE353 /* CommonServices.swift in Sources */,
+				A25C30295F0D467B8DCDB797 /* ConversationObserverService.swift in Sources */,
 				B94388692B3217B6002D94FF /* ConversationSessionService.swift in Sources */,
 				B95DCE4D2D8CC658003730F9 /* Color+UserContentExtensions.swift in Sources */,
 				B980E8B72B2266E60090F141 /* PhoneNumber+Serializable.swift in Sources */,

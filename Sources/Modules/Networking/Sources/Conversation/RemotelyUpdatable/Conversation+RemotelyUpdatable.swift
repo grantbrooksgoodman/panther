@@ -87,8 +87,8 @@ extension Conversation: RemotelyUpdatable {
         @Dependency(\.networking.database) var database: DatabaseDelegate
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
-        var updated = filteringSystemMessages
         var changedKeys = Set<String>()
+        var updated = filteringSystemMessages
 
         for keyPair in data {
             guard let key = Self.serializableKey(for: keyPair.key) else {
@@ -145,6 +145,9 @@ extension Conversation: RemotelyUpdatable {
         forKey key: SerializableKey,
         updating updated: Conversation
     ) async throws(Exception) -> WriteAction<Conversation> {
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
+
         guard key == .messages,
               let allMessages = value as? [Message],
               !allMessages.filteringSystemMessages.isEmpty else { return .proceed }
@@ -188,6 +191,8 @@ extension Conversation: RemotelyUpdatable {
         // lastModifiedDate + user tokens.
         var updates = [String: Any]()
 
+        // TODO: Build paths by array + .joined here.
+
         // Message RTDB nodes for truly-new messages.
         for message in trulyNewMessages {
             let payload = message.encoded.filter {
@@ -207,8 +212,6 @@ extension Conversation: RemotelyUpdatable {
             updates["\(conversationPath)/\(SerializableKey.participants.rawValue)/\(participant.userID)/hasDeletedConversation"] = false
         }
 
-        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
-
         updates["\(conversationPath)/\(SerializableKey.participants.rawValue)/\(currentUserParticipant.userID)/isTyping"] = false
         updates["\(conversationPath)/\(SerializableKey.encodedHash.rawValue)"] = sendPathConversation.id.hash
         updates["\(conversationPath)/\(SerializableKey.metadata.rawValue)/lastModifiedDate"] = timestampDateFormatter.string(from: .now)
@@ -217,7 +220,6 @@ extension Conversation: RemotelyUpdatable {
             uniquingKeysWith: { _, new in new }
         )
 
-        @Dependency(\.networking.database) var database: DatabaseDelegate
         try await database.commit(updates)
         return .handled(sendPathConversation)
     }

@@ -63,12 +63,14 @@ extension Application {
         onCompletion procedure: ResetCompletionProcedure? = nil
     ) {
         @Dependency(\.appGroupDefaults) var appGroupDefaults: UserDefaults
+        @Dependency(\.clientSession.conversationObserver) var conversationObserver: ConversationObserverService
         @Dependency(\.coreKit) var core: CoreKit
         @Dependency(\.userDefaults) var defaults: UserDefaults
         @Dependency(\.navigation) var navigation: Navigation
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         SessionStore.setChangeEmissionSuppressed(true)
+        conversationObserver.stopObserving()
         if !preserveCurrentUserID {
             userSession.stopObservingCurrentUserChanges()
         }

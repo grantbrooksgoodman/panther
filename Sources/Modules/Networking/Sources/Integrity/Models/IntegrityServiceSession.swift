@@ -273,8 +273,16 @@ final class IntegrityServiceSession: @unchecked Sendable {
         var usersByConversationIDKey = [String: Set<String>]()
 
         for (conversationID, data) in conversationData {
-            guard let dictionary = data as? [String: Any],
-                  let messageIDs = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String] else { continue }
+            guard let dictionary = data as? [String: Any] else { continue }
+
+            let messageIDs: [String]
+            if let array = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String] {
+                messageIDs = array
+            } else if let map = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String: Any] {
+                messageIDs = Array(map.keys)
+            } else {
+                continue
+            }
 
             for messageID in messageIDs {
                 conversationsByMessageID[messageID, default: []].insert(conversationID)
@@ -282,12 +290,20 @@ final class IntegrityServiceSession: @unchecked Sendable {
         }
 
         for (userID, data) in userData {
-            guard let dictionary = data as? [String: Any],
-                  let conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
+            guard let dictionary = data as? [String: Any] else { continue }
 
-            for idKey in conversationIDStrings.compactMap({
-                $0.components(separatedBy: " | ").first
-            }) {
+            let conversationIDKeys: [String]
+            if let array = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] {
+                conversationIDKeys = array.compactMap {
+                    $0.components(separatedBy: " | ").first
+                }
+            } else if let map = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String: Any] {
+                conversationIDKeys = Array(map.keys)
+            } else {
+                continue
+            }
+
+            for idKey in conversationIDKeys {
                 usersByConversationIDKey[idKey, default: []].insert(userID)
             }
         }
