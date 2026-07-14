@@ -64,16 +64,17 @@ extension Application {
     ) {
         @Dependency(\.appGroupDefaults) var appGroupDefaults: UserDefaults
         @Dependency(\.networking.auth) var auth: AuthDelegate
+        @Dependency(\.clientSession) var clientSession: ClientSession
         @Dependency(\.clientSession.conversationObserver) var conversationObserver: ConversationObserverService
         @Dependency(\.coreKit) var core: CoreKit
         @Dependency(\.userDefaults) var defaults: UserDefaults
         @Dependency(\.navigation) var navigation: Navigation
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
+        clientSession.store.advanceEpoch()
         SessionStore.setChangeEmissionSuppressed(true)
         conversationObserver.stopObserving()
         if !preserveCurrentUserID {
-            userSession.stopObservingCurrentUserChanges()
+            clientSession.user.stopObservingCurrentUserChanges()
         }
 
         core.utils.clearCaches()

@@ -294,26 +294,6 @@ final class ConversationsPageViewService {
             .forEach { $0.backgroundColor = searchBarTextFieldBackgroundColor }
     }
 
-    private func markStale(conversation: Conversation) -> Conversation {
-        var newConversationMessageIDs = conversation.messageIDs
-
-        if let conversationMessages = conversation.messages,
-           conversationMessages.count > 1 {
-            newConversationMessageIDs = Array(
-                conversationMessages[0 ... conversationMessages.count - 2]
-            ).map(\.id)
-        }
-
-        return conversation
-            .copying(
-                id: .init(
-                    key: conversation.id.key,
-                    hash: .bangQualifiedEmpty
-                )
-            )
-            .copying(messageIDs: newConversationMessageIDs)
-    }
-
     private func reloadData(
         type: ReloadType
     ) async throws(Exception) {
@@ -325,21 +305,17 @@ final class ConversationsPageViewService {
             .sortedByLatestMessageSentDate,
             let firstConversation = conversations.first,
             type == .full || type == .partial {
-            var array = [firstConversation]
+            var idKeys = [firstConversation.id.key]
             if type == .full {
                 if conversations.count > 5 {
-                    array = Array(conversations[0 ... conversations.count / 3])
+                    idKeys = Array(conversations[0 ... conversations.count / 3])
+                        .map(\.id.key)
                 } else {
-                    array = conversations
+                    idKeys = conversations.map(\.id.key)
                 }
             }
 
-            // Marks conversations stale to force re-fetch on next resolve.
-            clientSession
-                .store
-                .upsertConversations(Set(
-                    array.map { markStale(conversation: $0) }
-                ))
+            clientSession.store.markConversationsStale(idKeys: Set(idKeys))
         }
 
         defer { currentReloadType = currentReloadType.next }

@@ -302,7 +302,10 @@ final class UserSessionService: @unchecked Sendable {
 
         for conversationID in conversationIDs {
             guard !Task.isCancelled else { return }
-            if let value = clientSession.store.getConversation(id: conversationID) {
+            if clientSession.store.isConversationStale(idKey: conversationID.key),
+               let value = clientSession.store.getConversation(idKey: conversationID.key) {
+                conversationsNeedingUpdate.insert(value)
+            } else if let value = clientSession.store.getConversation(id: conversationID) {
                 decodedConversations.merge(with: [value])
             } else if let value = clientSession.store.getConversation(idKey: conversationID.key) {
                 conversationsNeedingUpdate.insert(value)
@@ -331,12 +334,15 @@ final class UserSessionService: @unchecked Sendable {
         }
 
         guard !Task.isCancelled else { return }
+        let updatedIDKeys = Set(conversationsNeedingUpdate.map(\.id.key))
         try await decodedConversations.merge(
             with: conversationsNeedingUpdate.map {
                 @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
                 return try await conversationSyncService.synchronizeConversation($0)
             }
         )
+
+        clientSession.store.clearStaleness(idKeys: updatedIDKeys)
 
         guard !conversationsNeedingFetch.isEmpty else {
             return commitConversationsToMemory(decodedConversations)

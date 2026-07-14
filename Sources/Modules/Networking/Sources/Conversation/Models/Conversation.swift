@@ -149,6 +149,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         let missingIDs = Set(filteredMessageIDs).subtracting(fetchedIDs)
 
         if !missingIDs.isEmpty {
+            sessionStore.removeMessages(ids: missingIDs)
             sessionStore.upsertConversation(
                 copying(
                     messageIDs: messageIDs.filter {

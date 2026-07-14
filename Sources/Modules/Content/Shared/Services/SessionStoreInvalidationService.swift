@@ -73,8 +73,10 @@ private extension SessionStoreInvalidationService {
         case .messages:
             handleMessagesChange()
 
-        case let .users(upsertedIDs):
-            handleUsersChange(upsertedIDs: upsertedIDs)
+        case let .users(upsertedIDs, removedIDs):
+            handleUsersChange(
+                affectedIDs: upsertedIDs.union(removedIDs)
+            )
         }
 
         reloadChatPageIfNeeded(for: change)
@@ -138,8 +140,8 @@ private extension SessionStoreInvalidationService {
         }
     }
 
-    func handleUsersChange(upsertedIDs: Set<String>) {
-        pendingUserIDs.formUnion(upsertedIDs)
+    func handleUsersChange(affectedIDs: Set<String>) {
+        pendingUserIDs.formUnion(affectedIDs)
 
         Task.debounced(
             "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.userInvalidation.rawValue)",
@@ -205,9 +207,9 @@ private extension SessionStoreInvalidationService {
         case let .conversations(upsertedIDKeys, _):
             upsertedIDKeys.contains(currentConversation.id.key)
 
-        case let .messages(upsertedIDs):
+        case let .messages(upsertedIDs, removedIDs):
             !Set(currentConversation.messageIDs)
-                .isDisjoint(with: upsertedIDs)
+                .isDisjoint(with: upsertedIDs.union(removedIDs))
 
         case .users:
             false

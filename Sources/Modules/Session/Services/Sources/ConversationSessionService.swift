@@ -228,9 +228,10 @@ final class ConversationSessionService: @unchecked Sendable {
             guard upsertedIDKeys.contains(idKey) else { return }
             updateDisplayedMessages()
 
-        case let .messages(upsertedIDs):
+        case let .messages(upsertedIDs, removedIDs):
+            let affectedIDs = upsertedIDs.union(removedIDs)
             guard let conversation = currentConversation,
-                  !Set(conversation.messageIDs).isDisjoint(with: upsertedIDs) else { return }
+                  !Set(conversation.messageIDs).isDisjoint(with: affectedIDs) else { return }
             updateDisplayedMessages()
 
         case .users:

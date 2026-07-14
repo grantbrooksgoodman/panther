@@ -31,6 +31,7 @@ extension IntegrityService {
         if isFirstRun {
             do {
                 try coreUtilities.eraseTemporaryDirectory()
+                try await networking.schemaMigrationService.migrateDatabase()
             } catch {
                 Logger.log(error)
             }

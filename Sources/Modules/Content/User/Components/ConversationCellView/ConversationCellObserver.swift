@@ -66,15 +66,15 @@ private extension ConversationCellObserver {
             return upsertedIDKeys.contains(conversation.id.key) ||
                 removedIDKeys.contains(conversation.id.key)
 
-        case let .messages(upsertedIDs):
+        case let .messages(upsertedIDs, removedIDs):
             return !Set(
                 conversation.messageIDs
-            ).isDisjoint(with: upsertedIDs)
+            ).isDisjoint(with: upsertedIDs.union(removedIDs))
 
-        case let .users(upsertedIDs):
+        case let .users(upsertedIDs, removedIDs):
             return !Set(
                 conversation.participants.map(\.userID)
-            ).isDisjoint(with: upsertedIDs)
+            ).isDisjoint(with: upsertedIDs.union(removedIDs))
         }
     }
 }

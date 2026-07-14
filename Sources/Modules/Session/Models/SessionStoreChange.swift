@@ -11,6 +11,6 @@ import Foundation
 
 enum SessionStoreChange: Equatable {
     case conversations(upsertedIDKeys: Set<String>, removedIDKeys: Set<String>)
-    case messages(upsertedIDs: Set<String>)
-    case users(upsertedIDs: Set<String>)
+    case messages(upsertedIDs: Set<String>, removedIDs: Set<String>)
+    case users(upsertedIDs: Set<String>, removedIDs: Set<String>)
 }

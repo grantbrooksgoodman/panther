@@ -237,10 +237,7 @@ final class SplashPageViewService: ObservableObject {
 
             clientSession.conversation.setCurrentConversation(nil)
             try await clientSession.user.resolveCurrentUser(
-                and: [
-                    .conversations,
-                    .users,
-                ]
+                and: .allDataTypes
             )
 
             initializationProgress = 1
