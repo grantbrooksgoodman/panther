@@ -222,7 +222,7 @@ final class ConversationSessionService: @unchecked Sendable {
                     domain: .conversation
                 )
 
-                return
+                return clearPointer()
             }
 
             guard upsertedIDKeys.contains(idKey) else { return }

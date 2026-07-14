@@ -423,6 +423,10 @@ final class ConversationsPageViewService {
                 RootSheets.present(
                     .featurePermissionPageView(configurations)
                 )
+
+                uiApplication.resignFirstResponders(
+                    repeatingFor: .seconds(1)
+                )
             }
         }
     }

@@ -22,6 +22,12 @@ final class UserSessionService: @unchecked Sendable {
         case getDataUsage
     }
 
+    private enum UpdateState {
+        case idle
+        case running
+        case runningWithPending
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -36,9 +42,8 @@ final class UserSessionService: @unchecked Sendable {
     private static let userCoalescer = SingleSlotCoalescer<Void>()
 
     @Persistent(.currentUserID) private var currentUserID: String?
-    @LockIsolated private var isUpdatePending = false
-    @LockIsolated private var isUpdatingCurrentUser = false
     private var observationTask: Task<Void, Never>?
+    @LockIsolated private var updateState: UpdateState = .idle
 
     // MARK: - Computed Properties
 
@@ -334,11 +339,6 @@ final class UserSessionService: @unchecked Sendable {
         )
 
         guard !conversationsNeedingFetch.isEmpty else {
-            try validateRatio(
-                decodedConversations,
-                conversationIDs
-            )
-
             return commitConversationsToMemory(decodedConversations)
         }
 
@@ -366,11 +366,6 @@ final class UserSessionService: @unchecked Sendable {
         }
 
         decodedConversations.merge(with: reconciledConversations)
-        try validateRatio(
-            decodedConversations,
-            conversationIDs
-        )
-
         commitConversationsToMemory(decodedConversations)
     }
 
@@ -448,14 +443,20 @@ final class UserSessionService: @unchecked Sendable {
     /// and retried after the current update completes.
     private func updateCurrentUser() {
         Task {
-            var isUpdatingCurrentUser = false
-            $isUpdatingCurrentUser.withValue {
-                isUpdatingCurrentUser = $0
-                if !$0 { $0 = true }
+            let didStart: Bool = $updateState.withValue {
+                switch $0 {
+                case .idle:
+                    $0 = .running
+                    return true
+                case .running:
+                    $0 = .runningWithPending
+                    return false
+                case .runningWithPending:
+                    return false
+                }
             }
 
-            guard !isUpdatingCurrentUser else {
-                $isUpdatePending.withValue { $0 = true }
+            guard didStart else {
                 return Logger.log(
                     "Queuing pending current user update because an update is already occurring.",
                     domain: .userSession,
@@ -463,59 +464,52 @@ final class UserSessionService: @unchecked Sendable {
                 )
             }
 
-            do throws(Exception) {
-                try await resolveCurrentUser(
-                    and: .allDataTypes
-                )
+            repeat {
+                do throws(Exception) {
+                    try await resolveCurrentUser(
+                        and: .allDataTypes
+                    )
 
+                    Logger.log(
+                        "Updated current user.",
+                        domain: .userSession,
+                        sender: self
+                    )
+
+                    Task.debounced(
+                        "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.getDataUsage.rawValue)",
+                        delay: .seconds(5),
+                        priority: .utility
+                    ) {
+                        _ = try? await self.clientSession.storage.getCurrentUserDataUsage()
+                    }
+                } catch {
+                    Logger.log(
+                        error,
+                        domain: .userSession
+                    )
+                }
+
+                let shouldContinue: Bool = $updateState.withValue {
+                    switch $0 {
+                    case .idle:
+                        return false
+                    case .running:
+                        $0 = .idle
+                        return false
+                    case .runningWithPending:
+                        $0 = .running
+                        return true
+                    }
+                }
+
+                guard shouldContinue else { break }
                 Logger.log(
-                    "Updated current user.",
+                    "Retrying current user update from pending request.",
                     domain: .userSession,
                     sender: self
                 )
-
-                Task.debounced(
-                    "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.getDataUsage.rawValue)",
-                    delay: .seconds(5),
-                    priority: .utility
-                ) {
-                    _ = try? await self.clientSession.storage.getCurrentUserDataUsage()
-                }
-            } catch {
-                Logger.log(
-                    error,
-                    domain: .userSession
-                )
-            }
-
-            var shouldRetry = false
-            $isUpdatePending.withValue {
-                shouldRetry = $0
-                $0 = false
-            }
-
-            self.isUpdatingCurrentUser = false
-            guard shouldRetry else { return }
-
-            Logger.log(
-                "Retrying current user update from pending request.",
-                domain: .userSession,
-                sender: self
-            )
-
-            updateCurrentUser()
-        }
-    }
-
-    private func validateRatio(
-        _ firstComparator: any Collection,
-        _ secondComparator: any Collection
-    ) throws(Exception) {
-        guard firstComparator.count == secondComparator.count else {
-            throw Exception(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            )
+            } while true
         }
     }
 }

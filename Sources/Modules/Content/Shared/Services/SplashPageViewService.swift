@@ -171,15 +171,13 @@ final class SplashPageViewService: ObservableObject {
                 initializationProgress += 0.02
 
                 if cacheStatus == .invalid {
+                    try await services.remoteCache.setCacheStatus(
+                        .valid,
+                        userID: currentUserID
+                    )
+
                     Application.reset(preserveCurrentUserID: true)
-                    do {
-                        try await services.remoteCache.setCacheStatus(
-                            .valid,
-                            userID: currentUserID
-                        )
-                    } catch {
-                        Logger.log(error)
-                    }
+                    return try await initializeBundle(fromRetry: true)
                 }
             } catch {
                 if !error.isEqual(to: .Networking.Database.noValueExists) {

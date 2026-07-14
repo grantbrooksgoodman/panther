@@ -36,6 +36,7 @@ final class ChatPageViewService {
     @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
@@ -113,6 +114,14 @@ final class ChatPageViewService {
         chatPageViewControllerFactory.configureRecipientBar(viewController, service: recipientBarService)
 
         return viewController
+    }
+
+    // MARK: - Dismiss
+
+    func dismissChatPage() {
+        // TODO: Audit whether we need this first line.
+        viewController?.navigationController?.popViewController(animated: true)
+        navigation.navigate(to: .userContent(.stack([])))
     }
 
     // MARK: - View Controller Lifecycle Handlers
@@ -243,15 +252,23 @@ final class ChatPageViewService {
         clientSession.conversationObserver.stopObserving()
         contextMenu?.interaction.removeKeyboardWillShowObserver()
 
-        Task.background { @MainActor in
+        Task.background { @MainActor [weak self] in
+            guard let self else { return }
+
             do throws(Exception) {
                 try await typingIndicator?.textViewDidChange(to: "")
             } catch {
                 Logger.log(error)
             }
 
-            // TODO: Audit this.
-            // clientSession.conversation.setCurrentConversation(nil)
+            // Clear the pointer only when the page is truly
+            // being dismissed — not when covered by a sheet
+            // or preview.
+            if !chatPageState.isPresented,
+               configuration != .preview {
+                clientSession.conversation.setCurrentConversation(nil)
+            }
+
             clientSession.conversation.resetMessageOffset()
         }
 

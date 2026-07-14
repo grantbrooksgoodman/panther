@@ -129,6 +129,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
                     .filter { messageIDs.contains($0) }
                     .map { try await messageService.getMessage(id: $0) }
             ))
+
             return
         }
 
@@ -137,11 +138,23 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             ids: filteredMessageIDs
         )
 
-        guard !fetchedMessages.isEmpty,
-              fetchedMessages.count == filteredMessageIDs.count else {
-            throw Exception(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
+        if !fetchedMessages.isEmpty {
+            // Fetched from network; bypasses RemotelyUpdatable.update.
+            sessionStore.upsertMessages(Set(fetchedMessages))
+        }
+
+        // Reconcile: remove IDs that could not be fetched so
+        // the messages computed property resolves fully.
+        let fetchedIDs = Set(fetchedMessages.map(\.id))
+        let missingIDs = Set(filteredMessageIDs).subtracting(fetchedIDs)
+
+        if !missingIDs.isEmpty {
+            sessionStore.upsertConversation(
+                copying(
+                    messageIDs: messageIDs.filter {
+                        !missingIDs.contains($0)
+                    }
+                )
             )
         }
 
@@ -154,9 +167,6 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             ),
             domain: .conversation
         )
-
-        // Fetched from network; bypasses RemotelyUpdatable.update.
-        sessionStore.upsertMessages(Set(fetchedMessages))
     }
 
     // MARK: - Resolve Users

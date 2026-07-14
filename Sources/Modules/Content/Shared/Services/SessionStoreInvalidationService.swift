@@ -184,6 +184,23 @@ private extension SessionStoreInvalidationService {
               .conversation
               .currentConversation else { return }
 
+        // Dismiss the chat page when the current conversation
+        // is removed (e.g., deleted remotely by another
+        // participant).
+        if case let .conversations(_, removedIDKeys) = change,
+           removedIDKeys.contains(currentConversation.id.key) {
+            chatPageViewService.dismissChatPage()
+            Toast.show(
+                .init(
+                    .banner(style: .info),
+                    message: "This conversation is no longer available."
+                ),
+                translating: Toast.TranslationOptionKey.allCases
+            )
+
+            return
+        }
+
         let shouldReload: Bool = switch change {
         case let .conversations(upsertedIDKeys, _):
             upsertedIDKeys.contains(currentConversation.id.key)

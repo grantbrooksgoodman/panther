@@ -62,14 +62,9 @@ extension Conversation: Serializable {
 
     // MARK: - Init
 
-    // swiftlint:disable:next function_body_length
     init(
         from data: [String: Any]
     ) async throws(Exception) {
-        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
-        @Dependency(\.networking.messageService) var messageService: MessageService
-        @Dependency(\.clientSession.store) var sessionStore: SessionStore
-
         // Deserialize raw data
 
         guard let id = data[Keys.id.rawValue] as? String,
@@ -145,12 +140,15 @@ extension Conversation: Serializable {
         }
 
         // Synthesize conversation
+        // Message resolution is deferred to resolveMessages /
+        // resolveMessagesOnCurrentUserConversations; decoding
+        // only records the message IDs.
 
-        guard let currentUserParticipant = participants.firstWithCurrentUserID,
-              !currentUserParticipant.hasDeletedConversation else {
+        if participants.firstWithCurrentUserID == nil ||
+            participants.firstWithCurrentUserID?.hasDeletedConversation == true {
             Logger.log(
                 .init(
-                    "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
+                    "Current user is not participating in or has deleted this conversation.",
                     isReportable: false,
                     userInfo: [
                         "ConversationIDKey": conversationID.key,
@@ -160,48 +158,12 @@ extension Conversation: Serializable {
                 ),
                 domain: .conversation
             )
-
-            self.init(
-                conversationID,
-                activities: activities,
-                messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
-                metadata: metadata,
-                participants: participants,
-                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata
-            )
-            return
         }
 
-        guard !messageIDs.isBangQualifiedEmpty else {
-            self.init(
-                conversationID,
-                activities: activities,
-                messageIDs: .bangQualifiedEmpty,
-                metadata: metadata,
-                participants: participants,
-                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata
-            )
-            return
-        }
-
-        let messages = try await messageService.getMessages(
-            ids: messageIDs
-        )
-
-        guard !messages.isEmpty,
-              messages.count == messageIDs.count else {
-            throw Exception(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: Self.self)
-            )
-        }
-
-        // Fetched during deserialization; bypasses RemotelyUpdatable.update.
-        sessionStore.upsertMessages(Set(messages))
         self.init(
             conversationID,
             activities: activities,
-            messageIDs: messageIDs,
+            messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
             metadata: metadata,
             participants: participants,
             reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata
