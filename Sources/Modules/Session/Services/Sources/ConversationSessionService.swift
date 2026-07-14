@@ -230,9 +230,9 @@ final class ConversationSessionService: @unchecked Sendable {
         _ conversation: Conversation,
         forUser userID: String
     ) async throws(Exception) {
-        guard let currentParticipant = conversation
+        guard conversation
             .participants
-            .first(where: { $0.userID == userID }) else {
+            .contains(where: { $0.userID == userID }) else {
             throw Exception(
                 "This conversation does not contain the specified participant.",
                 userInfo: ["UserID": userID],
@@ -240,20 +240,57 @@ final class ConversationSessionService: @unchecked Sendable {
             )
         }
 
-        var newParticipants = conversation.participants.filter { $0.userID != userID }
-        let newParticipant: Participant = .init(
-            userID: currentParticipant.userID,
-            hasDeletedConversation: true,
-            isTyping: currentParticipant.isTyping
+        // Single-field fan-out write instead of replacing
+        // the entire participants array.
+        let conversationPath = [
+            NetworkPath.conversations.rawValue,
+            conversation.id.key,
+        ].joined(separator: "/")
+
+        let participantPath = [
+            conversationPath,
+            Conversation.SerializableKey.participants.rawValue,
+            userID,
+            "hasDeletedConversation",
+        ].joined(separator: "/")
+
+        // Compute updated hash with the deletion applied.
+        let updatedConversation = conversation.copying(
+            participants: conversation.participants.map { participant in
+                guard participant.userID == userID else { return participant }
+                return Participant(
+                    userID: participant.userID,
+                    hasDeletedConversation: true,
+                    isTyping: participant.isTyping
+                )
+            }
         )
 
-        newParticipants.append(newParticipant)
-        newParticipants = newParticipants.unique
+        let newHash = updatedConversation.encodedHash
+        var updates: [String: Any] = [participantPath: true]
+        updates["\(conversationPath)/\(Conversation.SerializableKey.encodedHash.rawValue)"] = newHash
 
-        // NIT: We don't care about the result because update adds the updated conversation to the archive for us.
-        _ = try await conversation.update(
-            \.participants,
-            to: newParticipants
+        for participant in conversation.participants {
+            let tokenPath = [
+                NetworkPath.users.rawValue,
+                participant.userID,
+                User.SerializableKey.conversationIDs.rawValue,
+                conversation.id.key,
+            ].joined(separator: "/")
+
+            updates[tokenPath] = newHash
+        }
+
+        try await networking.database.commit(updates)
+
+        // Upsert the updated conversation to the session store.
+        sessionStore.upsertConversation(
+            updatedConversation.copying(
+                id: .init(
+                    key: conversation.id.key,
+                    hash: newHash
+                )
+            )
         )
 
         if currentConversation?.id.key == conversation.id.key {

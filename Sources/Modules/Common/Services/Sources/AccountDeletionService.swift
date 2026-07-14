@@ -98,7 +98,7 @@ final class AccountDeletionService: @unchecked Sendable {
 
         let totalUnits = Double(groupChats.count + oneToOneChats.count)
 
-        // Remove from group chats, delete 1:1 chats, and zero-out conversation IDs.
+        // Remove from group chats, delete 1:1 chats.
 
         await withTaskGroup(
             of: (
@@ -135,18 +135,6 @@ final class AccountDeletionService: @unchecked Sendable {
                 }
             }
 
-            taskGroup.addTask {
-                do throws(Exception) {
-                    _ = try await self.clientSession.user.currentUser?.update(
-                        \.conversationIDs,
-                        to: []
-                    )
-                    return (nil, false)
-                } catch {
-                    return (error, false)
-                }
-            }
-
             for await (exception, trackProgress) in taskGroup {
                 if let exception {
                     exceptions.append(exception)
@@ -156,6 +144,18 @@ final class AccountDeletionService: @unchecked Sendable {
                     incrementProgress(forTotal: totalUnits)
                 }
             }
+        }
+
+        // Zero-out conversation IDs after all conversation
+        // operations complete to avoid a self-race where a
+        // concurrent didWrite fan-out re-adds entries.
+        do {
+            _ = try await clientSession.user.currentUser?.update(
+                \.conversationIDs,
+                to: []
+            )
+        } catch {
+            exceptions.append(error)
         }
 
         // Validate database integrity.
@@ -202,27 +202,12 @@ final class AccountDeletionService: @unchecked Sendable {
     // MARK: - Auxiliary
 
     private func addToDeletedUsers(_ userID: String) async throws(Exception) {
-        do {
-            var deletedUserIDs: [String] = try await networking.database.getValues(
-                at: NetworkPath.deletedUsers.rawValue
-            )
-
-            deletedUserIDs.append(userID)
-            deletedUserIDs = deletedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
-
-            try await networking.database.setValue(
-                deletedUserIDs,
-                forKey: NetworkPath.deletedUsers.rawValue
-            )
-        } catch {
-            guard error.isEqual(
-                to: .Networking.Database.noValueExists
-            ) else { throw error }
-
-            try await networking.database.setValue(
-                [userID],
-                forKey: NetworkPath.deletedUsers.rawValue
-            )
+        try await networking.database.runTransaction(
+            at: NetworkPath.deletedUsers.rawValue
+        ) { currentValue in
+            var ids = (currentValue as? [String]) ?? []
+            ids.append(userID)
+            return ids.filter { $0 != String.bangQualifiedEmpty }.unique
         }
     }
 

@@ -190,9 +190,16 @@ final class UserSessionService: @unchecked Sendable {
     private func blockedUserIDsDidChange(_ dictionary: [String: Any]) -> Bool {
         let currentBlockedUserIDs = (currentUser?.blockedUserIDs ?? .bangQualifiedEmpty).sorted()
 
-        guard let updatedBlockedUserIDs = (dictionary[
-            User.SerializableKey.blockedUserIDs.rawValue
-        ] as? [String])?.sorted() else { return false }
+        // Dual-format: map (new) or array (legacy).
+        let rawBlockedUserIDs = dictionary[User.SerializableKey.blockedUserIDs.rawValue]
+        let updatedBlockedUserIDs: [String]
+        if let map = rawBlockedUserIDs as? [String: Any] {
+            updatedBlockedUserIDs = Array(map.keys).sorted()
+        } else if let array = rawBlockedUserIDs as? [String] {
+            updatedBlockedUserIDs = array.sorted()
+        } else {
+            return false
+        }
 
         return currentBlockedUserIDs != updatedBlockedUserIDs
     }
@@ -211,9 +218,18 @@ final class UserSessionService: @unchecked Sendable {
             .map(\.encoded)
             .sorted() else { return true }
 
-        guard let updatedConversationIDStrings = (dictionary[
-            User.SerializableKey.conversationIDs.rawValue
-        ] as? [String])?.sorted() else { return false }
+        // Dual-format: map (new) or array (legacy).
+        let rawValue = dictionary[User.SerializableKey.conversationIDs.rawValue]
+        let updatedConversationIDStrings: [String]
+        if let map = rawValue as? [String: String] {
+            updatedConversationIDStrings = map
+                .map { "\($0.key) | \($0.value)" }
+                .sorted()
+        } else if let array = rawValue as? [String] {
+            updatedConversationIDStrings = array.sorted()
+        } else {
+            return false
+        }
 
         // Remove deleted conversations.
         for idKey in currentConversationIDStrings

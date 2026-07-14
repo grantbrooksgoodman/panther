@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		33261DB5EDC8D88347774727 /* SessionStoreInvalidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B8D4F6D87373A21AC2D9B0 /* SessionStoreInvalidationService.swift */; };
+		8F9D5E3165484F0054BCF480 /* SchemaMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13CFD9F01EE4DCDA32B827F1 /* SchemaMigration.swift */; };
 		A200C552300180C3002D9651 /* ChatPageHeaderReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */; };
 		A200C554300180CA002D9651 /* ChatPageHeaderObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200C553300180CA002D9651 /* ChatPageHeaderObserver.swift */; };
 		A2110CEA2EDC122200954DA2 /* UIColor+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */; };
@@ -778,6 +779,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		13CFD9F01EE4DCDA32B827F1 /* SchemaMigration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SchemaMigration.swift; sourceTree = "<group>"; };
 		32B8D4F6D87373A21AC2D9B0 /* SessionStoreInvalidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreInvalidationService.swift; sourceTree = "<group>"; };
 		520CADEF63996EC3E433927D /* SessionStoreChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreChange.swift; sourceTree = "<group>"; };
 		A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageHeaderReducer.swift; sourceTree = "<group>"; };
@@ -1808,6 +1810,7 @@
 				B92617712CD8990900877ECE /* ReactionSessionServiceEffectID.swift */,
 				520CADEF63996EC3E433927D /* SessionStoreChange.swift */,
 				A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */,
+				13CFD9F01EE4DCDA32B827F1 /* SchemaMigration.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -4473,6 +4476,7 @@
 				B9E7F5732C658F4300938D22 /* SplashPageObserver.swift in Sources */,
 				A2FE37622EA7354000931829 /* MessageRetranslationService.swift in Sources */,
 				B92409852AB2DFC0004CF4C0 /* LoggerDomains.swift in Sources */,
+				8F9D5E3165484F0054BCF480 /* SchemaMigration.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

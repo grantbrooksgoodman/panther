@@ -163,6 +163,10 @@ final class ConversationSyncService: @unchecked Sendable {
             )
         }
 
+        // Firebase push IDs are chronologically ordered, so
+        // sorted map keys give ascending sent-order by
+        // construction — reversed()[0...9] is genuinely the
+        // newest ten.
         var messageIDs = messageIDs
         if lastTenOnly,
            messageIDs.count >= 10 {
@@ -178,11 +182,26 @@ final class ConversationSyncService: @unchecked Sendable {
             .uniquedByID
             .sortedByAscendingSentDate
 
+        // Use the server's authoritative message IDs rather
+        // than rebuilding from fetched messages. The server
+        // map is the source of truth for which IDs exist.
+        let serverMessageIDs: [String]
+        let rawMessages = syncData?.newData[
+            Conversation.SerializableKey.messages.rawValue
+        ]
+
+        if let map = rawMessages as? [String: Any] {
+            serverMessageIDs = map.keys.sorted()
+        } else if let array = rawMessages as? [String] {
+            serverMessageIDs = array.filter { $0.hasPrefix("-") }
+        } else {
+            serverMessageIDs = conversation.messageIDs
+        }
+
         let updatedConversation = conversation.copying(
-            messageIDs: updatedMessages.map(\.id).unique
+            messageIDs: serverMessageIDs
         )
 
-        try await updateHash(updatedConversation)
         syncData = .init(
             updatedConversation,
             messages: updatedMessages,
@@ -225,17 +244,42 @@ final class ConversationSyncService: @unchecked Sendable {
     }
 
     private func synchronizeParticipants() async throws(Exception) {
-        guard let newParticipants = syncData?.newData[
+        // Dual-format: map (new) or array (legacy).
+        let updatedParticipants: [Participant]
+        let rawParticipants = syncData?.newData[
             Conversation.SerializableKey.participants.rawValue
-        ] as? [String] else {
+        ]
+
+        if let map = rawParticipants as? [String: [String: Any]] {
+            var decoded = [Participant]()
+            for (uid, values) in map {
+                guard let hasDeletedConversation = values["hasDeletedConversation"] as? Bool,
+                      let isTyping = values["isTyping"] as? Bool else {
+                    throw .Networking.decodingFailed(
+                        data: values,
+                        .init(sender: self)
+                    )
+                }
+
+                decoded.append(
+                    Participant(
+                        userID: uid,
+                        hasDeletedConversation: hasDeletedConversation,
+                        isTyping: isTyping
+                    )
+                )
+            }
+
+            updatedParticipants = decoded
+        } else if let array = rawParticipants as? [String] {
+            updatedParticipants = try await array.map {
+                try await Participant(from: $0)
+            }
+        } else {
             throw .Networking.decodingFailed(
                 data: syncData?.newData ?? [:],
                 .init(sender: self)
             )
-        }
-
-        let updatedParticipants = try await newParticipants.map {
-            try await Participant(from: $0)
         }
 
         guard let conversation = syncData?.conversation.modifyKey(
@@ -414,14 +458,18 @@ final class ConversationSyncService: @unchecked Sendable {
             ).appending(userInfo: userInfo)
         }
 
-        guard let messageIDs = syncData.newData[
+        // Dual-format: map (new) or array (legacy).
+        let messageIDs: [String]
+        let rawMessages = syncData.newData[
             Conversation.SerializableKey.messages.rawValue
-        ] as? [String] else {
-            self.syncData = nil
-            throw .Networking.decodingFailed(
-                data: syncData.newData,
-                .init(sender: self)
-            ).appending(userInfo: userInfo)
+        ]
+
+        if let map = rawMessages as? [String: Any] {
+            messageIDs = map.keys.sorted()
+        } else if let array = rawMessages as? [String] {
+            messageIDs = array.filter { $0.hasPrefix("-") }
+        } else {
+            messageIDs = []
         }
 
         let currentMessageIDs = Set(currentMessages.map(\.id))
@@ -500,19 +548,6 @@ final class ConversationSyncService: @unchecked Sendable {
         }
 
         return try await resolveConversation(userInfo)
-    }
-
-    private func updateHash(
-        _ conversation: Conversation
-    ) async throws(Exception) {
-        try await networking.database.setValue(
-            conversation.encodedHash,
-            forKey: [
-                NetworkPath.conversations.rawValue,
-                conversation.id.key,
-                Conversation.SerializableKey.encodedHash.rawValue,
-            ].joined(separator: "/")
-        )
     }
 }
 

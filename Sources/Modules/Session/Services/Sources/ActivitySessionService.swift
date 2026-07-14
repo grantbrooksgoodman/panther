@@ -71,13 +71,14 @@ struct ActivitySessionService {
         userID: String,
         conversationID: ConversationID
     ) async throws(Exception) {
-        let user = try await networking.userService.getUser(id: userID)
-        _ = try await user.update(
-            \.conversationIDs,
-            to: ((user.conversationIDs ?? []).filter {
-                $0.key != conversationID.key
-            } + [conversationID]).unique
-        )
+        let path = [
+            NetworkPath.users.rawValue,
+            userID,
+            User.SerializableKey.conversationIDs.rawValue,
+            conversationID.key,
+        ].joined(separator: "/")
+
+        try await networking.database.commit([path: conversationID.hash])
     }
 
     // MARK: - Remove User from Conversation

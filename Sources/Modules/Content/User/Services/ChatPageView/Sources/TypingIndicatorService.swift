@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 final class TypingIndicatorService {
     // MARK: - Constants Accessors
@@ -85,25 +86,27 @@ final class TypingIndicatorService {
 
         guard let conversations = currentUser
             .conversations?
-            .filter({ $0.currentUserParticipant?.isTyping ?? false }) else { return }
+            .filter({ $0.currentUserParticipant?.isTyping ?? false }),
+            !conversations.isEmpty else { return }
 
-        try await conversations.map(
-            failFast: false
-        ) {
-            guard let currentUserParticipant = $0.currentUserParticipant else { return }
+        // Single fan-out for all conversations where the
+        // current user is typing.
+        var updates = [String: Any]()
+        for conversation in conversations {
+            guard let participant = conversation.currentUserParticipant else { continue }
+            let path = [
+                NetworkPath.conversations.rawValue,
+                conversation.id.key,
+                Conversation.SerializableKey.participants.rawValue,
+                participant.userID,
+                "isTyping",
+            ].joined(separator: "/")
 
-            var newParticipants = $0.participants.filter { $0 != currentUserParticipant }
-            newParticipants.append(.init(
-                userID: currentUserParticipant.userID,
-                hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
-                isTyping: false
-            ))
-
-            _ = try await $0.update(
-                \.participants,
-                to: newParticipants
-            )
+            updates[path] = false
         }
+
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+        try await database.commit(updates)
     }
 
     // MARK: - Text View Did Change
@@ -227,19 +230,18 @@ final class TypingIndicatorService {
         }
 
         guard isTyping != currentUserParticipant.isTyping else { return }
-        _ = try await conversation.update(
-            \.participants,
-            to: (
-                conversation
-                    .participants
-                    .filter { $0 != currentUserParticipant }
-            ) + [
-                Participant(
-                    userID: currentUserParticipant.userID,
-                    hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
-                    isTyping: isTyping
-                ),
-            ]
-        )
+
+        // Single-field fan-out write instead of replacing
+        // the entire participants array.
+        let path = [
+            NetworkPath.conversations.rawValue,
+            conversation.id.key,
+            Conversation.SerializableKey.participants.rawValue,
+            currentUserParticipant.userID,
+            "isTyping",
+        ].joined(separator: "/")
+
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+        try await database.commit([path: isTyping])
     }
 }

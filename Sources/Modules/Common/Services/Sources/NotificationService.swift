@@ -140,13 +140,16 @@ struct NotificationService {
             at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)"
         )
 
+        // Dual-format: map (new) or array (legacy).
         let pushTokens = userData.reduce(into: [String]()) { partialResult, keyPair in
-            if let userData = keyPair.value as? [String: Any],
-               let pushTokens = userData[
-                   User.SerializableKey.pushTokens.rawValue
-               ] as? [String],
-               !pushTokens.isBangQualifiedEmpty {
-                partialResult.append(contentsOf: pushTokens)
+            guard let userData = keyPair.value as? [String: Any] else { return }
+            let rawPushTokens = userData[User.SerializableKey.pushTokens.rawValue]
+
+            if let map = rawPushTokens as? [String: Any] {
+                partialResult.append(contentsOf: map.keys)
+            } else if let array = rawPushTokens as? [String],
+                      !array.isBangQualifiedEmpty {
+                partialResult.append(contentsOf: array)
             }
         }
 
@@ -359,11 +362,21 @@ struct NotificationService {
             ).appending(userInfo: userInfo)
         }
 
-        let newBadgeNumber = await user.hostedBadgeNumber + 1
-        try await updateHostedBadgeNumber(
-            newBadgeNumber,
-            user: user
-        )
+        // Atomic badge increment via transaction to avoid
+        // read-modify-write races when multiple senders
+        // notify the same recipient concurrently.
+        let badgePath = [
+            NetworkPath.users.rawValue,
+            user.id,
+            User.SerializableKey.badgeNumber.rawValue,
+        ].joined(separator: "/")
+
+        let newBadgeNumber = try await networking.database.runTransaction(
+            at: badgePath
+        ) { currentValue in
+            let current = (currentValue as? Int) ?? 0
+            return max(0, current + 1)
+        } as? Int ?? 0
 
         guard let pushTokens = user.pushTokens else {
             throw Exception(

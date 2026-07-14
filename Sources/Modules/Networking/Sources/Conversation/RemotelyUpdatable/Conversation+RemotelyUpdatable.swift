@@ -84,10 +84,12 @@ extension Conversation: RemotelyUpdatable {
     func updateValues(
         with data: [PartialKeyPath<Conversation>: Any]
     ) async throws(Exception) -> Conversation {
-        @Dependency(\.networking) var networking: NetworkServices
+        @Dependency(\.networking.database) var database: DatabaseDelegate
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         var updated = filteringSystemMessages
+        var changedKeys = Set<String>()
+
         for keyPair in data {
             guard let key = Self.serializableKey(for: keyPair.key) else {
                 throw .Networking.notRemotelyUpdatable(
@@ -108,18 +110,29 @@ extension Conversation: RemotelyUpdatable {
             }
 
             updated = modified
+            changedKeys.insert(key.rawValue)
         }
 
-        // NIT: Can do updateChildValues with encoded filtering all not equal to keys in data.
-        try await networking.database.setValue(
-            updated.encoded.filter { $0.key != Conversation.SerializableKey.id.rawValue },
-            forKey: [
-                NetworkPath.conversations.rawValue,
-                updated.id.key,
-            ].joined(separator: "/")
+        let conversationPath = [
+            NetworkPath.conversations.rawValue,
+            updated.id.key,
+        ].joined(separator: "/")
+
+        // Fan-out only the touched keys + hash + user tokens.
+        var updates = [String: Any]()
+
+        for (key, value) in updated.encoded where changedKeys.contains(key) {
+            updates["\(conversationPath)/\(key)"] = value
+        }
+
+        updates["\(conversationPath)/\(SerializableKey.encodedHash.rawValue)"] = updated.id.hash
+        updates.merge(
+            openConversationsFanOutEntries(for: updated),
+            uniquingKeysWith: { _, new in new }
         )
 
-        try await propagateUpdatesToUsers(in: updated)
+        try await database.commit(updates)
+
         // updateValues bypasses didWrite; this is its only upsert.
         sessionStore.upsertConversation(updated)
         return updated
@@ -133,11 +146,80 @@ extension Conversation: RemotelyUpdatable {
         updating updated: Conversation
     ) async throws(Exception) -> WriteAction<Conversation> {
         guard key == .messages,
-              let messageIDs = (value as? [Message])?.filteringSystemMessages.map(\.id),
-              !messageIDs.isEmpty else { return .proceed }
+              let allMessages = value as? [Message],
+              !allMessages.filteringSystemMessages.isEmpty else { return .proceed }
 
-        try await addMessageIDs(messageIDs)
-        return try await .handled(updateIsTyping(updated))
+        let existingMessageIDs = Set(messageIDs)
+        let trulyNewMessages = allMessages
+            .filteringSystemMessages
+            .filter { !existingMessageIDs.contains($0.id) }
+
+        let conversationPath = [
+            NetworkPath.conversations.rawValue,
+            updated.id.key,
+        ].joined(separator: "/")
+
+        // Reset typing indicator for current user.
+        guard let currentUserParticipant = updated.currentUserParticipant else {
+            throw Exception(
+                "Failed to resolve current user participant.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        // Reset typing for current user + un-delete all
+        // participants (sending revives the conversation).
+        var sendPathConversation = updated.copying(
+            participants: participants.map { participant in
+                let isCurrentUser = participant.userID == currentUserParticipant.userID
+                return Participant(
+                    userID: participant.userID,
+                    hasDeletedConversation: false,
+                    isTyping: isCurrentUser ? false : participant.isTyping
+                )
+            }
+        )
+
+        sendPathConversation = updateIDHash(sendPathConversation)
+
+        // Single atomic fan-out: message node data +
+        // conversation index entries + participant
+        // un-delete + typing reset + hash +
+        // lastModifiedDate + user tokens.
+        var updates = [String: Any]()
+
+        // Message RTDB nodes for truly-new messages.
+        for message in trulyNewMessages {
+            let payload = message.encoded.filter {
+                $0.key != Message.SerializableKey.id.rawValue
+            }
+
+            updates["\(NetworkPath.messages.rawValue)/\(message.id)"] = payload
+        }
+
+        // Conversation message index entries.
+        for message in trulyNewMessages {
+            updates["\(conversationPath)/\(SerializableKey.messages.rawValue)/\(message.id)"] = true
+        }
+
+        // Un-delete participants who have deleted the conversation.
+        for participant in updated.participants where participant.hasDeletedConversation {
+            updates["\(conversationPath)/\(SerializableKey.participants.rawValue)/\(participant.userID)/hasDeletedConversation"] = false
+        }
+
+        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
+
+        updates["\(conversationPath)/\(SerializableKey.participants.rawValue)/\(currentUserParticipant.userID)/isTyping"] = false
+        updates["\(conversationPath)/\(SerializableKey.encodedHash.rawValue)"] = sendPathConversation.id.hash
+        updates["\(conversationPath)/\(SerializableKey.metadata.rawValue)/lastModifiedDate"] = timestampDateFormatter.string(from: .now)
+        updates.merge(
+            openConversationsFanOutEntries(for: sendPathConversation),
+            uniquingKeysWith: { _, new in new }
+        )
+
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+        try await database.commit(updates)
+        return .handled(sendPathConversation)
     }
 
     // MARK: - Did Update
@@ -146,94 +228,62 @@ extension Conversation: RemotelyUpdatable {
         _ updated: Conversation,
         forKey key: SerializableKey
     ) async throws(Exception) -> Conversation {
-        @Dependency(\.networking) var networking: NetworkServices
+        @Dependency(\.networking.database) var database: DatabaseDelegate
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         // Single source of upsert for single-field update calls.
         defer { sessionStore.upsertConversation(updated) }
-        guard updated.id.hash != id.hash else { return updated }
 
-        try await networking.database.setValue(
-            updated.id.hash,
-            forKey: [
-                networkPath.rawValue,
-                identifier,
-                SerializableKey.encodedHash.rawValue,
-            ].joined(separator: "/")
+        // willWrite(.messages) already commits hash and
+        // user tokens as part of its atomic fan-out.
+        guard key != .messages,
+              updated.id.hash != id.hash else { return updated }
+
+        var updates = [String: Any]()
+
+        let hashPath = [
+            networkPath.rawValue,
+            identifier,
+            SerializableKey.encodedHash.rawValue,
+        ].joined(separator: "/")
+
+        updates[hashPath] = updated.id.hash
+        updates.merge(
+            openConversationsFanOutEntries(for: updated),
+            uniquingKeysWith: { _, new in new }
         )
 
-        try await propagateUpdatesToUsers(in: updated)
+        try await database.commit(updates)
         return updated
     }
 
     // MARK: - Auxiliary
 
-    /// Ensures updates take into account any messages sent during execution of `update` logic.
-    /// We disregard modification of the local value, since the store upsert propagates the change via `sessionStoreDidChange`.
-    private func addMessageIDs(
-        _ messageIDs: [String]
-    ) async throws(Exception) {
-        @Dependency(\.networking) var networking: NetworkServices
+    /// Builds fan-out entries that update each
+    /// participant's `openConversations/<key>` to the
+    /// conversation's current hash token.
+    ///
+    /// Returns entries keyed by environment-relative paths
+    /// (for example,
+    /// `"users/<uid>/openConversations/<key>": "<hash>"`).
+    /// Callers merge these into their own atomic
+    /// ``DatabaseDelegate/commit(_:)`` call.
+    func openConversationsFanOutEntries(
+        for conversation: Conversation
+    ) -> [String: Any] {
+        var entries = [String: Any]()
+        for participant in conversation.participants {
+            let path = [
+                NetworkPath.users.rawValue,
+                participant.userID,
+                User.SerializableKey.conversationIDs.rawValue,
+                conversation.id.key,
+            ].joined(separator: "/")
 
-        let messagesKeyPath = [
-            NetworkPath.conversations.rawValue,
-            id.key,
-            Conversation.SerializableKey.messages.rawValue,
-        ].joined(separator: "/")
-
-        var newMessageIDs = messageIDs
-        let currentMessageIDs: [String] = try await networking.database.getValues(
-            at: messagesKeyPath,
-            cacheStrategy: .disregardCache
-        )
-
-        newMessageIDs += currentMessageIDs
-        try await networking.database.setValue(
-            newMessageIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : newMessageIDs.unique,
-            forKey: messagesKeyPath
-        )
-    }
-
-    private func propagateUpdatesToUsers(
-        in conversation: Conversation
-    ) async throws(Exception) {
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
-
-        try await conversation.resolveUsers(forceUpdate: true)
-        guard var users = conversation.users else {
-            throw Exception(
-                "Failed to set users on conversation.",
-                metadata: .init(sender: self)
-            )
+            entries[path] = conversation.id.hash
         }
 
-        if let currentUser = userSession.currentUser {
-            users.append(currentUser)
-        }
-
-        let eligibleUsers: [(
-            user: User,
-            conversationIDs: [ConversationID]
-        )] = users
-            .compactMap { user in
-                guard var conversationIDs = user.conversationIDs,
-                      let index = conversationIDs.firstIndex(where: {
-                          $0.key == conversation.id.key
-                      }) else { return nil }
-
-                conversationIDs.removeAll(where: { $0.key == conversation.id.key })
-                conversationIDs.insert(conversation.id, at: index)
-                return (user, conversationIDs)
-            }
-
-        try await eligibleUsers.map(
-            failFast: false
-        ) {
-            _ = try await $0.user.update(
-                \.conversationIDs,
-                to: $0.conversationIDs
-            )
-        }
+        return entries
     }
 
     private func updateIDHash(_ conversation: Conversation) -> Conversation {
@@ -243,43 +293,5 @@ extension Conversation: RemotelyUpdatable {
                 hash: conversation.encodedHash
             )
         )
-    }
-
-    /// It's optimal to set `isTyping` to `false` in the same call as appending messages during a send operation so the conversation hash doesn't need to be recomputed twice.
-    private func updateIsTyping(
-        _ conversation: Conversation
-    ) async throws(Exception) -> Conversation {
-        @Dependency(\.networking) var networking: NetworkServices
-
-        guard let currentUserParticipant = conversation.currentUserParticipant else {
-            throw Exception(
-                "Failed to resolve current user participant.",
-                metadata: .init(sender: self)
-            )
-        }
-
-        var newParticipants = [Participant]()
-        newParticipants = participants.filter { $0 != currentUserParticipant }
-        newParticipants.append(.init(
-            userID: currentUserParticipant.userID,
-            hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
-            isTyping: false
-        ))
-
-        // TODO: Audit whether or not it is necessary to update the ID hash here.
-        let updatedConversation = updateIDHash(
-            conversation.copying(participants: newParticipants)
-        )
-
-        try await networking.database.setValue(
-            updatedConversation.participants.map(\.encoded),
-            forKey: [
-                NetworkPath.conversations.rawValue,
-                updatedConversation.id.key,
-                SerializableKey.participants.rawValue,
-            ].joined(separator: "/")
-        )
-
-        return updatedConversation
     }
 }

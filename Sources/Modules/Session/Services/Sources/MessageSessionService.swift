@@ -303,7 +303,6 @@ struct MessageSessionService {
 
     // MARK: - Auxiliary
 
-    // swiftlint:disable:next function_body_length
     private func createMessageAndAddToConversation(
         conversation: (value: Conversation?, isPenPalsConversation: Bool),
         initiatingUser: User,
@@ -362,7 +361,7 @@ struct MessageSessionService {
 
         let message: Message
         do {
-            message = try await networking.messageService.createMessage(
+            message = try await networking.messageService.buildMessage(
                 fromAccountID: initiatingUser.id,
                 richContent: richContent,
                 translations: translations
@@ -378,40 +377,12 @@ struct MessageSessionService {
                 isPenPalsConversation: conversation.metadata.isPenPalsConversation
             )
 
-            let newParticipants = conversation.participants.map {
-                Participant(
-                    userID: $0.userID,
-                    hasDeletedConversation: false,
-                    isTyping: $0.isTyping
-                )
-            }
-
-            guard newParticipants
-                .map(\.hasDeletedConversation) != conversation
-                .participants
-                .map(\.hasDeletedConversation) else {
-                return try await addMessage(
-                    message,
-                    to: conversation
-                )
-            }
-
-            incrementDeliveryProgress(
-                in: conversation,
-                by: Floats.updateValueDeliveryProgressIncrement
+            // Participant un-delete is merged into the
+            // willWrite(.messages) atomic fan-out.
+            return try await addMessage(
+                message,
+                to: conversation
             )
-
-            do {
-                return try await addMessage(
-                    message,
-                    to: conversation.update(
-                        \.participants,
-                        to: newParticipants
-                    )
-                )
-            } catch {
-                throw error
-            }
         } else {
             var participantUsers = [initiatingUser]
             participantUsers.append(contentsOf: otherUsers)
