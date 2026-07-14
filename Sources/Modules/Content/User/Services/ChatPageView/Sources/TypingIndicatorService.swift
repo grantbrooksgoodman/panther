@@ -107,7 +107,7 @@ final class TypingIndicatorService: @unchecked Sendable {
                 conversation.id.key,
                 Conversation.SerializableKey.participants.rawValue,
                 participant.userID,
-                "isTyping",
+                Participant.SerializableKey.isTyping.rawValue,
             ].joined(separator: "/")
 
             updates[path] = false
@@ -234,7 +234,7 @@ final class TypingIndicatorService: @unchecked Sendable {
             conversation.id.key,
             Conversation.SerializableKey.participants.rawValue,
             currentUserParticipant.userID,
-            "isTyping",
+            Participant.SerializableKey.isTyping.rawValue,
         ].joined(separator: "/")
         try await database.commit([path: isTyping])
     }

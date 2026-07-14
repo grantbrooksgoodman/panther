@@ -14,7 +14,6 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
 struct ModerationSessionService {
     // MARK: - Dependencies
 
@@ -179,16 +178,8 @@ struct ModerationSessionService {
             User.SerializableKey.blockedUserIDs.rawValue,
         ].joined(separator: "/")
 
-        // Dual-format: map (new) or array (legacy).
-        let rawValue: Any = try await networking.database.getValues(at: path)
-        let blockedUserIDs: [String]
-        if let map = rawValue as? [String: Any] {
-            blockedUserIDs = Array(map.keys)
-        } else if let array = rawValue as? [String] {
-            blockedUserIDs = array
-        } else {
-            return []
-        }
+        let rawValue: [String: Any] = try await networking.database.getValues(at: path)
+        let blockedUserIDs = Array(rawValue.keys)
 
         return try await networking.userService.getUsers(ids: blockedUserIDs)
     }

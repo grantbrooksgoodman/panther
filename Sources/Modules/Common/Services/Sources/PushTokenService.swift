@@ -53,16 +53,6 @@ final class PushTokenService {
             if let map = rawPushTokens as? [String: Any],
                map[pushToken] != nil {
                 updates["\(basePath)/\(pushToken)"] = NSNull()
-            } else if let array = rawPushTokens as? [String],
-                      !array.isBangQualifiedEmpty,
-                      array.contains(pushToken) {
-                // Legacy array: rewrite as map minus stale token.
-                var newMap = [String: Bool]()
-                for token in array where token != pushToken {
-                    newMap[token] = true
-                }
-
-                updates[basePath] = newMap.isEmpty ? [String: Bool]() : newMap
             }
         }
 
@@ -130,17 +120,6 @@ final class PushTokenService {
                 for token in map.keys where currentTokenSet.contains(token) {
                     updates["\(basePath)/\(token)"] = NSNull()
                 }
-            } else if let array = rawPushTokens as? [String],
-                      !array.isBangQualifiedEmpty,
-                      array.containsAnyString(in: currentUserPushTokens) {
-                // Legacy array: rewrite as map minus current
-                // user's tokens.
-                var newMap = [String: Bool]()
-                for token in array where !currentTokenSet.contains(token) {
-                    newMap[token] = true
-                }
-
-                updates[basePath] = newMap.isEmpty ? [String: Bool]() : newMap
             }
         }
 

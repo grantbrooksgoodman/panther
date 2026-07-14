@@ -44,8 +44,8 @@ extension Conversation: Serializable {
         var participantsMap = [String: [String: Any]]()
         for participant in participants {
             participantsMap[participant.userID] = [
-                "hasDeletedConversation": participant.hasDeletedConversation,
-                "isTyping": participant.isTyping,
+                Participant.SerializableKey.hasDeletedConversation.rawValue: participant.hasDeletedConversation,
+                Participant.SerializableKey.isTyping.rawValue: participant.isTyping,
             ]
         }
 
@@ -82,21 +82,10 @@ extension Conversation: Serializable {
             )
         }
 
-        // Dual-format: map (new) or array (legacy).
-        // Map keys are Firebase push IDs (chronologically
-        // ordered); sorted keys give ascending sent-order.
-        let messageIDs: [String]
-        let rawMessages = data[Keys.messages.rawValue]
-        if let map = rawMessages as? [String: Any] {
-            messageIDs = map.keys.sorted()
-        } else if let array = rawMessages as? [String] {
-            messageIDs = array.filter { $0.hasPrefix("-") }
-            if let conversationKey = id.components(separatedBy: " | ").first,
-               !messageIDs.isEmpty {
-                SchemaMigration.flagLegacyMessageIndex(conversationIDKey: conversationKey)
-            }
+        let messageIDs: [String] = if let map = data[Keys.messages.rawValue] as? [String: Any] {
+            map.keys.sorted()
         } else {
-            messageIDs = []
+            []
         }
 
         // Decode conversation ID
@@ -117,47 +106,33 @@ extension Conversation: Serializable {
             from: encodedMetadata
         )
 
-        // Decode participants — dual-format: map (new) or
-        // array of pipe-delimited strings (legacy).
-
-        let participants: [Participant]
-        let rawParticipants = data[Keys.participants.rawValue]
-
-        if let map = rawParticipants as? [String: [String: Any]] {
-            var decoded = [Participant]()
-            for (uid, values) in map {
-                guard let hasDeletedConversation = values["hasDeletedConversation"] as? Bool,
-                      let isTyping = values["isTyping"] as? Bool else {
-                    throw .Networking.decodingFailed(
-                        data: values,
-                        .init(sender: Self.self)
-                    )
-                }
-
-                decoded.append(
-                    Participant(
-                        userID: uid,
-                        hasDeletedConversation: hasDeletedConversation,
-                        isTyping: isTyping
-                    )
-                )
-            }
-
-            participants = decoded
-        } else if let array = rawParticipants as? [String] {
-            participants = try await array.map(
-                failForEmptyCollection: true
-            ) {
-                try await Participant(from: $0)
-            }
-
-            if let conversationKey = id.components(separatedBy: " | ").first {
-                SchemaMigration.flagLegacyParticipants(conversationIDKey: conversationKey)
-            }
-        } else {
+        guard let participantMap = data[Keys.participants.rawValue] as? [String: [String: Any]] else {
             throw .Networking.decodingFailed(
                 data: data,
                 .init(sender: Self.self)
+            )
+        }
+
+        var participants = [Participant]()
+        for (userID, values) in participantMap {
+            guard let hasDeletedConversation = values[
+                Participant.SerializableKey.hasDeletedConversation.rawValue
+            ] as? Bool,
+                let isTyping = values[
+                    Participant.SerializableKey.isTyping.rawValue
+                ] as? Bool else {
+                throw .Networking.decodingFailed(
+                    data: values,
+                    .init(sender: Self.self)
+                )
+            }
+
+            participants.append(
+                Participant(
+                    userID: userID,
+                    hasDeletedConversation: hasDeletedConversation,
+                    isTyping: isTyping
+                )
             )
         }
 
@@ -256,24 +231,13 @@ extension Conversation: Serializable {
                       .rawValue
               ] as? [String] else { return false }
 
-        // Dual-format: map (new) or array (legacy).
-        let participantCount: Int
-        if let map = data[Keys.participants.rawValue] as? [String: [String: Any]] {
-            participantCount = map.count
-        } else if let array = data[Keys.participants.rawValue] as? [String],
-                  array.allSatisfy({ Participant.canDecode(from: $0) }) {
-            participantCount = array.count
-        } else {
-            return false
-        }
-
-        guard participantCount > 1,
+        guard let participantMap = data[Keys.participants.rawValue] as? [String: [String: Any]],
+              participantMap.count > 1,
               encodedMessageRecipientConsentAcknowledgementData.count == encodedPenPalsSharingData.count,
-              encodedPenPalsSharingData.count == participantCount,
+              encodedPenPalsSharingData.count == participantMap.count,
               let encodedReactionMetadata = data[Keys.reactionMetadata.rawValue] as? [[String: Any]],
               encodedReactionMetadata.allSatisfy({ ReactionMetadata.canDecode(from: $0) }),
               data[Keys.messages.rawValue] is [String: Any] ||
-              data[Keys.messages.rawValue] is [String] ||
               data[Keys.messages.rawValue] == nil else { return false }
 
         return true

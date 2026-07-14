@@ -275,14 +275,8 @@ final class IntegrityServiceSession: @unchecked Sendable {
         for (conversationID, data) in conversationData {
             guard let dictionary = data as? [String: Any] else { continue }
 
-            let messageIDs: [String]
-            if let array = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String] {
-                messageIDs = array
-            } else if let map = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String: Any] {
-                messageIDs = Array(map.keys)
-            } else {
-                continue
-            }
+            guard let map = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String: Any] else { continue }
+            let messageIDs = Array(map.keys)
 
             for messageID in messageIDs {
                 conversationsByMessageID[messageID, default: []].insert(conversationID)
@@ -292,16 +286,8 @@ final class IntegrityServiceSession: @unchecked Sendable {
         for (userID, data) in userData {
             guard let dictionary = data as? [String: Any] else { continue }
 
-            let conversationIDKeys: [String]
-            if let array = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] {
-                conversationIDKeys = array.compactMap {
-                    $0.components(separatedBy: " | ").first
-                }
-            } else if let map = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String: Any] {
-                conversationIDKeys = Array(map.keys)
-            } else {
-                continue
-            }
+            guard let map = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String: Any] else { continue }
+            let conversationIDKeys = Array(map.keys)
 
             for idKey in conversationIDKeys {
                 usersByConversationIDKey[idKey, default: []].insert(userID)

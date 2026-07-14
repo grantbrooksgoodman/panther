@@ -263,7 +263,7 @@ final class ConversationSessionService: @unchecked Sendable {
             conversationPath,
             Conversation.SerializableKey.participants.rawValue,
             userID,
-            "hasDeletedConversation",
+            Participant.SerializableKey.hasDeletedConversation.rawValue,
         ].joined(separator: "/")
 
         // Compute updated hash with the deletion applied.

@@ -107,49 +107,27 @@ extension User: Serializable {
 
         let phoneNumber = try await PhoneNumber(from: encodedPhoneNumber)
 
-        // Dual-format decode: map (new) or array (legacy).
-        let blockedUserIDs: [String]
-        let rawBlockedUserIDs = data[Keys.blockedUserIDs.rawValue]
-        if let map = rawBlockedUserIDs as? [String: Any] {
-            blockedUserIDs = Array(map.keys)
-        } else if let array = rawBlockedUserIDs as? [String] {
-            blockedUserIDs = array
-            if !blockedUserIDs.isBangQualifiedEmpty, !blockedUserIDs.isEmpty {
-                SchemaMigration.flagLegacyBlockedUserIDs(userID: id)
-            }
+        let blockedUserIDs: [String] = if let map = data[Keys.blockedUserIDs.rawValue] as? [String: Any] {
+            Array(map.keys)
         } else {
-            blockedUserIDs = []
+            []
         }
 
-        // Dual-format decode: map (new) or array (legacy).
-        let pushTokens: [String]
-        let rawPushTokens = data[Keys.pushTokens.rawValue]
-        if let map = rawPushTokens as? [String: Any] {
-            pushTokens = Array(map.keys)
-        } else if let array = rawPushTokens as? [String] {
-            pushTokens = array
-            if !pushTokens.isBangQualifiedEmpty, !pushTokens.isEmpty {
-                SchemaMigration.flagLegacyPushTokens(userID: id)
+        let conversationIDs: [ConversationID] = if let map = data[Keys.conversationIDs.rawValue] as? [String: String] {
+            map.map {
+                ConversationID(
+                    key: $0.key,
+                    hash: $0.value
+                )
             }
         } else {
-            pushTokens = []
+            []
         }
 
-        // Dual-format decode: map (new) or array (legacy).
-        let conversationIDs: [ConversationID]
-        let rawConversationIDs = data[Keys.conversationIDs.rawValue]
-        if let map = rawConversationIDs as? [String: String] {
-            conversationIDs = map.map { ConversationID(key: $0.key, hash: $0.value) }
-        } else if let array = rawConversationIDs as? [String] {
-            conversationIDs = try await array
-                .filter { !$0.isBangQualifiedEmpty }
-                .map { try await ConversationID(from: $0) }
-
-            if !conversationIDs.isEmpty {
-                SchemaMigration.flagLegacyConversationIDs(userID: id)
-            }
+        let pushTokens: [String] = if let map = data[Keys.pushTokens.rawValue] as? [String: Any] {
+            Array(map.keys)
         } else {
-            conversationIDs = []
+            []
         }
 
         self.init(
@@ -172,20 +150,12 @@ extension User: Serializable {
     static func canDecode(from data: [String: Any]) -> Bool {
         @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
 
-        let rawConversationIDs = data[Keys.conversationIDs.rawValue]
-        let hasValidConversationIDs: Bool = {
-            if rawConversationIDs is [String: String] { return true }
-            if let array = rawConversationIDs as? [String] {
-                return array.isBangQualifiedEmpty || array.allSatisfy { ConversationID.canDecode(from: $0) }
-            }
-            return rawConversationIDs == nil
-        }()
-
         guard data[Keys.id.rawValue] is String,
               data[Keys.aiEnhancedTranslationsEnabled.rawValue] is Bool,
               data[Keys.blockedUserIDs.rawValue] is [String: Any] ||
-              data[Keys.blockedUserIDs.rawValue] is [String],
-              hasValidConversationIDs,
+              data[Keys.blockedUserIDs.rawValue] == nil,
+              data[Keys.conversationIDs.rawValue] is [String: String] ||
+              data[Keys.conversationIDs.rawValue] == nil,
               data[Keys.isPenPalsParticipant.rawValue] is Bool,
               data[Keys.messageRecipientConsentRequired.rawValue] is Bool,
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
@@ -195,7 +165,7 @@ extension User: Serializable {
               timestampDateFormatter.date(from: lastSignedInString) != nil,
               data[Keys.previousLanguageCodes.rawValue] is [String],
               data[Keys.pushTokens.rawValue] is [String: Any] ||
-              data[Keys.pushTokens.rawValue] is [String] else { return false }
+              data[Keys.pushTokens.rawValue] == nil else { return false }
 
         return true
     }

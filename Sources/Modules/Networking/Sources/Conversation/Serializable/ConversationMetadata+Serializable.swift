@@ -94,9 +94,8 @@ extension ConversationMetadata: Serializable {
             )
         }
 
-        // imageHash may be absent on legacy nodes; compute
-        // lazily from imageData when missing (one-time migration
-        // persists it via the next write).
+        // imageHash may be absent; compute lazily from
+        // imageData when missing.
         let storedImageHash = data[Keys.imageHash.rawValue] as? String
 
         guard !imageDataString.isBangQualifiedEmpty else {

@@ -140,17 +140,10 @@ struct NotificationService {
             at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)"
         )
 
-        // Dual-format: map (new) or array (legacy).
         let pushTokens = userData.reduce(into: [String]()) { partialResult, keyPair in
-            guard let userData = keyPair.value as? [String: Any] else { return }
-            let rawPushTokens = userData[User.SerializableKey.pushTokens.rawValue]
-
-            if let map = rawPushTokens as? [String: Any] {
-                partialResult.append(contentsOf: map.keys)
-            } else if let array = rawPushTokens as? [String],
-                      !array.isBangQualifiedEmpty {
-                partialResult.append(contentsOf: array)
-            }
+            guard let userData = keyPair.value as? [String: Any],
+                  let map = userData[User.SerializableKey.pushTokens.rawValue] as? [String: Any] else { return }
+            partialResult.append(contentsOf: map.keys)
         }
 
         try await pushTokens.unique.map(

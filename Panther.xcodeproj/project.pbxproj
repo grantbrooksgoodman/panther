@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		33261DB5EDC8D88347774727 /* SessionStoreInvalidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B8D4F6D87373A21AC2D9B0 /* SessionStoreInvalidationService.swift */; };
-		8F9D5E3165484F0054BCF480 /* SchemaMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13CFD9F01EE4DCDA32B827F1 /* SchemaMigration.swift */; };
 		A200C552300180C3002D9651 /* ChatPageHeaderReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */; };
 		A200C554300180CA002D9651 /* ChatPageHeaderObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200C553300180CA002D9651 /* ChatPageHeaderObserver.swift */; };
 		A2110CEA2EDC122200954DA2 /* UIColor+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */; };
@@ -54,6 +53,7 @@
 		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
 		A2C250CD2F959330002EEA53 /* SystemInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C250CC2F959330002EEA53 /* SystemInformation.swift */; };
 		A2C27C6F2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */; };
+		A2C7F4B92F55D3A100171C04 /* SchemaMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C7F4B82F55D3A100171C04 /* SchemaMigrationService.swift */; };
 		A2CF5E572F20774E0054830C /* SynchronizationRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */; };
 		A2D4F4492ED134E300642629 /* ContactSelectorPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */; };
 		A2DA4FFB2FAED83600AA824B /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = A2DA4FFA2FAED83600AA824B /* Networking */; };
@@ -780,7 +780,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		13CFD9F01EE4DCDA32B827F1 /* SchemaMigration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SchemaMigration.swift; sourceTree = "<group>"; };
 		32B8D4F6D87373A21AC2D9B0 /* SessionStoreInvalidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreInvalidationService.swift; sourceTree = "<group>"; };
 		520CADEF63996EC3E433927D /* SessionStoreChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreChange.swift; sourceTree = "<group>"; };
 		A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageHeaderReducer.swift; sourceTree = "<group>"; };
@@ -827,6 +826,7 @@
 		A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatNavigator.swift; sourceTree = "<group>"; };
 		A2C250CC2F959330002EEA53 /* SystemInformation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemInformation.swift; sourceTree = "<group>"; };
 		A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
+		A2C7F4B82F55D3A100171C04 /* SchemaMigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaMigrationService.swift; sourceTree = "<group>"; };
 		A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizationRecord.swift; sourceTree = "<group>"; };
 		A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewStrings.swift; sourceTree = "<group>"; };
 		A2DF2C5128199B660089DEA1 /* Hello.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hello.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1634,6 +1634,14 @@
 			path = ChatPageHeaderView;
 			sourceTree = "<group>";
 		};
+		A20A6A813006AB2200294D44 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A2C7F4B82F55D3A100171C04 /* SchemaMigrationService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		A2BE201B2F2C41240006F7AF /* FeaturePermissionPageView */ = {
 			isa = PBXGroup;
 			children = (
@@ -1812,7 +1820,6 @@
 				B92617712CD8990900877ECE /* ReactionSessionServiceEffectID.swift */,
 				520CADEF63996EC3E433927D /* SessionStoreChange.swift */,
 				A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */,
-				13CFD9F01EE4DCDA32B827F1 /* SchemaMigration.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2502,6 +2509,7 @@
 				B9D0D9182B03019E00078A93 /* Dependencies */,
 				B9D0D91E2B03019E00078A93 /* Extensions */,
 				B9D0D9272B03019E00078A93 /* Models */,
+				A20A6A813006AB2200294D44 /* Services */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -4480,7 +4488,7 @@
 				B9E7F5732C658F4300938D22 /* SplashPageObserver.swift in Sources */,
 				A2FE37622EA7354000931829 /* MessageRetranslationService.swift in Sources */,
 				B92409852AB2DFC0004CF4C0 /* LoggerDomains.swift in Sources */,
-				8F9D5E3165484F0054BCF480 /* SchemaMigration.swift in Sources */,
+				A2C7F4B92F55D3A100171C04 /* SchemaMigrationService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

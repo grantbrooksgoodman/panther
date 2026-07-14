@@ -95,19 +95,10 @@ final class ConversationObserverService: @unchecked Sendable {
             )
         }
 
-        // Dual-format: map (new) or array (legacy).
-        let messageIDs: [String]
-        let rawMessages = data[Keys.messages.rawValue]
-
-        if let map = rawMessages as? [String: Any] {
-            messageIDs = map.keys.sorted()
-        } else if let array = rawMessages as? [String] {
-            messageIDs = array.filter { $0.hasPrefix("-") }
-            if !messageIDs.isEmpty {
-                SchemaMigration.flagLegacyMessageIndex(conversationIDKey: idKey)
-            }
+        let messageIDs: [String] = if let map = data[Keys.messages.rawValue] as? [String: Any] {
+            map.keys.sorted()
         } else {
-            messageIDs = []
+            []
         }
 
         let activities = try await encodedActivities.map(
@@ -118,46 +109,33 @@ final class ConversationObserverService: @unchecked Sendable {
 
         let metadata = try await ConversationMetadata(from: encodedMetadata)
 
-        // Participants — dual-format: map (new) or
-        // array of pipe-delimited strings (legacy).
-        let participants: [Participant]
-        let rawParticipants = data[Keys.participants.rawValue]
-
-        if let map = rawParticipants as? [String: [String: Any]] {
-            var decoded = [Participant]()
-            for (uid, values) in map {
-                guard let hasDeletedConversation = values[
-                    "hasDeletedConversation"
-                ] as? Bool,
-                    let isTyping = values["isTyping"] as? Bool else {
-                    throw .Networking.decodingFailed(
-                        data: values,
-                        .init(sender: self)
-                    )
-                }
-
-                decoded.append(
-                    Participant(
-                        userID: uid,
-                        hasDeletedConversation: hasDeletedConversation,
-                        isTyping: isTyping
-                    )
-                )
-            }
-
-            participants = decoded
-        } else if let array = rawParticipants as? [String] {
-            participants = try await array.map(
-                failForEmptyCollection: true
-            ) {
-                try await Participant(from: $0)
-            }
-
-            SchemaMigration.flagLegacyParticipants(conversationIDKey: idKey)
-        } else {
+        guard let participantMap = data[Keys.participants.rawValue] as? [String: [String: Any]] else {
             throw .Networking.decodingFailed(
                 data: data,
                 .init(sender: self)
+            )
+        }
+
+        var participants = [Participant]()
+        for (userID, values) in participantMap {
+            guard let hasDeletedConversation = values[
+                Participant.SerializableKey.hasDeletedConversation.rawValue
+            ] as? Bool,
+                let isTyping = values[
+                    Participant.SerializableKey.isTyping.rawValue
+                ] as? Bool else {
+                throw .Networking.decodingFailed(
+                    data: values,
+                    .init(sender: self)
+                )
+            }
+
+            participants.append(
+                Participant(
+                    userID: userID,
+                    hasDeletedConversation: hasDeletedConversation,
+                    isTyping: isTyping
+                )
             )
         }
 
@@ -264,7 +242,8 @@ final class ConversationObserverService: @unchecked Sendable {
 
         // Stream terminated. Retry once after 2 s;
         // the user-node pipeline remains the safety net.
-        guard !Task.isCancelled, !isRetry else { return }
+        guard !Task.isCancelled,
+              !isRetry else { return }
 
         try? await Task.sleep(for: .seconds(2))
         guard !Task.isCancelled else { return }

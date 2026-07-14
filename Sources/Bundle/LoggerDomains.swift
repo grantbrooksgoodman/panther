@@ -66,6 +66,7 @@ extension LoggerDomain {
             .localization,
             .notifications,
             .penPals,
+            .schemaMigration,
             .storageSession,
             .translation,
             .userSession,
@@ -88,6 +89,7 @@ extension LoggerDomain {
     static let messageStore: LoggerDomain = .init("messageStore")
     static let notifications: LoggerDomain = .init("notifications")
     static let penPals: LoggerDomain = .init("penPals")
+    static let schemaMigration: LoggerDomain = .init("schemaMigration")
     static let sessionStoreInvalidation: LoggerDomain = .init("sessionStoreInvalidation")
     static let storageSession: LoggerDomain = .init("storageSession")
     static let userSession: LoggerDomain = .init("userSession")
