@@ -52,7 +52,7 @@ final class ConversationSyncService: @unchecked Sendable {
                 .recentlyFailedSyncRecords
                 .wrappedValue
                 .contains(where: {
-                    $0.conversationID == conversation.id && !$0.isExpired
+                    $0.conversationIDKey == conversation.id.key && !$0.isExpired
                 }) else {
                 Logger.log(
                     .init(
@@ -70,7 +70,25 @@ final class ConversationSyncService: @unchecked Sendable {
                 return conversation
             }
 
-            return try await _synchronizeConversation(conversation)
+            do throws(Exception) {
+                return try await _synchronizeConversation(conversation)
+            } catch {
+                Self.recentlyFailedSyncRecords.projectedValue.withValue {
+                    $0 = $0.filter { !$0.isExpired }
+
+                    let previousAttempt = $0.first(
+                        where: { $0.conversationIDKey == conversation.id.key }
+                    )?.attempt ?? 0
+
+                    $0.remove(.init(conversationIDKey: conversation.id.key))
+                    $0.insert(.init(
+                        conversationIDKey: conversation.id.key,
+                        attempt: previousAttempt + 1
+                    ))
+                }
+
+                throw error
+            }
         }
     }
 
@@ -536,7 +554,16 @@ final class ConversationSyncService: @unchecked Sendable {
 
             Self.recentlyFailedSyncRecords.projectedValue.withValue {
                 $0 = $0.filter { !$0.isExpired }
-                $0.insert(.init(conversation.id))
+
+                let previousAttempt = $0.first(
+                    where: { $0.conversationIDKey == conversation.id.key }
+                )?.attempt ?? 0
+
+                $0.remove(.init(conversationIDKey: conversation.id.key))
+                $0.insert(.init(
+                    conversationIDKey: conversation.id.key,
+                    attempt: previousAttempt + 1
+                ))
             }
 
             do {

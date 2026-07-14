@@ -41,13 +41,18 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         factors.append(contentsOf: activities?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: messageIDs.filter { $0.hasPrefix("-") })
         factors.append(metadata.name)
-        factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
+        factors.append(metadata.imageHash ?? .bangQualifiedEmpty)
         factors.append(metadata.isPenPalsConversation.description)
         factors.append(dateFormatter.string(from: metadata.lastModifiedDate))
         factors.append(contentsOf: metadata.messageRecipientConsentAcknowledgementData.map(\.encoded))
         factors.append(contentsOf: metadata.penPalsSharingData.map(\.encoded))
         factors.append(metadata.requiresConsentFromInitiator == nil ? .bangQualifiedEmpty : metadata.requiresConsentFromInitiator!.description)
-        factors.append(contentsOf: participants.map(\.encoded))
+        // Content-version only: userID + hasDeletedConversation.
+        // isTyping is excluded so typing writes do not mint
+        // version tokens; presence propagates via the observer.
+        factors.append(contentsOf: participants.map {
+            "\($0.userID) | \($0.hasDeletedConversation)"
+        })
         factors.append(contentsOf: reactionMetadata?.map(\.encodedHash) ?? [])
         return factors.sorted()
     }

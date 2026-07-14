@@ -357,7 +357,25 @@ final class UserSessionService: @unchecked Sendable {
             idKeys: conversationsNeedingFetch.map(\.key)
         )
 
-        decodedConversations.merge(with: conversations)
+        // Reconcile node tokens with user-record tokens.
+        // Post-P1 atomic fan-out keeps both in sync; this
+        // handles pre-migration data where they diverged.
+        // The user-record token is preferred because it is
+        // what resolveCurrentUserConversations compares
+        // against to decide whether a conversation is stale.
+        let reconciledConversations: [Conversation] = conversations.map { conversation in
+            guard let userRecordID = conversationsNeedingFetch.first(
+                where: { $0.key == conversation.id.key }
+            ), userRecordID.hash != conversation.id.hash else { return conversation }
+            return conversation.copying(
+                id: .init(
+                    key: conversation.id.key,
+                    hash: userRecordID.hash
+                )
+            )
+        }
+
+        decodedConversations.merge(with: reconciledConversations)
         try validateRatio(
             decodedConversations,
             conversationIDs

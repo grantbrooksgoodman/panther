@@ -63,6 +63,7 @@ extension Application {
         onCompletion procedure: ResetCompletionProcedure? = nil
     ) {
         @Dependency(\.appGroupDefaults) var appGroupDefaults: UserDefaults
+        @Dependency(\.networking.auth) var auth: AuthDelegate
         @Dependency(\.clientSession.conversationObserver) var conversationObserver: ConversationObserverService
         @Dependency(\.coreKit) var core: CoreKit
         @Dependency(\.userDefaults) var defaults: UserDefaults
@@ -96,9 +97,10 @@ extension Application {
         RuntimeStorage.remove(.lastSignInDate)
         RuntimeStorage.remove(.populatedTemporaryCaches)
 
-        Task {
-            @Dependency(\.networking.auth) var auth: AuthDelegate
-            try await auth.reauthenticateAnonymously()
+        do {
+            try auth.signOut()
+        } catch {
+            Logger.log(error)
         }
 
         guard let procedure else { return }
@@ -117,22 +119,6 @@ extension Application {
         case .navigateToSplash:
             navigation.navigate(to: .userContent(.stack([])))
             navigation.navigate(to: .root(.modal(.splash)))
-        }
-    }
-}
-
-private extension AuthDelegate {
-    func reauthenticateAnonymously() async throws(Exception) {
-        try signOut()
-        do throws(Exception) {
-            _ = try await signInAnonymously()
-            Logger.log(
-                "Reauthenticated as anonymous user.",
-                domain: .Networking.auth,
-                sender: self
-            )
-        } catch {
-            throw error
         }
     }
 }
