@@ -25,7 +25,6 @@ struct UserTestingService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.fileManager) private var fileManager: FileManager
-    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.commonServices.update) private var updateService: UpdateService
@@ -149,7 +148,11 @@ struct UserTestingService {
             count -= 1
         }
 
-        navigation.navigate(to: .root(.modal(.splash)))
+        Application.reset(
+            preserveCurrentUserID: true,
+            onCompletion: .navigateToSplash
+        )
+
         core.ui.removeOverlay()
         Task.delayed(by: .seconds(1)) { @MainActor in
             Logger.log(

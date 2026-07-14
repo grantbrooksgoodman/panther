@@ -14,7 +14,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
+extension DevModeAction.AppActions {
     enum DangerZone {
         private enum Action {
             /* MARK: Cases */
@@ -200,180 +200,105 @@ extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
 
         // MARK: - Auxiliary
 
-        // swiftlint:disable:next function_body_length
         private static func performAction(_ action: Action) {
-            Task { @MainActor in
-                @Dependency(\.coreKit) var core: CoreKit
-                @Dependency(\.clientSession.user) var userSession: UserSessionService
-
-                func showSuccessAndReset() {
-                    core.hud.flash(image: .success)
-                    Task.delayed(by: .seconds(1)) { @MainActor in
-                        Application.reset(
-                            preserveCurrentUserID: true,
-                            onCompletion: .navigateToSplash
-                        )
-                    }
+            Task {
+                do throws(Exception) {
+                    try await _performAction(action)
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toast
+                    )
                 }
+            }
+        }
 
+        private static func _performAction(_ action: Action) async throws(Exception) {
+            @Dependency(\.coreKit) var core: CoreKit
+            @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+            func showSuccessAndReset() {
+                core.hud.flash(image: .success)
+                Task.delayed(by: .seconds(1)) { @MainActor in
+                    Application.reset(
+                        preserveCurrentUserID: true,
+                        onCompletion: .navigateToSplash
+                    )
+                }
+            }
+
+            guard await AKConfirmationAlert(
+                title: action.confirmationAlertTitle,
+                message: action.confirmationAlertMessage,
+                confirmButtonStyle: .destructivePreferred
+            ).present(translating: []) else { return }
+
+            switch action {
+            case .clearPreviousLanguageCodes:
+                try await core.utils.clearPreviousLanguageCodes()
+                core.hud.flash(
+                    "Cleared Previous Language Codes",
+                    image: .success
+                )
+
+            case .deleteConversationsInvisibleToCurrentUser:
+                try await core.utils.deleteConversations(
+                    .notVisibleForCurrentUser
+                )
+
+                showSuccessAndReset()
+
+            case .deleteCurrentUserConversations:
+                try await core.utils.deleteConversations(
+                    .allForCurrentUser
+                )
+
+                showSuccessAndReset()
+
+            case .deleteGroupChatsWithoutNameOrPhoto:
+                try await core.utils.deleteConversations(
+                    .groupChatsWithoutNameOrPhoto
+                )
+
+                showSuccessAndReset()
+
+            case .deleteMRCConversations:
+                try await core.utils.deleteConversations(
+                    .messageRecipientConsentEnabled
+                )
+
+                showSuccessAndReset()
+
+            case .deleteOneToOneConversationsWithFewerThanFiveMessages:
+                try await core.utils.deleteConversations(
+                    .oneToOneAndFewerThanFiveMessages
+                )
+
+                showSuccessAndReset()
+
+            case .deletePenPalsConversations:
+                try await core.utils.deleteConversations(
+                    .penPals
+                )
+
+                showSuccessAndReset()
+
+            case .destroyConversationDatabase:
                 guard await AKConfirmationAlert(
-                    title: action.confirmationAlertTitle,
-                    message: action.confirmationAlertMessage,
+                    title: "Are you sure?",
+                    message: "ALL CONVERSATIONS FOR ALL USERS WILL BE DELETED!",
                     confirmButtonStyle: .destructivePreferred
                 ).present(translating: []) else { return }
 
-                switch action {
-                case .clearPreviousLanguageCodes:
-                    do throws(Exception) {
-                        try await core.utils.clearPreviousLanguageCodes()
-                        core.hud.flash(
-                            "Cleared Previous Language Codes",
-                            image: .success
-                        )
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .toast
-                        )
-                    }
+                try await core.utils.destroyConversationDatabase()
+                showSuccessAndReset()
 
-                case .deleteConversationsInvisibleToCurrentUser:
-                    userSession.stopObservingCurrentUserChanges(
-                        disableChangeEmission: true
-                    )
-
-                    do throws(Exception) {
-                        try await core.utils.deleteConversations(
-                            .notVisibleForCurrentUser
-                        )
-                        showSuccessAndReset()
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .toast
-                        )
-                    }
-
-                case .deleteCurrentUserConversations:
-                    userSession.stopObservingCurrentUserChanges(
-                        disableChangeEmission: true
-                    )
-
-                    do throws(Exception) {
-                        try await core.utils.deleteConversations(
-                            .allForCurrentUser
-                        )
-                        showSuccessAndReset()
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .toast
-                        )
-                    }
-
-                case .deleteGroupChatsWithoutNameOrPhoto:
-                    userSession.stopObservingCurrentUserChanges(
-                        disableChangeEmission: true
-                    )
-
-                    do throws(Exception) {
-                        try await core.utils.deleteConversations(
-                            .groupChatsWithoutNameOrPhoto
-                        )
-                        showSuccessAndReset()
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .toast
-                        )
-                    }
-
-                case .deleteMRCConversations:
-                    userSession.stopObservingCurrentUserChanges(
-                        disableChangeEmission: true
-                    )
-
-                    do throws(Exception) {
-                        try await core.utils.deleteConversations(
-                            .messageRecipientConsentEnabled
-                        )
-                        showSuccessAndReset()
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .toast
-                        )
-                    }
-
-                case .deleteOneToOneConversationsWithFewerThanFiveMessages:
-                    userSession.stopObservingCurrentUserChanges(
-                        disableChangeEmission: true
-                    )
-
-                    do throws(Exception) {
-                        try await core.utils.deleteConversations(
-                            .oneToOneAndFewerThanFiveMessages
-                        )
-                        showSuccessAndReset()
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .toast
-                        )
-                    }
-
-                case .deletePenPalsConversations:
-                    userSession.stopObservingCurrentUserChanges(
-                        disableChangeEmission: true
-                    )
-
-                    do throws(Exception) {
-                        try await core.utils.deleteConversations(
-                            .penPals
-                        )
-                        showSuccessAndReset()
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .toast
-                        )
-                    }
-
-                case .destroyConversationDatabase:
-                    guard await AKConfirmationAlert(
-                        title: "Are you sure?",
-                        message: "ALL CONVERSATIONS FOR ALL USERS WILL BE DELETED!",
-                        confirmButtonStyle: .destructivePreferred
-                    ).present(translating: []) else { return }
-
-                    userSession.stopObservingCurrentUserChanges(
-                        disableChangeEmission: true
-                    )
-
-                    do throws(Exception) {
-                        try await core.utils.destroyConversationDatabase()
-                        showSuccessAndReset()
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .toast
-                        )
-                    }
-
-                case .resetPushTokens:
-                    do throws(Exception) {
-                        try await core.utils.resetPushTokens()
-                        core.hud.flash(
-                            "Reset Push Tokens",
-                            image: .success
-                        )
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .toast
-                        )
-                    }
-                }
+            case .resetPushTokens:
+                try await core.utils.resetPushTokens()
+                core.hud.flash(
+                    "Reset Push Tokens",
+                    image: .success
+                )
             }
         }
     }

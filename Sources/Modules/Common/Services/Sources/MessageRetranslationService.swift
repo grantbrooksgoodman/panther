@@ -277,7 +277,7 @@ struct MessageRetranslationService {
             to: conversation.metadata.copyWith(lastModifiedDate: .now)
         )
 
-        _ = try await conversationsPageViewService.reloadData()
+        try await conversationsPageViewService.reloadData()
     }
 }
 

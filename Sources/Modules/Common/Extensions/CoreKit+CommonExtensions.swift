@@ -114,19 +114,23 @@ extension CoreKit.Utilities {
             )
         }
 
-        coreUI.addOverlay(
-            alpha: 0.5,
-            activityIndicator: .largeWhite
-        )
-
         defer {
             networking.database.setGlobalCacheStrategy(nil)
             networking.storage.setGlobalCacheStrategy(nil)
             coreUI.removeOverlay()
         }
 
+        coreUI.addOverlay(
+            alpha: 0.5,
+            activityIndicator: .largeWhite
+        )
+
         networking.database.setGlobalCacheStrategy(.disregardCache)
         networking.storage.setGlobalCacheStrategy(.disregardCache)
+
+        clientSession.user.stopObservingCurrentUserChanges(
+            disableChangeEmission: true
+        )
 
         var exceptions = [Exception]()
         for conversationIDKey in conversationIDKeys.unique {

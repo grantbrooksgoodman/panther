@@ -60,9 +60,8 @@ final class ConversationsPageViewService {
 
     // MARK: - Properties
 
-    private(set) var didShowSecondsToLoadToast = false
-
     private var currentReloadType: ReloadType = .full
+    private var didShowSecondsToLoadToast = false
 
     // MARK: - View Lifecycle
 
@@ -147,10 +146,8 @@ final class ConversationsPageViewService {
     }
 
     /// `.pulledToRefresh`
-    func reloadData() async throws(Exception) -> [Conversation] {
-        try await reloadData(
-            type: currentReloadType
-        )
+    func reloadData() async throws(Exception) {
+        try await reloadData(type: currentReloadType)
     }
 
     /// `.composeToolbarButtonTapped`
@@ -160,120 +157,73 @@ final class ConversationsPageViewService {
         }
     }
 
-    /// `.reloadDataReturned`
-    /// `.sessionStoreDidChange`
-    /// `.viewAppeared`
-    func updateConversationsList(
-        with providedConversations: [Conversation]? = nil,
-        state: inout ConversationsPageReducer.State
-    ) {
-        // Blocks list rebuilds while user content isn't frontmost. `sessionStoreDidChange`
-        // fires app-wide (e.g. during onboarding resolution and reset teardown, where
-        // clearConversationArchive emits a removal per conversation), and this method is
-        // not relevance-filtered or debounced. Audited 2026-07: necessary.
-        guard navigation.state.modal == .userContent else { return }
-
-        let conversations = (
-            providedConversations ?? clientSession.user.currentUser?.conversations ?? []
-        )
-        .filteredAndSorted
-
-        guard !conversations.isEmpty else {
-            // If the chat session holds a valid conversation that hasn't been
-            // synced to conversationIDs yet, use it directly so the list
-            // populates immediately without waiting for the server.
-            if let currentConversation = clientSession.conversation.currentConversation,
-               !currentConversation.isMock,
-               currentConversation.isVisibleForCurrentUser {
-                state.conversations = [
-                    currentConversation,
-                ].filteredAndSorted
-            } else {
-                state.conversations = []
-            }
-
-            guard !didShowSecondsToLoadToast else { return }
-            Task.debounced(
-                "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.showSecondsToLoadToast.rawValue)",
-                delay: .seconds(1)
-            ) { @MainActor [weak self] in
-                self?.showSecondsToLoadToastIfNeeded()
-            }
-
-            return
-        }
-
-        state.conversations = conversations
-
-        guard !didShowSecondsToLoadToast else { return }
-        Task.debounced(
-            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.showSecondsToLoadToast.rawValue)",
-            delay: .seconds(1)
-        ) { @MainActor [weak self] in
-            self?.showSecondsToLoadToastIfNeeded()
-        }
-    }
-
     // MARK: - Auxiliary
 
     func showSecondsToLoadToastIfNeeded() {
         guard !didShowSecondsToLoadToast else { return }
         didShowSecondsToLoadToast = true
 
-        let currentUser = clientSession.user.currentUser
-        let numberOfConversations = currentUser?
-            .conversations?
-            .visibleForCurrentUser
-            .count ?? currentUser?
-            .conversationIDs?
-            .count ?? 1
+        Task.debounced(
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.showSecondsToLoadToast.rawValue)",
+            delay: .seconds(1)
+        ) { @MainActor [weak self] in
+            guard let self else { return }
 
-        let secondsToLoad = max(
-            abs(Application.loadStartDate.seconds(from: .now)) - 1,
-            0
-        )
+            let currentUser = clientSession.user.currentUser
+            let numberOfConversations = currentUser?
+                .conversations?
+                .visibleForCurrentUser
+                .count ?? currentUser?
+                .conversationIDs?
+                .count ?? 1
 
-        let secondsPerConversation = String(
-            format: "%.2f",
-            Float(secondsToLoad) / Float(numberOfConversations)
-        )
+            let secondsToLoad = max(
+                abs(Application.loadStartDate.seconds(from: .now)) - 1,
+                0
+            )
 
-        let suffix = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
+            let secondsPerConversation = String(
+                format: "%.2f",
+                Float(secondsToLoad) / Float(numberOfConversations)
+            )
 
-        let allMessages = (currentUser?.conversations ?? Array(clientSession.store.conversations.values))
-            .visibleForCurrentUser
-            .compactMap(\.messages)
-            .flatMap(\.self)
+            let suffix = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
 
-        let uniqueMessages = allMessages.uniquedByID
-        let audioMessageCount = uniqueMessages.filter(\.contentType.isAudio).count
-        let mediaMessageCount = uniqueMessages.filter(\.contentType.isMedia).count
-        let totalMessageCount = uniqueMessages.count
-        let textMessageCount = totalMessageCount - (audioMessageCount + mediaMessageCount)
+            let allMessages = (currentUser?.conversations ?? Array(clientSession.store.conversations.values))
+                .visibleForCurrentUser
+                .compactMap(\.messages)
+                .flatMap(\.self)
 
-        let safeMessageCount: Double = totalMessageCount == 0 ? 1 : Double(totalMessageCount)
-        let audioMessagePercent = (Double(audioMessageCount) / safeMessageCount).roundedString
-        let mediaMessagePercent = (Double(mediaMessageCount) / safeMessageCount).roundedString
-        let textMessagePercent = (Double(textMessageCount) / safeMessageCount).roundedString
+            let uniqueMessages = allMessages.uniquedByID
+            let audioMessageCount = uniqueMessages.filter(\.contentType.isAudio).count
+            let mediaMessageCount = uniqueMessages.filter(\.contentType.isMedia).count
+            let totalMessageCount = uniqueMessages.count
+            let textMessageCount = totalMessageCount - (audioMessageCount + mediaMessageCount)
 
-        var addendum = ""
-        if totalMessageCount > 0 {
-            addendum = "\nUser has \(totalMessageCount) messages and \(numberOfConversations) conversations."
-            addendum += "\n\(textMessagePercent)% text, \(audioMessagePercent)% audio, \(mediaMessagePercent)% media."
+            let safeMessageCount: Double = totalMessageCount == 0 ? 1 : Double(totalMessageCount)
+            let audioMessagePercent = (Double(audioMessageCount) / safeMessageCount).roundedString
+            let mediaMessagePercent = (Double(mediaMessageCount) / safeMessageCount).roundedString
+            let textMessagePercent = (Double(textMessageCount) / safeMessageCount).roundedString
+
+            var addendum = ""
+            if totalMessageCount > 0 {
+                addendum = "\nUser has \(totalMessageCount) messages and \(numberOfConversations) conversations."
+                addendum += "\n\(textMessagePercent)% text, \(audioMessagePercent)% audio, \(mediaMessagePercent)% media."
+            }
+
+            let seconds = "second\(secondsToLoad == 1 ? "" : "s")"
+            Logger.log(
+                "Loaded content in \(secondsToLoad) \(seconds)\(suffix ?? "").\(addendum)",
+                domain: .conversation,
+                sender: self
+            )
+
+            guard build.milestone != .generalRelease else { return }
+            Toast.show(.init(
+                message: "Loaded content in \(secondsToLoad) \(seconds)\(suffix ?? "").\(addendum)",
+                perpetuation: .ephemeral(.seconds(10))
+            ))
         }
-
-        let seconds = "second\(secondsToLoad == 1 ? "" : "s")"
-        Logger.log(
-            "Loaded content in \(secondsToLoad) \(seconds)\(suffix ?? "").\(addendum)",
-            domain: .conversation,
-            sender: self
-        )
-
-        guard build.milestone != .generalRelease else { return }
-        Toast.show(.init(
-            message: "Loaded content in \(secondsToLoad) \(seconds)\(suffix ?? "").\(addendum)",
-            perpetuation: .ephemeral(.seconds(10))
-        ))
     }
 
     private func enableOfflineModeSideEffects() {
@@ -366,7 +316,7 @@ final class ConversationsPageViewService {
 
     private func reloadData(
         type: ReloadType
-    ) async throws(Exception) -> [Conversation] {
+    ) async throws(Exception) {
         if let conversations = clientSession
             .user
             .currentUser?
@@ -401,9 +351,8 @@ final class ConversationsPageViewService {
             Int.random(in: 1 ... 1_000_000) % 3 == 0
         }
 
-        guard !services.contact.hasContactsBesidesCurrentUser || randomBool else {
-            return clientSession.user.currentUser?.conversations ?? []
-        }
+        guard !services.contact.hasContactsBesidesCurrentUser ||
+            randomBool else { return }
 
         do {
             try await services.contact.syncContactPairArchive()
@@ -415,8 +364,6 @@ final class ConversationsPageViewService {
                 throw error
             }
         }
-
-        return clientSession.user.currentUser?.conversations ?? []
     }
 
     /// Evaluates several user-facing prompts in priority order.

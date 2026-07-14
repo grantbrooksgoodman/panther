@@ -45,7 +45,7 @@ struct ConversationsPageReducer: Reducer {
 
         case composeToolbarButtonAnimationAmountSet(CGFloat)
         case reloadDataFailed(Exception)
-        case reloadDataReturned([Conversation])
+        case reloadDataReturned
         case resolveFailed(Exception)
         case resolveReturned([TranslationOutputMap])
     }
@@ -57,8 +57,7 @@ struct ConversationsPageReducer: Reducer {
 
         var animationAmount: CGFloat = 1
         var composeToolbarButtonViewID = UUID()
-        var conversationCellViewID = UUID()
-        var conversations = [Conversation]()
+        var conversationsChangeToken = UUID()
         var isRefreshing = false
         var isSearching = false
         var searchQuery = ""
@@ -66,6 +65,40 @@ struct ConversationsPageReducer: Reducer {
         var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
+
+        /// The current user's conversations, filtered for visibility,
+        /// sorted by latest message sent date, and narrowed by the
+        /// active search query when one is present.
+        ///
+        /// Falls back to the current chat session's conversation
+        /// during the brief window between local conversation
+        /// creation and server-side `conversationIDs` sync.
+        @MainActor
+        var conversations: [Conversation] {
+            @Dependency(\.clientSession) var clientSession: ClientSession
+
+            let allConversations = (
+                clientSession.user.currentUser?.conversations ?? []
+            ).filteredAndSorted
+
+            guard !allConversations.isEmpty else {
+                if let currentConversation = clientSession.conversation.currentConversation,
+                   !currentConversation.isMock,
+                   currentConversation.isVisibleForCurrentUser {
+                    return [currentConversation].filteredAndSorted
+                }
+
+                return []
+            }
+
+            guard searchQuery.isEmpty else {
+                return allConversations
+                    .queried(by: searchQuery)
+                    .filteredAndSorted
+            }
+
+            return allConversations
+        }
 
         @MainActor
         var shouldShowExtraToolbarButtons: Bool {
@@ -92,8 +125,8 @@ struct ConversationsPageReducer: Reducer {
         case .viewAppeared:
             state.viewState = .loading
 
-            viewService.updateConversationsList(state: &state)
             viewService.viewAppeared()
+            viewService.showSecondsToLoadToastIfNeeded()
 
             return .task {
                 do throws(Exception) {
@@ -135,9 +168,8 @@ struct ConversationsPageReducer: Reducer {
             state.isRefreshing = true
             return .task {
                 do throws(Exception) {
-                    return try await .reloadDataReturned(
-                        viewService.reloadData()
-                    )
+                    try await viewService.reloadData()
+                    return .reloadDataReturned
                 } catch {
                     return .reloadDataFailed(error)
                 }
@@ -150,12 +182,9 @@ struct ConversationsPageReducer: Reducer {
                 with: .toast
             )
 
-        case let .reloadDataReturned(conversations):
+        case .reloadDataReturned:
             state.isRefreshing = false
-            viewService.updateConversationsList(
-                with: conversations,
-                state: &state
-            )
+            state.conversationsChangeToken = UUID()
 
         case let .resolveFailed(exception):
             Logger.log(exception)
@@ -172,18 +201,10 @@ struct ConversationsPageReducer: Reducer {
             guard state.searchQuery != searchQuery else { return .none }
             state.searchQuery = searchQuery
 
-            defer { state.conversationCellViewID = UUID() }
-            guard !searchQuery.isEmpty else {
-                viewService.updateConversationsList(state: &state)
-                return .none
-            }
-
-            state.conversations = state.conversations
-                .queried(by: searchQuery)
-                .filteredAndSorted
-
         case .sessionStoreDidChange:
-            viewService.updateConversationsList(state: &state)
+            guard navigation.state.modal == .userContent else { return .none }
+            state.conversationsChangeToken = UUID()
+            viewService.showSecondsToLoadToastIfNeeded()
 
         case .settingsToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.settings)))

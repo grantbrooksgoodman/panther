@@ -69,7 +69,6 @@ extension Application {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         SessionStore.setChangeEmissionSuppressed(true)
-
         if !preserveCurrentUserID {
             userSession.stopObservingCurrentUserChanges()
         }
@@ -95,6 +94,11 @@ extension Application {
         RuntimeStorage.remove(.lastSignInDate)
         RuntimeStorage.remove(.populatedTemporaryCaches)
 
+        Task {
+            @Dependency(\.networking.auth) var auth: AuthDelegate
+            try await auth.reauthenticateAnonymously()
+        }
+
         guard let procedure else { return }
         Application.dismissSheets()
 
@@ -111,6 +115,22 @@ extension Application {
         case .navigateToSplash:
             navigation.navigate(to: .userContent(.stack([])))
             navigation.navigate(to: .root(.modal(.splash)))
+        }
+    }
+}
+
+private extension AuthDelegate {
+    func reauthenticateAnonymously() async throws(Exception) {
+        try signOut()
+        do throws(Exception) {
+            _ = try await signInAnonymously()
+            Logger.log(
+                "Reauthenticated as anonymous user.",
+                domain: .Networking.auth,
+                sender: self
+            )
+        } catch {
+            throw error
         }
     }
 }

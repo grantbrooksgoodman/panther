@@ -62,7 +62,8 @@ extension DatabaseDelegate {
                 forKey: [
                     Networking.config.environment.shortString,
                     NetworkPath.conversations.rawValue,
-                ].joined(separator: "/") + key
+                    key,
+                ].joined(separator: "/")
             )
         }
 
@@ -72,7 +73,8 @@ extension DatabaseDelegate {
                 forKey: [
                     Networking.config.environment.shortString,
                     NetworkPath.messages.rawValue,
-                ].joined(separator: "/") + key
+                    key,
+                ].joined(separator: "/")
             )
         }
 
@@ -82,7 +84,8 @@ extension DatabaseDelegate {
                 forKey: [
                     Networking.config.environment.shortString,
                     NetworkPath.users.rawValue,
-                ].joined(separator: "/") + key
+                    key,
+                ].joined(separator: "/")
             )
         }
 

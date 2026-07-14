@@ -56,10 +56,10 @@ struct WelcomePageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
-        fileprivate var supportedLanguageCodes: [String] {
+        fileprivate let supportedLanguageCodes: [String] = {
             guard let languageCodeDictionary = RuntimeStorage.languageCodeDictionary else { return [] }
             return Array(languageCodeDictionary.keys)
-        }
+        }()
     }
 
     // MARK: - Reduce

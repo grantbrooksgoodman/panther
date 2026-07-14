@@ -61,19 +61,21 @@ final class SplashPageViewService: ObservableObject {
 
     /// `.viewAppeared`,
     /// `.errorAlertDismissed`
-    func initializeBundle() async throws(Exception) {
+    func initializeBundle(fromRetry: Bool) async throws(Exception) {
         /* MARK: Service Setup */
 
         Toast.hide()
-
-        didSurpassQuickLoadTimeoutDuration = false
-        initializationProgress = initializationProgress == 1 ? 0 : initializationProgress
-        initializationStartDate = .now
         loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
-        Task.delayed(by: .milliseconds(2500)) { @MainActor in
-            guard initializationProgress <= 0.6 else { return }
-            didSurpassQuickLoadTimeoutDuration = true
+        if !fromRetry {
+            didSurpassQuickLoadTimeoutDuration = false
+            initializationProgress = initializationProgress == 1 ? 0 : initializationProgress
+            initializationStartDate = .now
+
+            Task.delayed(by: .milliseconds(2500)) { @MainActor in
+                guard initializationProgress <= 0.6 else { return }
+                didSurpassQuickLoadTimeoutDuration = true
+            }
         }
 
         /* MARK: AKCore Delegate Setup */
@@ -122,10 +124,9 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: Anonymous Sign-In */
 
-        if User.currentUserID == nil {
-            let auth = LockIsolated(networking.auth)
-            _ = try? await auth.wrappedValue.signInAnonymously()
-        }
+        _ = try? await LockIsolated(networking.auth)
+            .wrappedValue
+            .signInAnonymously()
 
         /* MARK: Parallel Initialization */
 

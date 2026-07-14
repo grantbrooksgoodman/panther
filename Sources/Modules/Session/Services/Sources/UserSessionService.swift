@@ -440,35 +440,15 @@ final class UserSessionService: @unchecked Sendable {
             }
 
             do throws(Exception) {
-                try await resolveCurrentUser()
+                try await resolveCurrentUser(
+                    and: .allDataTypes
+                )
+
                 Logger.log(
                     "Updated current user.",
                     domain: .userSession,
                     sender: self
                 )
-
-                do throws(Exception) {
-                    try await resolveCurrentUserConversations()
-                } catch {
-                    Logger.log(
-                        error,
-                        domain: .userSession
-                    )
-                }
-
-                do throws(Exception) {
-                    try await resolveCurrentUser(
-                        and: [
-                            .messages,
-                            .users,
-                        ]
-                    )
-                } catch {
-                    Logger.log(
-                        error,
-                        domain: .userSession
-                    )
-                }
 
                 Task.debounced(
                     "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.getDataUsage.rawValue)",

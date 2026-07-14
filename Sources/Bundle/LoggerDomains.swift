@@ -55,17 +55,16 @@ extension LoggerDomain {
             .analytics,
             .bugPrevention,
             .chatPageState,
-            .contacts,
             .conversation,
             .conversationStore,
             .conversationSync,
             .dataIntegrity,
             .general,
+            .Networking.auth,
             .Networking.hostedTranslation,
             .localization,
             .notifications,
             .penPals,
-            .queue,
             .storageSession,
             .translation,
             .userSession,
@@ -87,7 +86,6 @@ extension LoggerDomain {
     static let messageStore: LoggerDomain = .init("messageStore")
     static let notifications: LoggerDomain = .init("notifications")
     static let penPals: LoggerDomain = .init("penPals")
-    static let queue: LoggerDomain = .init("queue")
     static let sessionStoreInvalidation: LoggerDomain = .init("sessionStoreInvalidation")
     static let storageSession: LoggerDomain = .init("storageSession")
     static let userSession: LoggerDomain = .init("userSession")

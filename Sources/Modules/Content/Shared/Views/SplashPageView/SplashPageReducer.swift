@@ -22,17 +22,7 @@ struct SplashPageReducer: Reducer {
 
     // MARK: - Properties
 
-    static let initializeBundleTask: Effect<Action> = .task {
-        @Dependency(\.splashPageViewService) var viewService: SplashPageViewService
-        do throws(Exception) {
-            try await viewService.initializeBundle()
-            return .initializedBundle(nil)
-        } catch {
-            return .initializedBundle(error)
-        }
-    }
-
-    static let performRetryHandlerTask: Effect<Action> = .task {
+    private static let performRetryHandlerTask: Effect<Action> = .task {
         @Dependency(\.splashPageViewService) var viewService: SplashPageViewService
         do throws(Exception) {
             try await viewService.performRetryHandler()
@@ -77,7 +67,7 @@ struct SplashPageReducer: Reducer {
         switch action {
         case .viewAppeared:
             state.didAttemptAutomaticErrorRecovery = false
-            return Self.initializeBundleTask
+            return Self.initializeBundleTask()
 
         case .bundleInitializationProgressOccurred:
             guard viewService.initializationProgress < 0.8 else { return .none }
@@ -88,7 +78,7 @@ struct SplashPageReducer: Reducer {
                   !exception.isEqual(toAny: [
                       .failedToGenerateMediaFile,
                       .timedOut,
-                  ]) else { return Self.initializeBundleTask }
+                  ]) else { return Self.initializeBundleTask(fromRetry: true) }
 
             return Self.performRetryHandlerTask
 
@@ -111,7 +101,7 @@ struct SplashPageReducer: Reducer {
                             .timedOut,
                         ]
                     ) else {
-                        return Self.initializeBundleTask
+                        return Self.initializeBundleTask(fromRetry: true)
                     }
 
                     return Self.performRetryHandlerTask
@@ -134,9 +124,25 @@ struct SplashPageReducer: Reducer {
                 Logger.log(exception)
             }
 
-            return Self.initializeBundleTask
+            return Self.initializeBundleTask(fromRetry: true)
         }
 
         return .none
+    }
+
+    // MARK: - Auxiliary
+
+    private static func initializeBundleTask(
+        fromRetry: Bool = false
+    ) -> Effect<Action> {
+        .task {
+            @Dependency(\.splashPageViewService) var viewService: SplashPageViewService
+            do throws(Exception) {
+                try await viewService.initializeBundle(fromRetry: fromRetry)
+                return .initializedBundle(nil)
+            } catch {
+                return .initializedBundle(error)
+            }
+        }
     }
 }

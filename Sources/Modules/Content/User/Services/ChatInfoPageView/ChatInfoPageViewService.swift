@@ -84,6 +84,7 @@ final class ChatInfoPageViewService {
         guard let users = conversation.users,
               !users.isEmpty,
               conversation.participants.count - 1 == users.count else {
+            // TODO: Audit this guard. Should never be possible under SSoT + SPoT.
             try await conversation.resolveUsers(forceUpdate: true)
             return try await getChatParticipants()
         }

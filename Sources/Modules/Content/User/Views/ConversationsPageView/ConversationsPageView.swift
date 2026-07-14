@@ -78,7 +78,6 @@ struct ConversationsPageView: View {
                             }
                         }
                         .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
-                        .id(viewModel.conversationCellViewID)
                         .listStyle(.plain)
                         .if(!viewModel.isSearching) {
                             $0.refreshable {

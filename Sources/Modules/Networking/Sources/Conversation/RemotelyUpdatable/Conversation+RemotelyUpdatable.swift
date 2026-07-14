@@ -120,10 +120,6 @@ extension Conversation: RemotelyUpdatable {
         )
 
         try await propagateUpdatesToUsers(in: updated)
-        if data.keys.contains(\.activities) {
-            try await updated.resolveUsers(forceUpdate: true)
-        }
-
         // updateValues bypasses didWrite; this is its only upsert.
         sessionStore.upsertConversation(updated)
         return updated
@@ -167,8 +163,6 @@ extension Conversation: RemotelyUpdatable {
         )
 
         try await propagateUpdatesToUsers(in: updated)
-        guard key == .activities else { return updated }
-        try await updated.resolveUsers(forceUpdate: true)
         return updated
     }
 
