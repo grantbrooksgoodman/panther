@@ -65,11 +65,14 @@ struct ConversationsPageView: View {
                         )
                     ) {
                         List {
-                            ForEach(viewModel.conversations, id: \.self) { conversation in
+                            ForEach(
+                                viewModel.conversations,
+                                id: \.id.key
+                            ) { conversation in
                                 ConversationCellView(
                                     .init(
                                         initialState: .init(
-                                            conversation,
+                                            conversation.id.key,
                                             searchQuery: viewModel.searchQuery
                                         ),
                                         reducer: ConversationCellReducer()

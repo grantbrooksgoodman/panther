@@ -22,6 +22,7 @@ final class SessionStoreInvalidationService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
+    @Dependency(\.navigation) private var navigation: Navigation
 
     // MARK: - Properties
 
@@ -191,7 +192,7 @@ private extension SessionStoreInvalidationService {
         // participant).
         if case let .conversations(_, removedIDKeys) = change,
            removedIDKeys.contains(currentConversation.id.key) {
-            chatPageViewService.dismissChatPage()
+            navigation.navigate(to: .userContent(.stack([])))
             Toast.show(
                 .init(
                     .banner(style: .info),

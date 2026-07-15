@@ -58,7 +58,10 @@ extension DatabaseDelegate {
 
         for (key, value) in conversationData {
             CoreDatabaseStore.addValue(
-                .init(data: value, expiresAfter: expiryThreshold),
+                .init(
+                    data: value,
+                    expiresAfter: expiryThreshold
+                ),
                 forKey: [
                     Networking.config.environment.shortString,
                     NetworkPath.conversations.rawValue,
@@ -69,7 +72,10 @@ extension DatabaseDelegate {
 
         for (key, value) in messageData {
             CoreDatabaseStore.addValue(
-                .init(data: value, expiresAfter: expiryThreshold),
+                .init(
+                    data: value,
+                    expiresAfter: expiryThreshold
+                ),
                 forKey: [
                     Networking.config.environment.shortString,
                     NetworkPath.messages.rawValue,
@@ -80,7 +86,10 @@ extension DatabaseDelegate {
 
         for (key, value) in userData {
             CoreDatabaseStore.addValue(
-                .init(data: value, expiresAfter: expiryThreshold),
+                .init(
+                    data: value,
+                    expiresAfter: expiryThreshold
+                ),
                 forKey: [
                     Networking.config.environment.shortString,
                     NetworkPath.users.rawValue,

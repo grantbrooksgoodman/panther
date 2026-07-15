@@ -18,8 +18,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-@MainActor
-// swiftlint:disable:next type_body_length
+@MainActor // swiftlint:disable:next type_body_length
 final class SplashPageViewService: ObservableObject {
     // MARK: - Dependencies
 
@@ -202,7 +201,10 @@ final class SplashPageViewService: ObservableObject {
             /* MARK: Last Sign In Date Update */
 
             // Must complete before the Firebase observer starts (post-splash),
-            // otherwise the observer sees the timestamp change and triggers sign-out.
+            // otherwise the observer sees the timestamp change and triggers
+            // sign-out. The RuntimeStorage shadow is set only after the server
+            // write succeeds, so a failed write leaves the shadow untouched
+            // and the observer's comparison value unchanged.
             if RuntimeStorage.lastSignInDate == nil {
                 try await currentUser.updateLastSignedInDate()
             }

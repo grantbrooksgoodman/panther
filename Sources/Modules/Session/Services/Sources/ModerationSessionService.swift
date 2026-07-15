@@ -14,6 +14,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 struct ModerationSessionService {
     // MARK: - Dependencies
 
@@ -271,9 +272,13 @@ struct ModerationSessionService {
         try await networking.database.runTransaction(
             at: NetworkPath.reportedUsers.rawValue
         ) { currentValue in
-            var reportedUserIDs: [String: Int] = if let map = currentValue as? [String: Int] {
+            var reportedUserIDs: [String: Int] = if let map = currentValue as? [
+                String: Int
+            ] {
                 map
-            } else if let anyMap = currentValue as? [String: Any] {
+            } else if let anyMap = currentValue as? [
+                String: Any
+            ] {
                 anyMap.compactMapValues { $0 as? Int }
             } else {
                 [:]

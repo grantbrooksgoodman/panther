@@ -95,10 +95,14 @@ extension User {
     func updateLastSignedInDate(
         to date: Date = .now
     ) async throws(Exception) {
-        RuntimeStorage.store(date, as: .lastSignInDate)
         _ = try await update(
             \.lastSignedIn,
             to: date
+        )
+
+        RuntimeStorage.store(
+            date,
+            as: .lastSignInDate
         )
     }
 }

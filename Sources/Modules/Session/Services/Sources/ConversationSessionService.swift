@@ -140,7 +140,7 @@ final class ConversationSessionService: @unchecked Sendable {
 
         guard offsetMessages.map(\.id).contains(messageID) else { return }
         while !displayedMessages.map(\.id).contains(messageID),
-              Int(messageOffset) < offsetMessages.count {
+              messageOffset < offsetMessages.count {
             messageOffset += 1
             displayedMessages = withMessagesOffset(offsetMessages)
         }
@@ -322,7 +322,7 @@ final class ConversationSessionService: @unchecked Sendable {
     private func withMessagesOffset(
         _ messages: [Message]
     ) -> [Message] {
-        let amountToGet = Int(messageOffset)
+        let amountToGet = messageOffset
         guard messages.unique.count > amountToGet else { return messages }
         return Array(
             messages.unique.reversed()[0 ... amountToGet].reversed()

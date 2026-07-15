@@ -48,16 +48,7 @@ final class ConversationObserverService: @unchecked Sendable {
     }
 
     func stopObserving() {
-        if observationTask == nil {
-            Logger.log(
-                .init(
-                    "No active observer to stop.",
-                    isReportable: false,
-                    metadata: .init(sender: self)
-                ),
-                domain: .conversationObserver
-            )
-        } else {
+        if observationTask != nil {
             Logger.log(
                 "Stopped observing conversation.",
                 domain: .conversationObserver,
@@ -78,7 +69,6 @@ final class ConversationObserverService: @unchecked Sendable {
         typealias Keys = Conversation.SerializableKey
 
         let encodedHash = data[Keys.encodedHash.rawValue] as? String ?? ""
-
         guard data[Keys.id.rawValue] is String,
               let encodedActivities = data[
                   Keys.activities.rawValue
@@ -95,7 +85,9 @@ final class ConversationObserverService: @unchecked Sendable {
             )
         }
 
-        let messageIDs: [String] = if let map = data[Keys.messages.rawValue] as? [String: Any] {
+        let messageIDs: [String] = if let map = data[
+            Keys.messages.rawValue
+        ] as? [String: Any] {
             map.keys.sorted()
         } else {
             []
@@ -108,8 +100,9 @@ final class ConversationObserverService: @unchecked Sendable {
         }
 
         let metadata = try await ConversationMetadata(from: encodedMetadata)
-
-        guard let participantMap = data[Keys.participants.rawValue] as? [String: [String: Any]] else {
+        guard let participantMap = data[
+            Keys.participants.rawValue
+        ] as? [String: [String: Any]] else {
             throw .Networking.decodingFailed(
                 data: data,
                 .init(sender: self)
@@ -155,7 +148,7 @@ final class ConversationObserverService: @unchecked Sendable {
                 ? .bangQualifiedEmpty
                 : messageIDs,
             metadata: metadata,
-            participants: participants,
+            participants: participants.sorted(by: { $0.userID < $1.userID }),
             reactionMetadata: reactionMetadata.allSatisfy {
                 $0 == .empty
             } ? nil : reactionMetadata

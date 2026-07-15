@@ -559,7 +559,9 @@ struct SchemaMigrationService: @unchecked Sendable {
     ) -> [String] {
         let messagesPath = "\(conversationPath)/\(Conversation.SerializableKey.messages.rawValue)"
 
-        let messageIDs: [String] = if let migratedMap = pendingUpdates[messagesPath] as? [String: Bool] {
+        let messageIDs: [String] = if let migratedMap = pendingUpdates[
+            messagesPath
+        ] as? [String: Bool] {
             migratedMap.keys.sorted()
         } else if let existingMap = conversationDictionary[
             Conversation.SerializableKey.messages.rawValue

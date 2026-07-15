@@ -122,15 +122,27 @@ extension Conversation: RemotelyUpdatable {
         var updates = [String: Any]()
 
         for (key, value) in updated.encoded where changedKeys.contains(key) {
-            updates["\(conversationPath)/\(key)"] = value
+            updates[
+                [
+                    conversationPath,
+                    key,
+                ].joined(separator: "/")
+            ] = value
         }
 
-        updates["\(conversationPath)/\(SerializableKey.encodedHash.rawValue)"] = updated.id.hash
+        updates[
+            [
+                conversationPath,
+                SerializableKey.encodedHash.rawValue,
+            ].joined(separator: "/")
+        ] = updated.id.hash
+
         updates.merge(
-            openConversationsFanOutEntries(for: updated),
+            buildParticipantUpdates(for: updated),
             uniquingKeysWith: { _, new in new }
         )
 
+        SelfWriteRegistry.record(updated.id)
         try await database.commit(updates)
 
         // updateValues bypasses didWrite; this is its only upsert.
@@ -149,20 +161,18 @@ extension Conversation: RemotelyUpdatable {
         @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
 
         guard key == .messages,
-              let allMessages = value as? [Message],
-              !allMessages.filteringSystemMessages.isEmpty else { return .proceed }
+              let messages = value as? [Message],
+              !messages.filteringSystemMessages.isEmpty else { return .proceed }
 
-        let existingMessageIDs = Set(messageIDs)
-        let trulyNewMessages = allMessages
+        let newMessages = messages
             .filteringSystemMessages
-            .filter { !existingMessageIDs.contains($0.id) }
+            .filter { !Set(messageIDs).contains($0.id) }
 
         let conversationPath = [
             NetworkPath.conversations.rawValue,
             updated.id.key,
         ].joined(separator: "/")
 
-        // Reset typing indicator for current user.
         guard let currentUserParticipant = updated.currentUserParticipant else {
             throw Exception(
                 "Failed to resolve current user participant.",
@@ -172,18 +182,18 @@ extension Conversation: RemotelyUpdatable {
 
         // Reset typing for current user + un-delete all
         // participants (sending revives the conversation).
-        var sendPathConversation = updated.copying(
-            participants: participants.map { participant in
-                let isCurrentUser = participant.userID == currentUserParticipant.userID
-                return Participant(
-                    userID: participant.userID,
-                    hasDeletedConversation: false,
-                    isTyping: isCurrentUser ? false : participant.isTyping
-                )
-            }
+        let conversation = updateIDHash(
+            updated.copying(
+                participants: participants.map { participant in
+                    let isCurrentUser = participant.userID == currentUserParticipant.userID
+                    return Participant(
+                        userID: participant.userID,
+                        hasDeletedConversation: false,
+                        isTyping: isCurrentUser ? false : participant.isTyping
+                    )
+                }
+            )
         )
-
-        sendPathConversation = updateIDHash(sendPathConversation)
 
         // Single atomic fan-out: message node data +
         // conversation index entries + participant
@@ -191,37 +201,73 @@ extension Conversation: RemotelyUpdatable {
         // lastModifiedDate + user tokens.
         var updates = [String: Any]()
 
-        // TODO: Build paths by array + .joined here.
-
         // Message RTDB nodes for truly-new messages.
-        for message in trulyNewMessages {
-            let payload = message.encoded.filter {
+        for message in newMessages {
+            updates[
+                [
+                    NetworkPath.messages.rawValue,
+                    message.id,
+                ].joined(separator: "/")
+            ] = message.encoded.filter {
                 $0.key != Message.SerializableKey.id.rawValue
             }
-
-            updates["\(NetworkPath.messages.rawValue)/\(message.id)"] = payload
         }
 
         // Conversation message index entries.
-        for message in trulyNewMessages {
-            updates["\(conversationPath)/\(SerializableKey.messages.rawValue)/\(message.id)"] = true
+        for newMessage in newMessages {
+            updates[
+                [
+                    conversationPath,
+                    SerializableKey.messages.rawValue,
+                    newMessage.id,
+                ].joined(separator: "/")
+            ] = true
         }
 
         // Un-delete participants who have deleted the conversation.
         for participant in updated.participants where participant.hasDeletedConversation {
-            updates["\(conversationPath)/\(SerializableKey.participants.rawValue)/\(participant.userID)/hasDeletedConversation"] = false
+            updates[
+                [
+                    conversationPath,
+                    SerializableKey.participants.rawValue,
+                    participant.userID,
+                    Participant.SerializableKey.hasDeletedConversation.rawValue,
+                ].joined(separator: "/")
+            ] = false
         }
 
-        updates["\(conversationPath)/\(SerializableKey.participants.rawValue)/\(currentUserParticipant.userID)/isTyping"] = false
-        updates["\(conversationPath)/\(SerializableKey.encodedHash.rawValue)"] = sendPathConversation.id.hash
-        updates["\(conversationPath)/\(SerializableKey.metadata.rawValue)/lastModifiedDate"] = timestampDateFormatter.string(from: .now)
+        updates[
+            [
+                conversationPath,
+                SerializableKey.participants.rawValue,
+                currentUserParticipant.userID,
+                Participant.SerializableKey.isTyping.rawValue,
+            ].joined(separator: "/")
+        ] = false
+
+        updates[
+            [
+                conversationPath,
+                SerializableKey.encodedHash.rawValue,
+            ].joined(separator: "/")
+        ] = conversation.id.hash
+
+        updates[
+            [
+                conversationPath,
+                SerializableKey.metadata.rawValue,
+                ConversationMetadata.SerializableKey.lastModifiedDate.rawValue,
+            ].joined(separator: "/")
+        ] = timestampDateFormatter.string(from: .now)
+
         updates.merge(
-            openConversationsFanOutEntries(for: sendPathConversation),
+            buildParticipantUpdates(for: conversation),
             uniquingKeysWith: { _, new in new }
         )
 
+        SelfWriteRegistry.record(conversation.id)
         try await database.commit(updates)
-        return .handled(sendPathConversation)
+        return .handled(conversation)
     }
 
     // MARK: - Did Update
@@ -243,18 +289,20 @@ extension Conversation: RemotelyUpdatable {
 
         var updates = [String: Any]()
 
-        let hashPath = [
-            networkPath.rawValue,
-            identifier,
-            SerializableKey.encodedHash.rawValue,
-        ].joined(separator: "/")
+        updates[
+            [
+                networkPath.rawValue,
+                identifier,
+                SerializableKey.encodedHash.rawValue,
+            ].joined(separator: "/")
+        ] = updated.id.hash
 
-        updates[hashPath] = updated.id.hash
         updates.merge(
-            openConversationsFanOutEntries(for: updated),
+            buildParticipantUpdates(for: updated),
             uniquingKeysWith: { _, new in new }
         )
 
+        SelfWriteRegistry.record(updated.id)
         try await database.commit(updates)
         return updated
     }
@@ -268,27 +316,30 @@ extension Conversation: RemotelyUpdatable {
     /// Returns entries keyed by environment-relative paths
     /// (for example,
     /// `"users/<uid>/openConversations/<key>": "<hash>"`).
+    ///
     /// Callers merge these into their own atomic
     /// ``DatabaseDelegate/commit(_:)`` call.
-    func openConversationsFanOutEntries(
+    private func buildParticipantUpdates(
         for conversation: Conversation
     ) -> [String: Any] {
         var entries = [String: Any]()
         for participant in conversation.participants {
-            let path = [
-                NetworkPath.users.rawValue,
-                participant.userID,
-                User.SerializableKey.conversationIDs.rawValue,
-                conversation.id.key,
-            ].joined(separator: "/")
-
-            entries[path] = conversation.id.hash
+            entries[
+                [
+                    NetworkPath.users.rawValue,
+                    participant.userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                    conversation.id.key,
+                ].joined(separator: "/")
+            ] = conversation.id.hash
         }
 
         return entries
     }
 
-    private func updateIDHash(_ conversation: Conversation) -> Conversation {
+    private func updateIDHash(
+        _ conversation: Conversation
+    ) -> Conversation {
         conversation.copying(
             id: .init(
                 key: conversation.id.key,

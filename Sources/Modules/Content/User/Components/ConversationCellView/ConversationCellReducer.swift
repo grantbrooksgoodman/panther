@@ -41,16 +41,23 @@ struct ConversationCellReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        let conversation: Conversation
-
         @Localized(.blockUser) var blockUsersButtonText: String
         var cellViewData: ConversationCellViewData = .empty
         @Localized(.delete) var deleteConversationButtonText: String
         @Localized(.reportUser) var reportUsersButtonText: String
 
+        fileprivate let conversationIDKey: String
+
         fileprivate var searchQuery: String
 
         /* MARK: Computed Properties */
+
+        var conversation: Conversation {
+            @Dependency(\.clientSession.store) var sessionStore: SessionStore
+            return sessionStore.getConversation(
+                idKey: conversationIDKey
+            ) ?? .empty
+        }
 
         @MainActor
         var chevronImageForegroundColor: Color {
@@ -81,10 +88,10 @@ struct ConversationCellReducer: Reducer {
         /* MARK: Init */
 
         init(
-            _ conversation: Conversation,
+            _ conversationIDKey: String,
             searchQuery: String
         ) {
-            self.conversation = conversation
+            self.conversationIDKey = conversationIDKey
             self.searchQuery = searchQuery
         }
     }

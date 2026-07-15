@@ -157,16 +157,7 @@ final class UserSessionService: @unchecked Sendable {
     }
 
     func stopObservingCurrentUserChanges() {
-        if observationTask == nil {
-            Logger.log(
-                .init(
-                    "No active observers to stop.",
-                    isReportable: false,
-                    metadata: .init(sender: self)
-                ),
-                domain: .userSession
-            )
-        } else {
+        if observationTask != nil {
             Logger.log(
                 "Stopped observing current user changes.",
                 domain: .userSession,
@@ -215,14 +206,53 @@ final class UserSessionService: @unchecked Sendable {
             .sorted()
 
         // Remove deleted conversations.
-        for idKey in currentConversationIDStrings
-            .map(\.idKey) where !updatedConversationIDStrings
-            .map(\.idKey)
-            .contains(idKey) {
+        let currentIDKeys = Set(currentConversationIDStrings.map(\.idKey))
+        let updatedIDKeys = Set(updatedConversationIDStrings.map(\.idKey))
+        let removedIDKeys = currentIDKeys.subtracting(updatedIDKeys)
+
+        for idKey in removedIDKeys {
             clientSession.store.removeConversation(idKey: idKey)
         }
 
-        return currentConversationIDStrings != updatedConversationIDStrings
+        guard currentConversationIDStrings != updatedConversationIDStrings else { return false }
+
+        // When there are no removals and every added/changed
+        // entry is a version the store already holds or this
+        // client just wrote, local state already reflects the
+        // payload and no resync is needed.
+        let currentSet = Set(currentConversationIDStrings)
+        let changedEntries = updatedConversationIDStrings.filter { !currentSet.contains($0) }
+
+        if removedIDKeys.isEmpty,
+           !changedEntries.isEmpty,
+           changedEntries.allSatisfy({
+               ConversationID($0).map(isKnownVersion) == true
+           }) {
+            Logger.log(
+                .init(
+                    "Skipping update for already-known conversation versions.",
+                    isReportable: false,
+                    userInfo: ["ChangedEntries": changedEntries],
+                    metadata: .init(sender: self)
+                ),
+                domain: .userSession
+            )
+
+            return false
+        }
+
+        return true
+    }
+
+    /// A conversation version is "known" when the session
+    /// store already holds it, or when this client wrote it
+    /// and the store is still settling. Known versions never
+    /// require ingestion.
+    private func isKnownVersion(
+        _ conversationID: ConversationID
+    ) -> Bool {
+        clientSession.store.getConversation(id: conversationID) != nil ||
+            SelfWriteRegistry.contains(conversationID)
     }
 
     private func lastSignedInDateDidChange(_ dictionary: [String: Any]) -> Bool {
@@ -249,16 +279,12 @@ final class UserSessionService: @unchecked Sendable {
             )
         }
 
-        do {
-            // Fetched from server; bypasses RemotelyUpdatable.update.
-            try await clientSession.store.upsertUser(
-                networking.userService.getUser(
-                    id: currentUserID
-                )
+        // Fetched from server; bypasses RemotelyUpdatable.update.
+        try await clientSession.store.upsertUser(
+            networking.userService.getUser(
+                id: currentUserID
             )
-        } catch {
-            throw error
-        }
+        )
     }
 
     /// Populates conversations for the current user from the
@@ -290,13 +316,21 @@ final class UserSessionService: @unchecked Sendable {
 
         for conversationID in conversationIDs {
             guard !Task.isCancelled else { return }
-            if clientSession.store.isConversationStale(idKey: conversationID.key),
-               let value = clientSession.store.getConversation(idKey: conversationID.key) {
-                conversationsNeedingUpdate.insert(value)
-            } else if let value = clientSession.store.getConversation(id: conversationID) {
+            if let value = clientSession.store.getConversation(
+                idKey: conversationID.key
+            ) {
+                if SelfWriteRegistry.contains(conversationID) {
+                    // Self-written hash: the store settles
+                    // via Conversation.didWrite; no network
+                    // sync needed.
+                    decodedConversations.merge(with: [value])
+                } else {
+                    conversationsNeedingUpdate.insert(value)
+                }
+            } else if let value = clientSession.store.getConversation(
+                id: conversationID
+            ) {
                 decodedConversations.merge(with: [value])
-            } else if let value = clientSession.store.getConversation(idKey: conversationID.key) {
-                conversationsNeedingUpdate.insert(value)
             } else {
                 conversationsNeedingFetch.insert(conversationID)
             }
@@ -331,7 +365,6 @@ final class UserSessionService: @unchecked Sendable {
         )
 
         clientSession.store.clearStaleness(idKeys: updatedIDKeys)
-
         guard !conversationsNeedingFetch.isEmpty else {
             return commitConversationsToMemory(decodedConversations)
         }

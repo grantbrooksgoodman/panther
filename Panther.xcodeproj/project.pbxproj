@@ -753,6 +753,8 @@
 		B9F627AC2B32767F00462DD9 /* AppConstants+SplashPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F627AB2B32767F00462DD9 /* AppConstants+SplashPageView.swift */; };
 		B9FE35902CCF71C400D24E41 /* NetworkActivityIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */; };
 		BCFA191F8A419DEF1E3DA8E9 /* SessionStoreChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520CADEF63996EC3E433927D /* SessionStoreChange.swift */; };
+		C1AABB022F66000100000002 /* SelfWriteRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AABB012F66000100000001 /* SelfWriteRecord.swift */; };
+		C1AABB042F66000100000004 /* SelfWriteRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AABB032F66000100000003 /* SelfWriteRegistry.swift */; };
 		FC0174F277EC2B91EC5821FA /* SessionStore+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A614D5D4A6F3B22606AB10D0 /* SessionStore+UserContentExtensions.swift */; };
 /* End PBXBuildFile section */
 
@@ -1600,6 +1602,8 @@
 		B9F5D1F22B48AC5700059B44 /* Panther.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Panther.entitlements; sourceTree = "<group>"; };
 		B9F627AB2B32767F00462DD9 /* AppConstants+SplashPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SplashPageView.swift"; sourceTree = "<group>"; };
 		B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorService.swift; sourceTree = "<group>"; };
+		C1AABB012F66000100000001 /* SelfWriteRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfWriteRecord.swift; sourceTree = "<group>"; };
+		C1AABB032F66000100000003 /* SelfWriteRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfWriteRegistry.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1820,6 +1824,7 @@
 				A242750E2F31B23D00F664C3 /* DataUsageCalculation.swift */,
 				B906C0122C470A2100F414DA /* ModerationType.swift */,
 				B92617712CD8990900877ECE /* ReactionSessionServiceEffectID.swift */,
+				C1AABB012F66000100000001 /* SelfWriteRecord.swift */,
 				520CADEF63996EC3E433927D /* SessionStoreChange.swift */,
 				A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */,
 			);
@@ -2107,6 +2112,7 @@
 				B9E1BB922B2F8F0100ADEA71 /* MessageSessionService.swift */,
 				B906C00F2C4709B700F414DA /* ModerationSessionService.swift */,
 				B9223D552CD6EB4F00C05BC6 /* ReactionSessionService.swift */,
+				C1AABB032F66000100000003 /* SelfWriteRegistry.swift */,
 				A25F1C2D2FF34E4B00425FC2 /* SessionStore.swift */,
 				A271D7BF2F02F9BA00B874C5 /* StorageSessionService.swift */,
 				B94388702B3219CE002D94FF /* UserSessionService.swift */,
@@ -4228,6 +4234,7 @@
 				B99195932B47E88400BD5BBC /* VerifyNumberPageView.swift in Sources */,
 				B9C0D2582B79687F00119B85 /* NewChatPageReducer.swift in Sources */,
 				A2CF5E572F20774E0054830C /* SynchronizationRecord.swift in Sources */,
+				C1AABB022F66000100000002 /* SelfWriteRecord.swift in Sources */,
 				B99880A52E2982C8002742A8 /* MessagesCollectionView+UserContentExtensions.swift in Sources */,
 				B95DCE512D8CC968003730F9 /* AppConstants+NewChatPageView.swift in Sources */,
 				A23338B82ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift in Sources */,
@@ -4276,6 +4283,7 @@
 				B9B04A473000182300DEBD37 /* ConversationCellObserver.swift in Sources */,
 				B90C91242B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift in Sources */,
 				B99E48E22CE16AC2006D6AFC /* ConversationSyncService.swift in Sources */,
+				C1AABB042F66000100000004 /* SelfWriteRegistry.swift in Sources */,
 				B98589B52B60515D00E549C0 /* ConversationCellViewData.swift in Sources */,
 				B9870AA62C4574C3002B1093 /* URL+UserContentExtensions.swift in Sources */,
 				A2BE20212F2C42860006F7AF /* FeaturePermissionPageReducer.swift in Sources */,

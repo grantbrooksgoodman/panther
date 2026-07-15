@@ -14,7 +14,6 @@ import AppSubsystem
 import Networking
 import Translator
 
-// swiftlint:disable:next type_body_length
 struct MessageService {
     // MARK: - Dependencies
 
@@ -223,31 +222,13 @@ struct MessageService {
             ).appending(userInfo: userInfo)
         }
 
-        var failedIDs = [String]()
-        var messages = [Message]()
-
-        for id in ids {
-            do {
-                let message = try await getMessage(id: id)
-                messages.append(message)
-            } catch {
-                failedIDs.append(id)
+        do {
+            return try await ids.map {
+                try await getMessage(id: $0)
             }
+        } catch {
+            throw error.appending(userInfo: userInfo)
         }
-
-        if !failedIDs.isEmpty {
-            Logger.log(
-                .init(
-                    "Failed to fetch \(failedIDs.count) message(s); treating as deleted.",
-                    isReportable: false,
-                    userInfo: ["FailedMessageIDs": failedIDs],
-                    metadata: .init(sender: self)
-                ),
-                domain: .conversation
-            )
-        }
-
-        return messages
     }
 
     // MARK: - Deletion

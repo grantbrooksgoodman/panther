@@ -107,13 +107,17 @@ extension User: Serializable {
 
         let phoneNumber = try await PhoneNumber(from: encodedPhoneNumber)
 
-        let blockedUserIDs: [String] = if let map = data[Keys.blockedUserIDs.rawValue] as? [String: Any] {
+        let blockedUserIDs: [String] = if let map = data[
+            Keys.blockedUserIDs.rawValue
+        ] as? [String: Any] {
             Array(map.keys)
         } else {
             []
         }
 
-        let conversationIDs: [ConversationID] = if let map = data[Keys.conversationIDs.rawValue] as? [String: String] {
+        let conversationIDs: [ConversationID] = if let map = data[
+            Keys.conversationIDs.rawValue
+        ] as? [String: String] {
             map.map {
                 ConversationID(
                     key: $0.key,
@@ -124,7 +128,9 @@ extension User: Serializable {
             []
         }
 
-        let pushTokens: [String] = if let map = data[Keys.pushTokens.rawValue] as? [String: Any] {
+        let pushTokens: [String] = if let map = data[
+            Keys.pushTokens.rawValue
+        ] as? [String: Any] {
             Array(map.keys)
         } else {
             []

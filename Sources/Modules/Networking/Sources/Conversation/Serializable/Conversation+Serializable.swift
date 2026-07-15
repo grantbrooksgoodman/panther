@@ -77,7 +77,9 @@ extension Conversation: Serializable {
             )
         }
 
-        let messageIDs: [String] = if let map = data[Keys.messages.rawValue] as? [String: Any] {
+        let messageIDs: [String] = if let map = data[
+            Keys.messages.rawValue
+        ] as? [String: Any] {
             map.keys.sorted()
         } else {
             []
@@ -87,21 +89,11 @@ extension Conversation: Serializable {
 
         let conversationID = try await ConversationID(from: id)
 
-        // Decode activities
+        // Decode participants
 
-        let activities = try await encodedActivities.map(
-            failForEmptyCollection: true
-        ) {
-            try await Activity(from: $0)
-        }
-
-        // Decode metadata
-
-        let metadata = try await ConversationMetadata(
-            from: encodedMetadata
-        )
-
-        guard let participantMap = data[Keys.participants.rawValue] as? [String: [String: Any]] else {
+        guard let participantMap = data[
+            Keys.participants.rawValue
+        ] as? [String: [String: Any]] else {
             throw .Networking.decodingFailed(
                 data: data,
                 .init(sender: Self.self)
@@ -112,10 +104,9 @@ extension Conversation: Serializable {
         for (userID, values) in participantMap {
             guard let hasDeletedConversation = values[
                 Participant.SerializableKey.hasDeletedConversation.rawValue
-            ] as? Bool,
-                let isTyping = values[
-                    Participant.SerializableKey.isTyping.rawValue
-                ] as? Bool else {
+            ] as? Bool, let isTyping = values[
+                Participant.SerializableKey.isTyping.rawValue
+            ] as? Bool else {
                 throw .Networking.decodingFailed(
                     data: values,
                     .init(sender: Self.self)
@@ -140,6 +131,7 @@ extension Conversation: Serializable {
         }
 
         // Synthesize conversation
+
         // Message resolution is deferred to resolveMessages /
         // resolveMessagesOnCurrentUserConversations; decoding
         // only records the message IDs.
@@ -160,12 +152,14 @@ extension Conversation: Serializable {
             )
         }
 
-        self.init(
+        try await self.init(
             conversationID,
-            activities: activities,
+            activities: encodedActivities.map(
+                failForEmptyCollection: true
+            ) { try await Activity(from: $0) },
             messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
-            metadata: metadata,
-            participants: participants,
+            metadata: .init(from: encodedMetadata),
+            participants: participants.sorted(by: { $0.userID < $1.userID }),
             reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata
         )
     }

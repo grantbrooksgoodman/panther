@@ -24,4 +24,13 @@ struct ConversationID: Codable, Hashable {
         self.key = key
         self.hash = hash
     }
+
+    init?(_ string: String) {
+        let components = string.components(separatedBy: " | ")
+        guard components.count == 2 else { return nil }
+        self = .init(
+            key: components[0],
+            hash: components[1]
+        )
+    }
 }

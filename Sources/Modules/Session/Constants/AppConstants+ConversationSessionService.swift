@@ -16,7 +16,7 @@ import AppSubsystem
 
 extension AppConstants.CGFloats {
     enum ConversationSessionService {
-        static let defaultMessageOffset: CGFloat = 20
-        static let messageOffsetIncrement: CGFloat = 10
+        static let defaultMessageOffset = 20
+        static let messageOffsetIncrement = 10
     }
 }

@@ -36,7 +36,6 @@ final class ChatPageViewService {
     @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
-    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
@@ -114,14 +113,6 @@ final class ChatPageViewService {
         chatPageViewControllerFactory.configureRecipientBar(viewController, service: recipientBarService)
 
         return viewController
-    }
-
-    // MARK: - Dismiss
-
-    func dismissChatPage() {
-        // TODO: Audit whether we need this first line.
-        viewController?.navigationController?.popViewController(animated: true)
-        navigation.navigate(to: .userContent(.stack([])))
     }
 
     // MARK: - View Controller Lifecycle Handlers
@@ -220,10 +211,7 @@ final class ChatPageViewService {
                 try await readReceipts?.updateReadDateForUnreadMessages()
                 try await typingIndicator?.textViewDidChange(to: "")
             } catch {
-                Logger.log(
-                    error,
-                    with: .toastInPrerelease
-                )
+                Logger.log(error)
             }
         }
 

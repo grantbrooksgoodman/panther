@@ -291,7 +291,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
         guard let conversation = syncData?.conversation.modifyKey(
             .participants,
-            withValue: updatedParticipants
+            withValue: updatedParticipants.sorted(by: { $0.userID < $1.userID })
         ) else {
             throw .Networking.typeMismatch(
                 key: Conversation.SerializableKey.participants.rawValue,

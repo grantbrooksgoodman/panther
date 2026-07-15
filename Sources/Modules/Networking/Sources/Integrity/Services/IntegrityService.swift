@@ -387,7 +387,9 @@ final class IntegrityService: @unchecked Sendable {
                 continue
             }
 
-            let conversationIDKeys: [String] = if let map = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String: Any] {
+            let conversationIDKeys: [String] = if let map = dictionary[
+                User.SerializableKey.conversationIDs.rawValue
+            ] as? [String: Any] {
                 Array(map.keys)
             } else {
                 []

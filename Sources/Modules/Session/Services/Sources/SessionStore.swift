@@ -18,10 +18,10 @@ import Networking
 struct SessionStore {
     // MARK: - Types
 
-    private struct DirtyFlags {
-        var conversations = false
-        var messages = false
-        var users = false
+    private struct ArchiveState {
+        var isConversationArchiveDirty = false
+        var isMessageArchiveDirty = false
+        var isUserArchiveDirty = false
     }
 
     private struct State {
@@ -35,7 +35,7 @@ struct SessionStore {
     static let shared = SessionStore()
 
     private let currentEpoch = LockIsolated(UInt64(0))
-    private let dirtyFlags = LockIsolated(DirtyFlags())
+    private let archiveState = LockIsolated(ArchiveState())
     private let staleConversationIDKeys = LockIsolated(Set<String>())
     private let state = LockIsolated(State())
 
@@ -197,10 +197,8 @@ struct SessionStore {
             conversation.id.key.isBlank { return }
 
         var didChange = false
-        var didContainValue = false
         state.projectedValue.withValue {
             if let existingConversation = $0.conversations[conversation.id.key] {
-                didContainValue = existingConversation.id.hash == conversation.id.hash
                 didChange = existingConversation != conversation
             } else {
                 didChange = true
@@ -210,7 +208,7 @@ struct SessionStore {
         }
 
         persistConversationArchive()
-        if !didContainValue {
+        if didChange {
             Logger.log(
                 .init(
                     "Added conversation to persisted archive.",
@@ -223,9 +221,7 @@ struct SessionStore {
                 ),
                 domain: .conversationStore
             )
-        }
 
-        if didChange {
             emitChange(.conversations(
                 upsertedIDKeys: [conversation.id.key],
                 removedIDKeys: []
@@ -253,13 +249,13 @@ struct SessionStore {
         }
 
         persistConversationArchive()
-        Logger.log(
-            "Added \(newConversations.count) conversations to persisted archive.",
-            domain: .conversationStore,
-            sender: self
-        )
-
         if !changedIDKeys.isEmpty {
+            Logger.log(
+                "Added \(changedIDKeys.count) conversations to persisted archive.",
+                domain: .conversationStore,
+                sender: self
+            )
+
             emitChange(.conversations(
                 upsertedIDKeys: changedIDKeys,
                 removedIDKeys: []
@@ -277,7 +273,6 @@ struct SessionStore {
         }
 
         persistMessageArchive()
-
         if !clearedIDs.isEmpty {
             emitChange(.messages(
                 upsertedIDs: [],
@@ -325,13 +320,13 @@ struct SessionStore {
         }
 
         persistMessageArchive()
-        Logger.log(
-            "Added \(messages.count) messages to persisted archive.",
-            domain: .messageStore,
-            sender: self
-        )
-
         if !changedIDs.isEmpty {
+            Logger.log(
+                "Added \(changedIDs.count) messages to persisted archive.",
+                domain: .messageStore,
+                sender: self
+            )
+
             emitChange(.messages(
                 upsertedIDs: changedIDs,
                 removedIDs: []
@@ -357,6 +352,7 @@ struct SessionStore {
         }
     }
 
+    // NIT: Unused.
     func removeUser(id: String) {
         var didRemove = false
         state.projectedValue.withValue {
@@ -384,16 +380,14 @@ struct SessionStore {
     }
 
     func upsertUser(_ user: User) {
-        var didContainValue = false
         var didChange = false
         state.projectedValue.withValue {
-            didContainValue = $0.users[user.id] != nil
             didChange = $0.users[user.id] != user
             $0.users[user.id] = user
         }
 
         persistUserArchive()
-        if !didContainValue {
+        if didChange {
             Logger.log(
                 .init(
                     "Added user to persisted archive.",
@@ -403,9 +397,7 @@ struct SessionStore {
                 ),
                 domain: .userStore
             )
-        }
 
-        if didChange {
             emitChange(.users(
                 upsertedIDs: [user.id],
                 removedIDs: []
@@ -426,13 +418,13 @@ struct SessionStore {
         }
 
         persistUserArchive()
-        Logger.log(
-            "Added \(newUsers.count) users to persisted archive.",
-            domain: .userStore,
-            sender: self
-        )
-
         if !changedIDs.isEmpty {
+            Logger.log(
+                "Added \(changedIDs.count) users to persisted archive.",
+                domain: .userStore,
+                sender: self
+            )
+
             emitChange(.users(
                 upsertedIDs: changedIDs,
                 removedIDs: []
@@ -455,28 +447,30 @@ struct SessionStore {
     /// the debounced schedule. Call from background-entry
     /// and termination handlers to avoid data loss.
     func flushNow() {
-        let flags = dirtyFlags.projectedValue.withValue {
-            let current = $0
-            $0 = DirtyFlags()
-            return current
+        let archiveState = archiveState.projectedValue.withValue {
+            let currentState = $0
+            $0 = ArchiveState()
+            return currentState
         }
 
-        if flags.conversations {
-            let snapshot = Set(state.wrappedValue.conversations.values)
-            persistedConversationArchive = snapshot.isEmpty ? nil : snapshot
+        if archiveState.isConversationArchiveDirty {
+            let conversationsSnapshot = Set(state.wrappedValue.conversations.values)
+            persistedConversationArchive = conversationsSnapshot.isEmpty ? nil : conversationsSnapshot
         }
 
-        if flags.messages {
-            let snapshot = cappedMessageSnapshot()
-            persistedMessageArchive = snapshot.isEmpty ? nil : snapshot
+        if archiveState.isMessageArchiveDirty {
+            let messagesSnapshot = cappedMessageSnapshot
+            persistedMessageArchive = messagesSnapshot.isEmpty ? nil : messagesSnapshot
         }
 
-        if flags.users {
-            let snapshot = Set(state.wrappedValue.users.values)
-            persistedUserArchive = snapshot.isEmpty ? nil : snapshot
+        if archiveState.isUserArchiveDirty {
+            let usersSnapshot = Set(state.wrappedValue.users.values)
+            persistedUserArchive = usersSnapshot.isEmpty ? nil : usersSnapshot
         }
 
-        if flags.conversations || flags.messages || flags.users {
+        if archiveState.isConversationArchiveDirty ||
+            archiveState.isMessageArchiveDirty ||
+            archiveState.isUserArchiveDirty {
             Logger.log(
                 "Flushed dirty archives synchronously.",
                 domain: .conversationStore,
@@ -491,10 +485,6 @@ struct SessionStore {
         staleConversationIDKeys.projectedValue.withValue {
             $0.subtract(idKeys)
         }
-    }
-
-    func isConversationStale(idKey: String) -> Bool {
-        staleConversationIDKeys.wrappedValue.contains(idKey)
     }
 
     func markConversationsStale(idKeys: Set<String>) {
@@ -535,62 +525,102 @@ private extension SessionStore {
         case persistUserArchive
     }
 
+    // MARK: - Properties
+
+    /// Returns the in-memory messages capped to the newest
+    /// messages per conversation for persistence.
+    private var cappedMessageSnapshot: Set<Message> {
+        typealias Floats = AppConstants.CGFloats.SessionStore
+        let currentState = state.wrappedValue
+        let messages = currentState.messages
+        guard !messages.isEmpty else { return [] }
+
+        // Group referenced message IDs by conversation,
+        // keeping only the newest per conversation.
+        var retainedIDs = Set<String>()
+        for conversation in currentState.conversations.values {
+            let messageIDs = conversation.messageIDs.filter {
+                messages[$0] != nil
+            }
+
+            if messageIDs.count <= Floats.messageArchiveCapPerConversation {
+                retainedIDs.formUnion(messageIDs)
+            } else {
+                retainedIDs.formUnion(
+                    messageIDs
+                        .compactMap { messages[$0] }
+                        .sorted { $0.sentDate < $1.sentDate }
+                        .suffix(Floats.messageArchiveCapPerConversation)
+                        .map(\.id)
+                )
+            }
+        }
+
+        return Set(
+            retainedIDs.compactMap { messages[$0] }
+        )
+    }
+
     // MARK: - Methods
 
-    func emitChange(_ change: SessionStoreChange) {
+    private func emitChange(_ change: SessionStoreChange) {
         Observables.sessionStoreDidChange.value = change
         let handlers = Self.changeHandlers.wrappedValue
         guard !handlers.isEmpty else { return }
         Task { @MainActor in
-            for handler in handlers.values {
-                handler(change)
-            }
+            handlers.values.forEach { $0(change) }
         }
     }
 
-    func persistConversationArchive() {
-        dirtyFlags.projectedValue.withValue { $0.conversations = true }
-        let epoch = currentEpoch.wrappedValue
+    private func persistConversationArchive() {
+        archiveState.projectedValue.withValue { $0.isConversationArchiveDirty = true }
+        let currentEpoch = currentEpoch.wrappedValue
+
         Task.debounced(
             "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.persistConversationArchive.rawValue)",
             delay: .milliseconds(250)
         ) {
-            guard self.currentEpoch.wrappedValue == epoch else { return }
-            self.dirtyFlags.projectedValue.withValue { $0.conversations = false }
-            let snapshot = Set(self.state.wrappedValue.conversations.values)
-            self.persistedConversationArchive = snapshot.isEmpty ? nil : snapshot
+            guard self.currentEpoch.wrappedValue == currentEpoch else { return }
+            archiveState.projectedValue.withValue { $0.isConversationArchiveDirty = false }
+
+            let conversationsSnapshot = Set(state.wrappedValue.conversations.values)
+            persistedConversationArchive = conversationsSnapshot.isEmpty ? nil : conversationsSnapshot
         }
 
         scheduleDeadlineFlush()
     }
 
-    func persistMessageArchive() {
-        dirtyFlags.projectedValue.withValue { $0.messages = true }
-        let epoch = currentEpoch.wrappedValue
+    private func persistMessageArchive() {
+        archiveState.projectedValue.withValue { $0.isMessageArchiveDirty = true }
+        let currentEpoch = currentEpoch.wrappedValue
+
         Task.debounced(
             "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.persistMessageArchive.rawValue)",
             delay: .milliseconds(250)
         ) {
-            guard self.currentEpoch.wrappedValue == epoch else { return }
-            self.dirtyFlags.projectedValue.withValue { $0.messages = false }
-            let snapshot = self.cappedMessageSnapshot()
-            self.persistedMessageArchive = snapshot.isEmpty ? nil : snapshot
+            guard self.currentEpoch.wrappedValue == currentEpoch else { return }
+            archiveState.projectedValue.withValue { $0.isMessageArchiveDirty = false }
+
+            let messagesSnapshot = cappedMessageSnapshot
+            persistedMessageArchive = messagesSnapshot.isEmpty ? nil : messagesSnapshot
         }
 
         scheduleDeadlineFlush()
     }
 
-    func persistUserArchive() {
-        dirtyFlags.projectedValue.withValue { $0.users = true }
-        let epoch = currentEpoch.wrappedValue
+    private func persistUserArchive() {
+        archiveState.projectedValue.withValue { $0.isUserArchiveDirty = true }
+        let currentEpoch = currentEpoch.wrappedValue
+
         Task.debounced(
             "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.persistUserArchive.rawValue)",
             delay: .milliseconds(250)
         ) {
-            guard self.currentEpoch.wrappedValue == epoch else { return }
-            self.dirtyFlags.projectedValue.withValue { $0.users = false }
-            let snapshot = Set(self.state.wrappedValue.users.values)
-            self.persistedUserArchive = snapshot.isEmpty ? nil : snapshot
+            guard self.currentEpoch.wrappedValue == currentEpoch else { return }
+            archiveState.projectedValue.withValue { $0.isUserArchiveDirty = false }
+
+            let usersSnapshot = Set(state.wrappedValue.users.values)
+            persistedUserArchive = usersSnapshot.isEmpty ? nil : usersSnapshot
         }
 
         scheduleDeadlineFlush()
@@ -598,66 +628,31 @@ private extension SessionStore {
 
     // MARK: - Auxiliary
 
-    /// Returns the in-memory messages capped to the newest
-    /// messages per conversation for persistence.
-    func cappedMessageSnapshot() -> Set<Message> {
-        typealias Floats = AppConstants.CGFloats.SessionStore
-        let currentState = state.wrappedValue
-        let allMessages = currentState.messages
-
-        guard !allMessages.isEmpty else { return [] }
-
-        // Group referenced message IDs by conversation,
-        // keeping only the newest per conversation.
-        var retainedIDs = Set<String>()
-        for conversation in currentState.conversations.values {
-            let ids = conversation.messageIDs.filter {
-                allMessages[$0] != nil
-            }
-
-            if ids.count <= Floats.messageArchiveCapPerConversation {
-                retainedIDs.formUnion(ids)
-            } else {
-                let sortedMessages = ids
-                    .compactMap { allMessages[$0] }
-                    .sorted { $0.sentDate < $1.sentDate }
-                    .suffix(Floats.messageArchiveCapPerConversation)
-
-                retainedIDs.formUnion(sortedMessages.map(\.id))
-            }
-        }
-
-        return Set(
-            retainedIDs.compactMap { allMessages[$0] }
-        )
-    }
-
     /// Schedules a forced flush after 1 second under
     /// sustained mutation, guaranteeing that dirty state
     /// reaches disk even when rapid writes keep resetting
     /// the 250 ms debounce.
-    func scheduleDeadlineFlush() {
-        let epoch = currentEpoch.wrappedValue
+    private func scheduleDeadlineFlush() {
+        let currentEpoch = currentEpoch.wrappedValue
+
         Task.debounced(
             "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.deadlineFlush.rawValue)",
             delay: .seconds(1)
         ) {
-            guard self.currentEpoch.wrappedValue == epoch else { return }
-            self.flushNow()
+            guard self.currentEpoch.wrappedValue == currentEpoch else { return }
+            flushNow()
         }
     }
 
     /// Removes messages from memory whose ID does not appear
     /// in any stored conversation's `messageIDs`.
-    func sweepOrphanedMessages() {
+    private func sweepOrphanedMessages() {
         var orphanCount = 0
         state.projectedValue.withValue {
-            let referencedIDs = Set(
-                $0.conversations.values.flatMap(\.messageIDs)
-            )
-
             let orphanedIDs = Set($0.messages.keys)
-                .subtracting(referencedIDs)
+                .subtracting(Set(
+                    $0.conversations.values.flatMap(\.messageIDs)
+                ))
 
             orphanCount = orphanedIDs.count
             for id in orphanedIDs {

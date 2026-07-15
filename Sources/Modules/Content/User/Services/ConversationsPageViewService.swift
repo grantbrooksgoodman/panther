@@ -321,15 +321,21 @@ final class ConversationsPageViewService {
             and: .allDataTypes
         )
 
-        var randomBool: Bool {
-            Int.random(in: 1 ... 1_000_000) % 3 == 0
+        @Persistent(.lastContactSyncDate) var lastContactSyncDate: Date?
+        let shouldSync: Bool = if !services.contact.hasContactsBesidesCurrentUser {
+            true
+        } else if let lastContactSyncDate {
+            abs(lastContactSyncDate.timeIntervalSinceNow) >= Double(
+                AppConstants.CGFloats.ConversationsPageView.contactSyncIntervalSeconds
+            )
+        } else {
+            true
         }
 
-        guard !services.contact.hasContactsBesidesCurrentUser ||
-            randomBool else { return }
-
+        guard shouldSync else { return }
         do {
             try await services.contact.syncContactPairArchive()
+            lastContactSyncDate = .now
         } catch {
             if !error.isEqual(toAny: [
                 .mismatchedHashAndCallingCode,

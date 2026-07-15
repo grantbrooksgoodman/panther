@@ -105,31 +105,13 @@ struct ConversationService {
             ).appending(userInfo: userInfo)
         }
 
-        var conversations = [Conversation]()
-        var failedIDKeys = [String]()
-
-        for idKey in idKeys {
-            do {
-                let conversation = try await getConversation(idKey: idKey)
-                conversations.append(conversation)
-            } catch {
-                failedIDKeys.append(idKey)
+        do {
+            return try await idKeys.map {
+                try await getConversation(idKey: $0)
             }
+        } catch {
+            throw error.appending(userInfo: userInfo)
         }
-
-        if !failedIDKeys.isEmpty {
-            Logger.log(
-                .init(
-                    "Failed to fetch \(failedIDKeys.count) conversation(s); skipping.",
-                    isReportable: false,
-                    userInfo: ["FailedConversationIDKeys": failedIDKeys],
-                    metadata: .init(sender: self)
-                ),
-                domain: .conversation
-            )
-        }
-
-        return conversations
     }
 
     private func getConversation(
