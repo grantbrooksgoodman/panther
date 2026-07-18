@@ -156,7 +156,7 @@ struct ConversationCellReducer: Reducer {
 
             let conversation = state.conversation
             return .task {
-                @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
+                @Dependency(\.clientSession.entity.conversation) var conversationSession: ConversationSessionService
                 do throws(Exception) {
                     try await conversationSession.deleteConversation(conversation)
                     return .deleteConversationReturned(nil)

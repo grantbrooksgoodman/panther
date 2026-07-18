@@ -41,7 +41,7 @@ struct ChatPageHeaderReducer: Reducer {
 
         var conversation: Conversation {
             Dependency(
-                \.clientSession.conversation.currentConversation
+                \.clientSession.entity.conversation.currentConversation
             ).wrappedValue ?? .empty
         }
     }

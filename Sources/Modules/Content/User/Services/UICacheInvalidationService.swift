@@ -1,5 +1,5 @@
 //
-//  SessionStoreInvalidationService.swift
+//  UICacheInvalidationService.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 
 @MainActor
-final class SessionStoreInvalidationService {
+final class UICacheInvalidationService {
     // MARK: - Dependencies
 
     @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
@@ -26,7 +26,7 @@ final class SessionStoreInvalidationService {
 
     // MARK: - Properties
 
-    fileprivate static let shared = SessionStoreInvalidationService()
+    fileprivate static let shared = UICacheInvalidationService()
 
     private var changeHandlerID: UUID?
     private var pendingConversationIDKeys = Set<String>()
@@ -50,7 +50,7 @@ final class SessionStoreInvalidationService {
     }
 }
 
-private extension SessionStoreInvalidationService {
+private extension UICacheInvalidationService {
     // MARK: - Types
 
     private enum TaskID: String {
@@ -184,6 +184,7 @@ private extension SessionStoreInvalidationService {
     private func reloadChatPageIfNeeded(for change: SessionStoreChange) {
         guard chatPageState.isPresented,
               let currentConversation = clientSession
+              .entity
               .conversation
               .currentConversation else { return }
 
@@ -228,18 +229,17 @@ private extension SessionStoreInvalidationService {
     }
 }
 
-// swiftlint:disable:next type_name
-enum SessionStoreInvalidationServiceDependency: DependencyKey {
-    static func resolve(_: DependencyValues) -> SessionStoreInvalidationService {
+enum UICacheInvalidationServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> UICacheInvalidationService {
         // swiftformat:disable all
-        @MainActorIsolated var sessionStoreInvalidationService = SessionStoreInvalidationService.shared
-        return sessionStoreInvalidationService // swiftformat:enable all
+        @MainActorIsolated var uiCacheInvalidationService = UICacheInvalidationService.shared
+        return uiCacheInvalidationService // swiftformat:enable all
     }
 }
 
 extension DependencyValues {
-    var sessionStoreInvalidationService: SessionStoreInvalidationService {
-        get { self[SessionStoreInvalidationServiceDependency.self] }
-        set { self[SessionStoreInvalidationServiceDependency.self] = newValue }
+    var uiCacheInvalidationService: UICacheInvalidationService {
+        get { self[UICacheInvalidationServiceDependency.self] }
+        set { self[UICacheInvalidationServiceDependency.self] = newValue }
     }
 }

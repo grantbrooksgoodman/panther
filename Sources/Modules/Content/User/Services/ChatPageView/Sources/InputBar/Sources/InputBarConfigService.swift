@@ -22,13 +22,17 @@ struct InputBarConfigService {
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.build) private var build: Build
-    @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.clientSession.entity) private var entitySession: EntitySession
+    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Computed Properties
 
     var canShowRecordButton: Bool {
-        guard let currentUser = clientSession.user.currentUser else { return false }
-        let users = clientSession
+        guard let currentUser = entitySession
+            .user
+            .currentUser else { return false }
+
+        let users = entitySession
             .conversation
             .currentConversation?
             .users ?? []
@@ -75,7 +79,7 @@ struct InputBarConfigService {
     ) -> UIImage? {
         if !build.isOnline {
             .init(systemName: Strings.sendButtonOfflineImageSystemName)
-        } else if clientSession.storage.atOrAboveDataUsageLimit {
+        } else if userStorageService.atOrAboveDataUsageLimit {
             .init(systemName: Strings.sendButtonStorageLimitReachedImageSystemName)
         } else if forRecording {
             isHighlighted ? .recordHighlighted : .record

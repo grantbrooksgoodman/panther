@@ -26,7 +26,7 @@ final class TypingIndicatorService: @unchecked Sendable {
 
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
 
     // MARK: - Properties
@@ -86,7 +86,7 @@ final class TypingIndicatorService: @unchecked Sendable {
     // MARK: - Reset Typing Indicator Status for Current User
 
     static func resetTypingIndicatorStatusForCurrentUser() async throws(Exception) {
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
         @Dependency(\.networking.database) var database: DatabaseDelegate
 
         guard let currentUser else {
@@ -219,7 +219,7 @@ final class TypingIndicatorService: @unchecked Sendable {
         _ isTyping: Bool
     ) async throws(Exception) {
         @Dependency(\.networking.database) var database: DatabaseDelegate
-        guard let conversation = clientSession.conversation.currentConversation,
+        guard let conversation = entitySession.conversation.currentConversation,
               conversation.participants.count == Int(Floats.participantCountThreshold) else { return }
 
         guard let currentUserParticipant = conversation.currentUserParticipant else {

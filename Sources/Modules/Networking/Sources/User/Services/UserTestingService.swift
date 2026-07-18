@@ -123,7 +123,7 @@ struct UserTestingService {
         let originalCount = count
         var count = count
 
-        clientSession.user.stopObservingCurrentUserChanges()
+        clientSession.entity.user.stopObservingCurrentUserChanges()
 
         while count > 0 {
             do {
@@ -177,10 +177,10 @@ struct UserTestingService {
 
         currentUserID = await (randomBool && randomBool && randomBool) ? randomUserID : currentUserID
 
-        try await clientSession.user.resolveCurrentUser()
+        try await clientSession.entity.user.resolveCurrentUser()
         try await clientSession.resolveAndSetLanguageCode()
 
-        guard let currentUser = clientSession.user.currentUser else {
+        guard let currentUser = clientSession.entity.user.currentUser else {
             throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
@@ -194,7 +194,7 @@ struct UserTestingService {
             }
 
             try? await Task.sleep(for: .seconds(1))
-            try await clientSession.user.resolveCurrentUser(
+            try await clientSession.entity.user.resolveCurrentUser(
                 and: .allDataTypes
             )
 
@@ -281,7 +281,7 @@ struct UserTestingService {
             data: imageData
         )
 
-        _ = try await clientSession.message.sendMediaMessage(
+        _ = try await clientSession.entity.message.sendMediaMessage(
             .init(
                 relativePath,
                 name: AppConstants.Strings.ChatPageViewService.MediaActionHandler.defaultImageName,
@@ -302,7 +302,7 @@ struct UserTestingService {
             )
         }
 
-        guard let currentUser = clientSession.user.currentUser else {
+        guard let currentUser = clientSession.entity.user.currentUser else {
             throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
@@ -316,7 +316,7 @@ struct UserTestingService {
             )
         }
 
-        _ = try await clientSession.message.sendTextMessage(
+        _ = try await clientSession.entity.message.sendTextMessage(
             networking.hostedTranslation.translate(
                 .init(randomPhrase),
                 with: .init(from: "en", to: currentUser.languageCode)

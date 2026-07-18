@@ -56,7 +56,7 @@ private final class SizeCalculator: @MainActor MessageSizeCalculator {
     // MARK: - Size for Item
 
     override func sizeForItem(at indexPath: IndexPath) -> CGSize {
-        @Dependency(\.clientSession.conversation.displayedMessages) var displayedMessages: [Message]
+        @Dependency(\.clientSession.entity.conversation.displayedMessages) var displayedMessages: [Message]
 
         guard let layout else { return .zero }
         return MainActor.assumeIsolated {

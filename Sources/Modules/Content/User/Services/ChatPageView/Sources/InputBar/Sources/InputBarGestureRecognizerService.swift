@@ -27,7 +27,7 @@ final class InputBarGestureRecognizerService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.clientSession.entity.user.currentUser) private var currentUser: User?
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties

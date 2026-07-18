@@ -70,7 +70,7 @@ extension Conversation {
     }
 
     var isVisibleForCurrentUser: Bool {
-        @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
+        @Dependency(\.clientSession.entity.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
         guard let currentUserParticipant,
               !currentUserParticipant.hasDeletedConversation,
               !(blockedUserIDs ?? []).containsAnyString(in: participants.map(\.userID)) else { return false }
@@ -82,7 +82,7 @@ extension Conversation {
         @Dependency(\.clientSession) var clientSession: ClientSession
 
         var users = users ?? []
-        if let currentUser = clientSession.user.currentUser {
+        if let currentUser = clientSession.entity.user.currentUser {
             users += [currentUser]
         }
 

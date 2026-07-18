@@ -20,7 +20,7 @@ struct ChangeLanguagePageViewService {
 
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking.database) private var database: DatabaseDelegate
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
     // MARK: - Reducer Action Handlers
 

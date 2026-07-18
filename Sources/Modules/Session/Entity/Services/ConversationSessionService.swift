@@ -28,7 +28,7 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.conversationObserver) private var conversationObserver: ConversationObserverService
+    @Dependency(\.clientSession.sync.conversationObserver) private var conversationObserver: ConversationObserverService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.clientSession.store) private var sessionStore: SessionStore
 
@@ -47,10 +47,6 @@ final class ConversationSessionService: @unchecked Sendable {
         case let .stored(idKey): sessionStore.getConversation(idKey: idKey)
         case .none: nil
         }
-    }
-
-    var sync: ConversationSyncService {
-        .init()
     }
 
     private var hydratedMessages: [Message] {

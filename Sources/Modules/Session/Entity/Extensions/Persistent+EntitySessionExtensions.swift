@@ -1,5 +1,5 @@
 //
-//  Persistent+SessionExtensions.swift
+//  Persistent+EntitySessionExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.

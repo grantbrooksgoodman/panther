@@ -61,7 +61,7 @@ struct ConversationMetadata: Codable, Equatable {
         userIDs: [String],
         isPenPalsConversation: Bool = false
     ) -> ConversationMetadata {
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
 
         var requiresConsentFromInitiatorString: String?
         if let currentUser,

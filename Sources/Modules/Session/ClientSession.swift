@@ -21,15 +21,9 @@ final class ClientSession: @unchecked Sendable {
 
     // MARK: - Properties
 
-    let activity: ActivitySessionService
-    let conversation: ConversationSessionService
-    let conversationObserver: ConversationObserverService
-    let message: MessageSessionService
-    let moderation: ModerationSessionService
-    let reaction: ReactionSessionService
-    let storage: StorageSessionService
+    let entity: EntitySession
     let store: SessionStore
-    let user: UserSessionService
+    let sync: SyncSession
 
     private let _deliveryProgressIndicator = LockIsolated<DeliveryProgressIndicator?>(nil)
 
@@ -43,25 +37,13 @@ final class ClientSession: @unchecked Sendable {
     // MARK: - Init
 
     init(
-        activity: ActivitySessionService,
-        conversation: ConversationSessionService,
-        conversationObserver: ConversationObserverService,
-        message: MessageSessionService,
-        moderation: ModerationSessionService,
-        reaction: ReactionSessionService,
-        storage: StorageSessionService,
+        entity: EntitySession,
         store: SessionStore,
-        user: UserSessionService
+        sync: SyncSession
     ) {
-        self.activity = activity
-        self.conversation = conversation
-        self.conversationObserver = conversationObserver
-        self.message = message
-        self.moderation = moderation
-        self.reaction = reaction
-        self.storage = storage
+        self.entity = entity
         self.store = store
-        self.user = user
+        self.sync = sync
     }
 
     // MARK: - Register Delivery Progress Indicator

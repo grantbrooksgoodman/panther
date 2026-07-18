@@ -29,7 +29,7 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
     @Dependency(\.build) private var build: Build
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.sessionStoreInvalidationService) private var sessionStoreInvalidationService: SessionStoreInvalidationService
+    @Dependency(\.uiCacheInvalidationService) private var uiCacheInvalidationService: UICacheInvalidationService
 
     // MARK: - Properties
 
@@ -92,10 +92,11 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
 
     func sceneDidEnterBackground(_ scene: UIScene) {
         clientSession.store.flushNow()
-        sessionStoreInvalidationService.refreshNotificationExtensionNameMap()
+        uiCacheInvalidationService.refreshNotificationExtensionNameMap()
 
         Task.background {
             if let badgeNumber = await clientSession
+                .entity
                 .user
                 .currentUser?
                 .calculateBadgeNumber() {
@@ -137,6 +138,7 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
               Networking.config.environment == .production,
               let view = touch.view,
               let currentUserPhoneNumber = clientSession
+              .entity
               .user
               .currentUser?
               .phoneNumber,

@@ -74,7 +74,7 @@ final class ChatInfoPageViewService {
     /// `.viewAppeared`
     func getChatParticipants() async throws(Exception) -> [ChatParticipant] {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
-        guard let conversation = clientSession.conversation.currentConversation else {
+        guard let conversation = clientSession.entity.conversation.currentConversation else {
             throw Exception(
                 "No current conversation.",
                 metadata: .init(sender: self)
@@ -232,7 +232,7 @@ final class ChatInfoPageViewService {
             Observables.chatInfoPageLoadingStateUpdated.trigger()
 
             do throws(Exception) {
-                try await clientSession.activity.removeFromConversation(
+                try await clientSession.entity.activity.removeFromConversation(
                     currentUserID,
                     conversation: conversation
                 )
@@ -291,7 +291,7 @@ final class ChatInfoPageViewService {
             Observables.chatInfoPageLoadingStateUpdated.trigger()
 
             do throws(Exception) {
-                try await clientSession.activity.removeFromConversation(
+                try await clientSession.entity.activity.removeFromConversation(
                     user.id,
                     conversation: conversation
                 )

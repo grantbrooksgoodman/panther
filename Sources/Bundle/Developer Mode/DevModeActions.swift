@@ -101,7 +101,7 @@ extension DevModeAction {
             @Sendable
             func markMessagesUnread() {
                 Task { @MainActor in
-                    @Dependency(\.clientSession) var clientSession: ClientSession
+                    @Dependency(\.clientSession.entity.user) var userSession: UserSessionService
                     @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
 
                     guard await AKConfirmationAlert(
@@ -116,19 +116,18 @@ extension DevModeAction {
                     )
 
                     do throws(Exception) {
-                        try await clientSession.user.resolveCurrentUser(
+                        try await userSession.resolveCurrentUser(
                             and: [
                                 .conversations,
                                 .messages,
                             ]
                         )
 
-                        guard let conversations = clientSession
-                            .user
+                        guard let conversations = userSession
                             .currentUser?
                             .conversations else { return }
 
-                        clientSession.user.stopObservingCurrentUserChanges()
+                        userSession.stopObservingCurrentUserChanges()
 
                         try await conversations
                             .compactMap(\.messages)
@@ -171,7 +170,7 @@ extension DevModeAction {
 
                 Task { @MainActor in
                     @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
-                    @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+                    @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
                     @Dependency(\.mainBundle) var mainBundle: Bundle
 
                     @Persistent(.isInStagingMode) var isInStagingMode: Bool?
@@ -239,7 +238,7 @@ extension DevModeAction {
             @Sendable
             func dangerZone() {
                 Task {
-                    @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+                    @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
 
                     var actions: [DevModeAction] = [
                         DevModeAction.AppActions.DangerZone.destroyConversationDatabaseAction,

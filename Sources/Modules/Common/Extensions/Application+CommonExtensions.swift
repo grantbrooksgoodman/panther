@@ -26,7 +26,7 @@ extension Application {
 
     static var usesLegacyChatPageInterface: Bool {
         @Dependency(\.build.milestone) var buildMilestone: Build.Milestone
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
         guard UIApplication.isFullyV26Compatible else { return true }
         guard let currentUser else { return Application.isInPrevaricationMode }
 
@@ -70,9 +70,9 @@ extension Application {
         @Dependency(\.navigation) var navigation: Navigation
 
         clientSession.store.advanceEpoch()
-        clientSession.conversationObserver.stopObserving()
+        clientSession.sync.conversationObserver.stopObserving()
         if !preserveCurrentUserID {
-            clientSession.user.stopObservingCurrentUserChanges()
+            clientSession.entity.user.stopObservingCurrentUserChanges()
         }
 
         core.utils.clearCaches()

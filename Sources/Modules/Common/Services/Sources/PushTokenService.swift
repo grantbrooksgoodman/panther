@@ -17,7 +17,7 @@ final class PushTokenService {
     // MARK: - Dependencies
 
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
     // MARK: - Properties
 

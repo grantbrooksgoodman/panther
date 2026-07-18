@@ -15,15 +15,19 @@ import AppSubsystem
 enum ClientSessionDependency: DependencyKey {
     static func resolve(_ values: DependencyValues) -> ClientSession {
         .init(
-            activity: .init(),
-            conversation: .init(),
-            conversationObserver: .init(),
-            message: .init(),
-            moderation: .init(),
-            reaction: .init(),
-            storage: .init(),
+            entity: .init(
+                activity: .init(),
+                conversation: .init(),
+                message: .init(),
+                moderation: .init(),
+                reaction: .init(),
+                user: .init()
+            ),
             store: .shared,
-            user: .init()
+            sync: .init(
+                conversationObserver: .init(),
+                conversationSync: .init()
+            )
         )
     }
 }

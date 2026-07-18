@@ -54,7 +54,7 @@ extension User {
 
     static var currentUserID: String? {
         @Persistent(.currentUserID) var persistedValue: String?
-        @Dependency(\.clientSession.user.currentUser?.id) var sessionValue: String?
+        @Dependency(\.clientSession.entity.user.currentUser?.id) var sessionValue: String?
         return sessionValue ?? persistedValue
     }
 

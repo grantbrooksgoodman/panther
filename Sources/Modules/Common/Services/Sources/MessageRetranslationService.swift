@@ -44,7 +44,7 @@ struct MessageRetranslationService {
     ) async throws(Exception) {
         guard chatPageState.isPresented,
               let translation = message.translation,
-              let conversation = clientSession.conversation.currentConversation,
+              let conversation = clientSession.entity.conversation.currentConversation,
               conversation.messageIDs.contains(message.id),
               conversation.messages?.compactMap(\.id).contains(message.id) == true else {
             throw Exception(
@@ -233,14 +233,14 @@ struct MessageRetranslationService {
     ) async -> Bool {
         var languageName = targetLanguageCode.englishLanguageName ?? targetLanguageCode.languageName ?? targetLanguageCode.uppercased()
         if !messageIsFromCurrentUser,
-           targetLanguageCode == clientSession.user.currentUser?.languageCode {
+           targetLanguageCode == clientSession.entity.user.currentUser?.languageCode {
             languageName = "your language"
         }
 
         var alertMessage = "This message appears to be in \(languageName) already."
         if !messageIsFromCurrentUser,
-           targetLanguageCode != clientSession.user.currentUser?.languageCode,
-           clientSession.user.currentUser?.previousLanguageCodes?.isBangQualifiedEmpty == false {
+           targetLanguageCode != clientSession.entity.user.currentUser?.languageCode,
+           clientSession.entity.user.currentUser?.previousLanguageCodes?.isBangQualifiedEmpty == false {
             alertMessage += "\n\nMessages sent or received while using a previous language setting will not be retranslated into your new current language."
         }
 

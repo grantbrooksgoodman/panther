@@ -24,7 +24,7 @@ struct ContactPairCellView: View {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageStateService: ChatPageStateService
     @Dependency(\.conversationCellViewService) private var conversationCellViewService: ConversationCellViewService
-    @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
+    @Dependency(\.clientSession.entity.conversation.currentConversation) private var currentConversation: Conversation?
 
     // MARK: - Properties
 

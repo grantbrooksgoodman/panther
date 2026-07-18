@@ -75,11 +75,11 @@ final class ChatPageViewService {
         _ conversation: Conversation,
         configuration: ChatPageView.Configuration
     ) -> MessagesViewController {
-        clientSession.conversation.resetMessageOffset()
-        clientSession.conversation.setCurrentConversation(conversation)
+        clientSession.entity.conversation.resetMessageOffset()
+        clientSession.entity.conversation.setCurrentConversation(conversation)
 
         if let focusedMessageID = configuration.focusedMessageID {
-            clientSession.conversation.incrementMessageOffset(to: focusedMessageID)
+            clientSession.entity.conversation.incrementMessageOffset(to: focusedMessageID)
         }
 
         // NIT: Could store [ConversationID: ViewController] and allow for multiple presentations (i.e., "Add Contact" button) that way?
@@ -167,10 +167,10 @@ final class ChatPageViewService {
 
         // Start observer for stored conversations
         // (skips drafts and mocks).
-        if let currentConversation = clientSession.conversation.currentConversation,
+        if let currentConversation = clientSession.entity.conversation.currentConversation,
            !currentConversation.isEmpty,
            !currentConversation.isMock {
-            clientSession.conversationObserver.startObserving(
+            clientSession.sync.conversationObserver.startObserving(
                 conversationIDKey: currentConversation.id.key
             )
         }
@@ -237,7 +237,7 @@ final class ChatPageViewService {
         guard shouldRespondToViewLifecycleEvent else { return }
 
         chatPageState.setIsPresented(false)
-        clientSession.conversationObserver.stopObserving()
+        clientSession.sync.conversationObserver.stopObserving()
         contextMenu?.interaction.removeKeyboardWillShowObserver()
 
         Task.background { @MainActor [weak self] in
@@ -254,10 +254,10 @@ final class ChatPageViewService {
             // or preview.
             if !chatPageState.isPresented,
                configuration != .preview {
-                clientSession.conversation.setCurrentConversation(nil)
+                clientSession.entity.conversation.setCurrentConversation(nil)
             }
 
-            clientSession.conversation.resetMessageOffset()
+            clientSession.entity.conversation.resetMessageOffset()
         }
 
         alternateMessage?.restoreAllAlternateTextMessageIDs()
@@ -341,8 +341,8 @@ final class ChatPageViewService {
         at indexPaths: [IndexPath],
         animated isAnimated: Bool = true
     ) {
-        if clientSession.reaction.isReactingToMessage {
-            clientSession.reaction.addEffectUponIsReactingToMessage(
+        if clientSession.entity.reaction.isReactingToMessage {
+            clientSession.entity.reaction.addEffectUponIsReactingToMessage(
                 changedTo: false,
                 id: .reloadCollectionView
             ) { [weak self] in
@@ -365,6 +365,7 @@ final class ChatPageViewService {
             safelyReload(
                 indexPaths: indexPaths,
                 conversationIDKey: clientSession
+                    .entity
                     .conversation
                     .currentConversation?
                     .id
@@ -385,9 +386,9 @@ final class ChatPageViewService {
     private func loadMoreMessages(fromScrollToTop: Bool) {
         guard !messageDeliveryService.isSendingMessage else { return }
 
-        let previousMessageCount = clientSession.conversation.displayedMessages.count
-        clientSession.conversation.incrementMessageOffset()
-        guard previousMessageCount != clientSession.conversation.displayedMessages.count else { return }
+        let previousMessageCount = clientSession.entity.conversation.displayedMessages.count
+        clientSession.entity.conversation.incrementMessageOffset()
+        guard previousMessageCount != clientSession.entity.conversation.displayedMessages.count else { return }
         reloadCollectionView()
 
         guard fromScrollToTop else { return }
@@ -437,6 +438,7 @@ final class ChatPageViewService {
             guard currentStructure == previousStructure,
                   chatPageState.isPresented,
                   previousConversationIDKey == clientSession
+                  .entity
                   .conversation
                   .currentConversation?
                   .id

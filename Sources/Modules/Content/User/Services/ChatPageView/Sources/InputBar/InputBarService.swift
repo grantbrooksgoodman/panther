@@ -37,11 +37,12 @@ final class InputBarService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
+    @Dependency(\.clientSession.entity.conversation.currentConversation) private var currentConversation: Conversation?
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
     @Dependency(\.uiApplication.mainScreen.bounds.width) private var screenWidth: CGFloat
+    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -332,7 +333,7 @@ final class InputBarService {
 
     private func getShouldEnableAttachMediaButton() -> Bool {
         guard build.isOnline,
-              !clientSession.storage.atOrAboveDataUsageLimit else { return false }
+              !userStorageService.atOrAboveDataUsageLimit else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
@@ -341,7 +342,7 @@ final class InputBarService {
     }
 
     private func getShouldEnableConsentButton() -> Bool {
-        guard let currentConversation = clientSession.conversation.currentConversation else { return false }
+        guard let currentConversation else { return false }
         if let selectedContactPairs = chatPageViewService
             .recipientBar?
             .contactSelectionUI
@@ -359,7 +360,7 @@ final class InputBarService {
 
     private func getShouldEnableSendButton() -> Bool {
         guard build.isOnline,
-              !clientSession.storage.atOrAboveDataUsageLimit else { return false }
+              !userStorageService.atOrAboveDataUsageLimit else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
@@ -405,7 +406,7 @@ final class InputBarService {
 
     private func showConsentButton() {
         guard let consentButton,
-              let currentConversation = clientSession.conversation.currentConversation else { return }
+              let currentConversation else { return }
 
         consentButton.addTarget(
             actionHandler,

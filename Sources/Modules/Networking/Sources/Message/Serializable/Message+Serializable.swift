@@ -49,7 +49,7 @@ extension Message: Serializable {
     init(
         from data: [String: Any]
     ) async throws(Exception) {
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.networking.messageService) var messageService: MessageService
 
@@ -278,7 +278,7 @@ extension Message: Serializable {
 
 private extension String {
     var isUserReadableLanguageCode: Bool {
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
         let currentUserLanguageCode = currentUser?.languageCode ?? RuntimeStorage.languageCode
         return self == currentUserLanguageCode || currentUser?.previousLanguageCodes?.contains(self) == true
     }

@@ -26,7 +26,7 @@ struct ConversationStagingService {
     @Dependency(\.mainBundle) private var mainBundle: Bundle
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.clientSession.store) private var sessionStore: SessionStore
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
     // MARK: - Computed Properties
 

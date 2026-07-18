@@ -29,7 +29,7 @@ extension ChatInfoPageViewService {
         Task { @MainActor in
             @Sendable
             func presentChangeNameAlert() async -> MetadataChangeType? {
-                @Dependency(\.clientSession.conversation.currentConversation) var conversation: Conversation?
+                @Dependency(\.clientSession.entity.conversation.currentConversation) var conversation: Conversation?
 
                 var conversationName: String?
                 if let name = conversation?.metadata.name,
@@ -90,7 +90,7 @@ extension ChatInfoPageViewService {
                 return photoChangeType.wrappedValue
             }
 
-            @Dependency(\.clientSession.conversation.currentConversation) var conversation: Conversation?
+            @Dependency(\.clientSession.entity.conversation.currentConversation) var conversation: Conversation?
 
             let didComplete = LockIsolated(false)
             var canComplete: Bool {

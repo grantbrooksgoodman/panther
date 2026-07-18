@@ -30,10 +30,11 @@ final class UserSessionService: @unchecked Sendable {
 
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.build.isOnline) private var isOnline: Bool
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
+    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
+    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -49,7 +50,7 @@ final class UserSessionService: @unchecked Sendable {
 
     var currentUser: User? {
         guard let currentUserID else { return nil }
-        return clientSession.store.users[currentUserID]
+        return sessionStore.users[currentUserID]
     }
 
     // MARK: - Resolve Current User
@@ -188,7 +189,7 @@ final class UserSessionService: @unchecked Sendable {
     ) {
         guard !Task.isCancelled else { return }
         // Resolved from archive or network; bypasses RemotelyUpdatable.update.
-        clientSession.store.upsertConversations(conversations)
+        sessionStore.upsertConversations(conversations)
     }
 
     private func conversationsDidChange(_ dictionary: [String: Any]) -> Bool {
@@ -211,7 +212,7 @@ final class UserSessionService: @unchecked Sendable {
         let removedIDKeys = currentIDKeys.subtracting(updatedIDKeys)
 
         for idKey in removedIDKeys {
-            clientSession.store.removeConversation(idKey: idKey)
+            sessionStore.removeConversation(idKey: idKey)
         }
 
         guard currentConversationIDStrings != updatedConversationIDStrings else { return false }
@@ -257,7 +258,7 @@ final class UserSessionService: @unchecked Sendable {
     private func isKnownVersion(
         _ conversationID: ConversationID
     ) -> Bool {
-        clientSession.store.getConversation(id: conversationID) != nil ||
+        sessionStore.getConversation(id: conversationID) != nil ||
             SelfWriteRegistry.contains(conversationID)
     }
 
@@ -286,7 +287,7 @@ final class UserSessionService: @unchecked Sendable {
         }
 
         // Fetched from server; bypasses RemotelyUpdatable.update.
-        try await clientSession.store.upsertUser(
+        try await sessionStore.upsertUser(
             networking.userService.getUser(
                 id: currentUserID
             )
@@ -317,16 +318,16 @@ final class UserSessionService: @unchecked Sendable {
         var conversationsNeedingUpdate = Set<Conversation>()
         var decodedConversations = Set<Conversation>()
 
-        let ignoredConversationIDKeys = clientSession.store.ignoredConversationIDKeys
+        let ignoredConversationIDKeys = sessionStore.ignoredConversationIDKeys
         conversationIDs = conversationIDs.filter { !ignoredConversationIDKeys.contains($0.key) }
 
         for conversationID in conversationIDs {
             guard !Task.isCancelled else { return }
-            if let value = clientSession.store.getConversation(
+            if let value = sessionStore.getConversation(
                 id: conversationID
             ) {
                 decodedConversations.merge(with: [value])
-            } else if let value = clientSession.store.getConversation(
+            } else if let value = sessionStore.getConversation(
                 idKey: conversationID.key
             ) {
                 if SelfWriteRegistry.contains(conversationID) {
@@ -365,12 +366,12 @@ final class UserSessionService: @unchecked Sendable {
         let updatedIDKeys = Set(conversationsNeedingUpdate.map(\.id.key))
         try await decodedConversations.merge(
             with: conversationsNeedingUpdate.map {
-                @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
+                @Dependency(\.clientSession.sync.conversationSync) var conversationSyncService: ConversationSyncService
                 return try await conversationSyncService.synchronizeConversation($0)
             }
         )
 
-        clientSession.store.clearStaleConversations(idKeys: updatedIDKeys)
+        sessionStore.clearStaleConversations(idKeys: updatedIDKeys)
         guard !conversationsNeedingFetch.isEmpty else {
             return commitConversationsToMemory(decodedConversations)
         }
@@ -514,7 +515,7 @@ final class UserSessionService: @unchecked Sendable {
                         delay: .seconds(5),
                         priority: .utility
                     ) {
-                        _ = try? await self.clientSession.storage.getCurrentUserDataUsage()
+                        _ = try? await self.userStorageService.getCurrentUserDataUsage()
                     }
                 } catch {
                     Logger.log(

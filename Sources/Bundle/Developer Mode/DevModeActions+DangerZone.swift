@@ -79,7 +79,7 @@ extension DevModeAction.AppActions {
                     let ignoredConversationIDKeys = clientSession.store.ignoredConversationIDKeys
 
                     let allForCurrentUserCount = (
-                        (clientSession.user.currentUser?.conversationIDs?.map(\.key) ?? []) +
+                        (clientSession.entity.user.currentUser?.conversationIDs?.map(\.key) ?? []) +
                             ignoredConversationIDKeys
                     ).unique.count
 
@@ -90,7 +90,7 @@ extension DevModeAction.AppActions {
                         ) { performAction(.deleteCurrentUserConversations) },
                     ]
 
-                    guard let conversations = clientSession.user.currentUser?.conversations else { return }
+                    guard let conversations = clientSession.entity.user.currentUser?.conversations else { return }
 
                     let invisibleToCurrentUserCount = (
                         conversations
@@ -215,7 +215,7 @@ extension DevModeAction.AppActions {
 
         private static func _performAction(_ action: Action) async throws(Exception) {
             @Dependency(\.coreKit) var core: CoreKit
-            @Dependency(\.clientSession.user) var userSession: UserSessionService
+            @Dependency(\.clientSession.entity.user) var userSession: UserSessionService
 
             func showSuccessAndReset() {
                 core.hud.flash(image: .success)

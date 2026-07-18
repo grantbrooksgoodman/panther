@@ -19,7 +19,7 @@ final class ReactionSessionService {
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
+    @Dependency(\.clientSession.entity.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService

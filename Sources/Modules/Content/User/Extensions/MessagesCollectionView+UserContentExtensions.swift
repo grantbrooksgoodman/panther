@@ -22,7 +22,7 @@ extension MessagesCollectionView {
         at scrollPosition: UICollectionView.ScrollPosition = .top,
         animated: Bool = true
     ) {
-        @Dependency(\.clientSession.conversation.displayedMessages) var messages: [Message]
+        @Dependency(\.clientSession.entity.conversation.displayedMessages) var messages: [Message]
         guard let messageIndex = messages.firstIndex(where: { $0.id == messageID }),
               messageIndex < numberOfSections,
               numberOfItems(inSection: messageIndex) > 0 else { return }

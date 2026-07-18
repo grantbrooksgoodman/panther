@@ -28,7 +28,7 @@ extension CoreKit.Utilities {
     // MARK: - Methods
 
     func clearPreviousLanguageCodes() async throws(Exception) {
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
         guard let currentUser else {
             throw Exception(
                 "Current user has not been set.",
@@ -50,14 +50,14 @@ extension CoreKit.Utilities {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         @Dependency(\.networking) var networking: NetworkServices
 
-        try await clientSession.user.resolveCurrentUser(
+        try await clientSession.entity.user.resolveCurrentUser(
             and: [
                 .conversations,
                 .messages,
             ]
         )
 
-        let currentUser = clientSession.user.currentUser
+        let currentUser = clientSession.entity.user.currentUser
         var conversationIDKeys: [String]?
 
         let ignoredConversationIDKeys = clientSession.store.ignoredConversationIDKeys
@@ -124,7 +124,7 @@ extension CoreKit.Utilities {
         networking.database.setGlobalCacheStrategy(.disregardCache)
         networking.storage.setGlobalCacheStrategy(.disregardCache)
 
-        clientSession.user.stopObservingCurrentUserChanges()
+        clientSession.entity.user.stopObservingCurrentUserChanges()
 
         var exceptions = [Exception]()
         for conversationIDKey in conversationIDKeys.unique {

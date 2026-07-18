@@ -18,7 +18,7 @@ struct PenPalsService {
 
     @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.networking.userService) private var userService: UserService
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
     // MARK: - Computed Properties
 

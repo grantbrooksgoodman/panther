@@ -18,7 +18,7 @@ struct ConversationCellViewService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
+    @Dependency(\.clientSession.entity.moderation) private var moderationSession: ModerationSessionService
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication

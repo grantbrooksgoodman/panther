@@ -39,7 +39,7 @@ struct MessageSessionService {
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
     ) async throws(Exception) -> Conversation {
-        guard let currentUser = clientSession.user.currentUser else {
+        guard let currentUser = clientSession.entity.user.currentUser else {
             throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
@@ -215,7 +215,7 @@ struct MessageSessionService {
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
     ) async throws(Exception) -> Conversation {
-        guard let currentUser = clientSession.user.currentUser else {
+        guard let currentUser = clientSession.entity.user.currentUser else {
             throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
@@ -238,7 +238,7 @@ struct MessageSessionService {
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
     ) async throws(Exception) -> Conversation {
-        guard let currentUser = clientSession.user.currentUser else {
+        guard let currentUser = clientSession.entity.user.currentUser else {
             throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
@@ -319,7 +319,7 @@ struct MessageSessionService {
                 by: Floats.addMessageDeliveryProgressIncrement
             )
 
-            return try await clientSession.conversation.addMessages(
+            return try await clientSession.entity.conversation.addMessages(
                 [message],
                 to: conversation
             )
@@ -416,6 +416,7 @@ struct MessageSessionService {
         userCount: Int
     ) -> EnhancementConfiguration? {
         guard clientSession
+            .entity
             .user
             .currentUser?
             .aiEnhancedTranslationsEnabled == true else { return nil }
@@ -454,7 +455,7 @@ struct MessageSessionService {
     }
 
     private func shouldAnimateDeliveryProgress(in conversation: Conversation?) -> Bool {
-        clientSession.conversation.currentConversation?.id.key == conversation?.id.key
+        clientSession.entity.conversation.currentConversation?.id.key == conversation?.id.key
     }
 }
 

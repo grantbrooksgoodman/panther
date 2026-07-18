@@ -18,7 +18,7 @@ final class SearchInteractionService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService.contextMenu?.interaction) private var contextMenuInteractionService: ContextMenuInteractionService?
-    @Dependency(\.clientSession.conversation.displayedMessages) private var displayedMessages: [Message]
+    @Dependency(\.clientSession.entity.conversation.displayedMessages) private var displayedMessages: [Message]
     @Dependency(\.chatPageStateService.isPresented) private var isChatPagePresented: Bool
 
     // MARK: - Properties

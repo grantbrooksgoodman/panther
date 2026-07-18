@@ -19,8 +19,8 @@ struct ContactSelectorPageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
+    @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.commonServices.invite) private var inviteService: InviteService
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
@@ -92,7 +92,7 @@ struct ContactSelectorPageViewService {
         case .chatInfoPageView:
             guard let user = selectedContactPair.users.first,
                   let userID = selectedContactPair.userIDs.first,
-                  let conversation = clientSession.conversation.currentConversation,
+                  let conversation = entitySession.conversation.currentConversation,
                   !conversation.participants.map(\.userID).contains(userID) else { return }
 
             let addToConversationAction: AKAction = .init(
@@ -104,7 +104,7 @@ struct ContactSelectorPageViewService {
                     Observables.chatInfoPageLoadingStateUpdated.trigger()
 
                     do throws(Exception) {
-                        try await clientSession.activity.addToConversation(
+                        try await entitySession.activity.addToConversation(
                             userID,
                             conversation: conversation
                         )

@@ -197,7 +197,7 @@ extension Conversation: RemotelyUpdatable {
         // Update message data.
         for message in newMessages {
             updates[
-                "\(message.id)/\(NetworkPath.messages.rawValue)"
+                "\(NetworkPath.messages.rawValue)/\(message.id)"
             ] = message.encoded.filter {
                 $0.key != Message.SerializableKey.id.rawValue
             }

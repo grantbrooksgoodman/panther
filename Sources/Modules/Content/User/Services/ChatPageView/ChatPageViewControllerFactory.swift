@@ -101,7 +101,7 @@ struct ChatPageViewControllerFactory {
         guard let layout = viewController.messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout else { return }
 
         // NIT: Dependency injection here goes against factory pattern flow.
-        if Dependency(\.clientSession.conversation.currentConversation)
+        if Dependency(\.clientSession.entity.conversation.currentConversation)
             .wrappedValue?
             .participants
             .count == 2 {
@@ -153,7 +153,7 @@ struct ChatPageViewControllerFactory {
 
         // NIT: Dependency injection here goes against factory pattern flow.
         @Dependency(\.navigation.state.userContent.sheet) var currentSheet: UserContentNavigatorState.SheetPaths?
-        @Dependency(\.clientSession.conversation.currentConversation?.isEmpty) var isCurrentConversationEmpty: Bool?
+        @Dependency(\.clientSession.entity.conversation.currentConversation?.isEmpty) var isCurrentConversationEmpty: Bool?
 
         let isNewChatPageContext = currentSheet == .newChat && isCurrentConversationEmpty == true
         let shouldUseYOriginOffset = !Application.usesLegacyChatPageInterface && !isNewChatPageContext

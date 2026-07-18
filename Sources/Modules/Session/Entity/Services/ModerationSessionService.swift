@@ -21,7 +21,7 @@ struct ModerationSessionService {
     @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.penPals) private var penPalsService: PenPalsService
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
     // MARK: - Content Moderation
 

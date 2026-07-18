@@ -22,7 +22,7 @@ struct InviteService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.onboardingService.createdUserInCurrentAppSession) private var createdUserInCurrentAppSession: Bool
-    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.clientSession.entity.user.currentUser) private var currentUser: User?
     @Dependency(\.uiApplication.keyViewController?.view) private var keyView: UIView?
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate

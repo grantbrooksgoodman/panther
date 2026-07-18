@@ -28,8 +28,8 @@ struct DataUsageCalculation: Hashable {
     }
 
     var isExpired: Bool {
-        @Dependency(\.clientSession.storage) var storageSession: StorageSessionService
-        return abs(date.seconds(from: .now)) > (storageSession.isApproachingDataUsageLimit ? 10 : 60)
+        @Dependency(\.userStorageService) var userStorageService: UserStorageService
+        return abs(date.seconds(from: .now)) > (userStorageService.isApproachingDataUsageLimit ? 10 : 60)
     }
 
     // MARK: - Init

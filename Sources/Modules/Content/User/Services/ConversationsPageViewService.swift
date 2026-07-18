@@ -57,6 +57,7 @@ final class ConversationsPageViewService {
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
+    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -68,7 +69,7 @@ final class ConversationsPageViewService {
     func viewAppeared() {
         didShowSecondsToLoadToast = false
         NavigationBar.setAppearance(.conversationsPageView)
-        clientSession.user.startObservingCurrentUserChanges()
+        clientSession.entity.user.startObservingCurrentUserChanges()
 
         Task.delayed(by: .milliseconds(500)) { @MainActor [weak self] in
             StatusBar.overrideStyle(.appAware)
@@ -125,7 +126,7 @@ final class ConversationsPageViewService {
     func deleteConversationsToolbarButtonTapped() {
         Task { @MainActor in
             do throws(Exception) {
-                try await clientSession.user.resolveCurrentUser(
+                try await clientSession.entity.user.resolveCurrentUser(
                     and: [.conversations]
                 )
 
@@ -151,7 +152,7 @@ final class ConversationsPageViewService {
     /// `.composeToolbarButtonTapped`
     func storageFullButtonTapped() {
         Task {
-            await clientSession.storage.presentStorageWarningAlert()
+            await userStorageService.presentStorageWarningAlert()
         }
     }
 
@@ -167,7 +168,7 @@ final class ConversationsPageViewService {
         ) { @MainActor [weak self] in
             guard let self else { return }
 
-            let currentUser = clientSession.user.currentUser
+            let currentUser = clientSession.entity.user.currentUser
             let numberOfConversations = currentUser?
                 .conversations?
                 .visibleForCurrentUser
@@ -296,6 +297,7 @@ final class ConversationsPageViewService {
         type: ReloadType
     ) async throws(Exception) {
         if let conversations = clientSession
+            .entity
             .user
             .currentUser?
             .conversations?
@@ -317,7 +319,7 @@ final class ConversationsPageViewService {
         }
 
         defer { currentReloadType = currentReloadType.next }
-        try await clientSession.user.resolveCurrentUser(
+        try await clientSession.entity.user.resolveCurrentUser(
             and: .allDataTypes
         )
 
@@ -364,9 +366,9 @@ final class ConversationsPageViewService {
     @MainActor
     private func showPromptsIfNeeded() async {
         do throws(Exception) {
-            _ = try await clientSession.storage.getCurrentUserDataUsage()
-            if clientSession.storage.isApproachingDataUsageLimit {
-                await clientSession.storage.presentStorageWarningAlert()
+            _ = try await userStorageService.getCurrentUserDataUsage()
+            if userStorageService.isApproachingDataUsageLimit {
+                await userStorageService.presentStorageWarningAlert()
             } else if await services.permission.notificationPermissionStatus == .unknown {
                 _ = try await services.permission.requestPermission(for: .notifications)
             } else if await !(services.invite.suggestInvitationIfNeeded()) {
@@ -385,13 +387,13 @@ final class ConversationsPageViewService {
 
         var configurations = [FeaturePermissionPageView.Configuration]()
         if !presentedAIPage,
-           clientSession.user.currentUser?.aiEnhancedTranslationsEnabled == false {
+           clientSession.entity.user.currentUser?.aiEnhancedTranslationsEnabled == false {
             configurations.append(.aiEnhancedTranslations)
             presentedAIEnhancedTranslationPermissionPageAtStartup = true
         }
 
         if !presentedPenPalsPage,
-           clientSession.user.currentUser?.isPenPalsParticipant == false {
+           clientSession.entity.user.currentUser?.isPenPalsParticipant == false {
             configurations.append(.penPals)
             presentedPenPalsPermissionPageAtStartup = true
         }

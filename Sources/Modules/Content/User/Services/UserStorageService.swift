@@ -1,5 +1,5 @@
 //
-//  StorageSessionService.swift
+//  UserStorageService.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -18,16 +18,18 @@ import AppSubsystem
 import Networking
 import Translator
 
-final class StorageSessionService: @unchecked Sendable {
+final class UserStorageService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
-    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.clientSession.entity.user.currentUser) private var currentUser: User?
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
 
     static let storageLimitInKilobytes: Double = 10240
+
+    fileprivate static let shared = UserStorageService()
 
     private static let coalescer = SingleSlotCoalescer<Int>()
 
@@ -40,15 +42,19 @@ final class StorageSessionService: @unchecked Sendable {
 
     var atOrAboveDataUsageLimit: Bool {
         lastDataUsageCalculation.dataUsageInKilobytes >= Int(
-            StorageSessionService.storageLimitInKilobytes
+            UserStorageService.storageLimitInKilobytes
         )
     }
 
     var isApproachingDataUsageLimit: Bool {
         lastDataUsageCalculation.dataUsageInKilobytes >= Int(
-            StorageSessionService.storageLimitInKilobytes * warningAlertRatio
+            UserStorageService.storageLimitInKilobytes * warningAlertRatio
         )
     }
+
+    // MARK: - Init
+
+    private init() {}
 
     // MARK: - Current User Data Usage
 
@@ -185,7 +191,7 @@ final class StorageSessionService: @unchecked Sendable {
 
     func presentStorageWarningAlert() async {
         guard await ((try? (getCurrentUserDataUsage())) ?? 0) >= Int(
-            StorageSessionService.storageLimitInKilobytes * warningAlertRatio
+            UserStorageService.storageLimitInKilobytes * warningAlertRatio
         ) else { return }
 
         if atOrAboveDataUsageLimit {
@@ -415,6 +421,19 @@ private extension TranslationReference {
         }
 
         return nil
+    }
+}
+
+enum UserStorageServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> UserStorageService {
+        .shared
+    }
+}
+
+extension DependencyValues {
+    var userStorageService: UserStorageService {
+        get { self[UserStorageServiceDependency.self] }
+        set { self[UserStorageServiceDependency.self] = newValue }
     }
 }
 

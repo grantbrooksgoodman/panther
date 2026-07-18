@@ -35,6 +35,19 @@ final class ConversationSyncService: @unchecked Sendable {
         set { _syncData.wrappedValue = newValue }
     }
 
+    // MARK: - Init
+
+    /* TODO: Audit this path.
+     Was previously reinstantiated for every access, AFAI can tell.
+     */
+    init() {
+        Logger.log(
+            "Instantiated ConversationSyncService.",
+            domain: .bugPrevention,
+            sender: self
+        )
+    }
+
     // MARK: - Synchronize Conversation
 
     func synchronizeConversation(
@@ -147,6 +160,7 @@ final class ConversationSyncService: @unchecked Sendable {
         // hash rather than the client-computed encodedHash. This avoids
         // writing back to openConversations and triggering a self-event.
         let serverHash = clientSession
+            .entity
             .user
             .currentUser?
             .conversationIDs?

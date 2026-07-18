@@ -28,8 +28,8 @@ final class SplashPageViewService: ObservableObject {
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
-    @Dependency(\.sessionStoreInvalidationService) private var sessionStoreInvalidationService: SessionStoreInvalidationService
     @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.uiCacheInvalidationService) private var uiCacheInvalidationService: UICacheInvalidationService
 
     // MARK: - Properties
 
@@ -88,12 +88,12 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: Store Observation Setup */
 
-        sessionStoreInvalidationService.startObserving()
+        uiCacheInvalidationService.startObserving()
 
         /* MARK: Offline User Setup */
 
         guard build.isOnline else {
-            guard let currentUser = clientSession.user.currentUser else {
+            guard let currentUser = clientSession.entity.user.currentUser else {
                 return Logger.log(
                     .init(
                         "No persisted user exists.",
@@ -129,7 +129,7 @@ final class SplashPageViewService: ObservableObject {
         /* MARK: Parallel Initialization */
 
         // Launch the heaviest independent network calls concurrently.
-        async let resolveCurrentUserResult = clientSession.user.resolveCurrentUser()
+        async let resolveCurrentUserResult = clientSession.entity.user.resolveCurrentUser()
         async let resolveLanguageCodeResult: Void = clientSession.resolveAndSetLanguageCode()
         async let resolveValuesResult: Void = services.metadata.resolveValues()
 
@@ -191,7 +191,7 @@ final class SplashPageViewService: ObservableObject {
             try await resolveCurrentUserResult
             initializationProgress += 0.2
 
-            guard let currentUser = clientSession.user.currentUser else {
+            guard let currentUser = clientSession.entity.user.currentUser else {
                 throw Exception(
                     "Failed to resolve current user.",
                     metadata: .init(sender: self)
@@ -236,8 +236,8 @@ final class SplashPageViewService: ObservableObject {
 
             /* MARK: Conversation Resolution */
 
-            clientSession.conversation.setCurrentConversation(nil)
-            try await clientSession.user.resolveCurrentUser(
+            clientSession.entity.conversation.setCurrentConversation(nil)
+            try await clientSession.entity.user.resolveCurrentUser(
                 and: .allDataTypes
             )
 

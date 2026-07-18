@@ -34,15 +34,15 @@ final class SettingsPageViewService {
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
     @Dependency(\.build) private var build: Build
-    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
+    @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.reportDelegate) private var reportDelegate: ReportDelegate
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
+    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -80,7 +80,7 @@ final class SettingsPageViewService {
     func blockedUsersButtonTapped() {
         Task {
             do throws(Exception) {
-                try await moderationSession.unblockUsers()
+                try await entitySession.moderation.unblockUsers()
             } catch {
                 Logger.log(
                     error,
@@ -135,7 +135,7 @@ final class SettingsPageViewService {
     func clearCachesButtonTapped() {
         @MainActor
         func clearCaches() async {
-            clientSession.user.stopObservingCurrentUserChanges()
+            entitySession.user.stopObservingCurrentUserChanges()
             services.analytics.logEvent(.clearCaches)
             Application.reset(preserveCurrentUserID: true)
 
@@ -439,11 +439,11 @@ final class SettingsPageViewService {
                         }
                     }
 
-                    guard let currentUser = self.clientSession.user.currentUser else { return }
+                    guard let currentUser = self.entitySession.user.currentUser else { return }
 
                     do throws(Exception) {
                         self
-                            .clientSession
+                            .entitySession
                             .user
                             .stopObservingCurrentUserChanges()
 
@@ -478,7 +478,7 @@ final class SettingsPageViewService {
     func developerModeListItems() -> [ListRowView.Configuration]? {
         func overrideLanguageCodeButtonTapped() {
             guard RuntimeStorage.retrieve(.overriddenLanguageCode) == nil else {
-                guard let currentUser = clientSession.user.currentUser else { return }
+                guard let currentUser = entitySession.user.currentUser else { return }
                 let languageName = currentUser.languageCode.languageExonym ?? currentUser.languageCode.uppercased()
 
                 alertKitConfig.overrideTargetLanguageCode(currentUser.languageCode)
@@ -498,7 +498,7 @@ final class SettingsPageViewService {
         var items = [ListRowView.Configuration]()
 
         if build.isDeveloperModeEnabled,
-           let currentUser = clientSession.user.currentUser,
+           let currentUser = entitySession.user.currentUser,
            currentUser.languageCode != "en" {
             let languageName = currentUser.languageCode.languageExonym ?? currentUser.languageCode.uppercased()
             let restoreLanguageCodeString = "\(Strings.restoreLanguageCodeButtonTextPrefix) \(languageName)"
@@ -552,7 +552,7 @@ final class SettingsPageViewService {
             return cachedCNContactForCurrentUser
         }
 
-        guard let currentUser = clientSession.user.currentUser else {
+        guard let currentUser = entitySession.user.currentUser else {
             throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
@@ -570,7 +570,7 @@ final class SettingsPageViewService {
 
     /// `.viewAppeared`
     func getCurrentUserDataUsage() async throws(Exception) -> Int {
-        try await clientSession.storage.getCurrentUserDataUsage()
+        try await userStorageService.getCurrentUserDataUsage()
     }
 
     // MARK: - Clear Cache

@@ -24,7 +24,7 @@ final class RecipientBarTableViewService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.user.currentUser?.conversations) private var conversations: [Conversation]?
+    @Dependency(\.clientSession.entity.user.currentUser?.conversations) private var conversations: [Conversation]?
     @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
 
     // MARK: - Properties

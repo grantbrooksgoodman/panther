@@ -28,7 +28,7 @@ struct ConversationsPageObserver: Observer {
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
@@ -96,7 +96,9 @@ struct ConversationsPageObserver: Observer {
 
         // swiftlint:disable:next closure_body_length
         Task { @MainActor in
-            guard let currentConversation = clientSession.conversation.currentConversation else { return }
+            guard let currentConversation = entitySession
+                .conversation
+                .currentConversation else { return }
 
             // Re-fetch the last message in 1:1 conversations to pick up
             // read receipt changes that don't affect the conversation hash.
@@ -133,7 +135,7 @@ struct ConversationsPageObserver: Observer {
                         for: unreadMessages
                     )
 
-                    if let badgeNumber = clientSession
+                    if let badgeNumber = entitySession
                         .user
                         .currentUser?
                         .calculateBadgeNumber() {
@@ -181,6 +183,6 @@ struct ConversationsPageObserver: Observer {
     }
 
     private func matchesCurrentConversation(_ idKey: String) -> Bool {
-        clientSession.conversation.currentConversation?.id.key == idKey
+        entitySession.conversation.currentConversation?.id.key == idKey
     }
 }
