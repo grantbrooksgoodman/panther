@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class ConversationObserverService: @unchecked Sendable {
+struct ConversationObserverService {
     // MARK: - Dependencies
 
     @Dependency(\.networking) private var networking: NetworkServices
@@ -21,139 +21,52 @@ final class ConversationObserverService: @unchecked Sendable {
 
     // MARK: - Properties
 
-    private var observationTask: Task<Void, Never>?
+    private let observationTask: LockIsolated<Task<Void, Never>?> = .init(nil)
 
     // MARK: - Observation
 
-    func startObserving(conversationIDKey: String) {
-        observationTask?.cancel()
-        observationTask = nil
+    func startObserving(
+        conversationIDKey: String
+    ) {
+        observationTask.projectedValue.withValue {
+            $0?.cancel()
+            $0 = nil
 
-        Logger.log(
-            .init(
-                "Started observing conversation.",
-                isReportable: false,
-                userInfo: ["ConversationIDKey": conversationIDKey],
-                metadata: .init(sender: self)
-            ),
-            domain: .conversationObserver
-        )
-
-        observationTask = Task {
-            await observe(
-                conversationIDKey: conversationIDKey,
-                isRetry: false
+            Logger.log(
+                .init(
+                    "Started observing conversation.",
+                    isReportable: false,
+                    userInfo: ["ConversationIDKey": conversationIDKey],
+                    metadata: .init(sender: self)
+                ),
+                domain: .conversationObserver
             )
+
+            $0 = Task {
+                await observe(
+                    conversationIDKey: conversationIDKey,
+                    isRetry: false
+                )
+            }
         }
     }
 
     func stopObserving() {
-        if observationTask != nil {
-            Logger.log(
-                "Stopped observing conversation.",
-                domain: .conversationObserver,
-                sender: self
-            )
-        }
-
-        observationTask?.cancel()
-        observationTask = nil
-    }
-
-    // MARK: - Auxiliary
-
-    private func decodeConversation(
-        from data: [String: Any],
-        idKey: String
-    ) async throws(Exception) -> Conversation {
-        typealias Keys = Conversation.SerializableKey
-
-        let encodedHash = data[Keys.encodedHash.rawValue] as? String ?? ""
-        guard data[Keys.id.rawValue] is String,
-              let encodedActivities = data[
-                  Keys.activities.rawValue
-              ] as? [[String: Any]],
-              let encodedMetadata = data[
-                  Keys.metadata.rawValue
-              ] as? [String: Any],
-              let encodedReactionMetadata = data[
-                  Keys.reactionMetadata.rawValue
-              ] as? [[String: Any]] else {
-            throw .Networking.decodingFailed(
-                data: data,
-                .init(sender: self)
-            )
-        }
-
-        let messageIDs: [String] = if let map = data[
-            Keys.messages.rawValue
-        ] as? [String: Any] {
-            map.keys.sorted()
-        } else {
-            []
-        }
-
-        let activities = try await encodedActivities.map(
-            failForEmptyCollection: true
-        ) {
-            try await Activity(from: $0)
-        }
-
-        let metadata = try await ConversationMetadata(from: encodedMetadata)
-        guard let participantMap = data[
-            Keys.participants.rawValue
-        ] as? [String: [String: Any]] else {
-            throw .Networking.decodingFailed(
-                data: data,
-                .init(sender: self)
-            )
-        }
-
-        var participants = [Participant]()
-        for (userID, values) in participantMap {
-            guard let hasDeletedConversation = values[
-                Participant.SerializableKey.hasDeletedConversation.rawValue
-            ] as? Bool,
-                let isTyping = values[
-                    Participant.SerializableKey.isTyping.rawValue
-                ] as? Bool else {
-                throw .Networking.decodingFailed(
-                    data: values,
-                    .init(sender: self)
+        observationTask.projectedValue.withValue {
+            if $0 != nil {
+                Logger.log(
+                    "Stopped observing conversation.",
+                    domain: .conversationObserver,
+                    sender: self
                 )
             }
 
-            participants.append(
-                Participant(
-                    userID: userID,
-                    hasDeletedConversation: hasDeletedConversation,
-                    isTyping: isTyping
-                )
-            )
+            $0?.cancel()
+            $0 = nil
         }
-
-        let reactionMetadata = try await encodedReactionMetadata.map(
-            failForEmptyCollection: true
-        ) {
-            try await ReactionMetadata(from: $0)
-        }
-
-        return Conversation(
-            ConversationID(
-                key: idKey,
-                hash: encodedHash
-            ),
-            activities: activities,
-            messageIDs: messageIDs.isBangQualifiedEmpty
-                ? .bangQualifiedEmpty
-                : messageIDs,
-            metadata: metadata,
-            participants: participants.sorted(by: { $0.userID < $1.userID }),
-            reactionMetadata: reactionMetadata.allSatisfy {
-                $0 == .empty
-            } ? nil : reactionMetadata
-        )
     }
+
+    // MARK: - Auxiliary
 
     private func handleSnapshot(
         _ data: [String: Any],
@@ -177,20 +90,14 @@ final class ConversationObserverService: @unchecked Sendable {
         }
 
         do throws(Exception) {
-            let conversation = try await decodeConversation(
-                from: data,
-                idKey: conversationIDKey
-            )
-
-            let existingMessageIDs = Set(
+            let conversation = try await Conversation(from: data)
+            let newMessageIDs = Set(
+                conversation.messageIDs
+            ).subtracting(Set(
                 sessionStore.getConversation(
                     idKey: conversationIDKey
                 )?.messageIDs ?? []
-            )
-
-            let newMessageIDs = Set(
-                conversation.messageIDs
-            ).subtracting(existingMessageIDs)
+            ))
 
             if !newMessageIDs.isEmpty {
                 try await conversation.resolveMessages(ids: newMessageIDs)
@@ -259,9 +166,13 @@ final class ConversationObserverService: @unchecked Sendable {
         guard !Task.isCancelled else { return }
 
         Logger.log(
-            "Retrying conversation observation after stream termination.",
-            domain: .conversationObserver,
-            sender: self
+            .init(
+                "Retrying conversation observation after stream termination.",
+                isReportable: false,
+                userInfo: ["ConversationIDKey": conversationIDKey],
+                metadata: .init(sender: self)
+            ),
+            domain: .conversationObserver
         )
 
         await observe(

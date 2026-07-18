@@ -53,7 +53,7 @@ final class SessionStoreInvalidationService {
 private extension SessionStoreInvalidationService {
     // MARK: - Types
 
-    enum TaskID: String {
+    private enum TaskID: String {
         case chatPageReload
         case conversationInvalidation
         case messageInvalidation
@@ -63,7 +63,7 @@ private extension SessionStoreInvalidationService {
 
     // MARK: - Methods
 
-    func handleChange(_ change: SessionStoreChange) {
+    private func handleChange(_ change: SessionStoreChange) {
         switch change {
         case let .conversations(upsertedIDKeys, removedIDKeys):
             handleConversationsChange(
@@ -83,7 +83,7 @@ private extension SessionStoreInvalidationService {
         reloadChatPageIfNeeded(for: change)
     }
 
-    func handleConversationsChange(
+    private func handleConversationsChange(
         upsertedIDKeys: Set<String>,
         removedIDKeys: Set<String>
     ) {
@@ -121,7 +121,7 @@ private extension SessionStoreInvalidationService {
         }
     }
 
-    func handleMessagesChange() {
+    private func handleMessagesChange() {
         Task.debounced(
             "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.messageInvalidation.rawValue)",
             delay: .milliseconds(250)
@@ -141,7 +141,7 @@ private extension SessionStoreInvalidationService {
         }
     }
 
-    func handleUsersChange(affectedIDs: Set<String>) {
+    private func handleUsersChange(affectedIDs: Set<String>) {
         pendingUserIDs.formUnion(affectedIDs)
 
         Task.debounced(
@@ -164,7 +164,7 @@ private extension SessionStoreInvalidationService {
         }
     }
 
-    func persistValuesForNotificationExtension() {
+    private func persistValuesForNotificationExtension() {
         let conversations = clientSession.store.conversations.values
         var conversationNameMap = [String: String]()
 
@@ -181,7 +181,7 @@ private extension SessionStoreInvalidationService {
         )
     }
 
-    func reloadChatPageIfNeeded(for change: SessionStoreChange) {
+    private func reloadChatPageIfNeeded(for change: SessionStoreChange) {
         guard chatPageState.isPresented,
               let currentConversation = clientSession
               .conversation
@@ -190,6 +190,8 @@ private extension SessionStoreInvalidationService {
         // Dismiss the chat page when the current conversation
         // is removed (e.g., deleted remotely by another
         // participant).
+
+        // TODO: This doesn't work. Investigate this path.
         if case let .conversations(_, removedIDKeys) = change,
            removedIDKeys.contains(currentConversation.id.key) {
             navigation.navigate(to: .userContent(.stack([])))

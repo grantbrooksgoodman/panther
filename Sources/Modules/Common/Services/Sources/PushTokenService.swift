@@ -42,18 +42,24 @@ final class PushTokenService {
         // token from every user that has it.
         var updates = [String: Any]()
         for (userID, value) in userData {
-            guard let userData = value as? [String: Any] else { continue }
-            let rawPushTokens = userData[User.SerializableKey.pushTokens.rawValue]
+            guard let userData = value as? [String: Any],
+                  let pushTokenMap = userData[
+                      User.SerializableKey.pushTokens.rawValue
+                  ] as? [String: Any],
+                  pushTokenMap[pushToken] != nil else { continue }
+
             let basePath = [
                 NetworkPath.users.rawValue,
                 userID,
                 User.SerializableKey.pushTokens.rawValue,
             ].joined(separator: "/")
 
-            if let map = rawPushTokens as? [String: Any],
-               map[pushToken] != nil {
-                updates["\(basePath)/\(pushToken)"] = NSNull()
-            }
+            updates[
+                [
+                    basePath,
+                    pushToken,
+                ].joined(separator: "/")
+            ] = NSNull()
         }
 
         guard !updates.isEmpty else { return }
@@ -105,21 +111,26 @@ final class PushTokenService {
 
         // Build a single fan-out that removes the current
         // user's tokens from all other users.
-        let currentTokenSet = Set(currentUserPushTokens)
         var updates = [String: Any]()
         for (userID, value) in userData where userID != currentUser.id {
-            guard let userData = value as? [String: Any] else { continue }
-            let rawPushTokens = userData[User.SerializableKey.pushTokens.rawValue]
+            guard let userData = value as? [String: Any],
+                  let pushTokenMap = userData[
+                      User.SerializableKey.pushTokens.rawValue
+                  ] as? [String: Any] else { continue }
+
             let basePath = [
                 NetworkPath.users.rawValue,
                 userID,
                 User.SerializableKey.pushTokens.rawValue,
             ].joined(separator: "/")
 
-            if let map = rawPushTokens as? [String: Any] {
-                for token in map.keys where currentTokenSet.contains(token) {
-                    updates["\(basePath)/\(token)"] = NSNull()
-                }
+            for token in pushTokenMap.keys where Set(currentUserPushTokens).contains(token) {
+                updates[
+                    [
+                        basePath,
+                        token,
+                    ].joined(separator: "/")
+                ] = NSNull()
             }
         }
 

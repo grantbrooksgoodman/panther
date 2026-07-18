@@ -123,7 +123,7 @@ enum Application {
         if UIDevice.isSimulator,
            hasRunOnce == nil {
             @Persistent(.init("breadcrumbsCaptureEnabled")) var breadcrumbsCaptureEnabled: Bool?
-            @Persistent(.init(".breadcrumbsCaptureSavesToPhotos")) var breadcrumbsCaptureSavesToPhotos: Bool?
+            @Persistent(.init("breadcrumbsCaptureSavesToPhotos")) var breadcrumbsCaptureSavesToPhotos: Bool?
 
             @Dependency(\.commonServices.breadcrumbsCapture) var breadcrumbsCaptureService: BreadcrumbsCaptureService
 

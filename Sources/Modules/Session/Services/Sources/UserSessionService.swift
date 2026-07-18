@@ -232,7 +232,13 @@ final class UserSessionService: @unchecked Sendable {
                 .init(
                     "Skipping update for already-known conversation versions.",
                     isReportable: false,
-                    userInfo: ["ChangedEntries": changedEntries],
+                    userInfo: changedEntries.reduce(
+                        into: [String: String]()
+                    ) { partialResult, entry in
+                        if let conversationID = ConversationID(entry) {
+                            partialResult[conversationID.key] = conversationID.hash
+                        }
+                    },
                     metadata: .init(sender: self)
                 ),
                 domain: .userSession
@@ -317,6 +323,10 @@ final class UserSessionService: @unchecked Sendable {
         for conversationID in conversationIDs {
             guard !Task.isCancelled else { return }
             if let value = clientSession.store.getConversation(
+                id: conversationID
+            ) {
+                decodedConversations.merge(with: [value])
+            } else if let value = clientSession.store.getConversation(
                 idKey: conversationID.key
             ) {
                 if SelfWriteRegistry.contains(conversationID) {
@@ -327,10 +337,6 @@ final class UserSessionService: @unchecked Sendable {
                 } else {
                     conversationsNeedingUpdate.insert(value)
                 }
-            } else if let value = clientSession.store.getConversation(
-                id: conversationID
-            ) {
-                decodedConversations.merge(with: [value])
             } else {
                 conversationsNeedingFetch.insert(conversationID)
             }
@@ -364,7 +370,7 @@ final class UserSessionService: @unchecked Sendable {
             }
         )
 
-        clientSession.store.clearStaleness(idKeys: updatedIDKeys)
+        clientSession.store.clearStaleConversations(idKeys: updatedIDKeys)
         guard !conversationsNeedingFetch.isEmpty else {
             return commitConversationsToMemory(decodedConversations)
         }

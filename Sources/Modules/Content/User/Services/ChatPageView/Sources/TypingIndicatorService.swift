@@ -61,17 +61,21 @@ final class TypingIndicatorService: @unchecked Sendable {
         }
     }
 
-    // MARK: - Init
+    // MARK: - Object Lifecycle
 
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
+        Task.delayed(by: .seconds(1)) { @MainActor in
+            checkForTypingIndicatorChanges()
+        }
+
         changeHandlerID = SessionStore.addChangeHandler { [weak self] change in
             guard let self else { return }
-            handleStoreChange(change)
+            Task.delayed(by: .seconds(1)) { @MainActor in
+                handleStoreChange(change)
+            }
         }
     }
-
-    // MARK: - Object Lifecycle
 
     deinit {
         if let changeHandlerID {

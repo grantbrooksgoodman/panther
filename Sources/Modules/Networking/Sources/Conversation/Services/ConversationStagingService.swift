@@ -385,19 +385,17 @@ struct ConversationStagingService {
         _ messageID: String,
         toConversationWithIDKey conversationIDKey: String
     ) async throws(Exception) {
-        let path = [
-            NetworkPath.conversations.rawValue,
-            conversationIDKey,
-            Conversation.SerializableKey.messages.rawValue,
-        ].joined(separator: "/")
-
-        var messageIDs: [String] = try await networking.database.getValues(at: path)
-        messageIDs.append(messageID)
-
-        try await networking.database.setValue(
-            messageIDs,
-            forKey: path
-        )
+        try await networking.database.runTransaction(
+            at: [
+                NetworkPath.conversations.rawValue,
+                conversationIDKey,
+                Conversation.SerializableKey.messages.rawValue,
+            ].joined(separator: "/")
+        ) { currentValue in
+            var messageIDs = (currentValue as? [String]) ?? []
+            messageIDs.append(messageID)
+            return messageIDs
+        }
     }
 
     private func archiveTranslation(

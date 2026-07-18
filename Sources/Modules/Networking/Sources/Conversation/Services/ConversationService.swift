@@ -70,23 +70,45 @@ struct ConversationService {
             $0.key != Conversation.SerializableKey.id.rawValue
         }
 
-        try await networking.database.updateChildValues(
-            forKey: "\(path)/\(id)",
-            with: data
-        )
-
         let conversationID: ConversationID = .init(
             key: mockConversation.id.key,
             hash: mockConversation.encodedHash
         )
 
-        try await participants.map {
-            try await addConversationToUser(
-                userID: $0.userID,
-                conversationID: conversationID
-            )
+        var updates: [String: Any] = [:]
+        for (key, value) in data {
+            updates[
+                [
+                    path,
+                    id,
+                    key,
+                ].joined(separator: "/")
+            ] = value
         }
 
+        for participant in participants {
+            updates[
+                [
+                    NetworkPath.users.rawValue,
+                    participant.userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                    conversationID.key,
+                ].joined(separator: "/")
+            ] = conversationID.hash
+        }
+
+        // The message node joins the same atomic fan-out;
+        // buildMessage leaves it unwritten on the send path.
+        updates[
+            [
+                NetworkPath.messages.rawValue,
+                firstMessage.id,
+            ].joined(separator: "/")
+        ] = firstMessage.encoded.filter {
+            $0.key != Message.SerializableKey.id.rawValue
+        }
+
+        try await networking.database.commit(updates)
         mockConversation = mockConversation.copying(id: conversationID)
         return mockConversation
     }
@@ -185,21 +207,5 @@ struct ConversationService {
         }
 
         try await networking.database.commit(updates)
-    }
-
-    // MARK: - Auxiliary
-
-    private func addConversationToUser(
-        userID: String,
-        conversationID: ConversationID
-    ) async throws(Exception) {
-        let path = [
-            NetworkPath.users.rawValue,
-            userID,
-            User.SerializableKey.conversationIDs.rawValue,
-            conversationID.key,
-        ].joined(separator: "/")
-
-        try await networking.database.commit([path: conversationID.hash])
     }
 }

@@ -28,21 +28,17 @@ extension CoreKit.Utilities {
     // MARK: - Methods
 
     func clearPreviousLanguageCodes() async throws(Exception) {
-        @Dependency(\.networking.database) var database: DatabaseDelegate
-        guard let currentUserID = User.currentUserID else {
+        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        guard let currentUser else {
             throw Exception(
-                "Current user ID has not been set.",
+                "Current user has not been set.",
                 metadata: .init(sender: self)
             )
         }
 
-        try await database.setValue(
-            Array.bangQualifiedEmpty,
-            forKey: [
-                NetworkPath.users.rawValue,
-                currentUserID,
-                User.SerializableKey.previousLanguageCodes.rawValue,
-            ].joined(separator: "/")
+        _ = try await currentUser.update(
+            \.previousLanguageCodes,
+            to: Array.bangQualifiedEmpty
         )
     }
 
@@ -170,28 +166,21 @@ extension CoreKit.Utilities {
             at: NetworkPath.users.rawValue
         )
 
-        let userIDs = Array(userData.keys)
-        let database = LockIsolated(networking.database)
-        try await userIDs.map { @Sendable in
-            try await database.wrappedValue.setValue(
-                [String.bangQualifiedEmpty],
-                forKey: [
+        var updates: [String: Any] = [:]
+        for userID in userData.keys {
+            // TODO: Audit this with new schema.
+            updates[
+                [
                     NetworkPath.users.rawValue,
-                    $0,
+                    userID,
                     User.SerializableKey.conversationIDs.rawValue,
                 ].joined(separator: "/")
-            )
+            ] = [String.bangQualifiedEmpty]
         }
 
-        for keyPath in [
-            NetworkPath.conversations.rawValue,
-            NetworkPath.messages.rawValue,
-        ] {
-            try await networking.database.setValue(
-                NSNull(),
-                forKey: keyPath
-            )
-        }
+        updates[NetworkPath.conversations.rawValue] = NSNull()
+        updates[NetworkPath.messages.rawValue] = NSNull()
+        try await networking.database.commit(updates)
 
         if await (try? networking.storage.itemExists(
             as: .directory,
@@ -226,6 +215,7 @@ extension CoreKit.Utilities {
         let userIDs = Array(userData.keys)
         let database = LockIsolated(networking.database)
         try await userIDs.map { @Sendable in
+            // TODO: Audit this with new schema.
             try await database.wrappedValue.setValue(
                 [String.bangQualifiedEmpty],
                 forKey: [

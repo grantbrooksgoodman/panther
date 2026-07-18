@@ -310,5 +310,7 @@ struct ModerationSessionService {
             \.blockedUserIDs,
             to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
         )
+
+        Observables.traitCollectionChanged.trigger()
     }
 }

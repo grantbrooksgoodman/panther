@@ -123,18 +123,12 @@ extension Conversation: RemotelyUpdatable {
 
         for (key, value) in updated.encoded where changedKeys.contains(key) {
             updates[
-                [
-                    conversationPath,
-                    key,
-                ].joined(separator: "/")
+                "\(conversationPath)/\(key)"
             ] = value
         }
 
         updates[
-            [
-                conversationPath,
-                SerializableKey.encodedHash.rawValue,
-            ].joined(separator: "/")
+            "\(conversationPath)/\(SerializableKey.encodedHash.rawValue)"
         ] = updated.id.hash
 
         updates.merge(
@@ -184,12 +178,11 @@ extension Conversation: RemotelyUpdatable {
         // participants (sending revives the conversation).
         let conversation = updateIDHash(
             updated.copying(
-                participants: participants.map { participant in
-                    let isCurrentUser = participant.userID == currentUserParticipant.userID
-                    return Participant(
-                        userID: participant.userID,
+                participants: participants.map {
+                    .init(
+                        userID: $0.userID,
                         hasDeletedConversation: false,
-                        isTyping: isCurrentUser ? false : participant.isTyping
+                        isTyping: $0.userID == currentUserParticipant.userID ? false : $0.isTyping
                     )
                 }
             )
@@ -201,19 +194,16 @@ extension Conversation: RemotelyUpdatable {
         // lastModifiedDate + user tokens.
         var updates = [String: Any]()
 
-        // Message RTDB nodes for truly-new messages.
+        // Update message data.
         for message in newMessages {
             updates[
-                [
-                    NetworkPath.messages.rawValue,
-                    message.id,
-                ].joined(separator: "/")
+                "\(message.id)/\(NetworkPath.messages.rawValue)"
             ] = message.encoded.filter {
                 $0.key != Message.SerializableKey.id.rawValue
             }
         }
 
-        // Conversation message index entries.
+        // Update message index entries in conversation.
         for newMessage in newMessages {
             updates[
                 [
@@ -236,6 +226,7 @@ extension Conversation: RemotelyUpdatable {
             ] = false
         }
 
+        // Reset typing status for current user.
         updates[
             [
                 conversationPath,
@@ -245,13 +236,12 @@ extension Conversation: RemotelyUpdatable {
             ].joined(separator: "/")
         ] = false
 
+        // Update conversation hash.
         updates[
-            [
-                conversationPath,
-                SerializableKey.encodedHash.rawValue,
-            ].joined(separator: "/")
+            "\(conversationPath)/\(SerializableKey.encodedHash.rawValue)"
         ] = conversation.id.hash
 
+        // Update last modified date.
         updates[
             [
                 conversationPath,
@@ -260,6 +250,7 @@ extension Conversation: RemotelyUpdatable {
             ].joined(separator: "/")
         ] = timestampDateFormatter.string(from: .now)
 
+        // Update participant data for conversation change.
         updates.merge(
             buildParticipantUpdates(for: conversation),
             uniquingKeysWith: { _, new in new }

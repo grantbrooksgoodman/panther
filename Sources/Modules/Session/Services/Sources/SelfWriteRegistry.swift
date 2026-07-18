@@ -22,7 +22,8 @@ enum SelfWriteRegistry {
 
     static func contains(_ conversationID: ConversationID) -> Bool {
         records.wrappedValue.contains {
-            !$0.isExpired && $0.conversationID == conversationID
+            $0.conversationID == conversationID &&
+                !$0.isExpired
         }
     }
 

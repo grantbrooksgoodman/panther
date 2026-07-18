@@ -34,8 +34,8 @@ struct SessionStore {
 
     static let shared = SessionStore()
 
-    private let currentEpoch = LockIsolated(UInt64(0))
     private let archiveState = LockIsolated(ArchiveState())
+    private let currentEpoch = LockIsolated(UInt64(0))
     private let staleConversationIDKeys = LockIsolated(Set<String>())
     private let state = LockIsolated(State())
 
@@ -198,8 +198,14 @@ struct SessionStore {
 
         var didChange = false
         state.projectedValue.withValue {
+            /* TODO: Audit whether this captures changes effectively.
+             May be worthwhile just to compare objects and accept duplicate
+             logs if it allows us to preserve state integrity.
+             */
             if let existingConversation = $0.conversations[conversation.id.key] {
-                didChange = existingConversation != conversation
+                didChange = !existingConversation.isTypingStatusEqual(
+                    to: conversation
+                ) || existingConversation.encodedHash != conversation.encodedHash
             } else {
                 didChange = true
             }
@@ -481,7 +487,7 @@ struct SessionStore {
 
     // MARK: - Staleness
 
-    func clearStaleness(idKeys: Set<String>) {
+    func clearStaleConversations(idKeys: Set<String>) {
         staleConversationIDKeys.projectedValue.withValue {
             $0.subtract(idKeys)
         }
@@ -512,6 +518,13 @@ extension SessionStore {
 
     static func removeChangeHandler(_ id: UUID) {
         changeHandlers.projectedValue.withValue { $0[id] = nil }
+    }
+}
+
+private extension Conversation {
+    func isTypingStatusEqual(to conversation: Conversation) -> Bool {
+        Set(participants.map(\.isTyping)) ==
+            Set(conversation.participants.map(\.isTyping))
     }
 }
 

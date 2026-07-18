@@ -129,19 +129,24 @@ struct ChangeLanguagePageViewService {
         loadedData.wrappedValue = true
         timeout.cancel()
 
-        _ = try await currentUser.update(
-            \.previousLanguageCodes,
-            to: newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes
-        )
+        let languageCodePath = [
+            NetworkPath.users.rawValue,
+            currentUserID,
+            User.SerializableKey.languageCode.rawValue,
+        ].joined(separator: "/")
 
-        try await database.setValue(
-            languageCode,
-            forKey: [
-                NetworkPath.users.rawValue,
-                currentUserID,
-                User.SerializableKey.languageCode.rawValue,
-            ].joined(separator: "/")
-        )
+        let previousLanguageCodesPath = [
+            NetworkPath.users.rawValue,
+            currentUserID,
+            User.SerializableKey.previousLanguageCodes.rawValue,
+        ].joined(separator: "/")
+
+        try await database.commit([
+            languageCodePath: languageCode,
+            previousLanguageCodesPath: newPreviousLanguageCodes.isEmpty
+                ? Array.bangQualifiedEmpty
+                : newPreviousLanguageCodes,
+        ])
 
         await MainActor.run {
             Application.reset(

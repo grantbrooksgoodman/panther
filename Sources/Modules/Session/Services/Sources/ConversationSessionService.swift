@@ -34,11 +34,10 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Properties
 
-    private(set) var displayedMessages: [Message] = []
+    @LockIsolated private(set) var displayedMessages = [Message]()
 
-    private var changeHandlerID: UUID?
-    private var currentConversationReference: CurrentConversationReference = .none
-    private var messageOffset = Floats.defaultMessageOffset
+    @LockIsolated private var currentConversationReference = CurrentConversationReference.none
+    @LockIsolated private var messageOffset = Floats.defaultMessageOffset
 
     // MARK: - Computed Properties
 
@@ -63,7 +62,7 @@ final class ConversationSessionService: @unchecked Sendable {
     // MARK: - Init
 
     init() {
-        changeHandlerID = SessionStore.addChangeHandler { [weak self] change in
+        SessionStore.addChangeHandler { [weak self] change in
             guard let self else { return }
             handleStoreChange(change)
         }
@@ -98,7 +97,6 @@ final class ConversationSessionService: @unchecked Sendable {
 
     func setCurrentConversation(_ conversation: Conversation?) {
         guard let conversation else { return clearPointer() }
-
         let previousReference = currentConversationReference
 
         if conversation.isEmpty || conversation.isMock {

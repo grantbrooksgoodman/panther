@@ -213,60 +213,54 @@ final class IntegrityService: @unchecked Sendable {
                 return Array(map.keys)
             }()
 
+            var cacheInvalidationUserIDs = [String]()
+            var updates: [String: Any] = [:]
+            for userID in usersReferencing(
+                conversationIDKey: conversationIDKey
+            ) {
+                updates[
+                    [
+                        NetworkPath.users.rawValue,
+                        userID,
+                        User.SerializableKey.conversationIDs.rawValue,
+                        conversationIDKey,
+                    ].joined(separator: "/")
+                ] = NSNull()
+
+                cacheInvalidationUserIDs.append(userID)
+            }
+
+            updates[
+                [
+                    NetworkPath.conversations.rawValue,
+                    conversationIDKey,
+                ].joined(separator: "/")
+            ] = NSNull()
+
+            for messageID in conversationMessageIDs {
+                updates[
+                    [
+                        NetworkPath.messages.rawValue,
+                        messageID,
+                    ].joined(separator: "/")
+                ] = NSNull()
+            }
+
+            do {
+                try await networking.database.commit(updates)
+            } catch {
+                exceptions.append(error)
+            }
+
             await withTaskGroup(
                 of: Exception?.self
             ) { taskGroup in
-                for userID in usersReferencing(conversationIDKey: conversationIDKey) {
-                    taskGroup.addTask {
-                        do throws(Exception) {
-                            let path = [
-                                NetworkPath.users.rawValue,
-                                userID,
-                                User.SerializableKey.conversationIDs.rawValue,
-                                conversationIDKey,
-                            ].joined(separator: "/")
-
-                            try await self.networking.database.commit([path: NSNull()])
-                        } catch {
-                            return error
-                        }
-
-                        return nil
-                    }
-
+                for userID in cacheInvalidationUserIDs {
                     taskGroup.addTask {
                         do throws(Exception) {
                             try await self.remoteCacheService.setCacheStatus(
                                 .invalid,
                                 userID: userID
-                            )
-                        } catch {
-                            return error
-                        }
-
-                        return nil
-                    }
-                }
-
-                taskGroup.addTask {
-                    do throws(Exception) {
-                        try await self.networking.database.setValue(
-                            NSNull(),
-                            forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)"
-                        )
-                    } catch {
-                        return error
-                    }
-
-                    return nil
-                }
-
-                for messageID in conversationMessageIDs {
-                    taskGroup.addTask {
-                        do throws(Exception) {
-                            try await self.networking.database.setValue(
-                                NSNull(),
-                                forKey: "\(NetworkPath.messages.rawValue)/\(messageID)"
                             )
                         } catch {
                             return error
@@ -586,77 +580,78 @@ final class IntegrityService: @unchecked Sendable {
 
         await withTaskGroup(
             of: (
-                tookAction: Bool,
+                contentTypeKeyPath: String?,
                 exceptions: [Exception]
             ).self
         ) { taskGroup in
             for (key, translationReferenceStrings) in audioMessages {
                 taskGroup.addTask {
                     var taskExceptions = [Exception]()
-                    var taskTookAction = false
+                    var needsUpdate = false
 
                     let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(key).\(MediaFileExtension.audio(.m4a).rawValue)"
-                    let contentTypeKeyPath = [
-                        NetworkPath.messages.rawValue,
-                        key,
-                        Message.SerializableKey.contentType.rawValue,
-                    ].joined(separator: "/")
 
                     do throws(Exception) {
                         let itemExists = try await self.networking.storage.itemExists(at: inputFilePath)
                         if !itemExists {
-                            taskTookAction = true
-                            do throws(Exception) {
-                                try await self.networking.database.setValue(
-                                    HostedContentType.text.rawValue,
-                                    forKey: contentTypeKeyPath
-                                )
-                            } catch {
-                                taskExceptions.append(error)
-                            }
+                            needsUpdate = true
                         }
                     } catch {
                         taskExceptions.append(error)
                     }
 
-                    for translationReferenceString in translationReferenceStrings {
-                        guard let reference: TranslationReference = .init(translationReferenceString),
-                              !reference.languagePair.isIdempotent else { continue }
+                    if !needsUpdate {
+                        for translationReferenceString in translationReferenceStrings {
+                            guard let reference: TranslationReference = .init(translationReferenceString),
+                                  !reference.languagePair.isIdempotent else { continue }
 
-                        let outputFilePath = [
-                            NetworkPath.audioTranslations.rawValue,
-                            reference.hostingKey,
-                            "\(reference.languagePair.to)-\(AudioService.FileNames.outputM4A)",
-                        ].joined(separator: "/")
-
-                        do throws(Exception) {
-                            let itemExists = try await self.networking.storage.itemExists(at: outputFilePath)
-                            guard !itemExists else { continue }
-                            taskTookAction = true
+                            let outputFilePath = [
+                                NetworkPath.audioTranslations.rawValue,
+                                reference.hostingKey,
+                                "\(reference.languagePair.to)-\(AudioService.FileNames.outputM4A)",
+                            ].joined(separator: "/")
 
                             do throws(Exception) {
-                                try await self.networking.database.setValue(
-                                    HostedContentType.text.rawValue,
-                                    forKey: contentTypeKeyPath
-                                )
+                                let itemExists = try await self.networking.storage.itemExists(at: outputFilePath)
+                                guard !itemExists else { continue }
+                                needsUpdate = true
+                                break
                             } catch {
                                 taskExceptions.append(error)
                             }
-                        } catch {
-                            taskExceptions.append(error)
                         }
                     }
 
-                    return (taskTookAction, taskExceptions)
+                    let contentTypeKeyPath: String? = if needsUpdate {
+                        [
+                            NetworkPath.messages.rawValue,
+                            key,
+                            Message.SerializableKey.contentType.rawValue,
+                        ].joined(separator: "/")
+                    } else {
+                        nil
+                    }
+
+                    return (contentTypeKeyPath, taskExceptions)
                 }
             }
 
+            var updates: [String: Any] = [:]
             for await result in taskGroup {
-                if result.tookAction {
-                    tookAction = true
+                if let path = result.contentTypeKeyPath {
+                    updates[path] = HostedContentType.text.rawValue
                 }
 
                 exceptions.append(contentsOf: result.exceptions)
+            }
+
+            if !updates.isEmpty {
+                tookAction = true
+                do throws(Exception) {
+                    try await networking.database.commit(updates)
+                } catch {
+                    exceptions.append(error)
+                }
             }
         }
 
@@ -800,17 +795,17 @@ final class IntegrityService: @unchecked Sendable {
         guard !malformedMessageIDs.isEmpty else { return (false, nil) }
         var exceptions = [Exception]()
 
-        do {
-            try await malformedTranslationPaths.map(
-                failFast: false
-            ) {
-                try await self.networking.database.setValue(
-                    NSNull(),
-                    forKey: $0
-                )
+        if !malformedTranslationPaths.isEmpty {
+            var updates: [String: Any] = [:]
+            for path in malformedTranslationPaths {
+                updates[path] = NSNull()
             }
-        } catch {
-            exceptions.append(error)
+
+            do {
+                try await networking.database.commit(updates)
+            } catch {
+                exceptions.append(error)
+            }
         }
 
         let repairMalformedMessagesResult = await repairMalformedMessages(malformedMessageIDs)
@@ -986,35 +981,48 @@ final class IntegrityService: @unchecked Sendable {
     private func resetHash(
         conversationIDKey: String
     ) async throws(Exception) {
-        var exceptions = [Exception]()
+        var cacheInvalidationUserIDs = [String]()
+        var updates: [String: Any] = [:]
+        for userID in usersReferencing(
+            conversationIDKey: conversationIDKey
+        ) {
+            guard let dictionary = session.userData[userID] as? [String: Any],
+                  dictionary[
+                      User.SerializableKey.conversationIDs.rawValue
+                  ] is [String: Any] else { continue }
 
-        await withTaskGroup(
-            of: Exception?.self
-        ) { taskGroup in
-            for userID in usersReferencing(conversationIDKey: conversationIDKey) {
-                guard let dictionary = session.userData[userID] as? [String: Any],
-                      let rawIDs = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String: Any] else { continue }
-
-                let path = [
+            updates[
+                [
                     NetworkPath.users.rawValue,
                     userID,
                     User.SerializableKey.conversationIDs.rawValue,
                     conversationIDKey,
                 ].joined(separator: "/")
+            ] = String.bangQualifiedEmpty
 
-                taskGroup.addTask {
-                    do throws(Exception) {
-                        try await self.networking.database.setValue(
-                            String.bangQualifiedEmpty,
-                            forKey: path
-                        )
-                    } catch {
-                        return error
-                    }
+            cacheInvalidationUserIDs.append(userID)
+        }
 
-                    return nil
-                }
+        updates[
+            [
+                NetworkPath.conversations.rawValue,
+                conversationIDKey,
+                Conversation.SerializableKey.encodedHash.rawValue,
+            ].joined(separator: "/")
+        ] = String.bangQualifiedEmpty
 
+        var exceptions = [Exception]()
+
+        do {
+            try await networking.database.commit(updates)
+        } catch {
+            exceptions.append(error)
+        }
+
+        await withTaskGroup(
+            of: Exception?.self
+        ) { taskGroup in
+            for userID in cacheInvalidationUserIDs {
                 taskGroup.addTask {
                     do throws(Exception) {
                         try await self.remoteCacheService.setCacheStatus(
@@ -1027,23 +1035,6 @@ final class IntegrityService: @unchecked Sendable {
 
                     return nil
                 }
-            }
-
-            taskGroup.addTask {
-                do throws(Exception) {
-                    try await self.networking.database.setValue(
-                        String.bangQualifiedEmpty,
-                        forKey: [
-                            NetworkPath.conversations.rawValue,
-                            conversationIDKey,
-                            Conversation.SerializableKey.encodedHash.rawValue,
-                        ].joined(separator: "/")
-                    )
-                } catch {
-                    return error
-                }
-
-                return nil
             }
 
             for await exception in taskGroup {
