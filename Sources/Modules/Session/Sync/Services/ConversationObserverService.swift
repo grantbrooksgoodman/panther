@@ -14,6 +14,14 @@ import AppSubsystem
 import Networking
 
 struct ConversationObserverService {
+    // MARK: - Types
+
+    private struct ObservationState {
+        let conversationIDKey: String
+        let generation: UUID
+        let task: Task<Void, Never>
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.networking) private var networking: NetworkServices
@@ -21,16 +29,23 @@ struct ConversationObserverService {
 
     // MARK: - Properties
 
-    private let observationTask: LockIsolated<Task<Void, Never>?> = .init(nil)
+    private let observationState: LockIsolated<ObservationState?> = .init(nil)
 
     // MARK: - Observation
+
+    /// Whether the observation stream for the given conversation
+    /// is live or inside its single retry window. Returns `false`
+    /// once the stream has permanently ended, at which point the
+    /// user-node pipeline resumes responsibility.
+    func isActivelyObserving(_ conversationIDKey: String) -> Bool {
+        observationState.wrappedValue?.conversationIDKey == conversationIDKey
+    }
 
     func startObserving(
         conversationIDKey: String
     ) {
-        observationTask.projectedValue.withValue {
-            $0?.cancel()
-            $0 = nil
+        observationState.projectedValue.withValue {
+            $0?.task.cancel()
 
             Logger.log(
                 .init(
@@ -42,17 +57,27 @@ struct ConversationObserverService {
                 domain: .conversationObserver
             )
 
-            $0 = Task {
-                await observe(
-                    conversationIDKey: conversationIDKey,
-                    isRetry: false
-                )
-            }
+            let generation = UUID()
+            $0 = .init(
+                conversationIDKey: conversationIDKey,
+                generation: generation,
+                task: Task {
+                    await observe(
+                        conversationIDKey: conversationIDKey,
+                        isRetry: false
+                    )
+
+                    observationState.projectedValue.withValue { state in
+                        guard state?.generation == generation else { return }
+                        state = nil
+                    }
+                }
+            )
         }
     }
 
     func stopObserving() {
-        observationTask.projectedValue.withValue {
+        observationState.projectedValue.withValue {
             if $0 != nil {
                 Logger.log(
                     "Stopped observing conversation.",
@@ -61,7 +86,7 @@ struct ConversationObserverService {
                 )
             }
 
-            $0?.cancel()
+            $0?.task.cancel()
             $0 = nil
         }
     }
@@ -104,6 +129,21 @@ struct ConversationObserverService {
             }
 
             sessionStore.upsertConversation(conversation)
+
+            // Backfill users for any participants not yet in the
+            // session store. The user-node pipeline normally
+            // handles this via resolveUsersOnCurrentUserConversations,
+            // but the observer guard makes that path skip this
+            // conversation.
+            let participantUserIDs = conversation.participants
+                .map(\.userID)
+                .filter { $0 != User.currentUserID }
+
+            if participantUserIDs.contains(where: {
+                sessionStore.users[$0] == nil
+            }) {
+                try await conversation.resolveUsers()
+            }
         } catch {
             Logger.log(
                 .init(

@@ -17,12 +17,9 @@ final class UICacheInvalidationService {
     // MARK: - Dependencies
 
     @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
-    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
-    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
-    @Dependency(\.navigation) private var navigation: Navigation
 
     // MARK: - Properties
 
@@ -54,7 +51,6 @@ private extension UICacheInvalidationService {
     // MARK: - Types
 
     private enum TaskID: String {
-        case chatPageReload
         case conversationInvalidation
         case messageInvalidation
         case notificationExtensionNameMap
@@ -79,8 +75,6 @@ private extension UICacheInvalidationService {
                 affectedIDs: upsertedIDs.union(removedIDs)
             )
         }
-
-        reloadChatPageIfNeeded(for: change)
     }
 
     private func handleConversationsChange(
@@ -179,53 +173,6 @@ private extension UICacheInvalidationService {
             encoded,
             forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName
         )
-    }
-
-    private func reloadChatPageIfNeeded(for change: SessionStoreChange) {
-        guard chatPageState.isPresented,
-              let currentConversation = clientSession
-              .entity
-              .conversation
-              .currentConversation else { return }
-
-        // Dismiss the chat page when the current conversation
-        // is removed (e.g., deleted remotely by another
-        // participant).
-
-        // TODO: This doesn't work. Investigate this path.
-        if case let .conversations(_, removedIDKeys) = change,
-           removedIDKeys.contains(currentConversation.id.key) {
-            navigation.navigate(to: .userContent(.stack([])))
-            Toast.show(
-                .init(
-                    .banner(style: .info),
-                    message: "This conversation is no longer available."
-                ),
-                translating: Toast.TranslationOptionKey.allCases
-            )
-
-            return
-        }
-
-        let shouldReload: Bool = switch change {
-        case let .conversations(upsertedIDKeys, _):
-            upsertedIDKeys.contains(currentConversation.id.key)
-
-        case let .messages(upsertedIDs, removedIDs):
-            !Set(currentConversation.messageIDs)
-                .isDisjoint(with: upsertedIDs.union(removedIDs))
-
-        case .users:
-            false
-        }
-
-        guard shouldReload else { return }
-        Task.debounced(
-            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.chatPageReload.rawValue)",
-            delay: .milliseconds(250)
-        ) { @MainActor [weak self] in
-            self?.chatPageViewService.reloadCollectionView()
-        }
     }
 }
 

@@ -31,9 +31,10 @@ final class UserSessionService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.build.isOnline) private var isOnline: Bool
+    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
+    @Dependency(\.clientSession.sync.conversationObserver) private var conversationObserver: ConversationObserverService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
-    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
     @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
@@ -252,14 +253,17 @@ final class UserSessionService: @unchecked Sendable {
     }
 
     /// A conversation version is "known" when the session
-    /// store already holds it, or when this client wrote it
-    /// and the store is still settling. Known versions never
-    /// require ingestion.
+    /// store already holds it, when this client wrote it and
+    /// the store is still settling, or when the conversation-
+    /// node observer is actively streaming it (the observer
+    /// pipeline owns delivery of its updates). Known versions
+    /// never require ingestion.
     private func isKnownVersion(
         _ conversationID: ConversationID
     ) -> Bool {
         sessionStore.getConversation(id: conversationID) != nil ||
-            SelfWriteRegistry.contains(conversationID)
+            SelfWriteRegistry.contains(conversationID) ||
+            conversationObserver.isActivelyObserving(conversationID.key)
     }
 
     private func lastSignedInDateDidChange(_ dictionary: [String: Any]) -> Bool {
@@ -330,10 +334,10 @@ final class UserSessionService: @unchecked Sendable {
             } else if let value = sessionStore.getConversation(
                 idKey: conversationID.key
             ) {
-                if SelfWriteRegistry.contains(conversationID) {
-                    // Self-written hash: the store settles
-                    // via Conversation.didWrite; no network
-                    // sync needed.
+                if SelfWriteRegistry.contains(conversationID) ||
+                    conversationObserver.isActivelyObserving(conversationID.key) {
+                    // Self-written or actively observed: the owning
+                    // pipeline settles the store; no network sync needed.
                     decodedConversations.merge(with: [value])
                 } else {
                     conversationsNeedingUpdate.insert(value)

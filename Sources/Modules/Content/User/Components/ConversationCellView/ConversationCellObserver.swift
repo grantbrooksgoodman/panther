@@ -20,7 +20,7 @@ struct ConversationCellObserver: Observer {
     // MARK: - Types
 
     private enum TaskID: String {
-        case refreshCellData
+        case reloadData
     }
 
     // MARK: - Properties
@@ -47,10 +47,10 @@ struct ConversationCellObserver: Observer {
 
             @MainActorIsolated var conversationIDKey = viewModel.conversation.id.key
             Task.debounced(
-                "\(String.fromCurrentEditorContext(sender: self))/\(conversationIDKey)/\(TaskID.refreshCellData.rawValue)",
+                "\(String.fromCurrentEditorContext(sender: self))/\(conversationIDKey)/\(TaskID.reloadData.rawValue)",
                 delay: .milliseconds(250)
             ) { @MainActor in
-                send(.refreshCellData)
+                send(.reloadData)
             }
 
         default: ()
