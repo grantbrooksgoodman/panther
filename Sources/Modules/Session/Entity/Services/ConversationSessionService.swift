@@ -13,6 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 final class ConversationSessionService: @unchecked Sendable {
     // MARK: - Constants Accessors
 
@@ -28,9 +29,9 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.sync.conversationObserver) private var conversationObserver: ConversationObserverService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
 
     // MARK: - Properties
 
@@ -44,7 +45,7 @@ final class ConversationSessionService: @unchecked Sendable {
     var currentConversation: Conversation? {
         switch currentConversationReference {
         case let .draft(conversation): conversation
-        case let .stored(idKey): sessionStore.getConversation(idKey: idKey)
+        case let .stored(idKey): clientSession.store.getConversation(idKey: idKey)
         case .none: nil
         }
     }
@@ -104,15 +105,18 @@ final class ConversationSessionService: @unchecked Sendable {
             currentConversationReference = .draft(conversation)
         } else {
             // Ensures the store contains the conversation before setting the pointer.
-            sessionStore.upsertConversation(conversation)
+            clientSession.store.upsertConversation(conversation)
             currentConversationReference = .stored(idKey: conversation.id.key)
 
             // First send in a new chat: start observing
             // now that the conversation is stored.
             if case .draft = previousReference {
-                conversationObserver.startObserving(
-                    conversationIDKey: conversation.id.key
-                )
+                clientSession
+                    .sync
+                    .conversationObserver
+                    .startObserving(
+                        conversationIDKey: conversation.id.key
+                    )
             }
         }
 
@@ -200,7 +204,7 @@ final class ConversationSessionService: @unchecked Sendable {
     // MARK: - Auxiliary
 
     private func clearPointer() {
-        conversationObserver.stopObserving()
+        clientSession.sync.conversationObserver.stopObserving()
         currentConversationReference = .none
         displayedMessages = []
     }
@@ -220,6 +224,20 @@ final class ConversationSessionService: @unchecked Sendable {
                     ),
                     domain: .conversation
                 )
+
+                // Dismiss the chat page when the current conversation
+                // is removed (e.g., deleted remotely by another
+                // participant).
+                Task { @MainActor in
+                    navigation.navigate(to: .userContent(.stack([])))
+                    Toast.show(
+                        .init(
+                            .banner(style: .info),
+                            message: "This conversation is no longer available."
+                        ),
+                        translating: Toast.TranslationOptionKey.allCases
+                    )
+                }
 
                 return clearPointer()
             }
@@ -296,7 +314,7 @@ final class ConversationSessionService: @unchecked Sendable {
         try await networking.database.commit(updates)
 
         // Upsert the updated conversation to the session store.
-        sessionStore.upsertConversation(
+        clientSession.store.upsertConversation(
             updatedConversation.copying(
                 id: .init(
                     key: conversation.id.key,

@@ -30,25 +30,6 @@ extension ChatPageViewService {
             .conversation
             .currentConversation else { return }
 
-        // Dismiss the chat page when the current conversation
-        // is removed (e.g., deleted remotely by another
-        // participant).
-
-        // TODO: This doesn't work. Investigate this path.
-        if case let .conversations(_, removedIDKeys) = change,
-           removedIDKeys.contains(currentConversation.id.key) {
-            navigation.navigate(to: .userContent(.stack([])))
-            Toast.show(
-                .init(
-                    .banner(style: .info),
-                    message: "This conversation is no longer available."
-                ),
-                translating: Toast.TranslationOptionKey.allCases
-            )
-
-            return
-        }
-
         let shouldReload: Bool = switch change {
         case let .conversations(upsertedIDKeys, _):
             upsertedIDKeys.contains(currentConversation.id.key)
