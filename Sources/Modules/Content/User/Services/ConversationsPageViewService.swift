@@ -316,7 +316,6 @@ final class ConversationsPageViewService {
                 }
             }
 
-            // Local hash/messageID modification to force re-fetch; no remote write.
             conversationsToReload.forEach { $0.markStaleLocally() }
         }
 

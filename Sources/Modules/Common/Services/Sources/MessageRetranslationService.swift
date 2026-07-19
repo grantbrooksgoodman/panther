@@ -26,6 +26,7 @@ struct MessageRetranslationService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.conversationsPageViewService) private var conversationsPageViewService: ConversationsPageViewService
     @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
+    @Dependency(\.networking.database) private var database: DatabaseDelegate
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.languageRecognitionService) private var languageRecognitionService: LanguageRecognitionService
     @Dependency(\.translationArchiverDelegate) private var localTranslationArchiver: TranslationArchiverDelegate
@@ -110,8 +111,8 @@ struct MessageRetranslationService {
                     targetLanguageCode: targetLanguageCode
                 ) else { continue }
 
-                @Dependency(\.networking.database) var database: DatabaseDelegate
-                try await database.updateChildValues(
+                let database = LockIsolated(database)
+                try await database.wrappedValue.updateChildValues(
                     forKey: "\(NetworkPath.translations.rawValue)/\(translation.languagePair.string)",
                     with: [
                         translation.reference.type.key: "\(translation.input.value.alphaEncoded)–\(newTranslation.output.alphaEncoded)",

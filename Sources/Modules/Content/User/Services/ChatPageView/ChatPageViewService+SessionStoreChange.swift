@@ -22,13 +22,9 @@ extension ChatPageViewService {
     // MARK: - Handle Session Store Change
 
     func handleSessionStoreChange(_ change: SessionStoreChange) {
-        @Dependency(\.clientSession) var clientSession: ClientSession
-        @Dependency(\.navigation) var navigation: Navigation
+        @Dependency(\.clientSession.entity.conversation.currentConversation) var currentConversation: Conversation?
 
-        guard let currentConversation = clientSession
-            .entity
-            .conversation
-            .currentConversation else { return }
+        guard let currentConversation else { return }
 
         let shouldReload: Bool = switch change {
         case let .conversations(upsertedIDKeys, _):

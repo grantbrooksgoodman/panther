@@ -30,9 +30,8 @@ final class UserSessionService: @unchecked Sendable {
 
     // MARK: - Dependencies
 
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.build.isOnline) private var isOnline: Bool
-    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
-    @Dependency(\.clientSession.sync.conversationObserver) private var conversationObserver: ConversationObserverService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
     @Dependency(\.userStorageService) private var userStorageService: UserStorageService
@@ -43,15 +42,16 @@ final class UserSessionService: @unchecked Sendable {
     private static let messageCoalescer = SingleSlotCoalescer<Void>()
     private static let userCoalescer = SingleSlotCoalescer<Void>()
 
+    private let observationTask: LockIsolated<Task<Void, Never>?> = .init(nil)
+
     @Persistent(.currentUserID) private var currentUserID: String?
-    private var observationTask: Task<Void, Never>?
     @LockIsolated private var updateState: UpdateState = .idle
 
     // MARK: - Computed Properties
 
     var currentUser: User? {
         guard let currentUserID else { return nil }
-        return sessionStore.users[currentUserID]
+        return clientSession.store.users[currentUserID]
     }
 
     // MARK: - Resolve Current User
@@ -116,59 +116,61 @@ final class UserSessionService: @unchecked Sendable {
 
     func startObservingCurrentUserChanges() {
         guard let currentUserID = currentUser?.id else { return }
-        observationTask?.cancel()
-        observationTask = nil
+        observationTask.projectedValue.withValue {
+            $0?.cancel()
+            $0 = Task {
+                do {
+                    Logger.log(
+                        "Started observing current user changes.",
+                        domain: .userSession,
+                        sender: self
+                    )
 
-        Logger.log(
-            "Started observing current user changes.",
-            domain: .userSession,
-            sender: self
-        )
-
-        observationTask = Task {
-            do {
-                for try await dictionary: [String: Any] in networking.database.observe(
-                    path: [
-                        NetworkPath.users.rawValue,
-                        currentUserID,
-                    ].joined(separator: "/")
-                ) {
-                    if blockedUserIDsDidChange(dictionary) ||
-                        conversationsDidChange(dictionary) {
-                        updateCurrentUser()
-                    } else if lastSignedInDateDidChange(dictionary) {
-                        signOutToPreserveSingleActiveUser()
-                    } else {
-                        Logger.log(
-                            "Skipping current user update as relevant values do not appear to have changed.",
-                            domain: .userSession,
-                            sender: self
-                        )
+                    for try await dictionary: [String: Any] in networking.database.observe(
+                        path: [
+                            NetworkPath.users.rawValue,
+                            currentUserID,
+                        ].joined(separator: "/")
+                    ) {
+                        if blockedUserIDsDidChange(dictionary) ||
+                            conversationsDidChange(dictionary) {
+                            updateCurrentUser()
+                        } else if lastSignedInDateDidChange(dictionary) {
+                            signOutToPreserveSingleActiveUser()
+                        } else {
+                            Logger.log(
+                                "Skipping current user update as relevant values do not appear to have changed.",
+                                domain: .userSession,
+                                sender: self
+                            )
+                        }
                     }
+                } catch {
+                    Logger.log(
+                        .init(
+                            error,
+                            metadata: .init(sender: self)
+                        ),
+                        domain: .userSession
+                    )
                 }
-            } catch {
-                Logger.log(
-                    .init(
-                        error,
-                        metadata: .init(sender: self)
-                    ),
-                    domain: .userSession
-                )
             }
         }
     }
 
     func stopObservingCurrentUserChanges() {
-        if observationTask != nil {
-            Logger.log(
-                "Stopped observing current user changes.",
-                domain: .userSession,
-                sender: self
-            )
-        }
+        observationTask.projectedValue.withValue {
+            if $0 != nil {
+                Logger.log(
+                    "Stopped observing current user changes.",
+                    domain: .userSession,
+                    sender: self
+                )
+            }
 
-        observationTask?.cancel()
-        observationTask = nil
+            $0?.cancel()
+            $0 = nil
+        }
     }
 
     // MARK: - Auxiliary
@@ -190,7 +192,7 @@ final class UserSessionService: @unchecked Sendable {
     ) {
         guard !Task.isCancelled else { return }
         // Resolved from archive or network; bypasses RemotelyUpdatable.update.
-        sessionStore.upsertConversations(conversations)
+        clientSession.store.upsertConversations(conversations)
     }
 
     private func conversationsDidChange(_ dictionary: [String: Any]) -> Bool {
@@ -225,7 +227,7 @@ final class UserSessionService: @unchecked Sendable {
         }
 
         for idKey in removedIDKeys {
-            sessionStore.removeConversation(idKey: idKey)
+            clientSession.store.removeConversation(idKey: idKey)
         }
 
         guard currentConversationIDStrings != updatedConversationIDStrings else { return false }
@@ -282,9 +284,9 @@ final class UserSessionService: @unchecked Sendable {
     private func isKnownVersion(
         _ conversationID: ConversationID
     ) -> Bool {
-        sessionStore.getConversation(id: conversationID) != nil ||
+        clientSession.store.getConversation(id: conversationID) != nil ||
             SelfWriteRegistry.contains(conversationID) ||
-            conversationObserver.isActivelyObserving(conversationID.key)
+            clientSession.sync.conversationObserver.isActivelyObserving(conversationID.key)
     }
 
     private func lastSignedInDateDidChange(_ dictionary: [String: Any]) -> Bool {
@@ -312,7 +314,7 @@ final class UserSessionService: @unchecked Sendable {
         }
 
         // Fetched from server; bypasses RemotelyUpdatable.update.
-        try await sessionStore.upsertUser(
+        try await clientSession.store.upsertUser(
             networking.userService.getUser(
                 id: currentUserID
             )
@@ -343,20 +345,23 @@ final class UserSessionService: @unchecked Sendable {
         var conversationsNeedingUpdate = Set<Conversation>()
         var decodedConversations = Set<Conversation>()
 
-        let ignoredConversationIDKeys = sessionStore.ignoredConversationIDKeys
+        let ignoredConversationIDKeys = clientSession.store.ignoredConversationIDKeys
         conversationIDs = conversationIDs.filter { !ignoredConversationIDKeys.contains($0.key) }
 
         for conversationID in conversationIDs {
             guard !Task.isCancelled else { return }
-            if let value = sessionStore.getConversation(
+            if let value = clientSession.store.getConversation(
                 id: conversationID
             ) {
                 decodedConversations.merge(with: [value])
-            } else if let value = sessionStore.getConversation(
+            } else if let value = clientSession.store.getConversation(
                 idKey: conversationID.key
             ) {
                 if SelfWriteRegistry.contains(conversationID) ||
-                    conversationObserver.isActivelyObserving(conversationID.key) {
+                    clientSession
+                    .sync
+                    .conversationObserver
+                    .isActivelyObserving(conversationID.key) {
                     // Self-written or actively observed: the owning
                     // pipeline settles the store; no network sync needed.
                     decodedConversations.merge(with: [value])

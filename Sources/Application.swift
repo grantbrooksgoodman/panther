@@ -14,6 +14,9 @@ import UIKit
 import AppSubsystem
 import Networking
 
+/* 3rd-party */
+import MessageKit
+
 /// The app's bootstrap configuration.
 ///
 /// `Application` centralizes the two-step process required to
@@ -144,8 +147,9 @@ enum Application {
             ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
         }
 
-        /* MARK: UIViewController Swizzling */
+        /* MARK: Swizzling */
 
+        MessageContentCell.swizzleApply
         UIViewController.swizzlePresent
         UIViewController.swizzleViewWillDisappear
     }

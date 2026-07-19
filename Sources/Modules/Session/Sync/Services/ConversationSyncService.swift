@@ -410,7 +410,8 @@ final class ConversationSyncService: @unchecked Sendable {
 
     // swiftlint:disable:next function_body_length
     private func _synchronizeConversation(
-        _ conversation: Conversation
+        _ conversation: Conversation,
+        hasResolvedMessages: Bool = false
     ) async throws(Exception) -> Conversation {
         let userInfo: [String: Any] = [
             "ConversationIDHash": conversation.id.hash,
@@ -461,17 +462,39 @@ final class ConversationSyncService: @unchecked Sendable {
         guard let currentMessages = conversation
             .messages?
             .uniquedByID else {
-            do {
+            do throws(Exception) {
                 try await conversation.resolveMessages()
+
+                let reconciled = clientSession.store.conversations[
+                    conversation.id.key
+                ] ?? conversation
+
                 syncData = .init(
-                    conversation,
-                    messages: conversation
+                    reconciled,
+                    messages: reconciled
                         .messages?
                         .uniquedByID ?? [],
                     newData: syncData?.newData ?? [:]
                 )
 
-                return try await _synchronizeConversation(conversation)
+                guard !hasResolvedMessages else {
+                    let exception = Exception(
+                        "Messages could not be fully resolved after reconciliation.",
+                        metadata: .init(sender: self)
+                    ).appending(userInfo: userInfo)
+
+                    Logger.log(
+                        exception,
+                        domain: .conversationSync
+                    )
+
+                    throw exception
+                }
+
+                return try await _synchronizeConversation(
+                    reconciled,
+                    hasResolvedMessages: true
+                )
             } catch {
                 self.syncData = nil
                 throw error.appending(userInfo: userInfo)
@@ -479,7 +502,6 @@ final class ConversationSyncService: @unchecked Sendable {
         }
 
         guard let syncData else {
-            syncData = nil
             throw Exception(
                 "Failed to resolve current sync data.",
                 metadata: .init(sender: self)
