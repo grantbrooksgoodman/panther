@@ -177,8 +177,13 @@ final class ChatPageViewService {
         }
 
         if sessionStoreChangeHandlerID == nil {
-            sessionStoreChangeHandlerID = SessionStore.addChangeHandler { [weak self] change in
-                self?.handleSessionStoreChange(change)
+            sessionStoreChangeHandlerID = SessionStore.addChangeHandler(
+                for: [
+                    .conversations,
+                    .messages,
+                ]
+            ) { [weak self] in
+                self?.handleSessionStoreChange($0)
             }
         }
 
@@ -263,7 +268,7 @@ final class ChatPageViewService {
             }
 
             // Clear the pointer only when the page is truly
-            // being dismissed — not when covered by a sheet
+            // being dismissed – not when covered by a sheet
             // or preview.
             if !chatPageState.isPresented,
                configuration != .preview {

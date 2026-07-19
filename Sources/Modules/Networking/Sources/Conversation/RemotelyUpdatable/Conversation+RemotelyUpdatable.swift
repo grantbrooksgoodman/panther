@@ -313,9 +313,9 @@ extension Conversation: RemotelyUpdatable {
     private func buildParticipantUpdates(
         for conversation: Conversation
     ) -> [String: Any] {
-        var entries = [String: Any]()
+        var updates = [String: Any]()
         for participant in conversation.participants {
-            entries[
+            updates[
                 [
                     NetworkPath.users.rawValue,
                     participant.userID,
@@ -325,7 +325,7 @@ extension Conversation: RemotelyUpdatable {
             ] = conversation.id.hash
         }
 
-        return entries
+        return updates
     }
 
     private func updateIDHash(

@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class ClientSession: @unchecked Sendable {
+struct ClientSession: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
@@ -30,13 +30,12 @@ final class ClientSession: @unchecked Sendable {
     // MARK: - Computed Properties
 
     var deliveryProgressIndicator: DeliveryProgressIndicator? {
-        get { _deliveryProgressIndicator.wrappedValue }
-        set { _deliveryProgressIndicator.wrappedValue = newValue }
+        _deliveryProgressIndicator.wrappedValue
     }
 
     // MARK: - Init
 
-    init(
+    fileprivate init(
         entity: EntitySession,
         store: SessionStore,
         sync: SyncSession
@@ -51,7 +50,7 @@ final class ClientSession: @unchecked Sendable {
     func registerDeliveryProgressIndicator(
         _ deliveryProgressIndicator: DeliveryProgressIndicator
     ) {
-        self.deliveryProgressIndicator = deliveryProgressIndicator
+        _deliveryProgressIndicator.wrappedValue = deliveryProgressIndicator
     }
 
     // MARK: - Resolve and Set Language Code
@@ -80,5 +79,29 @@ final class ClientSession: @unchecked Sendable {
         )
 
         coreUtilities.setLanguageCode(languageCode)
+    }
+}
+
+enum ClientSessionDependency: DependencyKey {
+    static func resolve(_ values: DependencyValues) -> ClientSession {
+        .init(
+            entity: .init(
+                activity: .init(),
+                conversation: .init(),
+                message: .init(),
+                moderation: .init(),
+                reaction: .init(),
+                user: .init()
+            ),
+            store: .shared,
+            sync: .init(conversationObserver: .init())
+        )
+    }
+}
+
+extension DependencyValues {
+    var clientSession: ClientSession {
+        get { self[ClientSessionDependency.self] }
+        set { self[ClientSessionDependency.self] = newValue }
     }
 }

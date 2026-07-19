@@ -163,11 +163,6 @@ extension Conversation {
 
     // MARK: - Methods
 
-    func currentUserSharesPenPalsData(with user: User) -> Bool {
-        guard metadata.isPenPalsConversation else { return true }
-        return (currentUserPenPalsSharingData?.sharesDataWithUserIDs ?? []).contains(user.id)
-    }
-
     static func empty(withUsers users: [User]) -> Conversation {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         // Stores users so the conversation's computed properties can resolve them.
@@ -199,6 +194,32 @@ extension Conversation {
             metadata: .empty(userIDs: users.map(\.id)),
             participants: users.map { .init(userID: $0.id) },
             reactionMetadata: nil
+        )
+    }
+
+    func currentUserSharesPenPalsData(with user: User) -> Bool {
+        guard metadata.isPenPalsConversation else { return true }
+        return (currentUserPenPalsSharingData?.sharesDataWithUserIDs ?? []).contains(user.id)
+    }
+
+    /// Invalidates the conversation's local hash to force a re-fetch on the next sync cycle.
+    ///
+    /// This method replaces the conversation's hash with a randomly generated value and upserts
+    /// the modified copy into the session store. Because the local hash no longer matches the
+    /// server hash, the sync system treats the conversation as out-of-date and resolves it from
+    /// the server on its next pass.
+    ///
+    /// No remote write is performed – the change is purely local.
+    func markStaleLocally() {
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+        // Local hash/messageID modification to force re-fetch; no remote write.
+        sessionStore.upsertConversation(
+            copying(
+                id: .init(
+                    key: id.key,
+                    hash: .init(Int.random(in: 1 ... 1_000_000)).encodedHash
+                )
+            )
         )
     }
 

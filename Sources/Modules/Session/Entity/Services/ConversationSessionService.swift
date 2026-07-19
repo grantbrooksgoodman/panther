@@ -58,9 +58,14 @@ final class ConversationSessionService: @unchecked Sendable {
     // MARK: - Init
 
     init() {
-        SessionStore.addChangeHandler { [weak self] change in
+        SessionStore.addChangeHandler(
+            for: [
+                .conversations,
+                .messages,
+            ]
+        ) { [weak self] in
             guard let self else { return }
-            handleStoreChange(change)
+            handleStoreChange($0)
         }
     }
 

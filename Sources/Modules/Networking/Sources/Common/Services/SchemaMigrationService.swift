@@ -20,7 +20,7 @@ import Networking
 /// from the legacy array-based schema to the current
 /// keyed-map schema.
 ///
-/// All data is preserved — only the structure changes.
+/// All data is preserved – only the structure changes.
 /// Backwards compatibility is not a consideration; after
 /// this migration completes, the database contains only
 /// new-format nodes.
@@ -351,7 +351,7 @@ struct SchemaMigrationService: @unchecked Sendable {
             Conversation.SerializableKey.metadata.rawValue
         ] as? [String: Any] else { return nil }
 
-        // Already has imageHash — nothing to do.
+        // Already has imageHash – nothing to do.
         guard metadata[
             ConversationMetadata.SerializableKey.imageHash.rawValue
         ] == nil else { return nil }

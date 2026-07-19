@@ -150,6 +150,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
 
         if !missingIDs.isEmpty {
             sessionStore.removeMessages(ids: missingIDs)
+            // Strips unfetchable message IDs so the store stays consistent.
             sessionStore.upsertConversation(
                 copying(
                     messageIDs: messageIDs.filter {
@@ -343,8 +344,11 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         }
 
         try await database.commit(updates)
+        // Propagates locally-written read receipts to the session store.
         sessionStore.upsertMessages(Set(updatedMessages))
+
         if let updatedConversation {
+            // Reflects the updated hash/metadata after read-date commit.
             sessionStore.upsertConversation(updatedConversation)
         }
 

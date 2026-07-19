@@ -212,6 +212,18 @@ final class UserSessionService: @unchecked Sendable {
         let updatedIDKeys = Set(updatedConversationIDStrings.map(\.idKey))
         let removedIDKeys = currentIDKeys.subtracting(updatedIDKeys)
 
+        if !removedIDKeys.isEmpty {
+            Logger.log(
+                .init(
+                    "Removing \(removedIDKeys.count) conversation(s) no longer present on user node.",
+                    isReportable: false,
+                    userInfo: ["RemovedIDKeys": removedIDKeys.sorted().joined(separator: ", ")],
+                    metadata: .init(sender: self)
+                ),
+                domain: .userSession
+            )
+        }
+
         for idKey in removedIDKeys {
             sessionStore.removeConversation(idKey: idKey)
         }
@@ -248,6 +260,15 @@ final class UserSessionService: @unchecked Sendable {
 
             return false
         }
+
+        Logger.log(
+            .init(
+                "Detected \(changedEntries.count) unrecognized conversation version(s); triggering full resolve.",
+                isReportable: false,
+                metadata: .init(sender: self)
+            ),
+            domain: .userSession
+        )
 
         return true
     }
@@ -367,7 +388,6 @@ final class UserSessionService: @unchecked Sendable {
         }
 
         guard !Task.isCancelled else { return }
-        let updatedIDKeys = Set(conversationsNeedingUpdate.map(\.id.key))
         try await decodedConversations.merge(
             with: conversationsNeedingUpdate.map {
                 @Dependency(\.clientSession.sync.conversationSync) var conversationSyncService: ConversationSyncService
@@ -375,7 +395,6 @@ final class UserSessionService: @unchecked Sendable {
             }
         )
 
-        sessionStore.clearStaleConversations(idKeys: updatedIDKeys)
         guard !conversationsNeedingFetch.isEmpty else {
             return commitConversationsToMemory(decodedConversations)
         }
@@ -385,9 +404,10 @@ final class UserSessionService: @unchecked Sendable {
             idKeys: conversationsNeedingFetch.map(\.key)
         )
 
+        // TODO: Audit for deletion.
         // Reconcile node tokens with user-record tokens.
-        // Post-P1 atomic fan-out keeps both in sync; this
-        // handles pre-migration data where they diverged.
+        // Atomic fan-out keeps both in sync; this
+        // handles pre-schema-migration data where they diverged.
         // The user-record token is preferred because it is
         // what resolveCurrentUserConversations compares
         // against to decide whether a conversation is stale.
@@ -433,6 +453,15 @@ final class UserSessionService: @unchecked Sendable {
 
         guard !Task.isCancelled,
               !conversationsNeedingMessages.isEmpty else { return }
+
+        Logger.log(
+            .init(
+                "Resolving messages for \(conversationsNeedingMessages.count) conversation(s).",
+                isReportable: false,
+                metadata: .init(sender: self)
+            ),
+            domain: .userSession
+        )
 
         try await conversationsNeedingMessages.map {
             guard !Task.isCancelled else { return }

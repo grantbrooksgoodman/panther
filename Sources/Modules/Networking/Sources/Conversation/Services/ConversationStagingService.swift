@@ -138,7 +138,7 @@ struct ConversationStagingService {
 
             // Stage conversations from oldest to newest.
 
-            // 1. Zhang Shan — image, 1/24/25.
+            // 1. Zhang Shan – image, 1/24/25.
             let zhangConversation = try await stageMediaConversation(
                 mediaData: imageData,
                 mediaFileExtension: .image(.jpeg),
@@ -153,7 +153,7 @@ struct ConversationStagingService {
                 forUserID: users.mainUser.id
             )
 
-            // 2. Vacation Planning — text, 6/29/25.
+            // 2. Vacation Planning – text, 6/29/25.
             let vacationConversation = try await stageTextConversation(
                 text: StagedText.vacationPlanning.text(
                     for: users.mainUser.languageCode
@@ -176,7 +176,7 @@ struct ConversationStagingService {
                 )
             )
 
-            // 3. Peter Ivanov — video, Yesterday.
+            // 3. Peter Ivanov – video, Yesterday.
             let peterConversation = try await stageMediaConversation(
                 mediaData: videoData,
                 mediaFileExtension: .video(.mp4),
@@ -192,7 +192,7 @@ struct ConversationStagingService {
                 forUserID: users.mainUser.id
             )
 
-            // 4. Mario Rossi + 2 — text, 9:36 AM.
+            // 4. Mario Rossi + 2 – text, 9:36 AM.
             let marioConversation = try await stageTextConversation(
                 text: "La partita inizia alle 18:00. Ci vediamo!",
                 from: users.marioRossi,
@@ -212,32 +212,32 @@ struct ConversationStagingService {
                 forUserID: users.mainUser.id
             )
 
-            // 5. Juan Pérez — audio, 9:41 AM, unread.
+            // 5. Juan Pérez – audio, 9:41 AM, unread.
             try await stageAudioConversation(
                 from: users.juanPerez,
                 to: users.mainUser,
                 sentDate: date941AM
             )
 
-            // 6. Beach Day — group with image + text, 9:41 AM.
+            // 6. Beach Day – group with image + text, 9:41 AM.
             try await stageBeachDayConversation(
                 users: users,
                 sentDate: date941AM
             )
 
-            // 7. App Store — 1:1 text + audio, 9:41 AM.
+            // 7. App Store – 1:1 text + audio, 9:41 AM.
             try await stageAppStoreConversation(
                 users: users,
                 sentDate: date941AM
             )
 
-            // 8. View Original — 1:1 text, 9:41 AM.
+            // 8. View Original – 1:1 text, 9:41 AM.
             try await stageViewOriginalConversation(
                 users: users,
                 sentDate: date941AM
             )
 
-            // 9. PenPals — group text, Yesterday.
+            // 9. PenPals – group text, Yesterday.
             try await stagePenPalsConversation(
                 users: users,
                 sentDate: dateYesterday

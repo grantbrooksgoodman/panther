@@ -10,6 +10,13 @@
 import Foundation
 
 struct SyncSession {
+    // MARK: - Properties
+
     let conversationObserver: ConversationObserverService
-    let conversationSync: ConversationSyncService
+
+    // MARK: - Computed Properties
+
+    var conversationSync: ConversationSyncService {
+        .init()
+    }
 }

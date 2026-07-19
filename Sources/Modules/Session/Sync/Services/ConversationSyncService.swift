@@ -35,19 +35,6 @@ final class ConversationSyncService: @unchecked Sendable {
         set { _syncData.wrappedValue = newValue }
     }
 
-    // MARK: - Init
-
-    /* TODO: Audit this path.
-     Was previously reinstantiated for every access, AFAI can tell.
-     */
-    init() {
-        Logger.log(
-            "Instantiated ConversationSyncService.",
-            domain: .bugPrevention,
-            sender: self
-        )
-    }
-
     // MARK: - Synchronize Conversation
 
     func synchronizeConversation(
@@ -197,7 +184,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
         // Firebase push IDs are chronologically ordered, so
         // sorted map keys give ascending sent-order by
-        // construction — reversed()[0...9] is genuinely the
+        // construction – reversed()[0...9] is genuinely the
         // newest ten.
         var messageIDs = messageIDs
         if lastTenOnly,
@@ -207,6 +194,16 @@ final class ConversationSyncService: @unchecked Sendable {
 
         let messages = try await networking.messageService.getMessages(
             ids: messageIDs
+        )
+
+        Logger.log(
+            .init(
+                "Fetched \(messages.count) message(s) during conversation sync.",
+                isReportable: false,
+                userInfo: ["ConversationIDKey": syncData?.conversation.id.key ?? "unknown"],
+                metadata: .init(sender: self)
+            ),
+            domain: .conversationSync
         )
 
         let updatedMessages = ((syncData?.messages ?? []) + messages)
@@ -390,6 +387,16 @@ final class ConversationSyncService: @unchecked Sendable {
                 metadata: .init(sender: self)
             ).appending(userInfo: userInfo)
         }
+
+        Logger.log(
+            .init(
+                "Committing synced conversation to store (\(syncData.messages.count) message(s)).",
+                isReportable: false,
+                userInfo: userInfo,
+                metadata: .init(sender: self)
+            ),
+            domain: .conversationSync
+        )
 
         // Synced from network; bypasses RemotelyUpdatable.update.
         clientSession.store.upsertConversation(syncData.conversation)

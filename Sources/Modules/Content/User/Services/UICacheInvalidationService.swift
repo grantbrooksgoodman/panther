@@ -41,8 +41,8 @@ final class UICacheInvalidationService {
 
     func startObserving() {
         guard changeHandlerID == nil else { return }
-        changeHandlerID = SessionStore.addChangeHandler { [weak self] change in
-            self?.handleChange(change)
+        changeHandlerID = SessionStore.addChangeHandler { [weak self] in
+            self?.handleChange($0)
         }
     }
 }
@@ -93,7 +93,7 @@ private extension UICacheInvalidationService {
 
             Logger.log(
                 "Invalidating caches for conversation changes.",
-                domain: .sessionStoreInvalidation,
+                domain: .uiCacheInvalidation,
                 sender: self
             )
 
@@ -124,7 +124,7 @@ private extension UICacheInvalidationService {
 
             Logger.log(
                 "Invalidating caches for message changes.",
-                domain: .sessionStoreInvalidation,
+                domain: .uiCacheInvalidation,
                 sender: self
             )
 
@@ -146,7 +146,7 @@ private extension UICacheInvalidationService {
 
             Logger.log(
                 "Invalidating caches for user changes.",
-                domain: .sessionStoreInvalidation,
+                domain: .uiCacheInvalidation,
                 sender: self
             )
 

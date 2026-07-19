@@ -69,7 +69,9 @@ final class TypingIndicatorService: @unchecked Sendable {
             checkForTypingIndicatorChanges()
         }
 
-        changeHandlerID = SessionStore.addChangeHandler { [weak self] change in
+        changeHandlerID = SessionStore.addChangeHandler(
+            for: [.conversations]
+        ) { [weak self] change in
             guard let self else { return }
             Task.delayed(by: .seconds(1)) { @MainActor in
                 handleStoreChange(change)

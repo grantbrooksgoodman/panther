@@ -90,8 +90,9 @@ extension LoggerDomain {
     static let notifications: LoggerDomain = .init("notifications")
     static let penPals: LoggerDomain = .init("penPals")
     static let schemaMigration: LoggerDomain = .init("schemaMigration")
-    static let sessionStoreInvalidation: LoggerDomain = .init("sessionStoreInvalidation")
+    static let sessionStore: LoggerDomain = .init("sessionStore")
     static let storageSession: LoggerDomain = .init("storageSession")
+    static let uiCacheInvalidation: LoggerDomain = .init("uiCacheInvalidation")
     static let userSession: LoggerDomain = .init("userSession")
     static let userStore: LoggerDomain = .init("userStore")
 }

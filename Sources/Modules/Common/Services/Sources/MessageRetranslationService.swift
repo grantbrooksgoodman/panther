@@ -258,20 +258,7 @@ struct MessageRetranslationService {
         _ conversation: Conversation,
         messageID: String
     ) async throws(Exception) {
-        // Local hash/messageID modification to force re-fetch; no remote write.
-        clientSession.store.upsertConversation(
-            conversation
-                .copying(
-                    id: .init(
-                        key: conversation.id.key,
-                        hash: .init(Int.random(in: 1 ... 1_000_000)).encodedHash
-                    )
-                )
-                .copying(
-                    messageIDs: conversation.messageIDs.filter { $0 != messageID }
-                )
-        )
-
+        conversation.markStaleLocally()
         _ = try await conversation.update(
             \.metadata,
             to: conversation.metadata.copyWith(lastModifiedDate: .now)

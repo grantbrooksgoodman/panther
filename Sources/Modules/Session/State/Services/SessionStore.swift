@@ -24,7 +24,7 @@ struct SessionStore {
         var isUserArchiveDirty = false
     }
 
-    private struct State {
+    private struct StoreState {
         var conversations: [String: Conversation] = [:]
         var messages: [String: Message] = [:]
         var users: [String: User] = [:]
@@ -36,8 +36,7 @@ struct SessionStore {
 
     private let archiveState = LockIsolated(ArchiveState())
     private let currentEpoch = LockIsolated(UInt64(0))
-    private let staleConversationIDKeys = LockIsolated(Set<String>())
-    private let state = LockIsolated(State())
+    private let storeState = LockIsolated(StoreState())
 
     @Persistent(.conversationArchive) private var persistedConversationArchive: Set<Conversation>?
     @Persistent(.messageArchive) private var persistedMessageArchive: Set<Message>?
@@ -46,22 +45,22 @@ struct SessionStore {
     // MARK: - Computed Properties
 
     var conversations: [String: Conversation] {
-        state.wrappedValue.conversations
+        storeState.wrappedValue.conversations
     }
 
     var messages: [String: Message] {
-        state.wrappedValue.messages
+        storeState.wrappedValue.messages
     }
 
     var users: [String: User] {
-        state.wrappedValue.users
+        storeState.wrappedValue.users
     }
 
     // MARK: - Init
 
     private init() {
         if let archive = persistedConversationArchive {
-            state.projectedValue.withValue {
+            storeState.projectedValue.withValue {
                 for conversation in archive where
                     !conversation.isEmpty &&
                     !conversation.isMock &&
@@ -80,7 +79,7 @@ struct SessionStore {
 
         if let archive = persistedMessageArchive {
             let messages = Set(Array(archive).filteringSystemMessages)
-            state.projectedValue.withValue {
+            storeState.projectedValue.withValue {
                 for message in messages {
                     $0.messages[message.id] = message
                 }
@@ -94,7 +93,7 @@ struct SessionStore {
         }
 
         if let archive = persistedUserArchive {
-            state.projectedValue.withValue {
+            storeState.projectedValue.withValue {
                 for user in archive where !user.id.isBlank {
                     $0.users[user.id] = user
                 }
@@ -114,7 +113,7 @@ struct SessionStore {
 
     func clearConversationArchive() {
         var removedIDKeys = Set<String>()
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             removedIDKeys = Set($0.conversations.keys)
             $0.conversations = [:]
         }
@@ -129,20 +128,20 @@ struct SessionStore {
     }
 
     func getConversation(id: ConversationID) -> Conversation? {
-        guard let conversation = state.wrappedValue.conversations[id.key],
+        guard let conversation = storeState.wrappedValue.conversations[id.key],
               conversation.id == id else { return nil }
         return conversation
     }
 
     func getConversation(idKey: String) -> Conversation? {
-        state.wrappedValue.conversations[idKey]
+        storeState.wrappedValue.conversations[idKey]
     }
 
     func removeConversation(idKey: String) {
         var didRemove = false
         var orphanedMessageIDs = Set<String>()
 
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             guard let conversation = $0.conversations[idKey] else { return }
             didRemove = true
 
@@ -197,7 +196,7 @@ struct SessionStore {
             conversation.id.key.isBlank { return }
 
         var didChange = false
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             /* TODO: Audit whether this captures changes effectively.
              May be worthwhile just to compare objects and accept duplicate
              logs if it allows us to preserve state integrity.
@@ -244,7 +243,7 @@ struct SessionStore {
         }
 
         var changedIDKeys = Set<String>()
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             for conversation in newConversations {
                 if $0.conversations[conversation.id.key] != conversation {
                     changedIDKeys.insert(conversation.id.key)
@@ -273,7 +272,7 @@ struct SessionStore {
 
     func clearMessageArchive() {
         var clearedIDs = Set<String>()
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             clearedIDs = Set($0.messages.keys)
             $0.messages = [:]
         }
@@ -289,7 +288,7 @@ struct SessionStore {
 
     func removeMessages(ids: Set<String>) {
         var removedIDs = Set<String>()
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             for id in ids where $0.messages[id] != nil {
                 $0.messages[id] = nil
                 removedIDs.insert(id)
@@ -315,7 +314,7 @@ struct SessionStore {
         let messages = Set(Array(newMessages).filteringSystemMessages)
 
         var changedIDs = Set<String>()
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             for message in messages {
                 if $0.messages[message.id] != message {
                     changedIDs.insert(message.id)
@@ -344,7 +343,7 @@ struct SessionStore {
 
     func clearUserArchive() {
         var clearedIDs = Set<String>()
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             clearedIDs = Set($0.users.keys)
             $0.users = [:]
         }
@@ -361,7 +360,7 @@ struct SessionStore {
     // NIT: Unused.
     func removeUser(id: String) {
         var didRemove = false
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             didRemove = $0.users[id] != nil
             $0.users[id] = nil
         }
@@ -387,7 +386,7 @@ struct SessionStore {
 
     func upsertUser(_ user: User) {
         var didChange = false
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             didChange = $0.users[user.id] != user
             $0.users[user.id] = user
         }
@@ -413,7 +412,7 @@ struct SessionStore {
 
     func upsertUsers(_ newUsers: Set<User>) {
         var changedIDs = Set<String>()
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             for user in newUsers {
                 if $0.users[user.id] != user {
                     changedIDs.insert(user.id)
@@ -460,7 +459,7 @@ struct SessionStore {
         }
 
         if archiveState.isConversationArchiveDirty {
-            let conversationsSnapshot = Set(state.wrappedValue.conversations.values)
+            let conversationsSnapshot = Set(storeState.wrappedValue.conversations.values)
             persistedConversationArchive = conversationsSnapshot.isEmpty ? nil : conversationsSnapshot
         }
 
@@ -470,7 +469,7 @@ struct SessionStore {
         }
 
         if archiveState.isUserArchiveDirty {
-            let usersSnapshot = Set(state.wrappedValue.users.values)
+            let usersSnapshot = Set(storeState.wrappedValue.users.values)
             persistedUserArchive = usersSnapshot.isEmpty ? nil : usersSnapshot
         }
 
@@ -479,40 +478,40 @@ struct SessionStore {
             archiveState.isUserArchiveDirty {
             Logger.log(
                 "Flushed dirty archives synchronously.",
-                domain: .conversationStore,
+                domain: .sessionStore,
                 sender: self
             )
-        }
-    }
-
-    // MARK: - Staleness
-
-    func clearStaleConversations(idKeys: Set<String>) {
-        staleConversationIDKeys.projectedValue.withValue {
-            $0.subtract(idKeys)
-        }
-    }
-
-    func markConversationsStale(idKeys: Set<String>) {
-        staleConversationIDKeys.projectedValue.withValue {
-            $0.formUnion(idKeys)
         }
     }
 }
 
 extension SessionStore {
+    // MARK: - Types
+
+    private struct ChangeRegistration {
+        let handler: @MainActor @Sendable (SessionStoreChange) -> Void
+        let kinds: Set<SessionStoreChange.Kind>
+    }
+
     // MARK: - Properties
 
-    private static let changeHandlers = LockIsolated<[UUID: @MainActor @Sendable (SessionStoreChange) -> Void]>([:])
+    private static let changeHandlers = LockIsolated<[UUID: ChangeRegistration]>([:])
 
     // MARK: - Methods
 
     @discardableResult
     static func addChangeHandler(
+        for kinds: Set<SessionStoreChange.Kind> = Set(SessionStoreChange.Kind.allCases),
         _ handler: @escaping @MainActor @Sendable (SessionStoreChange) -> Void
     ) -> UUID {
         let id = UUID()
-        changeHandlers.projectedValue.withValue { $0[id] = handler }
+        changeHandlers.projectedValue.withValue {
+            $0[id] = .init(
+                handler: handler,
+                kinds: kinds
+            )
+        }
+
         return id
     }
 
@@ -544,7 +543,7 @@ private extension SessionStore {
     /// messages per conversation for persistence.
     private var cappedMessageSnapshot: Set<Message> {
         typealias Floats = AppConstants.CGFloats.SessionStore
-        let currentState = state.wrappedValue
+        let currentState = storeState.wrappedValue
         let messages = currentState.messages
         guard !messages.isEmpty else { return [] }
 
@@ -578,10 +577,20 @@ private extension SessionStore {
 
     private func emitChange(_ change: SessionStoreChange) {
         Observables.sessionStoreDidChange.value = change
-        let handlers = Self.changeHandlers.wrappedValue
-        guard !handlers.isEmpty else { return }
+        let matchingHandlers = Self.changeHandlers.wrappedValue.values.filter {
+            $0.kinds.contains(change.kind)
+        }
+
+        guard !matchingHandlers.isEmpty else {
+            return Logger.log(
+                "Skipping change emission for \(change.kind). Nobody is listening.",
+                domain: .sessionStore,
+                sender: self
+            )
+        }
+
         Task { @MainActor in
-            handlers.values.forEach { $0(change) }
+            matchingHandlers.forEach { $0.handler(change) }
         }
     }
 
@@ -596,7 +605,7 @@ private extension SessionStore {
             guard self.currentEpoch.wrappedValue == currentEpoch else { return }
             archiveState.projectedValue.withValue { $0.isConversationArchiveDirty = false }
 
-            let conversationsSnapshot = Set(state.wrappedValue.conversations.values)
+            let conversationsSnapshot = Set(storeState.wrappedValue.conversations.values)
             persistedConversationArchive = conversationsSnapshot.isEmpty ? nil : conversationsSnapshot
         }
 
@@ -632,7 +641,7 @@ private extension SessionStore {
             guard self.currentEpoch.wrappedValue == currentEpoch else { return }
             archiveState.projectedValue.withValue { $0.isUserArchiveDirty = false }
 
-            let usersSnapshot = Set(state.wrappedValue.users.values)
+            let usersSnapshot = Set(storeState.wrappedValue.users.values)
             persistedUserArchive = usersSnapshot.isEmpty ? nil : usersSnapshot
         }
 
@@ -661,7 +670,7 @@ private extension SessionStore {
     /// in any stored conversation's `messageIDs`.
     private func sweepOrphanedMessages() {
         var orphanCount = 0
-        state.projectedValue.withValue {
+        storeState.projectedValue.withValue {
             let orphanedIDs = Set($0.messages.keys)
                 .subtracting(Set(
                     $0.conversations.values.flatMap(\.messageIDs)

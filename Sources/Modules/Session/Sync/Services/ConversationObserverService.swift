@@ -125,9 +125,20 @@ struct ConversationObserverService {
             ))
 
             if !newMessageIDs.isEmpty {
+                Logger.log(
+                    .init(
+                        "Resolving \(newMessageIDs.count) new message(s) from observer snapshot.",
+                        isReportable: false,
+                        userInfo: ["ConversationIDKey": conversationIDKey],
+                        metadata: .init(sender: self)
+                    ),
+                    domain: .conversationObserver
+                )
+
                 try await conversation.resolveMessages(ids: newMessageIDs)
             }
 
+            // Received from real-time observer; bypasses RemotelyUpdatable.update.
             sessionStore.upsertConversation(conversation)
 
             // Backfill users for any participants not yet in the
@@ -142,6 +153,16 @@ struct ConversationObserverService {
             if participantUserIDs.contains(where: {
                 sessionStore.users[$0] == nil
             }) {
+                Logger.log(
+                    .init(
+                        "Backfilling missing participant user(s) from observer snapshot.",
+                        isReportable: false,
+                        userInfo: ["ConversationIDKey": conversationIDKey],
+                        metadata: .init(sender: self)
+                    ),
+                    domain: .conversationObserver
+                )
+
                 try await conversation.resolveUsers()
             }
         } catch {

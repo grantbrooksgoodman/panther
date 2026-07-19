@@ -305,17 +305,19 @@ final class ConversationsPageViewService {
             .sortedByLatestMessageSentDate,
             let firstConversation = conversations.first,
             type == .full || type == .partial {
-            var idKeys = [firstConversation.id.key]
+            var conversationsToReload = [firstConversation]
             if type == .full {
                 if conversations.count > 5 {
-                    idKeys = Array(conversations[0 ... conversations.count / 3])
-                        .map(\.id.key)
+                    conversationsToReload = Array(conversations[
+                        0 ... conversations.count / 3
+                    ])
                 } else {
-                    idKeys = conversations.map(\.id.key)
+                    conversationsToReload = conversations
                 }
             }
 
-            clientSession.store.markConversationsStale(idKeys: Set(idKeys))
+            // Local hash/messageID modification to force re-fetch; no remote write.
+            conversationsToReload.forEach { $0.markStaleLocally() }
         }
 
         defer { currentReloadType = currentReloadType.next }
