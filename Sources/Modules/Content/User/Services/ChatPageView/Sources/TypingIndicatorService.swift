@@ -11,8 +11,9 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
-final class TypingIndicatorService {
+final class TypingIndicatorService: @unchecked Sendable {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.TypingIndicator
@@ -25,15 +26,15 @@ final class TypingIndicatorService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
 
     // MARK: - Properties
 
     private let viewController: ChatPageViewController
 
+    private var changeHandlerID: UUID?
     private var isUpdatingIsTypingForCurrentUser = false
-    private var typingIndicatorTimer: Timer?
 
     // MARK: - Computed Properties
 
@@ -60,22 +61,36 @@ final class TypingIndicatorService {
         }
     }
 
-    // MARK: - Init
+    // MARK: - Object Lifecycle
 
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
+        Task.delayed(by: .seconds(1)) { @MainActor in
+            checkForTypingIndicatorChanges()
+        }
+
+        changeHandlerID = SessionStore.addChangeHandler(
+            for: [.conversations]
+        ) { [weak self] change in
+            guard let self else { return }
+            Task.delayed(by: .seconds(1)) { @MainActor in
+                handleStoreChange(change)
+            }
+        }
     }
 
-    // MARK: - Object Lifecycle
-
     deinit {
-        stopCheckingForTypingIndicatorChanges()
+        if let changeHandlerID {
+            SessionStore.removeChangeHandler(changeHandlerID)
+        }
     }
 
     // MARK: - Reset Typing Indicator Status for Current User
 
     static func resetTypingIndicatorStatusForCurrentUser() async throws(Exception) {
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+
         guard let currentUser else {
             throw Exception(
                 "Current user has not been set.",
@@ -85,25 +100,26 @@ final class TypingIndicatorService {
 
         guard let conversations = currentUser
             .conversations?
-            .filter({ $0.currentUserParticipant?.isTyping ?? false }) else { return }
+            .filter({ $0.currentUserParticipant?.isTyping ?? false }),
+            !conversations.isEmpty else { return }
 
-        try await conversations.map(
-            failFast: false
-        ) {
-            guard let currentUserParticipant = $0.currentUserParticipant else { return }
+        // Single fan-out for all conversations where the
+        // current user is typing.
+        var updates = [String: Any]()
+        for conversation in conversations {
+            guard let participant = conversation.currentUserParticipant else { continue }
+            let path = [
+                NetworkPath.conversations.rawValue,
+                conversation.id.key,
+                Conversation.SerializableKey.participants.rawValue,
+                participant.userID,
+                Participant.SerializableKey.isTyping.rawValue,
+            ].joined(separator: "/")
 
-            var newParticipants = $0.participants.filter { $0 != currentUserParticipant }
-            newParticipants.append(.init(
-                userID: currentUserParticipant.userID,
-                hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
-                isTyping: false
-            ))
-
-            _ = try await $0.update(
-                \.participants,
-                to: newParticipants
-            )
+            updates[path] = false
         }
+
+        try await database.commit(updates)
     }
 
     // MARK: - Text View Did Change
@@ -169,29 +185,9 @@ final class TypingIndicatorService {
         }
     }
 
-    // MARK: - Typing Indicator Timer
-
-    @MainActor
-    func startCheckingForTypingIndicatorChanges() {
-        stopCheckingForTypingIndicatorChanges()
-        typingIndicatorTimer = .scheduledTimer(
-            timeInterval: .init(Floats.timerTimeInterval),
-            target: self,
-            selector: #selector(checkForTypingIndicatorChanges),
-            userInfo: nil,
-            repeats: true
-        )
-    }
-
-    func stopCheckingForTypingIndicatorChanges() {
-        typingIndicatorTimer?.invalidate()
-        typingIndicatorTimer = nil
-    }
-
     // MARK: - Auxiliary
 
     @MainActor
-    @objc
     private func checkForTypingIndicatorChanges() {
         guard canSafelyToggleTypingIndicator else { return }
 
@@ -213,10 +209,19 @@ final class TypingIndicatorService {
     }
 
     @MainActor
+    private func handleStoreChange(_ change: SessionStoreChange) {
+        guard case let .conversations(upsertedIDKeys, _) = change,
+              let currentConversation = viewController.currentConversation,
+              upsertedIDKeys.contains(currentConversation.id.key) else { return }
+        checkForTypingIndicatorChanges()
+    }
+
+    @MainActor
     private func updateIsTypingForCurrentUser(
         _ isTyping: Bool
     ) async throws(Exception) {
-        guard let conversation = clientSession.conversation.currentConversation,
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+        guard let conversation = entitySession.conversation.currentConversation,
               conversation.participants.count == Int(Floats.participantCountThreshold) else { return }
 
         guard let currentUserParticipant = conversation.currentUserParticipant else {
@@ -227,19 +232,16 @@ final class TypingIndicatorService {
         }
 
         guard isTyping != currentUserParticipant.isTyping else { return }
-        _ = try await conversation.update(
-            \.participants,
-            to: (
-                conversation
-                    .participants
-                    .filter { $0 != currentUserParticipant }
-            ) + [
-                Participant(
-                    userID: currentUserParticipant.userID,
-                    hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
-                    isTyping: isTyping
-                ),
-            ]
-        )
+
+        // Single-field fan-out write instead of replacing
+        // the entire participants array.
+        let path = [
+            NetworkPath.conversations.rawValue,
+            conversation.id.key,
+            Conversation.SerializableKey.participants.rawValue,
+            currentUserParticipant.userID,
+            Participant.SerializableKey.isTyping.rawValue,
+        ].joined(separator: "/")
+        try await database.commit([path: isTyping])
     }
 }

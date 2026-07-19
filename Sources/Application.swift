@@ -14,6 +14,9 @@ import UIKit
 import AppSubsystem
 import Networking
 
+/* 3rd-party */
+import MessageKit
+
 /// The app's bootstrap configuration.
 ///
 /// `Application` centralizes the two-step process required to
@@ -123,7 +126,7 @@ enum Application {
         if UIDevice.isSimulator,
            hasRunOnce == nil {
             @Persistent(.init("breadcrumbsCaptureEnabled")) var breadcrumbsCaptureEnabled: Bool?
-            @Persistent(.init(".breadcrumbsCaptureSavesToPhotos")) var breadcrumbsCaptureSavesToPhotos: Bool?
+            @Persistent(.init("breadcrumbsCaptureSavesToPhotos")) var breadcrumbsCaptureSavesToPhotos: Bool?
 
             @Dependency(\.commonServices.breadcrumbsCapture) var breadcrumbsCaptureService: BreadcrumbsCaptureService
 
@@ -144,8 +147,9 @@ enum Application {
             ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
         }
 
-        /* MARK: UIViewController Swizzling */
+        /* MARK: Swizzling */
 
+        MessageContentCell.swizzleApply
         UIViewController.swizzlePresent
         UIViewController.swizzleViewWillDisappear
     }

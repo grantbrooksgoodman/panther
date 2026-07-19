@@ -20,6 +20,7 @@ extension AppConstants.CGFloats {
         static let composeToolbarButtonAnimationAmount: CGFloat = 1.4
         static let composeToolbarButtonAnimationDelay: CGFloat = 0.1
         static let composeToolbarButtonAnimationDuration: CGFloat = 0.4
+        static let contactSyncIntervalSeconds = 3600
         static let toolbarButtonFrameMinHeight: CGFloat = 30
         static let toolbarButtonFrameMinWidth: CGFloat = 30
     }

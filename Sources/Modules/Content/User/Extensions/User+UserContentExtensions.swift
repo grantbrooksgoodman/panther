@@ -54,7 +54,7 @@ extension User {
 
     static var currentUserID: String? {
         @Persistent(.currentUserID) var persistedValue: String?
-        @Dependency(\.clientSession.user.currentUser?.id) var sessionValue: String?
+        @Dependency(\.clientSession.entity.user.currentUser?.id) var sessionValue: String?
         return sessionValue ?? persistedValue
     }
 
@@ -95,10 +95,14 @@ extension User {
     func updateLastSignedInDate(
         to date: Date = .now
     ) async throws(Exception) {
-        RuntimeStorage.store(date, as: .lastSignInDate)
         _ = try await update(
             \.lastSignedIn,
             to: date
+        )
+
+        RuntimeStorage.store(
+            date,
+            as: .lastSignInDate
         )
     }
 }

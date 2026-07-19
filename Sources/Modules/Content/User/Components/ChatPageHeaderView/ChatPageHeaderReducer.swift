@@ -22,7 +22,7 @@ struct ChatPageHeaderReducer: Reducer {
     enum Action {
         case backButtonTapped
         case chatInfoButtonTapped
-        case updateAppearance
+        case reloadData
     }
 
     // MARK: - State
@@ -41,7 +41,7 @@ struct ChatPageHeaderReducer: Reducer {
 
         var conversation: Conversation {
             Dependency(
-                \.clientSession.conversation.currentConversation
+                \.clientSession.entity.conversation.currentConversation
             ).wrappedValue ?? .empty
         }
     }
@@ -63,7 +63,7 @@ struct ChatPageHeaderReducer: Reducer {
                 }
             }
 
-        case .updateAppearance:
+        case .reloadData:
             state.viewID = UUID()
         }
 

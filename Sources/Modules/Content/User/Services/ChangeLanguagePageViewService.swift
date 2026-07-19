@@ -20,7 +20,7 @@ struct ChangeLanguagePageViewService {
 
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking.database) private var database: DatabaseDelegate
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
     // MARK: - Reducer Action Handlers
 
@@ -129,19 +129,24 @@ struct ChangeLanguagePageViewService {
         loadedData.wrappedValue = true
         timeout.cancel()
 
-        _ = try await currentUser.update(
-            \.previousLanguageCodes,
-            to: newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes
-        )
+        let languageCodePath = [
+            NetworkPath.users.rawValue,
+            currentUserID,
+            User.SerializableKey.languageCode.rawValue,
+        ].joined(separator: "/")
 
-        try await database.setValue(
-            languageCode,
-            forKey: [
-                NetworkPath.users.rawValue,
-                currentUserID,
-                User.SerializableKey.languageCode.rawValue,
-            ].joined(separator: "/")
-        )
+        let previousLanguageCodesPath = [
+            NetworkPath.users.rawValue,
+            currentUserID,
+            User.SerializableKey.previousLanguageCodes.rawValue,
+        ].joined(separator: "/")
+
+        try await database.commit([
+            languageCodePath: languageCode,
+            previousLanguageCodesPath: newPreviousLanguageCodes.isEmpty
+                ? Array.bangQualifiedEmpty
+                : newPreviousLanguageCodes,
+        ])
 
         await MainActor.run {
             Application.reset(

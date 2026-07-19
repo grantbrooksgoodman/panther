@@ -18,8 +18,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-@MainActor
-// swiftlint:disable:next type_body_length
+@MainActor // swiftlint:disable:next type_body_length
 final class SplashPageViewService: ObservableObject {
     // MARK: - Dependencies
 
@@ -29,8 +28,8 @@ final class SplashPageViewService: ObservableObject {
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
-    @Dependency(\.sessionStoreInvalidationService) private var sessionStoreInvalidationService: SessionStoreInvalidationService
     @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.uiCacheInvalidationService) private var uiCacheInvalidationService: UICacheInvalidationService
 
     // MARK: - Properties
 
@@ -89,13 +88,12 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: Store Observation Setup */
 
-        SessionStore.setChangeEmissionSuppressed(false)
-        sessionStoreInvalidationService.startObserving()
+        uiCacheInvalidationService.startObserving()
 
         /* MARK: Offline User Setup */
 
         guard build.isOnline else {
-            guard let currentUser = clientSession.user.currentUser else {
+            guard let currentUser = clientSession.entity.user.currentUser else {
                 return Logger.log(
                     .init(
                         "No persisted user exists.",
@@ -131,7 +129,7 @@ final class SplashPageViewService: ObservableObject {
         /* MARK: Parallel Initialization */
 
         // Launch the heaviest independent network calls concurrently.
-        async let resolveCurrentUserResult = clientSession.user.resolveCurrentUser()
+        async let resolveCurrentUserResult = clientSession.entity.user.resolveCurrentUser()
         async let resolveLanguageCodeResult: Void = clientSession.resolveAndSetLanguageCode()
         async let resolveValuesResult: Void = services.metadata.resolveValues()
 
@@ -171,15 +169,13 @@ final class SplashPageViewService: ObservableObject {
                 initializationProgress += 0.02
 
                 if cacheStatus == .invalid {
+                    try await services.remoteCache.setCacheStatus(
+                        .valid,
+                        userID: currentUserID
+                    )
+
                     Application.reset(preserveCurrentUserID: true)
-                    do {
-                        try await services.remoteCache.setCacheStatus(
-                            .valid,
-                            userID: currentUserID
-                        )
-                    } catch {
-                        Logger.log(error)
-                    }
+                    return try await initializeBundle(fromRetry: true)
                 }
             } catch {
                 if !error.isEqual(to: .Networking.Database.noValueExists) {
@@ -195,7 +191,7 @@ final class SplashPageViewService: ObservableObject {
             try await resolveCurrentUserResult
             initializationProgress += 0.2
 
-            guard let currentUser = clientSession.user.currentUser else {
+            guard let currentUser = clientSession.entity.user.currentUser else {
                 throw Exception(
                     "Failed to resolve current user.",
                     metadata: .init(sender: self)
@@ -205,7 +201,10 @@ final class SplashPageViewService: ObservableObject {
             /* MARK: Last Sign In Date Update */
 
             // Must complete before the Firebase observer starts (post-splash),
-            // otherwise the observer sees the timestamp change and triggers sign-out.
+            // otherwise the observer sees the timestamp change and triggers
+            // sign-out. The RuntimeStorage shadow is set only after the server
+            // write succeeds, so a failed write leaves the shadow untouched
+            // and the observer's comparison value unchanged.
             if RuntimeStorage.lastSignInDate == nil {
                 try await currentUser.updateLastSignedInDate()
             }
@@ -237,12 +236,9 @@ final class SplashPageViewService: ObservableObject {
 
             /* MARK: Conversation Resolution */
 
-            clientSession.conversation.setCurrentConversation(nil)
-            try await clientSession.user.resolveCurrentUser(
-                and: [
-                    .conversations,
-                    .users,
-                ]
+            clientSession.entity.conversation.setCurrentConversation(nil)
+            try await clientSession.entity.user.resolveCurrentUser(
+                and: .allDataTypes
             )
 
             initializationProgress = 1

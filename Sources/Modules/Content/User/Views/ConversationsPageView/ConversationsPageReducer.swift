@@ -75,14 +75,14 @@ struct ConversationsPageReducer: Reducer {
         /// creation and server-side `conversationIDs` sync.
         @MainActor
         var conversations: [Conversation] {
-            @Dependency(\.clientSession) var clientSession: ClientSession
+            @Dependency(\.clientSession.entity) var entitySession: EntitySession
 
             let allConversations = (
-                clientSession.user.currentUser?.conversations ?? []
+                entitySession.user.currentUser?.conversations ?? []
             ).filteredAndSorted
 
             guard !allConversations.isEmpty else {
-                if let currentConversation = clientSession.conversation.currentConversation,
+                if let currentConversation = entitySession.conversation.currentConversation,
                    !currentConversation.isMock,
                    currentConversation.isVisibleForCurrentUser {
                     return [currentConversation].filteredAndSorted
@@ -110,7 +110,7 @@ struct ConversationsPageReducer: Reducer {
         }
 
         var shouldShowStorageFullButton: Bool {
-            @Dependency(\.clientSession.storage.atOrAboveDataUsageLimit) var atOrAboveDataUsageLimit: Bool
+            @Dependency(\.userStorageService.atOrAboveDataUsageLimit) var atOrAboveDataUsageLimit: Bool
             return atOrAboveDataUsageLimit
         }
     }

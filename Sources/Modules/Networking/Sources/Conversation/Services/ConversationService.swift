@@ -70,23 +70,45 @@ struct ConversationService {
             $0.key != Conversation.SerializableKey.id.rawValue
         }
 
-        try await networking.database.updateChildValues(
-            forKey: "\(path)/\(id)",
-            with: data
-        )
-
         let conversationID: ConversationID = .init(
             key: mockConversation.id.key,
             hash: mockConversation.encodedHash
         )
 
-        try await participants.map {
-            try await addConversationToUser(
-                userID: $0.userID,
-                conversationID: conversationID
-            )
+        var updates: [String: Any] = [:]
+        for (key, value) in data {
+            updates[
+                [
+                    path,
+                    id,
+                    key,
+                ].joined(separator: "/")
+            ] = value
         }
 
+        for participant in participants {
+            updates[
+                [
+                    NetworkPath.users.rawValue,
+                    participant.userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                    conversationID.key,
+                ].joined(separator: "/")
+            ] = conversationID.hash
+        }
+
+        // The message node joins the same atomic fan-out;
+        // buildMessage leaves it unwritten on the send path.
+        updates[
+            [
+                NetworkPath.messages.rawValue,
+                firstMessage.id,
+            ].joined(separator: "/")
+        ] = firstMessage.encoded.filter {
+            $0.key != Message.SerializableKey.id.rawValue
+        }
+
+        try await networking.database.commit(updates)
         mockConversation = mockConversation.copying(id: conversationID)
         return mockConversation
     }
@@ -106,9 +128,7 @@ struct ConversationService {
         }
 
         do {
-            return try await idKeys.map(
-                failForEmptyCollection: true
-            ) {
+            return try await idKeys.map {
                 try await getConversation(idKey: $0)
             }
         } catch {
@@ -160,18 +180,6 @@ struct ConversationService {
         }
     }
 
-    private func getConversationIDStrings(
-        for userID: String
-    ) async throws(Exception) -> [String] {
-        try await networking.database.getValues(
-            at: [
-                NetworkPath.users.rawValue,
-                userID,
-                User.SerializableKey.conversationIDs.rawValue,
-            ].joined(separator: "/")
-        )
-    }
-
     // MARK: - Deletion
 
     func removeConversationFromUsers(
@@ -179,92 +187,25 @@ struct ConversationService {
         conversationIDKey: String,
         failureStrategy: BatchFailureStrategy = .returnOnFailure
     ) async throws(Exception) {
-        func removeConversationFromUser(
-            userID: String,
-            conversationIDKey: String
-        ) async throws(Exception) {
-            let userInfo = ["UserID": userID, "ConversationIDKey": conversationIDKey]
-
-            guard !userID.isBangQualifiedEmpty,
-                  !conversationIDKey.isBangQualifiedEmpty else {
-                throw Exception(
-                    "Passed arguments fail validation.",
-                    metadata: .init(sender: self)
-                ).appending(userInfo: userInfo)
-            }
-
-            var conversationIDStrings: [String]
-            do {
-                conversationIDStrings = try await getConversationIDStrings(
-                    for: userID
-                )
-            } catch {
-                throw error.appending(userInfo: userInfo)
-            }
-
-            conversationIDStrings.removeAll(where: {
-                $0.hasPrefix(conversationIDKey)
-            })
-
-            conversationIDStrings = conversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDStrings
-
-            do {
-                try await networking.database.setValue(
-                    conversationIDStrings,
-                    forKey: [
-                        NetworkPath.users.rawValue,
-                        userID,
-                        User.SerializableKey.conversationIDs.rawValue,
-                    ].joined(separator: "/")
-                )
-            } catch {
-                throw error.appending(userInfo: userInfo)
-            }
-        }
-
-        try await userIDs.map(
-            failFast: failureStrategy == .returnOnFailure
-        ) {
-            try await removeConversationFromUser(
-                userID: $0,
-                conversationIDKey: conversationIDKey
+        guard !conversationIDKey.isBangQualifiedEmpty else {
+            throw Exception(
+                "Passed arguments fail validation.",
+                metadata: .init(sender: self)
             )
         }
-    }
 
-    // MARK: - Auxiliary
+        var updates = [String: Any]()
+        for userID in userIDs where !userID.isBangQualifiedEmpty {
+            let path = [
+                NetworkPath.users.rawValue,
+                userID,
+                User.SerializableKey.conversationIDs.rawValue,
+                conversationIDKey,
+            ].joined(separator: "/")
 
-    private func addConversationToUser(
-        userID: String,
-        conversationID: ConversationID
-    ) async throws(Exception) {
-        let userInfo = ["UserID": userID, "ConversationID": conversationID.encoded]
-
-        var conversationIDStrings: [String]
-        do {
-            conversationIDStrings = try await getConversationIDStrings(
-                for: userID
-            )
-        } catch {
-            throw error.appending(userInfo: userInfo)
+            updates[path] = NSNull()
         }
 
-        conversationIDStrings.append(conversationID.encoded)
-        conversationIDStrings = conversationIDStrings.filter {
-            !$0.isBangQualifiedEmpty
-        }.unique
-
-        do {
-            try await networking.database.setValue(
-                conversationIDStrings,
-                forKey: [
-                    NetworkPath.users.rawValue,
-                    userID,
-                    User.SerializableKey.conversationIDs.rawValue,
-                ].joined(separator: "/")
-            )
-        } catch {
-            throw error.appending(userInfo: userInfo)
-        }
+        try await networking.database.commit(updates)
     }
 }

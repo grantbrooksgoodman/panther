@@ -19,8 +19,8 @@ import Networking
 final class MessageRecipientConsentService {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
+    @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.chatPageViewService.inputBar) private var inputBarService: InputBarService?
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.uiApplication.presentedViews) private var presentedViews: [UIView]
@@ -28,8 +28,8 @@ final class MessageRecipientConsentService {
     // MARK: - Send Consent Message in Current Conversation
 
     func sendConsentMessageInCurrentConversation() async throws(Exception) {
-        guard let conversation = clientSession.conversation.currentConversation,
-              let currentUser = clientSession.user.currentUser else {
+        guard let conversation = entitySession.conversation.currentConversation,
+              let currentUser = entitySession.user.currentUser else {
             throw Exception(
                 "Failed to resolve either conversation or current user.",
                 metadata: .init(sender: self)
@@ -101,7 +101,7 @@ final class MessageRecipientConsentService {
     func setMessageRecipientConsentRequired(
         _ messageRecipientConsentRequired: Bool
     ) async throws(Exception) {
-        guard let currentUser = clientSession.user.currentUser else {
+        guard let currentUser = entitySession.user.currentUser else {
             throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)

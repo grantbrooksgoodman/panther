@@ -7,6 +7,7 @@
 //
 
 /* Native */
+import CryptoKit
 import Foundation
 import UIKit
 
@@ -17,6 +18,7 @@ struct ConversationMetadata: Codable, Equatable {
     // MARK: - Properties
 
     let imageData: Data?
+    let imageHash: String?
     let isPenPalsConversation: Bool
     let lastModifiedDate: Date // swiftlint:disable:next identifier_name
     let messageRecipientConsentAcknowledgementData: [MessageRecipientConsentAcknowledgementData]
@@ -36,6 +38,7 @@ struct ConversationMetadata: Codable, Equatable {
     init(
         name: String,
         imageData: Data?,
+        imageHash: String? = nil,
         isPenPalsConversation: Bool,
         lastModifiedDate: Date, // swiftlint:disable:next identifier_name
         messageRecipientConsentAcknowledgementData: [MessageRecipientConsentAcknowledgementData],
@@ -44,6 +47,7 @@ struct ConversationMetadata: Codable, Equatable {
     ) {
         self.name = name
         self.imageData = imageData
+        self.imageHash = imageHash ?? imageData.map(Self.computeImageHash)
         self.isPenPalsConversation = isPenPalsConversation
         self.lastModifiedDate = lastModifiedDate
         self.penPalsSharingData = penPalsSharingData
@@ -57,7 +61,7 @@ struct ConversationMetadata: Codable, Equatable {
         userIDs: [String],
         isPenPalsConversation: Bool = false
     ) -> ConversationMetadata {
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
 
         var requiresConsentFromInitiatorString: String?
         if let currentUser,
@@ -120,5 +124,13 @@ struct ConversationMetadata: Codable, Equatable {
             penPalsSharingData: penPalsSharingData ?? self.penPalsSharingData,
             requiresConsentFromInitiator: requiresConsentFromInitiator
         )
+    }
+
+    // MARK: - Auxiliary
+
+    static func computeImageHash(_ data: Data) -> String {
+        SHA256.hash(data: data)
+            .compactMap { String(format: "%02x", $0) }
+            .joined()
     }
 }

@@ -129,15 +129,20 @@ struct Message: Codable, EncodedHashable, Hashable {
             dateFormatter.string(from: sentDate),
         ]
 
+        // Render read receipt dates with the UTC hash
+        // formatter rather than the wire-format encoded
+        // property, which uses the ambient timezone.
         if let readReceipts {
-            factors.append(contentsOf: readReceipts.map(\.encoded))
+            factors.append(contentsOf: readReceipts.map {
+                "\($0.userID) | \(dateFormatter.string(from: $0.readDate))"
+            })
         }
 
         return factors.sorted()
     }
 
     private func getReactions() -> [Reaction]? {
-        @Dependency(\.clientSession.conversation.currentConversation) var conversation: Conversation?
+        @Dependency(\.clientSession.entity.conversation.currentConversation) var conversation: Conversation?
         guard let reactionMetadata = conversation?.reactionMetadata,
               let reactions = reactionMetadata.first(where: {
                   $0.messageID == id

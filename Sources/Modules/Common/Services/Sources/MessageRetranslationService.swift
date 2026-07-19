@@ -26,6 +26,7 @@ struct MessageRetranslationService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.conversationsPageViewService) private var conversationsPageViewService: ConversationsPageViewService
     @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
+    @Dependency(\.networking.database) private var database: DatabaseDelegate
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.languageRecognitionService) private var languageRecognitionService: LanguageRecognitionService
     @Dependency(\.translationArchiverDelegate) private var localTranslationArchiver: TranslationArchiverDelegate
@@ -44,7 +45,7 @@ struct MessageRetranslationService {
     ) async throws(Exception) {
         guard chatPageState.isPresented,
               let translation = message.translation,
-              let conversation = clientSession.conversation.currentConversation,
+              let conversation = clientSession.entity.conversation.currentConversation,
               conversation.messageIDs.contains(message.id),
               conversation.messages?.compactMap(\.id).contains(message.id) == true else {
             throw Exception(
@@ -110,8 +111,8 @@ struct MessageRetranslationService {
                     targetLanguageCode: targetLanguageCode
                 ) else { continue }
 
-                @Dependency(\.networking.database) var database: DatabaseDelegate
-                try await database.updateChildValues(
+                let database = LockIsolated(database)
+                try await database.wrappedValue.updateChildValues(
                     forKey: "\(NetworkPath.translations.rawValue)/\(translation.languagePair.string)",
                     with: [
                         translation.reference.type.key: "\(translation.input.value.alphaEncoded)–\(newTranslation.output.alphaEncoded)",
@@ -233,14 +234,14 @@ struct MessageRetranslationService {
     ) async -> Bool {
         var languageName = targetLanguageCode.englishLanguageName ?? targetLanguageCode.languageName ?? targetLanguageCode.uppercased()
         if !messageIsFromCurrentUser,
-           targetLanguageCode == clientSession.user.currentUser?.languageCode {
+           targetLanguageCode == clientSession.entity.user.currentUser?.languageCode {
             languageName = "your language"
         }
 
         var alertMessage = "This message appears to be in \(languageName) already."
         if !messageIsFromCurrentUser,
-           targetLanguageCode != clientSession.user.currentUser?.languageCode,
-           clientSession.user.currentUser?.previousLanguageCodes?.isBangQualifiedEmpty == false {
+           targetLanguageCode != clientSession.entity.user.currentUser?.languageCode,
+           clientSession.entity.user.currentUser?.previousLanguageCodes?.isBangQualifiedEmpty == false {
             alertMessage += "\n\nMessages sent or received while using a previous language setting will not be retranslated into your new current language."
         }
 
@@ -258,20 +259,7 @@ struct MessageRetranslationService {
         _ conversation: Conversation,
         messageID: String
     ) async throws(Exception) {
-        // Local hash/messageID modification to force re-fetch; no remote write.
-        clientSession.store.upsertConversation(
-            conversation
-                .copying(
-                    id: .init(
-                        key: conversation.id.key,
-                        hash: .init(Int.random(in: 1 ... 1_000_000)).encodedHash
-                    )
-                )
-                .copying(
-                    messageIDs: conversation.messageIDs.filter { $0 != messageID }
-                )
-        )
-
+        conversation.markStaleLocally()
         _ = try await conversation.update(
             \.metadata,
             to: conversation.metadata.copyWith(lastModifiedDate: .now)

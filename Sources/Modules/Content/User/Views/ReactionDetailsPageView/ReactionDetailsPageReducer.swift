@@ -54,8 +54,9 @@ struct ReactionDetailsPageReducer: Reducer {
                 )).swiftUIImage
             }
 
-            guard let currentUser = clientSession.user.currentUser,
+            guard let currentUser = clientSession.entity.user.currentUser,
                   let reactions = clientSession
+                  .entity
                   .conversation
                   .currentConversation?
                   .messages?

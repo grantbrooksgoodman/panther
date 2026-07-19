@@ -162,45 +162,27 @@ final class IntegrityService: @unchecked Sendable {
     // MARK: - Prune Deleted Users
 
     func pruneDeletedUsers() async throws(Exception) {
-        var deletedUserIDs: [String]
-        do {
-            deletedUserIDs = try await networking.database.getValues(
-                at: NetworkPath.deletedUsers.rawValue
-            )
-        } catch {
-            guard !error.isEqual(
-                to: .Networking.Database.noValueExists
-            ) else { return }
-            throw error
+        let validUserIDs = Set(session.userData.keys)
+        try await networking.database.runTransaction(
+            at: NetworkPath.deletedUsers.rawValue
+        ) { currentValue in
+            guard let ids = currentValue as? [String] else { return currentValue }
+            let pruned = ids.filter { !validUserIDs.contains($0) }
+            return pruned.isEmpty ? NSNull() : pruned
         }
-
-        deletedUserIDs = deletedUserIDs.filter { !session.userData.keys.contains($0) }
-        try await networking.database.setValue(
-            deletedUserIDs.isBangQualifiedEmpty ? NSNull() : deletedUserIDs,
-            forKey: NetworkPath.deletedUsers.rawValue
-        )
     }
 
     // MARK: - Prune Invalidated Caches
 
     func pruneInvalidatedCaches() async throws(Exception) {
-        var invalidatedCahes: [String]
-        do {
-            invalidatedCahes = try await networking.database.getValues(
-                at: NetworkPath.invalidatedCaches.rawValue
-            )
-        } catch {
-            guard !error.isEqual(
-                to: .Networking.Database.noValueExists
-            ) else { return }
-            throw error
+        let validUserIDs = Set(session.userData.keys)
+        try await networking.database.runTransaction(
+            at: NetworkPath.invalidatedCaches.rawValue
+        ) { currentValue in
+            guard let ids = currentValue as? [String] else { return currentValue }
+            let pruned = ids.filter { validUserIDs.contains($0) }
+            return pruned.isEmpty ? NSNull() : pruned
         }
-
-        invalidatedCahes = invalidatedCahes.filter { session.userData.keys.contains($0) }
-        try await networking.database.setValue(
-            invalidatedCahes.isBangQualifiedEmpty ? NSNull() : invalidatedCahes,
-            forKey: NetworkPath.invalidatedCaches.rawValue
-        )
     }
 
     // MARK: - Malformed Data
@@ -225,71 +207,60 @@ final class IntegrityService: @unchecked Sendable {
 
             tookAction = true
 
-            let conversationMessageIDs = (session.conversationData[conversationIDKey] as? [String: Any])
-                .flatMap { $0[Conversation.SerializableKey.messages.rawValue] as? [String] } ?? []
+            let conversationMessageIDs: [String] = {
+                guard let dictionary = session.conversationData[conversationIDKey] as? [String: Any],
+                      let map = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String: Any] else { return [] }
+                return Array(map.keys)
+            }()
+
+            var cacheInvalidationUserIDs = [String]()
+            var updates: [String: Any] = [:]
+            for userID in usersReferencing(
+                conversationIDKey: conversationIDKey
+            ) {
+                updates[
+                    [
+                        NetworkPath.users.rawValue,
+                        userID,
+                        User.SerializableKey.conversationIDs.rawValue,
+                        conversationIDKey,
+                    ].joined(separator: "/")
+                ] = NSNull()
+
+                cacheInvalidationUserIDs.append(userID)
+            }
+
+            updates[
+                [
+                    NetworkPath.conversations.rawValue,
+                    conversationIDKey,
+                ].joined(separator: "/")
+            ] = NSNull()
+
+            for messageID in conversationMessageIDs {
+                updates[
+                    [
+                        NetworkPath.messages.rawValue,
+                        messageID,
+                    ].joined(separator: "/")
+                ] = NSNull()
+            }
+
+            do {
+                try await networking.database.commit(updates)
+            } catch {
+                exceptions.append(error)
+            }
 
             await withTaskGroup(
                 of: Exception?.self
             ) { taskGroup in
-                for userID in usersReferencing(conversationIDKey: conversationIDKey) {
-                    guard let dictionary = session.userData[userID] as? [String: Any],
-                          var conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
-
-                    conversationIDStrings = conversationIDStrings.filter {
-                        !$0.hasPrefix(conversationIDKey)
-                    }
-
-                    let value = conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings
-                    taskGroup.addTask {
-                        do throws(Exception) {
-                            try await self.networking.database.setValue(
-                                value,
-                                forKey: [
-                                    NetworkPath.users.rawValue,
-                                    userID,
-                                    User.SerializableKey.conversationIDs.rawValue,
-                                ].joined(separator: "/")
-                            )
-                        } catch {
-                            return error
-                        }
-
-                        return nil
-                    }
-
+                for userID in cacheInvalidationUserIDs {
                     taskGroup.addTask {
                         do throws(Exception) {
                             try await self.remoteCacheService.setCacheStatus(
                                 .invalid,
                                 userID: userID
-                            )
-                        } catch {
-                            return error
-                        }
-
-                        return nil
-                    }
-                }
-
-                taskGroup.addTask {
-                    do throws(Exception) {
-                        try await self.networking.database.setValue(
-                            NSNull(),
-                            forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)"
-                        )
-                    } catch {
-                        return error
-                    }
-
-                    return nil
-                }
-
-                for messageID in conversationMessageIDs {
-                    taskGroup.addTask {
-                        do throws(Exception) {
-                            try await self.networking.database.setValue(
-                                NSNull(),
-                                forKey: "\(NetworkPath.messages.rawValue)/\(messageID)"
                             )
                         } catch {
                             return error
@@ -336,26 +307,28 @@ final class IntegrityService: @unchecked Sendable {
                     exceptions.append(error)
                 }
 
-                guard let dictionary = session.conversationData[conversationIDKey] as? [String: Any],
-                      var messageIDs = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String] else { continue }
+                guard let dictionary = session.conversationData[conversationIDKey] as? [String: Any] else { continue }
 
-                messageIDs = messageIDs.filter { $0 != messageID }
+                let rawMessages = dictionary[Conversation.SerializableKey.messages.rawValue]
+                let messagesPath = [
+                    NetworkPath.conversations.rawValue,
+                    conversationIDKey,
+                    Conversation.SerializableKey.messages.rawValue,
+                ].joined(separator: "/")
 
-                guard !messageIDs.isBangQualifiedEmpty else {
+                guard let map = rawMessages as? [String: Any] else { continue }
+                guard map.keys.contains(where: { $0 != messageID }) else {
                     if let exception = await repairMalformedConversations([conversationIDKey]).exception {
                         exceptions.append(exception)
                     }
+
                     continue
                 }
 
                 do {
                     try await networking.database.setValue(
-                        messageIDs,
-                        forKey: [
-                            NetworkPath.conversations.rawValue,
-                            conversationIDKey,
-                            Conversation.SerializableKey.messages.rawValue,
-                        ].joined(separator: "/")
+                        NSNull(),
+                        forKey: "\(messagesPath)/\(messageID)"
                     )
                 } catch {
                     exceptions.append(error)
@@ -395,8 +368,7 @@ final class IntegrityService: @unchecked Sendable {
             }
 
             // FIXME: Audit this change.
-            guard let dictionary = session.userData[userID] as? [String: Any],
-                  var conversationIDKeys = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else {
+            guard let dictionary = session.userData[userID] as? [String: Any] else {
                 do {
                     try await networking.database.setValue(
                         NSNull(),
@@ -405,10 +377,17 @@ final class IntegrityService: @unchecked Sendable {
                 } catch {
                     exceptions.append(error)
                 }
+
                 continue
             }
 
-            conversationIDKeys = conversationIDKeys.compactMap { $0.components(separatedBy: " | ").first }
+            let conversationIDKeys: [String] = if let map = dictionary[
+                User.SerializableKey.conversationIDs.rawValue
+            ] as? [String: Any] {
+                Array(map.keys)
+            } else {
+                []
+            }
 
             if let exception = await repairMalformedConversations(conversationIDKeys).exception {
                 exceptions.append(exception)
@@ -433,52 +412,33 @@ final class IntegrityService: @unchecked Sendable {
         var exceptions = [Exception]()
         var tookAction = false
 
-        let pendingRepairs: [(
-            keyPath: String,
-            value: [String]
-        )] = session
-            .userData
-            .compactMap { key, value in
-                guard let dictionary = value as? [String: Any],
-                      let conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { return nil }
+        var updates = [String: Any]()
 
-                var filteredConversationIDStrings = conversationIDStrings.filter { !$0.isBangQualifiedEmpty }
-                for conversationIDString in filteredConversationIDStrings where !session
-                    .conversationData
-                    .keys
-                    .contains(where: {
-                        $0.hasPrefix(conversationIDString.components(separatedBy: " | ").first ?? conversationIDString)
-                    }) {
-                    filteredConversationIDStrings = filteredConversationIDStrings.filter { $0 != conversationIDString }
-                }
+        for (userID, value) in session.userData {
+            guard let dictionary = value as? [String: Any],
+                  let map = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String: String] else { continue }
 
-                guard conversationIDStrings
-                    .filter({ !$0.isBangQualifiedEmpty })
-                    .sorted() != filteredConversationIDStrings
-                    .sorted() else { return nil }
-
-                let filteredValue = filteredConversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : filteredConversationIDStrings
-                return (
-                    [
-                        NetworkPath.users.rawValue,
-                        key,
-                        User.SerializableKey.conversationIDs.rawValue,
-                    ].joined(separator: "/"),
-                    filteredValue
-                )
+            let invalidKeys = map.keys.filter {
+                !session.conversationData.keys.contains($0)
             }
 
-        if !pendingRepairs.isEmpty {
-            tookAction = true
+            for key in invalidKeys {
+                let path = [
+                    NetworkPath.users.rawValue,
+                    userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                    key,
+                ].joined(separator: "/")
+
+                updates[path] = NSNull()
+            }
+
+            if !invalidKeys.isEmpty { tookAction = true }
+        }
+
+        if !updates.isEmpty {
             do {
-                try await pendingRepairs.map(
-                    failFast: false
-                ) {
-                    try await self.networking.database.setValue(
-                        $0.value,
-                        forKey: $0.keyPath
-                    )
-                }
+                try await networking.database.commit(updates)
             } catch {
                 exceptions.append(error)
             }
@@ -490,49 +450,41 @@ final class IntegrityService: @unchecked Sendable {
     func resolveBrokenMessageChain() async -> (tookAction: Bool, exception: Exception?) {
         var conversationsToRepair = [String]()
         var exceptions = [Exception]()
+        var updates = [String: Any]()
 
-        let pendingRepairs: [(
-            keyPath: String,
-            filteredMessageIDs: [String]
-        )] = session
-            .conversationData
-            .compactMap { conversationIDKey, value in
-                guard let dictionary = value as? [String: Any],
-                      let messageIDs = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String] else { return nil }
+        for (conversationIDKey, value) in session.conversationData {
+            guard let dictionary = value as? [String: Any],
+                  let map = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String: Any] else { continue }
 
-                let filteredMessageIDs = messageIDs.filter {
-                    session.indices.existingMessageIDs.contains($0)
-                }
+            let messagesPath = [
+                NetworkPath.conversations.rawValue,
+                conversationIDKey,
+                Conversation.SerializableKey.messages.rawValue,
+            ].joined(separator: "/")
 
-                guard filteredMessageIDs.count != messageIDs.count else { return nil }
-
-                guard !filteredMessageIDs.isEmpty else {
-                    conversationsToRepair.append(conversationIDKey)
-                    return nil
-                }
-
-                return (
-                    [
-                        NetworkPath.conversations.rawValue,
-                        conversationIDKey,
-                        Conversation.SerializableKey.messages.rawValue,
-                    ].joined(separator: "/"),
-                    filteredMessageIDs
-                )
+            let invalidKeys = map.keys.filter {
+                !session.indices.existingMessageIDs.contains($0)
             }
 
-        let tookAction = !pendingRepairs.isEmpty || !conversationsToRepair.isEmpty
-        do {
-            try await pendingRepairs.map(
-                failFast: false
-            ) {
-                try await self.networking.database.setValue(
-                    $0.filteredMessageIDs,
-                    forKey: $0.keyPath
-                )
+            guard !invalidKeys.isEmpty else { continue }
+            guard map.count != invalidKeys.count else {
+                conversationsToRepair.append(conversationIDKey)
+                continue
             }
-        } catch {
-            exceptions.append(error)
+
+            for key in invalidKeys {
+                updates["\(messagesPath)/\(key)"] = NSNull()
+            }
+        }
+
+        let tookAction = !updates.isEmpty || !conversationsToRepair.isEmpty
+
+        if !updates.isEmpty {
+            do {
+                try await networking.database.commit(updates)
+            } catch {
+                exceptions.append(error)
+            }
         }
 
         for conversationIDKey in conversationsToRepair {
@@ -552,9 +504,9 @@ final class IntegrityService: @unchecked Sendable {
 
         for (key, value) in session.conversationData {
             guard let dictionary = value as? [String: Any],
-                  var participantUserIDs = dictionary[Conversation.SerializableKey.participants.rawValue] as? [String] else { continue }
+                  let participantMap = dictionary[Conversation.SerializableKey.participants.rawValue] as? [String: Any] else { continue }
 
-            participantUserIDs = participantUserIDs.compactMap { $0.components(separatedBy: " | ").first }
+            let participantUserIDs = Array(participantMap.keys)
 
             let usersReferencing = usersReferencing(conversationIDKey: key)
             let usersNotReferencing = participantUserIDs.filter { !usersReferencing.contains($0) }
@@ -576,38 +528,27 @@ final class IntegrityService: @unchecked Sendable {
             }
         }
 
-        let pendingRepairs: [(
-            keyPath: String,
-            value: [String]
-        )] = missingConversationIDsForUserIDs
-            .compactMap { userID, missingConversationIDs in
-                guard let dictionary = session.userData[userID] as? [String: Any],
-                      var conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { return nil }
+        if !missingConversationIDsForUserIDs.isEmpty {
+            tookAction = true
 
-                conversationIDStrings.append(contentsOf: missingConversationIDs)
-                conversationIDStrings = conversationIDStrings.unique
-                let value = conversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDStrings
-                return (
-                    [
+            var updates = [String: Any]()
+            for (userID, missingConversationIDs) in missingConversationIDsForUserIDs {
+                for idString in missingConversationIDs {
+                    let key = idString.components(separatedBy: " | ").first ?? idString
+                    let hash = idString.components(separatedBy: " | ").last ?? "!"
+                    let path = [
                         NetworkPath.users.rawValue,
                         userID,
                         User.SerializableKey.conversationIDs.rawValue,
-                    ].joined(separator: "/"),
-                    value
-                )
+                        key,
+                    ].joined(separator: "/")
+
+                    updates[path] = hash
+                }
             }
 
-        if !pendingRepairs.isEmpty {
-            tookAction = true
             do {
-                try await pendingRepairs.map(
-                    failFast: false
-                ) {
-                    try await self.networking.database.setValue(
-                        $0.value,
-                        forKey: $0.keyPath
-                    )
-                }
+                try await networking.database.commit(updates)
             } catch {
                 exceptions.append(error)
             }
@@ -639,77 +580,78 @@ final class IntegrityService: @unchecked Sendable {
 
         await withTaskGroup(
             of: (
-                tookAction: Bool,
+                contentTypeKeyPath: String?,
                 exceptions: [Exception]
             ).self
         ) { taskGroup in
             for (key, translationReferenceStrings) in audioMessages {
                 taskGroup.addTask {
                     var taskExceptions = [Exception]()
-                    var taskTookAction = false
+                    var needsUpdate = false
 
                     let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(key).\(MediaFileExtension.audio(.m4a).rawValue)"
-                    let contentTypeKeyPath = [
-                        NetworkPath.messages.rawValue,
-                        key,
-                        Message.SerializableKey.contentType.rawValue,
-                    ].joined(separator: "/")
 
                     do throws(Exception) {
                         let itemExists = try await self.networking.storage.itemExists(at: inputFilePath)
                         if !itemExists {
-                            taskTookAction = true
-                            do throws(Exception) {
-                                try await self.networking.database.setValue(
-                                    HostedContentType.text.rawValue,
-                                    forKey: contentTypeKeyPath
-                                )
-                            } catch {
-                                taskExceptions.append(error)
-                            }
+                            needsUpdate = true
                         }
                     } catch {
                         taskExceptions.append(error)
                     }
 
-                    for translationReferenceString in translationReferenceStrings {
-                        guard let reference: TranslationReference = .init(translationReferenceString),
-                              !reference.languagePair.isIdempotent else { continue }
+                    if !needsUpdate {
+                        for translationReferenceString in translationReferenceStrings {
+                            guard let reference: TranslationReference = .init(translationReferenceString),
+                                  !reference.languagePair.isIdempotent else { continue }
 
-                        let outputFilePath = [
-                            NetworkPath.audioTranslations.rawValue,
-                            reference.hostingKey,
-                            "\(reference.languagePair.to)-\(AudioService.FileNames.outputM4A)",
-                        ].joined(separator: "/")
-
-                        do throws(Exception) {
-                            let itemExists = try await self.networking.storage.itemExists(at: outputFilePath)
-                            guard !itemExists else { continue }
-                            taskTookAction = true
+                            let outputFilePath = [
+                                NetworkPath.audioTranslations.rawValue,
+                                reference.hostingKey,
+                                "\(reference.languagePair.to)-\(AudioService.FileNames.outputM4A)",
+                            ].joined(separator: "/")
 
                             do throws(Exception) {
-                                try await self.networking.database.setValue(
-                                    HostedContentType.text.rawValue,
-                                    forKey: contentTypeKeyPath
-                                )
+                                let itemExists = try await self.networking.storage.itemExists(at: outputFilePath)
+                                guard !itemExists else { continue }
+                                needsUpdate = true
+                                break
                             } catch {
                                 taskExceptions.append(error)
                             }
-                        } catch {
-                            taskExceptions.append(error)
                         }
                     }
 
-                    return (taskTookAction, taskExceptions)
+                    let contentTypeKeyPath: String? = if needsUpdate {
+                        [
+                            NetworkPath.messages.rawValue,
+                            key,
+                            Message.SerializableKey.contentType.rawValue,
+                        ].joined(separator: "/")
+                    } else {
+                        nil
+                    }
+
+                    return (contentTypeKeyPath, taskExceptions)
                 }
             }
 
+            var updates: [String: Any] = [:]
             for await result in taskGroup {
-                if result.tookAction {
-                    tookAction = true
+                if let path = result.contentTypeKeyPath {
+                    updates[path] = HostedContentType.text.rawValue
                 }
 
                 exceptions.append(contentsOf: result.exceptions)
+            }
+
+            if !updates.isEmpty {
+                tookAction = true
+                do throws(Exception) {
+                    try await networking.database.commit(updates)
+                } catch {
+                    exceptions.append(error)
+                }
             }
         }
 
@@ -799,9 +741,9 @@ final class IntegrityService: @unchecked Sendable {
         var malformedConversationIDKeys = [String]()
         for (key, value) in session.conversationData {
             guard let dictionary = value as? [String: Any],
-                  var participantUserIDs = dictionary[Conversation.SerializableKey.participants.rawValue] as? [String] else { continue }
+                  let participantMap = dictionary[Conversation.SerializableKey.participants.rawValue] as? [String: Any] else { continue }
 
-            participantUserIDs = participantUserIDs.compactMap { $0.components(separatedBy: " | ").first }
+            let participantUserIDs = Array(participantMap.keys)
             guard participantUserIDs.contains(where: { !session.userData.keys.contains($0) }) else { continue }
 
             malformedConversationIDKeys.append(key)
@@ -853,17 +795,17 @@ final class IntegrityService: @unchecked Sendable {
         guard !malformedMessageIDs.isEmpty else { return (false, nil) }
         var exceptions = [Exception]()
 
-        do {
-            try await malformedTranslationPaths.map(
-                failFast: false
-            ) {
-                try await self.networking.database.setValue(
-                    NSNull(),
-                    forKey: $0
-                )
+        if !malformedTranslationPaths.isEmpty {
+            var updates: [String: Any] = [:]
+            for path in malformedTranslationPaths {
+                updates[path] = NSNull()
             }
-        } catch {
-            exceptions.append(error)
+
+            do {
+                try await networking.database.commit(updates)
+            } catch {
+                exceptions.append(error)
+            }
         }
 
         let repairMalformedMessagesResult = await repairMalformedMessages(malformedMessageIDs)
@@ -1039,35 +981,48 @@ final class IntegrityService: @unchecked Sendable {
     private func resetHash(
         conversationIDKey: String
     ) async throws(Exception) {
+        var cacheInvalidationUserIDs = [String]()
+        var updates: [String: Any] = [:]
+        for userID in usersReferencing(
+            conversationIDKey: conversationIDKey
+        ) {
+            guard let dictionary = session.userData[userID] as? [String: Any],
+                  dictionary[
+                      User.SerializableKey.conversationIDs.rawValue
+                  ] is [String: Any] else { continue }
+
+            updates[
+                [
+                    NetworkPath.users.rawValue,
+                    userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                    conversationIDKey,
+                ].joined(separator: "/")
+            ] = String.bangQualifiedEmpty
+
+            cacheInvalidationUserIDs.append(userID)
+        }
+
+        updates[
+            [
+                NetworkPath.conversations.rawValue,
+                conversationIDKey,
+                Conversation.SerializableKey.encodedHash.rawValue,
+            ].joined(separator: "/")
+        ] = String.bangQualifiedEmpty
+
         var exceptions = [Exception]()
+
+        do {
+            try await networking.database.commit(updates)
+        } catch {
+            exceptions.append(error)
+        }
 
         await withTaskGroup(
             of: Exception?.self
         ) { taskGroup in
-            for userID in usersReferencing(conversationIDKey: conversationIDKey) {
-                guard let dictionary = session.userData[userID] as? [String: Any],
-                      var conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
-                conversationIDStrings = conversationIDStrings.filter { !$0.hasPrefix(conversationIDKey) }
-                conversationIDStrings.append("\(conversationIDKey) | \(String.bangQualifiedEmpty)")
-                let value = conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings
-
-                taskGroup.addTask {
-                    do throws(Exception) {
-                        try await self.networking.database.setValue(
-                            value,
-                            forKey: [
-                                NetworkPath.users.rawValue,
-                                userID,
-                                User.SerializableKey.conversationIDs.rawValue,
-                            ].joined(separator: "/")
-                        )
-                    } catch {
-                        return error
-                    }
-
-                    return nil
-                }
-
+            for userID in cacheInvalidationUserIDs {
                 taskGroup.addTask {
                     do throws(Exception) {
                         try await self.remoteCacheService.setCacheStatus(
@@ -1080,23 +1035,6 @@ final class IntegrityService: @unchecked Sendable {
 
                     return nil
                 }
-            }
-
-            taskGroup.addTask {
-                do throws(Exception) {
-                    try await self.networking.database.setValue(
-                        String.bangQualifiedEmpty,
-                        forKey: [
-                            NetworkPath.conversations.rawValue,
-                            conversationIDKey,
-                            Conversation.SerializableKey.encodedHash.rawValue,
-                        ].joined(separator: "/")
-                    )
-                } catch {
-                    return error
-                }
-
-                return nil
             }
 
             for await exception in taskGroup {

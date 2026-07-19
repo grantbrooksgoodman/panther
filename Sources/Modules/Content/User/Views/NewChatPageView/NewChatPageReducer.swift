@@ -16,7 +16,7 @@ import AppSubsystem
 struct NewChatPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.chatPageViewService.recipientBar) private var recipientBarService: RecipientBarService?
     @Dependency(\.commonServices) private var services: CommonServices
@@ -79,7 +79,7 @@ struct NewChatPageReducer: Reducer {
 
             state.doneToolbarButtonText = Localized(.cancel).wrappedValue
             state.navigationTitle = Application.isInPrevaricationMode ? "Create chat" : Localized(.newMessage).wrappedValue
-            state.shouldShowPenPalsToolbarButton = clientSession.user.currentUser?.isPenPalsParticipant ?? false
+            state.shouldShowPenPalsToolbarButton = entitySession.user.currentUser?.isPenPalsParticipant ?? false
 
             Observables.newChatPagePenPalsToolbarButtonAnimation.trigger()
 
@@ -91,7 +91,7 @@ struct NewChatPageReducer: Reducer {
             navigation.navigate(to: .userContent(.sheet(.none)))
 
         case .firstMessageSent:
-            guard let currentConversation = clientSession.conversation.currentConversation,
+            guard let currentConversation = entitySession.conversation.currentConversation,
                   let cellViewData = ConversationCellViewData(
                       currentConversation
                   ) else { return .none }

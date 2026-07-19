@@ -28,45 +28,20 @@ struct RemoteCacheService {
         return invalidatedCaches.contains(userID) ? .invalid : .valid
     }
 
-    // NIT: Can't I just call updateChildValues?
     func setCacheStatus(
         _ cacheStatus: RemoteCacheStatus,
         userID: String
     ) async throws(Exception) {
-        var invalidatedCaches: [String]
-        do {
-            invalidatedCaches = try await networking.database.getValues(
-                at: NetworkPath.invalidatedCaches.rawValue
-            )
-        } catch {
-            var exceptions = error.isEqual(
-                to: .Networking.Database.noValueExists
-            ) ? [] : [error]
-
-            do {
-                try await networking.database.setValue(
-                    [userID],
-                    forKey: NetworkPath.invalidatedCaches.rawValue
-                )
-            } catch {
-                exceptions.append(error)
+        try await networking.database.runTransaction(
+            at: NetworkPath.invalidatedCaches.rawValue
+        ) { currentValue in
+            var ids = (currentValue as? [String]) ?? []
+            switch cacheStatus {
+            case .invalid: ids.append(userID)
+            case .valid: ids.removeAll(where: { $0 == userID })
             }
 
-            if let exception = exceptions.compiledException {
-                throw exception
-            }
-
-            return
+            return ids.unique
         }
-
-        switch cacheStatus {
-        case .invalid: invalidatedCaches.append(userID)
-        case .valid: invalidatedCaches.removeAll(where: { $0 == userID })
-        }
-
-        try await networking.database.setValue(
-            invalidatedCaches.unique,
-            forKey: NetworkPath.invalidatedCaches.rawValue
-        )
     }
 }

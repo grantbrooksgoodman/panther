@@ -22,7 +22,7 @@ struct SettingsPageReducer: Reducer {
     @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
     @Dependency(\.settingsPageViewService) private var viewService: SettingsPageViewService
 
     // MARK: - Actions
@@ -90,7 +90,7 @@ struct SettingsPageReducer: Reducer {
         /* MARK: Computed Properties */
 
         var blockedUsersButtonText: String {
-            @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
+            @Dependency(\.clientSession.entity.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
             return "\(strings.value(for: .blockedUsersButtonText)) (\((blockedUserIDs ?? []).count))"
         }
 
@@ -103,7 +103,7 @@ struct SettingsPageReducer: Reducer {
         }
 
         var isBlockedUsersButtonEnabled: Bool {
-            @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
+            @Dependency(\.clientSession.entity.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
             return !(blockedUserIDs ?? []).isBangQualifiedEmpty
         }
 

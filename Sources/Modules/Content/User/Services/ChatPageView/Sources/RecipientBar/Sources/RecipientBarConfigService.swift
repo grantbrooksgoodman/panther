@@ -31,7 +31,7 @@ final class RecipientBarConfigService {
 
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.commonServices.audio.recording) private var recordingService: RecordingService
 
     // MARK: - Properties
@@ -95,10 +95,10 @@ final class RecipientBarConfigService {
 
         guard let contactSelectionUIService = chatPageViewService.recipientBar?.contactSelectionUI else { return }
 
-        let isPreviousConversationEmpty = clientSession.conversation.currentConversation?.isEmpty ?? true
-        let previousConversationIDKey = clientSession.conversation.currentConversation?.id.key ?? ""
+        let isPreviousConversationEmpty = entitySession.conversation.currentConversation?.isEmpty ?? true
+        let previousConversationIDKey = entitySession.conversation.currentConversation?.id.key ?? ""
 
-        let conversations = clientSession.user.currentUser?.conversations?.visibleForCurrentUser.filter { $0.users != nil }
+        let conversations = entitySession.user.currentUser?.conversations?.visibleForCurrentUser.filter { $0.users != nil }
         let userIDs = contactSelectionUIService.selectedContactPairs.userIDs
         let users = contactSelectionUIService.selectedContactPairs.users
 
@@ -121,20 +121,20 @@ final class RecipientBarConfigService {
             defer { shouldReload = !isPreviousConversationEmpty }
 
             guard !contactSelectionUIService.selectedContactPairs.isEmpty else {
-                clientSession.conversation.setCurrentConversation(.empty)
+                entitySession.conversation.setCurrentConversation(.empty)
                 return
             }
 
             guard !contactSelectionUIService.selectedContactPairs.allSatisfy(\.isMock) else {
-                clientSession.conversation.setCurrentConversation(.empty(withUsers: users))
+                entitySession.conversation.setCurrentConversation(.empty(withUsers: users))
                 return
             }
 
-            clientSession.conversation.setCurrentConversation(.mock(withUsers: users))
+            entitySession.conversation.setCurrentConversation(.mock(withUsers: users))
             return
         }
 
-        clientSession.conversation.setCurrentConversation(existingConversation)
+        entitySession.conversation.setCurrentConversation(existingConversation)
         shouldReload = existingConversation.id.key != previousConversationIDKey
     }
 

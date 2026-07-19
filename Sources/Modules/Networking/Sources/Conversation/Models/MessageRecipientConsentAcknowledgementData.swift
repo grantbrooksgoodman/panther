@@ -38,7 +38,7 @@ struct MessageRecipientConsentAcknowledgementData: Codable, Equatable {
     }
 
     static func prepopulated(userIDs: [String]) -> [MessageRecipientConsentAcknowledgementData] {
-        @Dependency(\.clientSession.user.currentUser?.messageRecipientConsentRequired) var messageRecipientConsentRequired: Bool?
+        @Dependency(\.clientSession.entity.user.currentUser?.messageRecipientConsentRequired) var messageRecipientConsentRequired: Bool?
         let initialConsentAcknowledgedValue = !(messageRecipientConsentRequired ?? false)
         return userIDs.reduce(into: [MessageRecipientConsentAcknowledgementData]()) { partialResult, userID in
             partialResult.append(.init(userID: userID, consentAcknowledged: initialConsentAcknowledgedValue))

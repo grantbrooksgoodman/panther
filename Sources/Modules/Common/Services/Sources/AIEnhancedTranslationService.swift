@@ -16,7 +16,7 @@ import Networking
 struct AIEnhancedTranslationService {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
     // MARK: - Set Did Grant AI-Enhanced Translation Permission
 

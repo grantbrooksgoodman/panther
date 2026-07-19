@@ -33,15 +33,29 @@ extension Conversation: Serializable {
     // MARK: - Properties
 
     var encoded: [String: Any] {
-        let messageIDs = messageIDs.filter { $0.hasPrefix("-") }
+        let filteredMessageIDs = messageIDs.filter { $0.hasPrefix("-") }
         let reactionMetadata = reactionMetadata?.map(\.encoded) ?? [ReactionMetadata.empty.encoded]
+
+        var messagesMap = [String: Bool]()
+        for messageID in filteredMessageIDs {
+            messagesMap[messageID] = true
+        }
+
+        var participantsMap = [String: [String: Any]]()
+        for participant in participants {
+            participantsMap[participant.userID] = [
+                Participant.SerializableKey.hasDeletedConversation.rawValue: participant.hasDeletedConversation,
+                Participant.SerializableKey.isTyping.rawValue: participant.isTyping,
+            ]
+        }
+
         return [
             Keys.id.rawValue: id.encoded,
             Keys.activities.rawValue: activities?.map(\.encoded) ?? [Activity.empty.encoded],
             Keys.encodedHash.rawValue: encodedHash,
-            Keys.messages.rawValue: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
+            Keys.messages.rawValue: messagesMap.isEmpty ? [String: Bool]() : messagesMap,
             Keys.metadata.rawValue: metadata.encoded,
-            Keys.participants.rawValue: participants.map(\.encoded),
+            Keys.participants.rawValue: participantsMap,
             Keys.reactionMetadata.rawValue: reactionMetadata,
         ]
     }
@@ -51,48 +65,61 @@ extension Conversation: Serializable {
     init(
         from data: [String: Any]
     ) async throws(Exception) {
-        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
-        @Dependency(\.networking.messageService) var messageService: MessageService
-        @Dependency(\.clientSession.store) var sessionStore: SessionStore
-
         // Deserialize raw data
 
         guard let id = data[Keys.id.rawValue] as? String,
               let encodedActivities = data[Keys.activities.rawValue] as? [[String: Any]],
               let encodedMetadata = data[Keys.metadata.rawValue] as? [String: Any],
-              let encodedParticipants = data[Keys.participants.rawValue] as? [String],
-              let encodedReactionMetadata = data[Keys.reactionMetadata.rawValue] as? [[String: Any]],
-              let messageIDs = data[Keys.messages.rawValue] as? [String] else {
+              let encodedReactionMetadata = data[Keys.reactionMetadata.rawValue] as? [[String: Any]] else {
             throw .Networking.decodingFailed(
                 data: data,
                 .init(sender: Self.self)
             )
         }
 
+        let messageIDs: [String] = if let map = data[
+            Keys.messages.rawValue
+        ] as? [String: Any] {
+            map.keys.sorted()
+        } else {
+            []
+        }
+
         // Decode conversation ID
 
         let conversationID = try await ConversationID(from: id)
 
-        // Decode activities
-
-        let activities = try await encodedActivities.map(
-            failForEmptyCollection: true
-        ) {
-            try await Activity(from: $0)
-        }
-
-        // Decode metadata
-
-        let metadata = try await ConversationMetadata(
-            from: encodedMetadata
-        )
-
         // Decode participants
 
-        let participants = try await encodedParticipants.map(
-            failForEmptyCollection: true
-        ) {
-            try await Participant(from: $0)
+        guard let participantMap = data[
+            Keys.participants.rawValue
+        ] as? [String: [String: Any]] else {
+            throw .Networking.decodingFailed(
+                data: data,
+                .init(sender: Self.self)
+            )
+        }
+
+        var participants = [Participant]()
+        for (userID, values) in participantMap {
+            guard let hasDeletedConversation = values[
+                Participant.SerializableKey.hasDeletedConversation.rawValue
+            ] as? Bool, let isTyping = values[
+                Participant.SerializableKey.isTyping.rawValue
+            ] as? Bool else {
+                throw .Networking.decodingFailed(
+                    data: values,
+                    .init(sender: Self.self)
+                )
+            }
+
+            participants.append(
+                Participant(
+                    userID: userID,
+                    hasDeletedConversation: hasDeletedConversation,
+                    isTyping: isTyping
+                )
+            )
         }
 
         // Decode reaction metadata
@@ -105,11 +132,15 @@ extension Conversation: Serializable {
 
         // Synthesize conversation
 
-        guard let currentUserParticipant = participants.firstWithCurrentUserID,
-              !currentUserParticipant.hasDeletedConversation else {
+        // Message resolution is deferred to resolveMessages /
+        // resolveMessagesOnCurrentUserConversations; decoding
+        // only records the message IDs.
+
+        if participants.firstWithCurrentUserID == nil ||
+            participants.firstWithCurrentUserID?.hasDeletedConversation == true {
             Logger.log(
                 .init(
-                    "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
+                    "Current user is not participating in or has deleted this conversation.",
                     isReportable: false,
                     userInfo: [
                         "ConversationIDKey": conversationID.key,
@@ -119,50 +150,16 @@ extension Conversation: Serializable {
                 ),
                 domain: .conversation
             )
-
-            self.init(
-                conversationID,
-                activities: activities,
-                messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
-                metadata: metadata,
-                participants: participants,
-                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata
-            )
-            return
         }
 
-        guard !messageIDs.isBangQualifiedEmpty else {
-            self.init(
-                conversationID,
-                activities: activities,
-                messageIDs: .bangQualifiedEmpty,
-                metadata: metadata,
-                participants: participants,
-                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata
-            )
-            return
-        }
-
-        let messages = try await messageService.getMessages(
-            ids: messageIDs
-        )
-
-        guard !messages.isEmpty,
-              messages.count == messageIDs.count else {
-            throw Exception(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: Self.self)
-            )
-        }
-
-        // Fetched during deserialization; bypasses RemotelyUpdatable.update.
-        sessionStore.upsertMessages(Set(messages))
-        self.init(
+        try await self.init(
             conversationID,
-            activities: activities,
-            messageIDs: messageIDs,
-            metadata: metadata,
-            participants: participants,
+            activities: encodedActivities.map(
+                failForEmptyCollection: true
+            ) { try await Activity(from: $0) },
+            messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
+            metadata: .init(from: encodedMetadata),
+            participants: participants.sorted(by: { $0.userID < $1.userID }),
             reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata
         )
     }
@@ -188,15 +185,16 @@ extension Conversation: Serializable {
                       .SerializableKey
                       .penPalsSharingData
                       .rawValue
-              ] as? [String],
-              let encodedParticipants = data[Keys.participants.rawValue] as? [String],
-              encodedParticipants.allSatisfy({ Participant.canDecode(from: $0) }),
-              encodedParticipants.count > 1,
+              ] as? [String] else { return false }
+
+        guard let participantMap = data[Keys.participants.rawValue] as? [String: [String: Any]],
+              participantMap.count > 1,
               encodedMessageRecipientConsentAcknowledgementData.count == encodedPenPalsSharingData.count,
-              encodedPenPalsSharingData.count == encodedParticipants.count,
+              encodedPenPalsSharingData.count == participantMap.count,
               let encodedReactionMetadata = data[Keys.reactionMetadata.rawValue] as? [[String: Any]],
               encodedReactionMetadata.allSatisfy({ ReactionMetadata.canDecode(from: $0) }),
-              data[Keys.messages.rawValue] is [String] else { return false }
+              data[Keys.messages.rawValue] is [String: Any] ||
+              data[Keys.messages.rawValue] == nil else { return false }
 
         return true
     }

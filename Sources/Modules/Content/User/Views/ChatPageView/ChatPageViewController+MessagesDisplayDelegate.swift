@@ -105,7 +105,7 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
         }
 
         guard let users = currentConversation?.users,
-              let currentUser = clientSession.user.currentUser,
+              let currentUser = clientSession.entity.user.currentUser,
               let matchingUser = (users + [currentUser])
               .first(where: {
                   $0.id == message.fromAccountID
@@ -113,7 +113,7 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
             return configureGenericAvatar()
         }
 
-        guard clientSession.conversation.currentConversation?.mutuallySharedPenPalsDataBetweenCurrentUserAnd(matchingUser) == true ||
+        guard clientSession.entity.conversation.currentConversation?.mutuallySharedPenPalsDataBetweenCurrentUserAnd(matchingUser) == true ||
             penPalsService.isKnownToCurrentUser(matchingUser.id) else {
             return configurePenPalsAvatar()
         }

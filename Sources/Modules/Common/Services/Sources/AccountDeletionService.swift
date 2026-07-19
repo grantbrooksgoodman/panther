@@ -17,8 +17,8 @@ import Networking
 final class AccountDeletionService: @unchecked Sendable {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
@@ -41,10 +41,7 @@ final class AccountDeletionService: @unchecked Sendable {
             )
         }
 
-        clientSession.user.stopObservingCurrentUserChanges(
-            disableChangeEmission: true
-        )
-
+        entitySession.user.stopObservingCurrentUserChanges()
         defer { core.hud.hide() }
         await MainActor.run {
             core.ui.addOverlay(
@@ -75,7 +72,7 @@ final class AccountDeletionService: @unchecked Sendable {
 
             taskGroup.addTask {
                 do throws(Exception) {
-                    try await self.clientSession.user.resolveCurrentUser(
+                    try await self.entitySession.user.resolveCurrentUser(
                         and: [.conversations]
                     )
 
@@ -92,13 +89,13 @@ final class AccountDeletionService: @unchecked Sendable {
             }
         }
 
-        let conversations = clientSession.user.currentUser?.conversations ?? []
+        let conversations = entitySession.user.currentUser?.conversations ?? []
         let groupChats = conversations.filter { $0.participants.count > 2 }
         let oneToOneChats = conversations.filter { $0.participants.count == 2 }
 
         let totalUnits = Double(groupChats.count + oneToOneChats.count)
 
-        // Remove from group chats, delete 1:1 chats, and zero-out conversation IDs.
+        // Remove from group chats, delete 1:1 chats.
 
         await withTaskGroup(
             of: (
@@ -109,11 +106,13 @@ final class AccountDeletionService: @unchecked Sendable {
             for groupChat in groupChats {
                 taskGroup.addTask {
                     do throws(Exception) {
-                        try await self.clientSession.activity.removeFromConversation(
-                            currentUserID,
-                            conversation: groupChat,
-                            removeFromUser: false
-                        )
+                        try await self.entitySession
+                            .activity
+                            .removeFromConversation(
+                                currentUserID,
+                                conversation: groupChat,
+                                removeFromUser: false
+                            )
                         return (nil, true)
                     } catch {
                         return (error, true)
@@ -124,7 +123,7 @@ final class AccountDeletionService: @unchecked Sendable {
             for oneToOneChat in oneToOneChats {
                 taskGroup.addTask {
                     do throws(Exception) {
-                        try await self.clientSession.conversation.deleteConversation(
+                        try await self.entitySession.conversation.deleteConversation(
                             oneToOneChat,
                             forced: true
                         )
@@ -132,18 +131,6 @@ final class AccountDeletionService: @unchecked Sendable {
                     } catch {
                         return (error, true)
                     }
-                }
-            }
-
-            taskGroup.addTask {
-                do throws(Exception) {
-                    _ = try await self.clientSession.user.currentUser?.update(
-                        \.conversationIDs,
-                        to: []
-                    )
-                    return (nil, false)
-                } catch {
-                    return (error, false)
                 }
             }
 
@@ -156,6 +143,18 @@ final class AccountDeletionService: @unchecked Sendable {
                     incrementProgress(forTotal: totalUnits)
                 }
             }
+        }
+
+        // Zero-out conversation IDs after all conversation
+        // operations complete to avoid a self-race where a
+        // concurrent didWrite fan-out re-adds entries.
+        do {
+            _ = try await entitySession.user.currentUser?.update(
+                \.conversationIDs,
+                to: []
+            )
+        } catch {
+            exceptions.append(error)
         }
 
         // Validate database integrity.
@@ -202,27 +201,12 @@ final class AccountDeletionService: @unchecked Sendable {
     // MARK: - Auxiliary
 
     private func addToDeletedUsers(_ userID: String) async throws(Exception) {
-        do {
-            var deletedUserIDs: [String] = try await networking.database.getValues(
-                at: NetworkPath.deletedUsers.rawValue
-            )
-
-            deletedUserIDs.append(userID)
-            deletedUserIDs = deletedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
-
-            try await networking.database.setValue(
-                deletedUserIDs,
-                forKey: NetworkPath.deletedUsers.rawValue
-            )
-        } catch {
-            guard error.isEqual(
-                to: .Networking.Database.noValueExists
-            ) else { throw error }
-
-            try await networking.database.setValue(
-                [userID],
-                forKey: NetworkPath.deletedUsers.rawValue
-            )
+        try await networking.database.runTransaction(
+            at: NetworkPath.deletedUsers.rawValue
+        ) { currentValue in
+            var ids = (currentValue as? [String]) ?? []
+            ids.append(userID)
+            return ids.filter { $0 != String.bangQualifiedEmpty }.unique
         }
     }
 

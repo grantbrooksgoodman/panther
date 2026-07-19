@@ -39,8 +39,38 @@ extension User: RemotelyUpdatable {
         forKey key: SerializableKey,
         updating updated: User
     ) async throws(Exception) -> WriteAction<User> {
-        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
-        guard let date = value as? Date else { return .proceed }
-        return .encoded(timestampDateFormatter.string(from: date))
+        switch key {
+        case .blockedUserIDs:
+            let newIDs = Set(updated.blockedUserIDs ?? [])
+            let oldIDs = Set(blockedUserIDs ?? [])
+
+            guard newIDs != oldIDs else { return .handled(updated) }
+
+            let basePath = [
+                NetworkPath.users.rawValue,
+                id,
+                SerializableKey.blockedUserIDs.rawValue,
+            ].joined(separator: "/")
+
+            var updates = [String: Any]()
+            for added in newIDs.subtracting(oldIDs) {
+                updates["\(basePath)/\(added)"] = true
+            }
+
+            for removed in oldIDs.subtracting(newIDs) {
+                updates["\(basePath)/\(removed)"] = NSNull()
+            }
+
+            guard !updates.isEmpty else { return .handled(updated) }
+
+            @Dependency(\.networking.database) var database: DatabaseDelegate
+            try await database.commit(updates)
+            return .handled(updated)
+
+        default:
+            @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
+            guard let date = value as? Date else { return .proceed }
+            return .encoded(timestampDateFormatter.string(from: date))
+        }
     }
 }

@@ -20,7 +20,7 @@ struct AnalyticsService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.clientSession.entity.user.currentUser) private var currentUser: User?
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 

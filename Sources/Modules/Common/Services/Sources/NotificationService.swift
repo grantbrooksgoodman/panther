@@ -47,7 +47,7 @@ struct NotificationService {
         }
 
         guard updateHostedValue,
-              let currentUser = clientSession.user.currentUser else { return }
+              let currentUser = clientSession.entity.user.currentUser else { return }
         try await updateHostedBadgeNumber(
             badgeNumber < 0 ? 0 : badgeNumber,
             user: currentUser
@@ -63,7 +63,7 @@ struct NotificationService {
         conversationIDKey: String,
         isPenPalsConversation: Bool
     ) async throws(Exception) {
-        guard let currentUser = clientSession.user.currentUser else {
+        guard let currentUser = clientSession.entity.user.currentUser else {
             throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
@@ -141,13 +141,9 @@ struct NotificationService {
         )
 
         let pushTokens = userData.reduce(into: [String]()) { partialResult, keyPair in
-            if let userData = keyPair.value as? [String: Any],
-               let pushTokens = userData[
-                   User.SerializableKey.pushTokens.rawValue
-               ] as? [String],
-               !pushTokens.isBangQualifiedEmpty {
-                partialResult.append(contentsOf: pushTokens)
-            }
+            guard let userData = keyPair.value as? [String: Any],
+                  let map = userData[User.SerializableKey.pushTokens.rawValue] as? [String: Any] else { return }
+            partialResult.append(contentsOf: map.keys)
         }
 
         try await pushTokens.unique.map(
@@ -177,7 +173,7 @@ struct NotificationService {
             sender: self
         )
 
-        guard let currentUser = clientSession.user.currentUser else {
+        guard let currentUser = clientSession.entity.user.currentUser else {
             throw Exception(
                 "No current user – will not respond to notification.",
                 isReportable: false,
@@ -215,6 +211,7 @@ struct NotificationService {
 
         guard !(
             chatPageState.isPresented && clientSession
+                .entity
                 .conversation
                 .currentConversation?
                 .id
@@ -352,18 +349,28 @@ struct NotificationService {
     ) async throws(Exception) {
         let userInfo = ["UserID": user.id]
 
-        guard let currentUser = clientSession.user.currentUser else {
+        guard let currentUser = clientSession.entity.user.currentUser else {
             throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
             ).appending(userInfo: userInfo)
         }
 
-        let newBadgeNumber = await user.hostedBadgeNumber + 1
-        try await updateHostedBadgeNumber(
-            newBadgeNumber,
-            user: user
-        )
+        // Atomic badge increment via transaction to avoid
+        // read-modify-write races when multiple senders
+        // notify the same recipient concurrently.
+        let badgePath = [
+            NetworkPath.users.rawValue,
+            user.id,
+            User.SerializableKey.badgeNumber.rawValue,
+        ].joined(separator: "/")
+
+        let newBadgeNumber = try await networking.database.runTransaction(
+            at: badgePath
+        ) { currentValue in
+            let current = (currentValue as? Int) ?? 0
+            return max(0, current + 1)
+        } as? Int ?? 0
 
         guard let pushTokens = user.pushTokens else {
             throw Exception(
@@ -413,7 +420,7 @@ struct NotificationService {
     }
 
     private func penPalsName(for otherUser: User) -> String {
-        guard let currentUser = clientSession.user.currentUser else { return "PenPal" }
+        guard let currentUser = clientSession.entity.user.currentUser else { return "PenPal" }
         let localizedRegionName = services.regionDetail.localizedRegionName(
             regionCode: currentUser.phoneNumber.regionCode,
             languageCode: otherUser.languageCode

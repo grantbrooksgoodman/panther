@@ -17,6 +17,12 @@ struct ChatPageHeaderObserver: Observer {
 
     typealias R = ChatPageHeaderReducer
 
+    // MARK: - Types
+
+    private enum TaskID: String {
+        case reloadData
+    }
+
     // MARK: - Properties
 
     let observedValues: [any ObservableProtocol] = [
@@ -36,9 +42,39 @@ struct ChatPageHeaderObserver: Observer {
     func onChange(of observable: Observable<Any>) {
         switch observable {
         case Observables.sessionStoreDidChange:
-            send(.updateAppearance)
+            guard let sessionStoreChange = Observables.sessionStoreDidChange.value,
+                  isRelevantChange(sessionStoreChange) else { break }
+
+            @MainActorIsolated var conversationIDKey = viewModel.conversation.id.key
+            Task.debounced(
+                "\(String.fromCurrentEditorContext(sender: self))/\(conversationIDKey)/\(TaskID.reloadData.rawValue)",
+                delay: .milliseconds(250)
+            ) { @MainActor in
+                send(.reloadData)
+            }
 
         default: ()
+        }
+    }
+}
+
+private extension ChatPageHeaderObserver {
+    func isRelevantChange(_ change: SessionStoreChange) -> Bool {
+        @MainActorIsolated var conversation = viewModel.conversation
+        switch change {
+        case let .conversations(upsertedIDKeys, removedIDKeys):
+            return upsertedIDKeys.contains(conversation.id.key) ||
+                removedIDKeys.contains(conversation.id.key)
+
+        case let .messages(upsertedIDs, removedIDs):
+            return !Set(
+                conversation.messageIDs
+            ).isDisjoint(with: upsertedIDs.union(removedIDs))
+
+        case let .users(upsertedIDs, removedIDs):
+            return !Set(
+                conversation.participants.map(\.userID)
+            ).isDisjoint(with: upsertedIDs.union(removedIDs))
         }
     }
 }

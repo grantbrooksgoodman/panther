@@ -16,7 +16,7 @@ import AppSubsystem
 final class ReadReceiptService {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
     // MARK: - Properties
@@ -32,7 +32,7 @@ final class ReadReceiptService {
     // MARK: - Update Read Date for Unread Messages
 
     func updateReadDateForUnreadMessages() async throws(Exception) {
-        guard let conversation = clientSession.conversation.currentConversation,
+        guard let conversation = entitySession.conversation.currentConversation,
               let messages = conversation.messages?.filter({ !$0.isFromCurrentUser }),
               messages.last?.currentUserReadReceipt == nil else { return }
 
@@ -43,7 +43,7 @@ final class ReadReceiptService {
             for: unreadMessages
         )
 
-        if let currentUser = clientSession.user.currentUser {
+        if let currentUser = entitySession.user.currentUser {
             try await notificationService.setBadgeNumber(
                 currentUser.calculateBadgeNumber()
             )

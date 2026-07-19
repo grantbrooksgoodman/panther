@@ -21,11 +21,12 @@ extension ConversationMetadata: Serializable {
     // MARK: - Types
 
     enum SerializableKey: String {
-        case name
         case imageData
+        case imageHash
         case isPenPalsConversation
         case lastModifiedDate = "lastModified" // swiftlint:disable:next identifier_name
         case messageRecipientConsentAcknowledgementData
+        case name
         case penPalsSharingData
         case requiresConsentFromInitiator
     }
@@ -34,15 +35,21 @@ extension ConversationMetadata: Serializable {
 
     var encoded: [String: Any] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
-        return [
-            Keys.name.rawValue: name,
+        var result: [String: Any] = [
             Keys.imageData.rawValue: imageData?.base64EncodedString() ?? .bangQualifiedEmpty,
             Keys.isPenPalsConversation.rawValue: isPenPalsConversation,
             Keys.lastModifiedDate.rawValue: dateFormatter.string(from: lastModifiedDate),
             Keys.messageRecipientConsentAcknowledgementData.rawValue: messageRecipientConsentAcknowledgementData.map(\.encoded).sorted(),
+            Keys.name.rawValue: name,
             Keys.penPalsSharingData.rawValue: penPalsSharingData.map(\.encoded).sorted(),
             Keys.requiresConsentFromInitiator.rawValue: requiresConsentFromInitiator ?? .bangQualifiedEmpty,
         ]
+
+        if let imageHash {
+            result[Keys.imageHash.rawValue] = imageHash
+        }
+
+        return result
     }
 
     // MARK: - Init
@@ -87,10 +94,15 @@ extension ConversationMetadata: Serializable {
             )
         }
 
+        // imageHash may be absent; compute lazily from
+        // imageData when missing.
+        let storedImageHash = data[Keys.imageHash.rawValue] as? String
+
         guard !imageDataString.isBangQualifiedEmpty else {
             self = .init(
                 name: name,
                 imageData: nil,
+                imageHash: storedImageHash,
                 isPenPalsConversation: isPenPalsConversation,
                 lastModifiedDate: lastModifiedDate,
                 messageRecipientConsentAcknowledgementData: messageRecipientConsentAcknowledgementData,
@@ -110,6 +122,7 @@ extension ConversationMetadata: Serializable {
         self = .init(
             name: name,
             imageData: imageData,
+            imageHash: storedImageHash,
             isPenPalsConversation: isPenPalsConversation,
             lastModifiedDate: lastModifiedDate,
             messageRecipientConsentAcknowledgementData: messageRecipientConsentAcknowledgementData,

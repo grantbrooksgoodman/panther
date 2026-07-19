@@ -57,6 +57,7 @@ final class ConversationsPageViewService {
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
+    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -68,9 +69,7 @@ final class ConversationsPageViewService {
     func viewAppeared() {
         didShowSecondsToLoadToast = false
         NavigationBar.setAppearance(.conversationsPageView)
-        clientSession.user.startObservingCurrentUserChanges(
-            enableChangeEmission: true
-        )
+        clientSession.entity.user.startObservingCurrentUserChanges()
 
         Task.delayed(by: .milliseconds(500)) { @MainActor [weak self] in
             StatusBar.overrideStyle(.appAware)
@@ -127,7 +126,7 @@ final class ConversationsPageViewService {
     func deleteConversationsToolbarButtonTapped() {
         Task { @MainActor in
             do throws(Exception) {
-                try await clientSession.user.resolveCurrentUser(
+                try await clientSession.entity.user.resolveCurrentUser(
                     and: [.conversations]
                 )
 
@@ -153,7 +152,7 @@ final class ConversationsPageViewService {
     /// `.composeToolbarButtonTapped`
     func storageFullButtonTapped() {
         Task {
-            await clientSession.storage.presentStorageWarningAlert()
+            await userStorageService.presentStorageWarningAlert()
         }
     }
 
@@ -169,7 +168,7 @@ final class ConversationsPageViewService {
         ) { @MainActor [weak self] in
             guard let self else { return }
 
-            let currentUser = clientSession.user.currentUser
+            let currentUser = clientSession.entity.user.currentUser
             let numberOfConversations = currentUser?
                 .conversations?
                 .visibleForCurrentUser
@@ -294,30 +293,11 @@ final class ConversationsPageViewService {
             .forEach { $0.backgroundColor = searchBarTextFieldBackgroundColor }
     }
 
-    private func markStale(conversation: Conversation) -> Conversation {
-        var newConversationMessageIDs = conversation.messageIDs
-
-        if let conversationMessages = conversation.messages,
-           conversationMessages.count > 1 {
-            newConversationMessageIDs = Array(
-                conversationMessages[0 ... conversationMessages.count - 2]
-            ).map(\.id)
-        }
-
-        return conversation
-            .copying(
-                id: .init(
-                    key: conversation.id.key,
-                    hash: .bangQualifiedEmpty
-                )
-            )
-            .copying(messageIDs: newConversationMessageIDs)
-    }
-
     private func reloadData(
         type: ReloadType
     ) async throws(Exception) {
         if let conversations = clientSession
+            .entity
             .user
             .currentUser?
             .conversations?
@@ -325,37 +305,40 @@ final class ConversationsPageViewService {
             .sortedByLatestMessageSentDate,
             let firstConversation = conversations.first,
             type == .full || type == .partial {
-            var array = [firstConversation]
+            var conversationsToReload = [firstConversation]
             if type == .full {
                 if conversations.count > 5 {
-                    array = Array(conversations[0 ... conversations.count / 3])
+                    conversationsToReload = Array(conversations[
+                        0 ... conversations.count / 3
+                    ])
                 } else {
-                    array = conversations
+                    conversationsToReload = conversations
                 }
             }
 
-            // Marks conversations stale to force re-fetch on next resolve.
-            clientSession
-                .store
-                .upsertConversations(Set(
-                    array.map { markStale(conversation: $0) }
-                ))
+            conversationsToReload.forEach { $0.markStaleLocally() }
         }
 
         defer { currentReloadType = currentReloadType.next }
-        try await clientSession.user.resolveCurrentUser(
+        try await clientSession.entity.user.resolveCurrentUser(
             and: .allDataTypes
         )
 
-        var randomBool: Bool {
-            Int.random(in: 1 ... 1_000_000) % 3 == 0
+        @Persistent(.lastContactSyncDate) var lastContactSyncDate: Date?
+        let shouldSync: Bool = if !services.contact.hasContactsBesidesCurrentUser {
+            true
+        } else if let lastContactSyncDate {
+            abs(lastContactSyncDate.timeIntervalSinceNow) >= Double(
+                AppConstants.CGFloats.ConversationsPageView.contactSyncIntervalSeconds
+            )
+        } else {
+            true
         }
 
-        guard !services.contact.hasContactsBesidesCurrentUser ||
-            randomBool else { return }
-
+        guard shouldSync else { return }
         do {
             try await services.contact.syncContactPairArchive()
+            lastContactSyncDate = .now
         } catch {
             if !error.isEqual(toAny: [
                 .mismatchedHashAndCallingCode,
@@ -384,9 +367,9 @@ final class ConversationsPageViewService {
     @MainActor
     private func showPromptsIfNeeded() async {
         do throws(Exception) {
-            _ = try await clientSession.storage.getCurrentUserDataUsage()
-            if clientSession.storage.isApproachingDataUsageLimit {
-                await clientSession.storage.presentStorageWarningAlert()
+            _ = try await userStorageService.getCurrentUserDataUsage()
+            if userStorageService.isApproachingDataUsageLimit {
+                await userStorageService.presentStorageWarningAlert()
             } else if await services.permission.notificationPermissionStatus == .unknown {
                 _ = try await services.permission.requestPermission(for: .notifications)
             } else if await !(services.invite.suggestInvitationIfNeeded()) {
@@ -405,13 +388,13 @@ final class ConversationsPageViewService {
 
         var configurations = [FeaturePermissionPageView.Configuration]()
         if !presentedAIPage,
-           clientSession.user.currentUser?.aiEnhancedTranslationsEnabled == false {
+           clientSession.entity.user.currentUser?.aiEnhancedTranslationsEnabled == false {
             configurations.append(.aiEnhancedTranslations)
             presentedAIEnhancedTranslationPermissionPageAtStartup = true
         }
 
         if !presentedPenPalsPage,
-           clientSession.user.currentUser?.isPenPalsParticipant == false {
+           clientSession.entity.user.currentUser?.isPenPalsParticipant == false {
             configurations.append(.penPals)
             presentedPenPalsPermissionPageAtStartup = true
         }
@@ -422,6 +405,10 @@ final class ConversationsPageViewService {
             Task.delayed(by: .milliseconds(350)) { @MainActor in
                 RootSheets.present(
                     .featurePermissionPageView(configurations)
+                )
+
+                uiApplication.resignFirstResponders(
+                    repeatingFor: .seconds(1)
                 )
             }
         }

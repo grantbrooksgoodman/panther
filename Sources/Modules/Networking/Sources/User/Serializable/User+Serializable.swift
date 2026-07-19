@@ -38,19 +38,48 @@ extension User: Serializable {
     // MARK: - Properties
 
     var encoded: [String: Any] {
-        let conversationIDs = (conversationIDs ?? .init()).map(\.encoded)
+        var encodedBlockedUserIDs: Any = [String: Bool]()
+        if let blockedUserIDs, !blockedUserIDs.isEmpty {
+            var map = [String: Bool]()
+            for userID in blockedUserIDs {
+                map[userID] = true
+            }
+
+            encodedBlockedUserIDs = map
+        }
+
+        var encodedConversationIDs: Any = [String: String]()
+        if let conversationIDs, !conversationIDs.isEmpty {
+            var map = [String: String]()
+            for conversationID in conversationIDs {
+                map[conversationID.key] = conversationID.hash
+            }
+
+            encodedConversationIDs = map
+        }
+
+        var encodedPushTokens: Any = [String: Bool]()
+        if let pushTokens, !pushTokens.isEmpty {
+            var map = [String: Bool]()
+            for token in pushTokens {
+                map[token] = true
+            }
+
+            encodedPushTokens = map
+        }
+
         return [
             Keys.id.rawValue: id,
             Keys.aiEnhancedTranslationsEnabled.rawValue: aiEnhancedTranslationsEnabled,
-            Keys.blockedUserIDs.rawValue: blockedUserIDs ?? .bangQualifiedEmpty,
-            Keys.conversationIDs.rawValue: conversationIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDs,
+            Keys.blockedUserIDs.rawValue: encodedBlockedUserIDs,
+            Keys.conversationIDs.rawValue: encodedConversationIDs,
             Keys.isPenPalsParticipant.rawValue: isPenPalsParticipant,
             Keys.languageCode.rawValue: languageCode,
             Keys.lastSignedIn.rawValue: Date.timestampFromOptional(date: lastSignedIn),
             Keys.messageRecipientConsentRequired.rawValue: messageRecipientConsentRequired,
             Keys.phoneNumber.rawValue: phoneNumber.encoded,
             Keys.previousLanguageCodes.rawValue: previousLanguageCodes ?? .bangQualifiedEmpty,
-            Keys.pushTokens.rawValue: pushTokens ?? .bangQualifiedEmpty,
+            Keys.pushTokens.rawValue: encodedPushTokens,
         ]
     }
 
@@ -63,16 +92,13 @@ extension User: Serializable {
 
         guard let id = data[Keys.id.rawValue] as? String,
               let aiEnhancedTranslationsEnabled = data[Keys.aiEnhancedTranslationsEnabled.rawValue] as? Bool,
-              let blockedUserIDs = data[Keys.blockedUserIDs.rawValue] as? [String],
-              let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               let isPenPalsParticipant = data[Keys.isPenPalsParticipant.rawValue] as? Bool,
               let languageCode = data[Keys.languageCode.rawValue] as? String,
               let lastSignedInString = data[Keys.lastSignedIn.rawValue] as? String,
               let lastSignedIn = timestampDateFormatter.date(from: lastSignedInString),
               let messageRecipientConsentRequired = data[Keys.messageRecipientConsentRequired.rawValue] as? Bool,
-              let previousLanguageCodes = data[Keys.previousLanguageCodes.rawValue] as? [String],
-              let pushTokens = data[Keys.pushTokens.rawValue] as? [String] else {
+              let previousLanguageCodes = data[Keys.previousLanguageCodes.rawValue] as? [String] else {
             throw .Networking.decodingFailed(
                 data: data,
                 .init(sender: Self.self)
@@ -80,9 +106,35 @@ extension User: Serializable {
         }
 
         let phoneNumber = try await PhoneNumber(from: encodedPhoneNumber)
-        let conversationIDs = try await conversationIDStrings
-            .filter { !$0.isBangQualifiedEmpty }
-            .map { try await ConversationID(from: $0) }
+
+        let blockedUserIDs: [String] = if let map = data[
+            Keys.blockedUserIDs.rawValue
+        ] as? [String: Any] {
+            Array(map.keys)
+        } else {
+            []
+        }
+
+        let conversationIDs: [ConversationID] = if let map = data[
+            Keys.conversationIDs.rawValue
+        ] as? [String: String] {
+            map.map {
+                ConversationID(
+                    key: $0.key,
+                    hash: $0.value
+                )
+            }
+        } else {
+            []
+        }
+
+        let pushTokens: [String] = if let map = data[
+            Keys.pushTokens.rawValue
+        ] as? [String: Any] {
+            Array(map.keys)
+        } else {
+            []
+        }
 
         self.init(
             id,
@@ -106,9 +158,10 @@ extension User: Serializable {
 
         guard data[Keys.id.rawValue] is String,
               data[Keys.aiEnhancedTranslationsEnabled.rawValue] is Bool,
-              data[Keys.blockedUserIDs.rawValue] is [String],
-              let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
-              conversationIDStrings.isBangQualifiedEmpty || conversationIDStrings.allSatisfy({ ConversationID.canDecode(from: $0) }),
+              data[Keys.blockedUserIDs.rawValue] is [String: Any] ||
+              data[Keys.blockedUserIDs.rawValue] == nil,
+              data[Keys.conversationIDs.rawValue] is [String: String] ||
+              data[Keys.conversationIDs.rawValue] == nil,
               data[Keys.isPenPalsParticipant.rawValue] is Bool,
               data[Keys.messageRecipientConsentRequired.rawValue] is Bool,
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
@@ -117,7 +170,8 @@ extension User: Serializable {
               let lastSignedInString = data[Keys.lastSignedIn.rawValue] as? String,
               timestampDateFormatter.date(from: lastSignedInString) != nil,
               data[Keys.previousLanguageCodes.rawValue] is [String],
-              data[Keys.pushTokens.rawValue] is [String] else { return false }
+              data[Keys.pushTokens.rawValue] is [String: Any] ||
+              data[Keys.pushTokens.rawValue] == nil else { return false }
 
         return true
     }

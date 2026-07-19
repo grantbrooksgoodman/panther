@@ -26,7 +26,7 @@ extension Application {
 
     static var usesLegacyChatPageInterface: Bool {
         @Dependency(\.build.milestone) var buildMilestone: Build.Milestone
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
         guard UIApplication.isFullyV26Compatible else { return true }
         guard let currentUser else { return Application.isInPrevaricationMode }
 
@@ -63,14 +63,16 @@ extension Application {
         onCompletion procedure: ResetCompletionProcedure? = nil
     ) {
         @Dependency(\.appGroupDefaults) var appGroupDefaults: UserDefaults
+        @Dependency(\.networking.auth) var auth: AuthDelegate
+        @Dependency(\.clientSession) var clientSession: ClientSession
         @Dependency(\.coreKit) var core: CoreKit
         @Dependency(\.userDefaults) var defaults: UserDefaults
         @Dependency(\.navigation) var navigation: Navigation
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
-        SessionStore.setChangeEmissionSuppressed(true)
+        clientSession.store.advanceEpoch()
+        clientSession.sync.conversationObserver.stopObserving()
         if !preserveCurrentUserID {
-            userSession.stopObservingCurrentUserChanges()
+            clientSession.entity.user.stopObservingCurrentUserChanges()
         }
 
         core.utils.clearCaches()
@@ -94,9 +96,10 @@ extension Application {
         RuntimeStorage.remove(.lastSignInDate)
         RuntimeStorage.remove(.populatedTemporaryCaches)
 
-        Task {
-            @Dependency(\.networking.auth) var auth: AuthDelegate
-            try await auth.reauthenticateAnonymously()
+        do {
+            try auth.signOut()
+        } catch {
+            Logger.log(error)
         }
 
         guard let procedure else { return }
@@ -115,22 +118,6 @@ extension Application {
         case .navigateToSplash:
             navigation.navigate(to: .userContent(.stack([])))
             navigation.navigate(to: .root(.modal(.splash)))
-        }
-    }
-}
-
-private extension AuthDelegate {
-    func reauthenticateAnonymously() async throws(Exception) {
-        try signOut()
-        do throws(Exception) {
-            _ = try await signInAnonymously()
-            Logger.log(
-                "Reauthenticated as anonymous user.",
-                domain: .Networking.auth,
-                sender: self
-            )
-        } catch {
-            throw error
         }
     }
 }

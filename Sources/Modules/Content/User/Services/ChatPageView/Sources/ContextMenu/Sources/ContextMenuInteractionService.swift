@@ -28,12 +28,13 @@ final class ContextMenuInteractionService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.commonServices.haptics) private var hapticsService: HapticsService
     @Dependency(\.mainBundle) private var mainBundle: Bundle
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
+    @Dependency(\.clientSession.entity.reaction) private var reactionSession: ReactionSessionService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
+    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -143,8 +144,8 @@ final class ContextMenuInteractionService {
     @MainActor
     @objc
     func reactToSelectedMessage(_ sender: Any) {
-        guard !clientSession.reaction.isReactingToMessage else {
-            return clientSession.reaction.addEffectUponIsReactingToMessage(
+        guard !reactionSession.isReactingToMessage else {
+            return reactionSession.addEffectUponIsReactingToMessage(
                 changedTo: false,
                 id: .init("\(Int.random(in: 1 ... 1_000_000))")
             ) { self.reactToSelectedMessage(sender) }
@@ -159,8 +160,8 @@ final class ContextMenuInteractionService {
             }
 
             guard viewController.displayedMessages.last?.id == message.id else { return }
-            guard clientSession.reaction.isReactingToMessage else { return scrollToLastItem() }
-            clientSession.reaction.addEffectUponIsReactingToMessage(
+            guard reactionSession.isReactingToMessage else { return scrollToLastItem() }
+            reactionSession.addEffectUponIsReactingToMessage(
                 changedTo: false,
                 id: .scrollToLastItem
             ) { scrollToLastItem() }
@@ -179,7 +180,7 @@ final class ContextMenuInteractionService {
 
             Task { @MainActor in
                 do throws(Exception) {
-                    try await clientSession.reaction.react(
+                    try await reactionSession.react(
                         reaction,
                         to: message
                     )
@@ -205,7 +206,7 @@ final class ContextMenuInteractionService {
                     .displayedMessages
                     .itemAt(indexPath.section),
                     !message.isConsentMessage,
-                    !clientSession.storage.atOrAboveDataUsageLimit else { return }
+                    !userStorageService.atOrAboveDataUsageLimit else { return }
 
                 let convertedTouchPoint = viewController.messagesCollectionView.convert(
                     touchPoint,
@@ -220,7 +221,7 @@ final class ContextMenuInteractionService {
                 hapticsService.generateFeedback(.medium)
                 if let reaction = Reaction(.love) {
                     do throws(Exception) {
-                        try await self.clientSession.reaction.react(
+                        try await self.reactionSession.react(
                             reaction,
                             to: message
                         )
@@ -308,13 +309,13 @@ final class ContextMenuInteractionService {
                     Task.delayed(by: .milliseconds(Floats.triggerExistingSelectionDelayMilliseconds)) { @MainActor in
                         self.triggerExistingSelection(reactionsViewController)
                         reactionsViewController.view.alpha = message.isConsentMessage ||
-                            self.clientSession.storage.atOrAboveDataUsageLimit ? 0 : 1
+                            self.userStorageService.atOrAboveDataUsageLimit ? 0 : 1
                     }
 
                     reactionsViewController
                         .view
                         .isUserInteractionEnabled = message.isConsentMessage ||
-                        self.clientSession.storage.atOrAboveDataUsageLimit ? false : true
+                        self.userStorageService.atOrAboveDataUsageLimit ? false : true
 
                     return ContextMenuConfiguration(
                         accessoryView: reactionsViewController.view,

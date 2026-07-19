@@ -34,6 +34,7 @@ extension PersistentStorageKey {
 
     enum ContactPairArchiveServiceStorageKey: String {
         case contactPairArchive
+        case lastContactSyncDate
         case unknownContactPairArchive
     }
 

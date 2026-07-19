@@ -57,6 +57,7 @@ final class ChatPageViewService {
     private(set) var typingIndicator: TypingIndicatorService?
 
     private var configuration: ChatPageView.Configuration = .default
+    private var sessionStoreChangeHandlerID: UUID?
     private var viewController: ChatPageViewController?
 
     // MARK: - Computed Properties
@@ -75,11 +76,11 @@ final class ChatPageViewService {
         _ conversation: Conversation,
         configuration: ChatPageView.Configuration
     ) -> MessagesViewController {
-        clientSession.conversation.resetMessageOffset()
-        clientSession.conversation.setCurrentConversation(conversation)
+        clientSession.entity.conversation.resetMessageOffset()
+        clientSession.entity.conversation.setCurrentConversation(conversation)
 
         if let focusedMessageID = configuration.focusedMessageID {
-            clientSession.conversation.incrementMessageOffset(to: focusedMessageID)
+            clientSession.entity.conversation.incrementMessageOffset(to: focusedMessageID)
         }
 
         // NIT: Could store [ConversationID: ViewController] and allow for multiple presentations (i.e., "Add Contact" button) that way?
@@ -140,7 +141,6 @@ final class ChatPageViewService {
 
     func onViewDidAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
-        typingIndicator?.startCheckingForTypingIndicatorChanges()
         InteractivePopGestureRecognizer.setIsEnabled(true)
 
         guard configuration != .preview else {
@@ -164,6 +164,27 @@ final class ChatPageViewService {
                 }
             }
             return
+        }
+
+        // Start observer for stored conversations
+        // (skips drafts and mocks).
+        if let currentConversation = clientSession.entity.conversation.currentConversation,
+           !currentConversation.isEmpty,
+           !currentConversation.isMock {
+            clientSession.sync.conversationObserver.startObserving(
+                conversationIDKey: currentConversation.id.key
+            )
+        }
+
+        if sessionStoreChangeHandlerID == nil {
+            sessionStoreChangeHandlerID = SessionStore.addChangeHandler(
+                for: [
+                    .conversations,
+                    .messages,
+                ]
+            ) { [weak self] in
+                self?.handleSessionStoreChange($0)
+            }
         }
 
         contextMenu?.interaction.addKeyboardWillShowObserver()
@@ -202,10 +223,7 @@ final class ChatPageViewService {
                 try await readReceipts?.updateReadDateForUnreadMessages()
                 try await typingIndicator?.textViewDidChange(to: "")
             } catch {
-                Logger.log(
-                    error,
-                    with: .toastInPrerelease
-                )
+                Logger.log(error)
             }
         }
 
@@ -225,25 +243,39 @@ final class ChatPageViewService {
         Message.consentRequestMessageID = nil
         NavigationBar.setAppearance(.conversationsPageView)
         contextMenu?.interaction.stopAddingContextMenuInteractionToVisibleCells()
-        typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
 
     func onViewDidDisappear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
         chatPageState.setIsPresented(false)
+        clientSession.sync.conversationObserver.stopObserving()
+
+        if let sessionStoreChangeHandlerID {
+            SessionStore.removeChangeHandler(sessionStoreChangeHandlerID)
+            self.sessionStoreChangeHandlerID = nil
+        }
+
         contextMenu?.interaction.removeKeyboardWillShowObserver()
 
-        Task.background { @MainActor in
+        Task.background { @MainActor [weak self] in
+            guard let self else { return }
+
             do throws(Exception) {
                 try await typingIndicator?.textViewDidChange(to: "")
             } catch {
                 Logger.log(error)
             }
 
-            // TODO: Audit this.
-            // clientSession.conversation.setCurrentConversation(nil)
-            clientSession.conversation.resetMessageOffset()
+            // Clear the pointer only when the page is truly
+            // being dismissed – not when covered by a sheet
+            // or preview.
+            if !chatPageState.isPresented,
+               configuration != .preview {
+                clientSession.entity.conversation.setCurrentConversation(nil)
+            }
+
+            clientSession.entity.conversation.resetMessageOffset()
         }
 
         alternateMessage?.restoreAllAlternateTextMessageIDs()
@@ -327,8 +359,8 @@ final class ChatPageViewService {
         at indexPaths: [IndexPath],
         animated isAnimated: Bool = true
     ) {
-        if clientSession.reaction.isReactingToMessage {
-            clientSession.reaction.addEffectUponIsReactingToMessage(
+        if clientSession.entity.reaction.isReactingToMessage {
+            clientSession.entity.reaction.addEffectUponIsReactingToMessage(
                 changedTo: false,
                 id: .reloadCollectionView
             ) { [weak self] in
@@ -351,6 +383,7 @@ final class ChatPageViewService {
             safelyReload(
                 indexPaths: indexPaths,
                 conversationIDKey: clientSession
+                    .entity
                     .conversation
                     .currentConversation?
                     .id
@@ -371,9 +404,9 @@ final class ChatPageViewService {
     private func loadMoreMessages(fromScrollToTop: Bool) {
         guard !messageDeliveryService.isSendingMessage else { return }
 
-        let previousMessageCount = clientSession.conversation.displayedMessages.count
-        clientSession.conversation.incrementMessageOffset()
-        guard previousMessageCount != clientSession.conversation.displayedMessages.count else { return }
+        let previousMessageCount = clientSession.entity.conversation.displayedMessages.count
+        clientSession.entity.conversation.incrementMessageOffset()
+        guard previousMessageCount != clientSession.entity.conversation.displayedMessages.count else { return }
         reloadCollectionView()
 
         guard fromScrollToTop else { return }
@@ -423,6 +456,7 @@ final class ChatPageViewService {
             guard currentStructure == previousStructure,
                   chatPageState.isPresented,
                   previousConversationIDKey == clientSession
+                  .entity
                   .conversation
                   .currentConversation?
                   .id

@@ -19,8 +19,8 @@ import MessageKit
 final class ChatPageViewController: MessagesViewController {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.conversation.currentConversation) var currentConversation: Conversation?
-    @Dependency(\.clientSession.conversation.displayedMessages) var displayedMessages: [Message]
+    @Dependency(\.clientSession.entity.conversation.currentConversation) var currentConversation: Conversation?
+    @Dependency(\.clientSession.entity.conversation.displayedMessages) var displayedMessages: [Message]
 
     @Dependency(\.chatPageViewService) private var viewService: ChatPageViewService
 

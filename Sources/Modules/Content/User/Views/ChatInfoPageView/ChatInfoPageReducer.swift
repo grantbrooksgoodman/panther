@@ -21,7 +21,7 @@ struct ChatInfoPageReducer: Reducer {
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.conversationCellViewService) private var conversationCellViewService: ConversationCellViewService
-    @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
+    @Dependency(\.clientSession.entity.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
@@ -189,7 +189,7 @@ struct ChatInfoPageReducer: Reducer {
         }
 
         fileprivate var conversation: Conversation? {
-            Dependency(\.clientSession.conversation.currentConversation).wrappedValue
+            Dependency(\.clientSession.entity.conversation.currentConversation).wrappedValue
         }
     }
 

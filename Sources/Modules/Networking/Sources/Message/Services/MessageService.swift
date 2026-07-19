@@ -38,7 +38,13 @@ struct MessageService {
 
     // MARK: - Message Creation
 
-    func createMessage(
+    /// Builds a message (generates ID, uploads audio/media to
+    /// Storage) without writing the message node to RTDB.
+    ///
+    /// Callers on the send path use this so the message node
+    /// write joins the atomic fan-out in
+    /// ``Conversation/willWrite(_:forKey:updating:)``.
+    func buildMessage(
         fromAccountID: String,
         richContent: RichMessageContent?,
         sentDate: Date = .now,
@@ -65,7 +71,10 @@ struct MessageService {
             contentType = .audio(.m4a)
         } else if let mediaFileID = richContent?.mediaComponent?.encodedHash.shortened,
                   let mediaFileExtension = richContent?.mediaComponent?.fileExtension {
-            contentType = .media(id: mediaFileID, extension: mediaFileExtension)
+            contentType = .media(
+                id: mediaFileID,
+                extension: mediaFileExtension
+            )
         }
 
         var mockMessage: Message = .init(
@@ -77,13 +86,6 @@ struct MessageService {
             translations: translations,
             readReceipts: nil,
             sentDate: sentDate
-        )
-
-        try await networking.database.updateChildValues(
-            forKey: "\(NetworkPath.messages.rawValue)/\(id)",
-            with: mockMessage.encoded.filter {
-                $0.key != Message.SerializableKey.id.rawValue
-            }
         )
 
         switch mockMessage.contentType {
@@ -149,6 +151,34 @@ struct MessageService {
         }
     }
 
+    /// Builds a message and writes its node to RTDB.
+    ///
+    /// Use ``buildMessage(fromAccountID:richContent:sentDate:translations:)``
+    /// on the send path where the message node write should
+    /// join the atomic fan-out instead.
+    func createMessage(
+        fromAccountID: String,
+        richContent: RichMessageContent?,
+        sentDate: Date = .now,
+        translations: [Translation]?
+    ) async throws(Exception) -> Message {
+        let message = try await buildMessage(
+            fromAccountID: fromAccountID,
+            richContent: richContent,
+            sentDate: sentDate,
+            translations: translations
+        )
+
+        try await networking.database.updateChildValues(
+            forKey: "\(NetworkPath.messages.rawValue)/\(message.id)",
+            with: message.encoded.filter {
+                $0.key != Message.SerializableKey.id.rawValue
+            }
+        )
+
+        return message
+    }
+
     // MARK: - Retrieval by ID
 
     func getMessage(
@@ -193,9 +223,7 @@ struct MessageService {
         }
 
         do {
-            return try await ids.map(
-                failForEmptyCollection: true
-            ) {
+            return try await ids.map {
                 try await getMessage(id: $0)
             }
         } catch {
@@ -249,28 +277,41 @@ struct MessageService {
         guard let conversation else { return try await deleteMessage() }
         try await deleteMessage()
 
-        let path = [
+        // Atomic removal from the conversation's message
+        // index + hash/token update in one fan-out.
+        let conversationPath = [
             NetworkPath.conversations.rawValue,
             conversation.id.key,
-            Conversation.SerializableKey.messages.rawValue,
         ].joined(separator: "/")
 
-        var messageIDs: [String] = try await networking.database.getValues(at: path)
-        messageIDs.removeAll(where: { $0 == messageID })
-        messageIDs = messageIDs.unique
+        var updates: [String: Any] = [
+            "\(conversationPath)/\(Conversation.SerializableKey.messages.rawValue)/\(messageID)": NSNull(),
+        ]
 
-        try await networking.database.setValue(
-            messageIDs,
-            forKey: path
-        )
+        if updateConversationHash {
+            @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
 
-        guard updateConversationHash else { return }
-        _ = try await conversation.update(
-            \.metadata,
-            to: conversation.metadata.copyWith(
-                lastModifiedDate: .now
-            )
-        )
+            let updated = conversation
+                .copying(messageIDs: conversation.messageIDs.filter { $0 != messageID })
+                .copying(metadata: conversation.metadata.copyWith(lastModifiedDate: .now))
+
+            let newHash = updated.encodedHash
+            updates["\(conversationPath)/\(Conversation.SerializableKey.encodedHash.rawValue)"] = newHash
+            updates["\(conversationPath)/\(Conversation.SerializableKey.metadata.rawValue)/lastModifiedDate"] = timestampDateFormatter.string(from: .now)
+
+            for participant in conversation.participants {
+                let tokenPath = [
+                    NetworkPath.users.rawValue,
+                    participant.userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                    conversation.id.key,
+                ].joined(separator: "/")
+
+                updates[tokenPath] = newHash
+            }
+        }
+
+        try await networking.database.commit(updates)
     }
 
     func deleteMessages(

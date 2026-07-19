@@ -21,6 +21,7 @@ extension NetworkServices {
             audio: .init(),
             media: .init()
         )
+        static let schemaMigrationService = SchemaMigrationService.shared
         static let userService = UserService(testing: .init())
     }
 
@@ -34,6 +35,10 @@ extension NetworkServices {
 
     var messageService: MessageService {
         NetworkServiceStore.messageService
+    }
+
+    var schemaMigrationService: SchemaMigrationService {
+        NetworkServiceStore.schemaMigrationService
     }
 
     var userService: UserService {

@@ -31,8 +31,9 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
     @Dependency(\.firebaseMessaging) private var firebaseMessaging: Messaging
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.sessionStoreInvalidationService) private var sessionStoreInvalidationService: SessionStoreInvalidationService
+    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
+    @Dependency(\.uiCacheInvalidationService) private var uiCacheInvalidationService: UICacheInvalidationService
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
 
     // MARK: - UIApplication
@@ -54,7 +55,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
-        sessionStoreInvalidationService.refreshNotificationExtensionNameMap()
+        sessionStore.flushNow()
+        uiCacheInvalidationService.refreshNotificationExtensionNameMap()
         services.analytics.logEvent(.terminateApp)
     }
 

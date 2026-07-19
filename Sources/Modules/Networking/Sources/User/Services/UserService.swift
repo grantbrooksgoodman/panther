@@ -106,7 +106,9 @@ final class UserService: @unchecked Sendable {
     // MARK: - Retrieval by ID
 
     func getUser(
-        id: String
+        id: String,
+        bypassSnapshotCache: Bool = false,
+        cacheStrategy: CacheStrategy? = nil
     ) async throws(Exception) -> User {
         let userInfo = ["UserID": id]
 
@@ -119,7 +121,8 @@ final class UserService: @unchecked Sendable {
 
         typealias Keys = User.SerializableKey
 
-        if let cachedUserDataSnapshots,
+        if !bypassSnapshotCache,
+           let cachedUserDataSnapshots,
            let match = cachedUserDataSnapshots.first(where: {
                ($0.data[Keys.id.rawValue] as? String) == id
            }),
@@ -143,6 +146,16 @@ final class UserService: @unchecked Sendable {
 
         var data: [String: Any]
         do {
+            if let cacheStrategy {
+                networking.database.setGlobalCacheStrategy(cacheStrategy)
+            }
+
+            defer {
+                if cacheStrategy != nil {
+                    networking.database.setGlobalCacheStrategy(nil)
+                }
+            }
+
             data = try await networking.database.getValues(
                 at: "\(NetworkPath.users.rawValue)/\(id)"
             )
@@ -159,6 +172,7 @@ final class UserService: @unchecked Sendable {
                 expiryThreshold: .milliseconds(500)
             )
         )
+
         cachedUserDataSnapshots = cachedValues
 
         do {
@@ -169,7 +183,9 @@ final class UserService: @unchecked Sendable {
     }
 
     func getUsers(
-        ids: [String]
+        ids: [String],
+        bypassSnapshotCache: Bool = false,
+        cacheStrategy: CacheStrategy? = nil
     ) async throws(Exception) -> [User] {
         let userInfo = ["UserIDs": ids]
 
@@ -184,7 +200,11 @@ final class UserService: @unchecked Sendable {
             return try await ids.map(
                 failForEmptyCollection: true
             ) {
-                try await self.getUser(id: $0)
+                try await self.getUser(
+                    id: $0,
+                    bypassSnapshotCache: bypassSnapshotCache,
+                    cacheStrategy: cacheStrategy
+                )
             }
         } catch {
             throw error.appending(userInfo: userInfo)

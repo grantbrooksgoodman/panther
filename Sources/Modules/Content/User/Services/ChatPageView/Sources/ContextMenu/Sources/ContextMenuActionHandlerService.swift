@@ -33,7 +33,7 @@ final class ContextMenuActionHandlerService {
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
-    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.clientSession.entity.user.currentUser) private var currentUser: User?
     @Dependency(\.languageRecognitionService) private var languageRecognitionService: LanguageRecognitionService
     @Dependency(\.alertKitConfig.reportDelegate) private var reportDelegate: AlertKit.ReportDelegate?
     @Dependency(\.commonServices) private var services: CommonServices

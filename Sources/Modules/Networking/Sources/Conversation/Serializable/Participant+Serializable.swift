@@ -14,30 +14,47 @@ import AppSubsystem
 import Networking
 
 extension Participant: Serializable {
+    // MARK: - Type Aliases
+
+    private typealias Keys = SerializableKey
+
+    // MARK: - Types
+
+    enum SerializableKey: String {
+        case hasDeletedConversation
+        case isTyping
+        case userID
+    }
+
     // MARK: - Properties
 
-    var encoded: String {
-        "\(userID) | \(hasDeletedConversation) | \(isTyping)"
+    var encoded: [String: Any] {
+        [
+            Keys.hasDeletedConversation.rawValue: hasDeletedConversation,
+            Keys.isTyping.rawValue: isTyping,
+            Keys.userID.rawValue: userID,
+        ]
     }
 
     // MARK: - Init
 
     init(
-        from data: String
+        from data: [String: Any]
     ) async throws(Exception) {
-        let components = data.components(separatedBy: " | ")
-        guard components.count == 3,
-              components[1] == "true" || components[1] == "false",
-              components[2] == "true" || components[2] == "false" else {
+        guard let hasDeletedConversation = data[
+            Keys.hasDeletedConversation.rawValue
+        ] as? Bool,
+            let isTyping = data[
+                Keys.isTyping.rawValue
+            ] as? Bool,
+            let userID = data[
+                Keys.userID.rawValue
+            ] as? String else {
             throw .Networking.decodingFailed(
                 data: data,
                 .init(sender: Self.self)
             )
         }
-
-        let userID = components[0]
-        let hasDeletedConversation = components[1] == "true" ? true : false
-        let isTyping = components[2] == "true" ? true : false
 
         self = .init(
             userID: userID,
@@ -49,12 +66,10 @@ extension Participant: Serializable {
     // MARK: - Methods
 
     static func canDecode(
-        from data: String
+        from data: [String: Any]
     ) -> Bool {
-        let components = data.components(separatedBy: " | ")
-        guard components.count == 3,
-              components[1] == "true" || components[1] == "false",
-              components[2] == "true" || components[2] == "false" else { return false }
-        return true
+        data[Keys.hasDeletedConversation.rawValue] is Bool &&
+            data[Keys.isTyping.rawValue] is Bool &&
+            data[Keys.userID.rawValue] is String
     }
 }

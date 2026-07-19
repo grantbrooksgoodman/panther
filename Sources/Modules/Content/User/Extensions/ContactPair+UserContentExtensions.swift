@@ -20,7 +20,7 @@ extension ContactPair {
     }
 
     var containsBlockedUser: Bool {
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
         guard let currentUser else { return false }
         return (currentUser.blockedUserIDs ?? []).containsAnyString(in: userIDs)
     }

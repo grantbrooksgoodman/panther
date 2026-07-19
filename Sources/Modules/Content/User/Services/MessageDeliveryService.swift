@@ -36,7 +36,7 @@ final class MessageDeliveryService {
     // MARK: - Computed Properties
 
     private var conversation: Conversation? {
-        clientSession.conversation.currentConversation
+        clientSession.entity.conversation.currentConversation
     }
 
     private var isPenPalsConversation: Bool {
@@ -103,7 +103,7 @@ final class MessageDeliveryService {
                   let inputFile = userInfo[Strings.inputFileNotificationUserInfoKey] as? AudioFile,
                   let isPenPalsConversation = userInfo[Strings.isPenPalsConversationNotificationUserInfoKey] as? Bool else { return }
 
-            guard conversationIDKey == self.clientSession.conversation.currentConversation?.id.key else { return }
+            guard conversationIDKey == self.clientSession.entity.conversation.currentConversation?.id.key else { return }
             self.addMockMessageToCurrentConversation(
                 audioFile: inputFile,
                 mediaFile: nil,
@@ -117,7 +117,7 @@ final class MessageDeliveryService {
             chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
             chatPageViewService.inputBar?.toggleSendingUI(on: false)
 
-            if clientSession.conversation.currentConversation?.id.key == conversation?.id.key {
+            if clientSession.entity.conversation.currentConversation?.id.key == conversation?.id.key {
                 chatPageViewService
                     .deliveryProgressIndicator?
                     .stopAnimatingDeliveryProgress()
@@ -125,7 +125,7 @@ final class MessageDeliveryService {
         }
 
         do {
-            let conversation = try await clientSession.message.sendAudioMessage(
+            let conversation = try await clientSession.entity.message.sendAudioMessage(
                 inputFile,
                 toUsers: users,
                 inConversation: ((conversation?.isMock ?? true) ? nil : conversation, isPenPalsConversation)
@@ -133,12 +133,12 @@ final class MessageDeliveryService {
 
             services.analytics.logEvent(.sendAudioMessage)
 
-            if let currentConversation = clientSession.conversation.currentConversation,
+            if let currentConversation = clientSession.entity.conversation.currentConversation,
                !currentConversation.isMock {
                 guard currentConversation.id.key == conversation.id.key else { return }
             }
 
-            clientSession.conversation.setCurrentConversation(conversation)
+            clientSession.entity.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
         } catch {
             Task { @MainActor in
@@ -178,26 +178,26 @@ final class MessageDeliveryService {
             chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
             chatPageViewService.inputBar?.toggleSendingUI(on: false)
 
-            if clientSession.conversation.currentConversation?.id.key == conversation?.id.key {
+            if clientSession.entity.conversation.currentConversation?.id.key == conversation?.id.key {
                 chatPageViewService
                     .deliveryProgressIndicator?
                     .stopAnimatingDeliveryProgress()
             }
         }
 
-        let conversation = try await clientSession.message.sendMediaMessage(
+        let conversation = try await clientSession.entity.message.sendMediaMessage(
             mediaFile,
             toUsers: users,
             inConversation: ((conversation?.isMock ?? true) ? nil : conversation, isPenPalsConversation)
         )
 
         services.analytics.logEvent(.sendMediaMessage)
-        if let currentConversation = clientSession.conversation.currentConversation,
+        if let currentConversation = clientSession.entity.conversation.currentConversation,
            !currentConversation.isMock {
             guard currentConversation.id.key == conversation.id.key else { return }
         }
 
-        clientSession.conversation.setCurrentConversation(conversation)
+        clientSession.entity.conversation.setCurrentConversation(conversation)
         chatPageViewService.reloadCollectionView()
     }
 
@@ -226,26 +226,26 @@ final class MessageDeliveryService {
             chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
             chatPageViewService.inputBar?.toggleSendingUI(on: false)
 
-            if clientSession.conversation.currentConversation?.id.key == conversation?.id.key {
+            if clientSession.entity.conversation.currentConversation?.id.key == conversation?.id.key {
                 chatPageViewService
                     .deliveryProgressIndicator?
                     .stopAnimatingDeliveryProgress()
             }
         }
 
-        let conversation = try await clientSession.message.sendTextMessage(
+        let conversation = try await clientSession.entity.message.sendTextMessage(
             text,
             toUsers: users,
             inConversation: ((conversation?.isMock ?? true) ? nil : conversation, isPenPalsConversation)
         )
 
         services.analytics.logEvent(.sendTextMessage)
-        if let currentConversation = clientSession.conversation.currentConversation,
+        if let currentConversation = clientSession.entity.conversation.currentConversation,
            !currentConversation.isMock {
             guard currentConversation.id.key == conversation.id.key else { return }
         }
 
-        clientSession.conversation.setCurrentConversation(conversation)
+        clientSession.entity.conversation.setCurrentConversation(conversation)
         chatPageViewService.reloadCollectionView()
     }
 
@@ -262,8 +262,8 @@ final class MessageDeliveryService {
             "No values provided."
         )
 
-        guard let conversation = clientSession.conversation.currentConversation,
-              let currentUser = clientSession.user.currentUser else { return }
+        guard let conversation = clientSession.entity.conversation.currentConversation,
+              let currentUser = clientSession.entity.user.currentUser else { return }
 
         var messages = conversation.messages ?? []
         let mockTranslation: Translation = .init(
@@ -330,12 +330,12 @@ final class MessageDeliveryService {
                 )
             )
 
-        if let currentConversation = clientSession.conversation.currentConversation,
+        if let currentConversation = clientSession.entity.conversation.currentConversation,
            !currentConversation.isMock {
             guard currentConversation.id.key == conversation.id.key else { return }
         }
 
-        clientSession.conversation.setCurrentConversation(newConversation)
+        clientSession.entity.conversation.setCurrentConversation(newConversation)
         Task { @MainActor in
             @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
             recipientBarLayoutService?.removeFromSuperview()
@@ -394,7 +394,7 @@ final class MessageDeliveryService {
             )
         }
 
-        guard conversationIDKey == clientSession.conversation.currentConversation?.id.key else { return }
+        guard conversationIDKey == clientSession.entity.conversation.currentConversation?.id.key else { return }
         addMockMessageToCurrentConversation(
             audioFile: inputFile,
             mediaFile: nil,
