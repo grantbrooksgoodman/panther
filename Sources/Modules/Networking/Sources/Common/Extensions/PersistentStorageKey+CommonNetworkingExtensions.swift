@@ -16,6 +16,7 @@ extension PersistentStorageKey {
     enum SessionStoreStorageKey: String {
         case conversationArchive
         case messageArchive
+        case messageOutbox
         case userArchive
     }
 }

@@ -22,6 +22,7 @@ struct ClientSession: @unchecked Sendable {
     // MARK: - Properties
 
     let entity: EntitySession
+    let outbox: MessageOutboxService
     let store: SessionStore
     let sync: SyncSession
 
@@ -37,10 +38,12 @@ struct ClientSession: @unchecked Sendable {
 
     fileprivate init(
         entity: EntitySession,
+        outbox: MessageOutboxService,
         store: SessionStore,
         sync: SyncSession
     ) {
         self.entity = entity
+        self.outbox = outbox
         self.store = store
         self.sync = sync
     }
@@ -93,6 +96,7 @@ enum ClientSessionDependency: DependencyKey {
                 reaction: .init(),
                 user: .init()
             ),
+            outbox: .shared,
             store: .shared,
             sync: .init(conversationObserver: .init())
         )

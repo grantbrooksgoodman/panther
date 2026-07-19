@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0BAF4EBF51C22E10052C22BD /* MessageOutboxService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC46C9C8A805C60F23920D0 /* MessageOutboxService.swift */; };
+		0CE6962C89A4485C9DF4DD42 /* OutboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1024564CEF8638666D30233F /* OutboxEntry.swift */; };
+		247517486803C9A125BD821C /* OutboxEntry+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF3FCA5F163DEEAAC9F1FF2 /* OutboxEntry+UserContentExtensions.swift */; };
 		27FF0CF8664D05EB60530B42 /* AppConstants+SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B695E08BBD8687953BC6C3A5 /* AppConstants+SessionStore.swift */; };
 		33261DB5EDC8D88347774727 /* UICacheInvalidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B8D4F6D87373A21AC2D9B0 /* UICacheInvalidationService.swift */; };
 		A200C552300180C3002D9651 /* ChatPageHeaderReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */; };
@@ -785,8 +788,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0FC46C9C8A805C60F23920D0 /* MessageOutboxService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageOutboxService.swift; sourceTree = "<group>"; };
+		1024564CEF8638666D30233F /* OutboxEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutboxEntry.swift; sourceTree = "<group>"; };
 		32B8D4F6D87373A21AC2D9B0 /* UICacheInvalidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICacheInvalidationService.swift; sourceTree = "<group>"; };
 		520CADEF63996EC3E433927D /* SessionStoreChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreChange.swift; sourceTree = "<group>"; };
+		8AF3FCA5F163DEEAAC9F1FF2 /* OutboxEntry+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OutboxEntry+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageHeaderReducer.swift; sourceTree = "<group>"; };
 		A200C553300180CA002D9651 /* ChatPageHeaderObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageHeaderObserver.swift; sourceTree = "<group>"; };
 		A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+UserContentExtensions.swift"; sourceTree = "<group>"; };
@@ -1831,6 +1837,7 @@
 		A2E27FFE300C27AE005F3FCC /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				1024564CEF8638666D30233F /* OutboxEntry.swift */,
 				C1AABB012F66000100000001 /* SelfWriteRecord.swift */,
 				520CADEF63996EC3E433927D /* SessionStoreChange.swift */,
 			);
@@ -1861,6 +1868,7 @@
 		A2E28001300C2816005F3FCC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				0FC46C9C8A805C60F23920D0 /* MessageOutboxService.swift */,
 				C1AABB032F66000100000003 /* SelfWriteRegistry.swift */,
 				A25F1C2D2FF34E4B00425FC2 /* SessionStore.swift */,
 			);
@@ -3498,6 +3506,7 @@
 				B986C46D2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift */,
 				B98982492BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift */,
 				B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */,
+				8AF3FCA5F163DEEAAC9F1FF2 /* OutboxEntry+UserContentExtensions.swift */,
 				B98FA6322D8E1F9C00EE7024 /* PenPalsSharingData+UserContentExtensions.swift */,
 				B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */,
 				A614D5D4A6F3B22606AB10D0 /* SessionStore+UserContentExtensions.swift */,
@@ -4157,6 +4166,7 @@
 				A26D73502F2C7E4C00D43FA1 /* AIEnhancedTranslationService.swift in Sources */,
 				B980E8B42B225F380090F141 /* User+Serializable.swift in Sources */,
 				B90C910E2B69CD95008DFE59 /* Message+UserContentExtensions.swift in Sources */,
+				247517486803C9A125BD821C /* OutboxEntry+UserContentExtensions.swift in Sources */,
 				B99195992B47E99E00BD5BBC /* AppConstants+VerifyNumberPageView.swift in Sources */,
 				B991958D2B47E12300BD5BBC /* AppConstants+SelectLanguagePageView.swift in Sources */,
 				B90C91082B69C9ED008DFE59 /* ChatPageView.swift in Sources */,
@@ -4427,6 +4437,8 @@
 				B9C6964F2B8961FC005F0BFE /* ChatInfoPageView.swift in Sources */,
 				A25F1C2E2FF34E4B00425FC2 /* SessionStore.swift in Sources */,
 				BCFA191F8A419DEF1E3DA8E9 /* SessionStoreChange.swift in Sources */,
+				0BAF4EBF51C22E10052C22BD /* MessageOutboxService.swift in Sources */,
+				0CE6962C89A4485C9DF4DD42 /* OutboxEntry.swift in Sources */,
 				B94758272BCF8689001E4872 /* ContentPickerContentSource.swift in Sources */,
 				B9EFBA162B2694C500624794 /* Array+CommonNetworkingExtensions.swift in Sources */,
 				B94758252BCF864D001E4872 /* ContentPicker.swift in Sources */,

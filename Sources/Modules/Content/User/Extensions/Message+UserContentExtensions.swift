@@ -197,8 +197,18 @@ extension Message {
         fromAccountID == User.currentUserID
     }
 
+    var isFailedOutboxMessage: Bool {
+        guard isOutboxMessage else { return false }
+        @Dependency(\.clientSession.outbox) var outbox: MessageOutboxService
+        return outbox.entry(forID: id)?.state == .failed
+    }
+
     var isMock: Bool {
         id == CommonConstants.newMessageID
+    }
+
+    var isOutboxMessage: Bool {
+        id.hasPrefix("outbox-")
     }
 
     @MainActor

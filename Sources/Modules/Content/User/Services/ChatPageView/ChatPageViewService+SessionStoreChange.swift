@@ -39,6 +39,18 @@ extension ChatPageViewService {
         }
 
         guard shouldReload else { return }
+        debounceReloadCollectionView()
+    }
+
+    // MARK: - Handle Outbox Change
+
+    func handleOutboxChange() {
+        debounceReloadCollectionView()
+    }
+
+    // MARK: - Auxiliary
+
+    private func debounceReloadCollectionView() {
         Task.debounced(
             "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.chatPageReload.rawValue)",
             delay: .milliseconds(250)

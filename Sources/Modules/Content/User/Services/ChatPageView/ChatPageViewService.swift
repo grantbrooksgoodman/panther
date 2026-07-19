@@ -57,6 +57,7 @@ final class ChatPageViewService {
     private(set) var typingIndicator: TypingIndicatorService?
 
     private var configuration: ChatPageView.Configuration = .default
+    private var outboxChangeHandlerID: UUID?
     private var sessionStoreChangeHandlerID: UUID?
     private var viewController: ChatPageViewController?
 
@@ -187,6 +188,12 @@ final class ChatPageViewService {
             }
         }
 
+        if outboxChangeHandlerID == nil {
+            outboxChangeHandlerID = MessageOutboxService.addChangeHandler { [weak self] _ in
+                self?.handleOutboxChange()
+            }
+        }
+
         contextMenu?.interaction.addKeyboardWillShowObserver()
         contextMenu?.interaction.startAddingContextMenuInteractionToVisibleCells()
 
@@ -250,6 +257,11 @@ final class ChatPageViewService {
 
         chatPageState.setIsPresented(false)
         clientSession.sync.conversationObserver.stopObserving()
+
+        if let outboxChangeHandlerID {
+            MessageOutboxService.removeChangeHandler(outboxChangeHandlerID)
+            self.outboxChangeHandlerID = nil
+        }
 
         if let sessionStoreChangeHandlerID {
             SessionStore.removeChangeHandler(sessionStoreChangeHandlerID)
