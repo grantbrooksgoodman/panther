@@ -341,11 +341,12 @@ final class ConversationSessionService: @unchecked Sendable {
         )
 
         if let conversationIDKey = currentConversation?.id.key {
-            let outboxMessages = clientSession.outbox
-                .entries(forConversationIDKey: conversationIDKey)
-                .map { $0.asDisplayMessage() }
-
-            messages.append(contentsOf: outboxMessages)
+            messages.append(
+                contentsOf: clientSession
+                    .outbox
+                    .entries(forConversationIDKey: conversationIDKey)
+                    .map(\.asDisplayMessage)
+            )
         }
 
         displayedMessages = messages

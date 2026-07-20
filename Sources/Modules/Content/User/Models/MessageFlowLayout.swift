@@ -20,11 +20,17 @@ import MessageKit
 final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
     // MARK: - Properties
 
+    /// Extra right padding added to the message container for failed
+    /// outbox messages, reserving space for the "!" indicator button.
+    static let failedIndicatorPaddingRight: CGFloat = 28
+
     private lazy var sizeCalculator = SizeCalculator(layout: self)
 
     // MARK: - Methods
 
-    override func cellSizeCalculatorForItem(at indexPath: IndexPath) -> CellSizeCalculator {
+    override func cellSizeCalculatorForItem(
+        at indexPath: IndexPath
+    ) -> CellSizeCalculator {
         if isSectionReservedForTypingIndicator(indexPath.section) {
             return typingIndicatorSizeCalculator
         }
@@ -37,10 +43,47 @@ final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
         return super.cellSizeCalculatorForItem(at: indexPath)
     }
 
+    override func layoutAttributesForElements(
+        in rect: CGRect
+    ) -> [UICollectionViewLayoutAttributes]? {
+        guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }
+        for attribute in attributes {
+            applyFailedOutboxPaddingIfNeeded(to: attribute)
+        }
+
+        return attributes
+    }
+
+    override func layoutAttributesForItem(
+        at indexPath: IndexPath
+    ) -> UICollectionViewLayoutAttributes? {
+        guard let attributes = super.layoutAttributesForItem(at: indexPath) else { return nil }
+        applyFailedOutboxPaddingIfNeeded(to: attributes)
+        return attributes
+    }
+
     override func messageSizeCalculators() -> [MessageSizeCalculator] {
         var superCalculators = super.messageSizeCalculators()
         superCalculators.append(sizeCalculator)
         return superCalculators
+    }
+
+    // MARK: - Auxiliary
+
+    private func applyFailedOutboxPaddingIfNeeded(
+        to attributes: UICollectionViewLayoutAttributes
+    ) {
+        guard let msgAttributes = attributes as? MessagesCollectionViewLayoutAttributes else { return }
+
+        let message = messagesDataSource.messageForItem(
+            at: attributes.indexPath,
+            in: messagesCollectionView
+        )
+
+        guard let message = message as? Message,
+              message.isFailedOutboxMessage else { return }
+
+        msgAttributes.messageContainerPadding.right += Self.failedIndicatorPaddingRight
     }
 }
 

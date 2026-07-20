@@ -23,13 +23,17 @@ extension AppConstants.CGFloats {
 
         static let messageOutgoingCellBottomLabelAlignmentRightTextInset: CGFloat = 10
         static let messageOutgoingCellBottomLabelAlignmentTopTextInset: CGFloat = 2
-        static let messageOutgoingMessagePaddingRight: CGFloat = 30
 
         static let textCellMessageLabelLeftTextInset: CGFloat = 15
         static let textCellMessageLabelRightTextInset: CGFloat = 1
 
         enum AVSpeechSynthesizerDelegate {
             static let attributedStringParagraphStyleLineSpacing: CGFloat = 1.25
+        }
+
+        enum FailedOutboxIndicator {
+            static let indicatorButtonSize: CGFloat = 22
+            static let indicatorButtonSpacing: CGFloat = 6
         }
 
         enum MessagesDataSource {
@@ -109,6 +113,11 @@ extension AppConstants.Colors {
 
 extension AppConstants.Strings {
     enum ChatPageView {
+        enum FailedOutboxIndicator {
+            static let buttonImageSystemName = "exclamationmark.circle"
+            static let indicatorButtonSemanticTag = "INDICATOR_BUTTON"
+        }
+
         enum MessagesDataSource {
             static let messageTopLabelAttributedTextAttributesFontName = "SFUIText-Regular"
         }

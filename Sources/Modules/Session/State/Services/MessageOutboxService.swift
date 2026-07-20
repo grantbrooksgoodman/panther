@@ -34,14 +34,16 @@ struct MessageOutboxService {
 
     private static let changeHandlers = LockIsolated<[UUID: ChangeRegistration]>([:])
 
-    private let entries = LockIsolated<[String: OutboxEntry]>([:])
+    let entries = LockIsolated<[String: OutboxEntry]>([:])
 
     @Persistent(.messageOutbox) private var persistedOutbox: [OutboxEntry]?
 
     // MARK: - Computed Properties
 
     var allEntries: [OutboxEntry] {
-        entries.wrappedValue.values
+        entries
+            .wrappedValue
+            .values
             .sorted { $0.createdDate < $1.createdDate }
     }
 
@@ -205,19 +207,6 @@ struct MessageOutboxService {
         ))
     }
 
-    // MARK: - Retry Methods
-
-    /// Retries the outbox entry with the given ID.
-    /// Full implementation in Phase 5; stub marks sending then failed.
-    func retry(entryID: String) async {
-        guard let entry = entries.wrappedValue[entryID],
-              entry.state != .sending else { return }
-        markSending(id: entryID)
-
-        // Phase 5 will add the actual send pipeline invocation here.
-        markFailed(id: entryID)
-    }
-
     // MARK: - Payload Directory Methods
 
     /// Copies the file at the given URL into the outbox payload
@@ -270,7 +259,10 @@ struct MessageOutboxService {
     private func garbageCollectPayloadFiles() {
         let directory = payloadDirectoryURL
 
-        guard let fileNames = try? fileManager.contentsOfDirectory(atPath: directory.path()) else { return }
+        guard let fileNames = try? fileManager.contentsOfDirectory(
+            atPath: directory.path()
+        ) else { return }
+
         let referencedFileNames = Set(
             entries.wrappedValue.values.compactMap { entry -> String? in
                 switch entry.payload {
@@ -296,7 +288,7 @@ struct MessageOutboxService {
         }
     }
 
-    private func persist() {
+    func persist() {
         persistedOutbox = Array(entries.wrappedValue.values)
     }
 

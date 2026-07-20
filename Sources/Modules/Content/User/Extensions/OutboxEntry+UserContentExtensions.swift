@@ -14,9 +14,7 @@ import AppSubsystem
 import Translator
 
 extension OutboxEntry {
-    // MARK: - Methods
-
-    func asDisplayMessage() -> Message {
+    var asDisplayMessage: Message {
         @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
         let languageCode = currentUser?.languageCode ?? "en"
         let selfTranslationPair = LanguagePair(
@@ -60,8 +58,6 @@ extension OutboxEntry {
             )
 
         case let .media(fileName, fileExtension):
-            let outbox = MessageOutboxService.shared
-            let fileURL = outbox.payloadFileURL(forFileName: fileName)
             let relativePath = "outbox/\(fileName)"
             let mediaFile = MediaFile(
                 relativePath,

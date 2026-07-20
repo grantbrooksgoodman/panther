@@ -359,15 +359,22 @@ final class InputBarService {
     }
 
     private func getShouldEnableSendButton() -> Bool {
-        guard build.isOnline,
-              !userStorageService.atOrAboveDataUsageLimit else { return false }
+        guard !userStorageService.atOrAboveDataUsageLimit else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
         let isSendButtonConfiguredForText = !inputBar.sendButton.isRecordButton
-        let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
 
-        guard isSendButtonConfiguredForText else { return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage }
+        // Audio/media recording requires connectivity; text sends are allowed
+        // offline and handled by the outbox fail-fast → auto-retry path.
+        guard isSendButtonConfiguredForText else {
+            guard build.isOnline else { return false }
+            return !isConversationEmpty &&
+                !isRecipientBarFirstResponder &&
+                !isSendingMessage
+        }
+
+        let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
         return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage && !isTextViewTextBlank
     }
 

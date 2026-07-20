@@ -46,6 +46,7 @@ struct MessageService {
     /// ``Conversation/willWrite(_:forKey:updating:)``.
     func buildMessage(
         fromAccountID: String,
+        presetID: String? = nil,
         richContent: RichMessageContent?,
         sentDate: Date = .now,
         translations: [Translation]?
@@ -59,7 +60,9 @@ struct MessageService {
             )
         }
 
-        guard let id = networking.database.generateKey(for: NetworkPath.messages.rawValue) else {
+        guard let id = presetID ?? networking.database.generateKey(
+            for: NetworkPath.messages.rawValue
+        ) else {
             throw Exception(
                 "Failed to generate key for new message.",
                 metadata: .init(sender: self)

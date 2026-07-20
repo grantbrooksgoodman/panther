@@ -11,6 +11,7 @@ import Foundation
 import UIKit
 
 /* Proprietary */
+import AlertKit
 import AppSubsystem
 
 /* 3rd-party */
@@ -22,6 +23,8 @@ final class ChatPageViewController: MessagesViewController {
     @Dependency(\.clientSession.entity.conversation.currentConversation) var currentConversation: Conversation?
     @Dependency(\.clientSession.entity.conversation.displayedMessages) var displayedMessages: [Message]
 
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
+    @Dependency(\.clientSession.outbox) private var messageOutboxService: MessageOutboxService
     @Dependency(\.chatPageViewService) private var viewService: ChatPageViewService
 
     // MARK: - Init
@@ -30,7 +33,10 @@ final class ChatPageViewController: MessagesViewController {
         nibName nibNameOrNil: String?,
         bundle nibBundleOrNil: Bundle?
     ) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        super.init(
+            nibName: nibNameOrNil,
+            bundle: nibBundleOrNil
+        )
     }
 
     @available(*, unavailable)
@@ -94,7 +100,11 @@ final class ChatPageViewController: MessagesViewController {
             return systemMessageCell
         }
 
-        let cell = super.collectionView(collectionView, cellForItemAt: indexPath)
+        let cell = super.collectionView(
+            collectionView,
+            cellForItemAt: indexPath
+        )
+
         configureFailedIndicator(
             on: cell,
             for: message as? Message
@@ -105,21 +115,136 @@ final class ChatPageViewController: MessagesViewController {
 
     // MARK: - UIScrollView
 
-    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+    override func scrollViewDidEndDecelerating(
+        _ scrollView: UIScrollView
+    ) {
         viewService.onScrollViewDidEndDecelerating(scrollView)
     }
 
-    override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+    override func scrollViewDidEndScrollingAnimation(
+        _ scrollView: UIScrollView
+    ) {
         viewService.onScrollViewDidEndScrollingAnimation()
     }
 
-    override func scrollViewDidScrollToTop(_: UIScrollView) {
+    override func scrollViewDidScrollToTop(
+        _: UIScrollView
+    ) {
         viewService.onScrollViewDidScrollToTop()
     }
 
     // MARK: - UITraitCollection
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    override func traitCollectionDidChange(
+        _ previousTraitCollection: UITraitCollection?
+    ) {
         viewService.onTraitCollectionDidChange(previousTraitCollection)
+    }
+
+    // MARK: - Present Failed Message Action Sheet
+
+    func presentFailedMessageActionSheet(
+        forMessageID messageID: String,
+        sourceView: UIView
+    ) {
+        let messageOutboxService = LockIsolated(messageOutboxService)
+        let deleteAction = AKAction(
+            Localized(.delete).wrappedValue,
+            style: .destructive
+        ) {
+            messageOutboxService.wrappedValue.remove(id: messageID)
+        }
+
+        let tryAgainAction = AKAction(Localized(.tryAgain).wrappedValue) {
+            Task {
+                await messageOutboxService.wrappedValue.retry(entryID: messageID)
+            }
+        }
+
+        Task { @MainActor in
+            await AKActionSheet(
+                actions: [
+                    .cancelAction,
+                    deleteAction,
+                    tryAgainAction,
+                ],
+                sourceItem: .custom(.view(sourceView))
+            ).present(translating: [])
+        }
+    }
+
+    // MARK: - Auxiliary
+
+    private func configureFailedIndicator(
+        on cell: UICollectionViewCell,
+        for message: Message?
+    ) {
+        typealias Floats = AppConstants.CGFloats.ChatPageView.FailedOutboxIndicator
+        typealias Strings = AppConstants.Strings.ChatPageView.FailedOutboxIndicator
+
+        guard let contentCell = cell as? MessageContentCell else { return }
+        let existingButton = contentCell.firstSubview(
+            for: Strings.indicatorButtonSemanticTag
+        ) as? UIButton
+
+        guard let message,
+              message.isFailedOutboxMessage else {
+            existingButton?.removeFromSuperview()
+            return
+        }
+
+        if let existingButton {
+            existingButton.isHidden = false
+            return
+        }
+
+        let indicatorButton = UIButton(type: .system)
+        indicatorButton.setImage(
+            UIImage(systemName: Strings.buttonImageSystemName),
+            for: .normal
+        )
+
+        indicatorButton.tag = coreUI.semTag(
+            for: Strings.indicatorButtonSemanticTag
+        )
+
+        indicatorButton.tintColor = .systemRed
+        indicatorButton.translatesAutoresizingMaskIntoConstraints = false
+
+        indicatorButton.addTarget(
+            self,
+            action: #selector(failedIndicatorTapped(_:)),
+            for: .touchUpInside
+        )
+
+        contentCell.contentView.addSubview(indicatorButton)
+        NSLayoutConstraint.activate([
+            indicatorButton.widthAnchor.constraint(
+                equalToConstant: Floats.indicatorButtonSize
+            ),
+            indicatorButton.heightAnchor.constraint(
+                equalToConstant: Floats.indicatorButtonSize
+            ),
+            indicatorButton.centerYAnchor.constraint(
+                equalTo: contentCell.messageContainerView.centerYAnchor
+            ),
+            indicatorButton.leadingAnchor.constraint(
+                equalTo: contentCell.messageContainerView.trailingAnchor,
+                constant: Floats.indicatorButtonSpacing
+            ),
+        ])
+    }
+
+    @objc
+    private func failedIndicatorTapped(_ sender: UIButton) {
+        guard let cell = sender.superview?.superview as? MessageContentCell,
+              let indexPath = messagesCollectionView.indexPath(for: cell),
+              let message = displayedMessages.itemAt(indexPath.section),
+              message.isFailedOutboxMessage else { return }
+
+        presentFailedMessageActionSheet(
+            forMessageID: message.id,
+            sourceView: sender
+        )
     }
 }

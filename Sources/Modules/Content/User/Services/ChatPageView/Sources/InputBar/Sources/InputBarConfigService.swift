@@ -77,9 +77,7 @@ struct InputBarConfigService {
         forRecording: Bool,
         isHighlighted: Bool
     ) -> UIImage? {
-        if !build.isOnline {
-            .init(systemName: Strings.sendButtonOfflineImageSystemName)
-        } else if userStorageService.atOrAboveDataUsageLimit {
+        if userStorageService.atOrAboveDataUsageLimit {
             .init(systemName: Strings.sendButtonStorageLimitReachedImageSystemName)
         } else if forRecording {
             isHighlighted ? .recordHighlighted : .record

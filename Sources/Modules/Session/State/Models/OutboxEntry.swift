@@ -25,6 +25,8 @@ struct OutboxEntry: Codable, Equatable, Identifiable {
 
     // MARK: - Properties
 
+    static let autoRetryCap = 3
+
     let conversationIDKey: String
     let createdDate: Date
     let fromAccountID: String

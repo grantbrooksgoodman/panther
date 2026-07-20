@@ -128,13 +128,6 @@ struct ChatPageViewControllerFactory {
         layout.textMessageSizeCalculator.outgoingAvatarSize = .zero
         layout.videoMessageSizeCalculator.outgoingAvatarSize = .zero
 
-        layout.setMessageOutgoingMessagePadding(.init(
-            top: 0,
-            left: 30, // TODO: Needs a constant.
-            bottom: 0,
-            right: Floats.messageOutgoingMessagePaddingRight
-        ))
-
         layout.setMessageOutgoingCellBottomLabelAlignment(.init(
             textAlignment: .right,
             textInsets: .init(
