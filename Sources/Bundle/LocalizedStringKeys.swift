@@ -75,6 +75,7 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case newMessage
     case noResults
     case noSpeechDetected
+    case notDelivered
     case notNow
 
     case offlineMode

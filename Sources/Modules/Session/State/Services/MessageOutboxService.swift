@@ -24,6 +24,10 @@ struct MessageOutboxService {
         let handler: @MainActor @Sendable (OutboxChange) -> Void
     }
 
+    // MARK: - Dependencies
+
+    @Dependency(\.fileManager) private var fileManager: FileManager
+
     // MARK: - Properties
 
     static let shared = MessageOutboxService()
@@ -201,12 +205,24 @@ struct MessageOutboxService {
         ))
     }
 
+    // MARK: - Retry Methods
+
+    /// Retries the outbox entry with the given ID.
+    /// Full implementation in Phase 5; stub marks sending then failed.
+    func retry(entryID: String) async {
+        guard let entry = entries.wrappedValue[entryID],
+              entry.state != .sending else { return }
+        markSending(id: entryID)
+
+        // Phase 5 will add the actual send pipeline invocation here.
+        markFailed(id: entryID)
+    }
+
     // MARK: - Payload Directory Methods
 
     /// Copies the file at the given URL into the outbox payload
     /// directory and returns the destination file name.
     func storePayloadFile(from sourceURL: URL) throws -> String {
-        @Dependency(\.fileManager) var fileManager: FileManager
         let directory = payloadDirectoryURL
         try fileManager.createDirectory(
             at: directory,
@@ -233,8 +249,7 @@ struct MessageOutboxService {
     // MARK: - Auxiliary
 
     private var payloadDirectoryURL: URL {
-        @Dependency(\.fileManager) var fileManager: FileManager
-        return fileManager.documentsDirectoryURL.appending(path: "outbox")
+        fileManager.documentsDirectoryURL.appending(path: "outbox")
     }
 
     private func emitChange(_ change: OutboxChange) {
@@ -253,7 +268,6 @@ struct MessageOutboxService {
     }
 
     private func garbageCollectPayloadFiles() {
-        @Dependency(\.fileManager) var fileManager: FileManager
         let directory = payloadDirectoryURL
 
         guard let fileNames = try? fileManager.contentsOfDirectory(atPath: directory.path()) else { return }
@@ -287,7 +301,6 @@ struct MessageOutboxService {
     }
 
     private func removePayloadFile(for entry: OutboxEntry) {
-        @Dependency(\.fileManager) var fileManager: FileManager
         let fileName: String? = switch entry.payload {
         case let .audio(inputFileName): inputFileName
         case let .media(fileName, _): fileName

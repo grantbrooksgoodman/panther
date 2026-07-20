@@ -52,7 +52,8 @@ final class ReactionSessionService {
         _ reaction: Reaction,
         to message: Message
     ) async throws(Exception) {
-        guard !message.isMock else { return }
+        guard !message.isMock,
+              !message.isOutboxMessage else { return }
         guard let conversation = conversationSession.currentConversation,
               let currentUserID = User.currentUserID,
               let messageIndex = conversationSession
@@ -196,7 +197,8 @@ final class ReactionSessionService {
               .users?
               .filter({ !($0.blockedUserIDs ?? []).contains(currentUserID) })
               .first(where: { message.fromAccountID == $0.id }),
-              !message.isMock else {
+              !message.isMock,
+              !message.isOutboxMessage else {
             throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
@@ -221,6 +223,7 @@ final class ReactionSessionService {
               .displayedMessages
               .firstIndex(where: { $0.id == message.id }),
               !message.isMock,
+              !message.isOutboxMessage,
               let reactionMetadata = conversation
               .reactionMetadata?
               .filteringCurrentUserReactions(to: message.id) else {

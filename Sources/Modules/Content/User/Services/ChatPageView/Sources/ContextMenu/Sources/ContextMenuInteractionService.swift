@@ -291,9 +291,19 @@ final class ContextMenuInteractionService {
 
             guard ContextMenuInteraction.canBegin,
                   let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
-                  let message = viewController.displayedMessages.itemAt(indexPath.section),
-                  cell.contextMenuMessageID != message.id,
-                  !message.isMock,
+                  let message = viewController.displayedMessages.itemAt(indexPath.section) else { continue }
+
+            guard !message.isMock,
+                  !message.isOutboxMessage else {
+                ContextMenuInteractor.shared.removeInteraction(
+                    from: cell.messageContainerView
+                )
+
+                cell.contextMenuMessageID = nil
+                continue
+            }
+
+            guard cell.contextMenuMessageID != message.id,
                   !messageDeliveryService.isSendingMessage else { continue }
 
             cell.contextMenuMessageID = message.id

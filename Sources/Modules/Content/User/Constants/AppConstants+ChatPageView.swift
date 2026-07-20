@@ -23,6 +23,7 @@ extension AppConstants.CGFloats {
 
         static let messageOutgoingCellBottomLabelAlignmentRightTextInset: CGFloat = 10
         static let messageOutgoingCellBottomLabelAlignmentTopTextInset: CGFloat = 2
+        static let messageOutgoingMessagePaddingRight: CGFloat = 30
 
         static let textCellMessageLabelLeftTextInset: CGFloat = 15
         static let textCellMessageLabelRightTextInset: CGFloat = 1

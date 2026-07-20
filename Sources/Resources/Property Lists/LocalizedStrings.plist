@@ -5272,6 +5272,161 @@
 		<key>zh</key>
 		<string>未检测到语音</string>
 	</dict>
+	<key>not_delivered</key>
+	<dict>
+		<key>af</key>
+		<string>Nie afgelewer nie</string>
+		<key>ar</key>
+		<string>لم يتم التوصيل</string>
+		<key>az</key>
+		<string>Çatdırılmadı</string>
+		<key>be</key>
+		<string>Не дастаўлены</string>
+		<key>bg</key>
+		<string>Не е доставено</string>
+		<key>bn</key>
+		<string>বিতরণ করা হয়নি</string>
+		<key>bs</key>
+		<string>Nije isporučeno</string>
+		<key>ca</key>
+		<string>No lliurat</string>
+		<key>cs</key>
+		<string>Nedoručeno</string>
+		<key>cy</key>
+		<string>Heb ei gyflwyno</string>
+		<key>da</key>
+		<string>Ikke leveret</string>
+		<key>de</key>
+		<string>Nicht zugestellt</string>
+		<key>el</key>
+		<string>Δεν παραδόθηκε</string>
+		<key>en</key>
+		<string>Not Delivered</string>
+		<key>eo</key>
+		<string>Ne liverita</string>
+		<key>es</key>
+		<string>No entregado</string>
+		<key>et</key>
+		<string>Ei toimetatud kohale</string>
+		<key>eu</key>
+		<string>Ez da entregatu</string>
+		<key>fa</key>
+		<string>تحویل داده نشده</string>
+		<key>fi</key>
+		<string>Ei toimitettu</string>
+		<key>fr</key>
+		<string>Non distribué</string>
+		<key>ga</key>
+		<string>Níor seachadadh</string>
+		<key>gd</key>
+		<string>Cha deach a lìbhrigeadh</string>
+		<key>gl</key>
+		<string>Non entregado</string>
+		<key>gu</key>
+		<string>વિતરિત નથી</string>
+		<key>he</key>
+		<string>לא נמסר</string>
+		<key>hi</key>
+		<string>डिलीवर नहीं हुआ</string>
+		<key>hr</key>
+		<string>Nije isporučeno</string>
+		<key>ht</key>
+		<string>Pa livre</string>
+		<key>hu</key>
+		<string>Nem kézbesítve</string>
+		<key>hy</key>
+		<string>Չի հանձնվել</string>
+		<key>id</key>
+		<string>Tidak terkirim</string>
+		<key>is</key>
+		<string>Ekki afhent</string>
+		<key>it</key>
+		<string>Non consegnato</string>
+		<key>ja</key>
+		<string>未配信</string>
+		<key>ka</key>
+		<string>არ არის მიწოდებული</string>
+		<key>kk</key>
+		<string>Жеткізілмеді</string>
+		<key>kn</key>
+		<string>ವಿತರಿಸಲಾಗಿಲ್ಲ</string>
+		<key>ko</key>
+		<string>전달 안 됨</string>
+		<key>ky</key>
+		<string>Жеткирилген жок</string>
+		<key>lt</key>
+		<string>Nepristatyta</string>
+		<key>mg</key>
+		<string>Tsy nafahana</string>
+		<key>mi</key>
+		<string>Kāore i tukuna</string>
+		<key>mk</key>
+		<string>Не е доставено</string>
+		<key>ml</key>
+		<string>എത്തിച്ചില്ല</string>
+		<key>mn</key>
+		<string>Хүргэгдээгүй</string>
+		<key>mt</key>
+		<string>Mhux mogħtija</string>
+		<key>ne</key>
+		<string>डेलिभर गरिएको छैन</string>
+		<key>nl</key>
+		<string>Niet bezorgd</string>
+		<key>no</key>
+		<string>Ikke levert</string>
+		<key>pa</key>
+		<string>ਡਿਲੀਵਰ ਨਹੀਂ ਕੀਤਾ</string>
+		<key>pl</key>
+		<string>Nie dostarczono</string>
+		<key>pt</key>
+		<string>Não entregue</string>
+		<key>ro</key>
+		<string>Nelivrat</string>
+		<key>ru</key>
+		<string>Не доставлено</string>
+		<key>si</key>
+		<string>භාර දුන්නේ නැත</string>
+		<key>sk</key>
+		<string>Nedoručené</string>
+		<key>sl</key>
+		<string>Ni dostavljeno</string>
+		<key>sq</key>
+		<string>Nuk u dorëzua</string>
+		<key>sr</key>
+		<string>Није испоручено</string>
+		<key>su</key>
+		<string>Henteu dikirim</string>
+		<key>sv</key>
+		<string>Inte levererat</string>
+		<key>sw</key>
+		<string>Haijawasilishwa</string>
+		<key>ta</key>
+		<string>வழங்கப்படவில்லை</string>
+		<key>te</key>
+		<string>పంపిణీ చేయబడలేదు</string>
+		<key>tg</key>
+		<string>Супурд нашуд</string>
+		<key>th</key>
+		<string>ไม่ได้ส่ง</string>
+		<key>tl</key>
+		<string>Hindi naihatid</string>
+		<key>tr</key>
+		<string>Teslim edilmedi</string>
+		<key>tt</key>
+		<string>Тапшырылмады</string>
+		<key>uk</key>
+		<string>Не доставлено</string>
+		<key>ur</key>
+		<string>نہیں پہنچایا</string>
+		<key>uz</key>
+		<string>Yetkazilmadi</string>
+		<key>vi</key>
+		<string>Chưa được gửi</string>
+		<key>yi</key>
+		<string>נישט איבערגעגעבן</string>
+		<key>zh</key>
+		<string>未送达</string>
+	</dict>
 	<key>not_now</key>
 	<dict>
 		<key>af</key>

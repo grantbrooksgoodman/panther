@@ -45,6 +45,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
 
     // MARK: - Cell Bottom Label Attributed Text
 
+    // swiftlint:disable:next function_body_length
     func cellBottomLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
@@ -52,7 +53,18 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
         @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
         guard let currentConversation,
               let message = message as? Message,
-              !message.isMock else { return nil }
+              !message.isMock,
+              !message.isOutboxMessage || message.isFailedOutboxMessage else { return nil }
+
+        if message.isFailedOutboxMessage {
+            return Localized(.notDelivered)
+                .wrappedValue
+                .attributed(.init([
+                    .font: UIFont.boldSystemFont(ofSize: Floats.cellBottomLabelAttributedTextBoldAttributesSystemFontSize),
+                    .foregroundColor: UIColor.systemRed,
+                ]))
+        }
+
         let messages = displayedMessages
 
         var boldAttributes: [NSAttributedString.Key: Any] = [
@@ -133,8 +145,12 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
                 .attributed(attributedStringConfig)
         }
 
+        let lastConfirmedOwnIndex = messages.lastIndex(where: {
+            $0.isFromCurrentUser && !$0.isOutboxMessage
+        })
+
         guard currentConversation.participants.count == 2,
-              indexPath.section == messages.count - 1,
+              indexPath.section == lastConfirmedOwnIndex,
               message.isFromCurrentUser,
               !reactionsString.contains("|") else {
             guard reactionsString.contains(where: \.isLetter) else {

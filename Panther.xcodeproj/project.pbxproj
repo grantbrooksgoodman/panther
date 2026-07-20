@@ -370,6 +370,7 @@
 		B9A907362BADFB92007AD2C2 /* ChatInfoPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A907352BADFB92007AD2C2 /* ChatInfoPageViewStrings.swift */; };
 		B9A907382BADFFAC007AD2C2 /* CNContactContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A907372BADFFAC007AD2C2 /* CNContactContainer.swift */; };
 		B9A9073A2BAE11F2007AD2C2 /* AppConstants+ChatInfoPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A907392BAE11F2007AD2C2 /* AppConstants+ChatInfoPageView.swift */; };
+		B9AD411D2E7B3A10005BF8F0 /* ChatPageViewController+FailedOutboxMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD411C2E7B3A10005BF8F0 /* ChatPageViewController+FailedOutboxMessage.swift */; };
 		B9AD411F2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD411E2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift */; };
 		B9AD41212B6B0966005BF8F0 /* ChatPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */; };
 		B9AD41232B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */; };
@@ -1225,6 +1226,7 @@
 		B9A907352BADFB92007AD2C2 /* ChatInfoPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInfoPageViewStrings.swift; sourceTree = "<group>"; };
 		B9A907372BADFFAC007AD2C2 /* CNContactContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CNContactContainer.swift; sourceTree = "<group>"; };
 		B9A907392BAE11F2007AD2C2 /* AppConstants+ChatInfoPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChatInfoPageView.swift"; sourceTree = "<group>"; };
+		B9AD411C2E7B3A10005BF8F0 /* ChatPageViewController+FailedOutboxMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+FailedOutboxMessage.swift"; sourceTree = "<group>"; };
 		B9AD411E2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+InputBarAccessoryViewDelegate.swift"; sourceTree = "<group>"; };
 		B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewService.swift; sourceTree = "<group>"; };
 		B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewServiceDependency.swift; sourceTree = "<group>"; };
@@ -1963,6 +1965,7 @@
 				B90C91072B69C9ED008DFE59 /* ChatPageView.swift */,
 				B90C91092B69CA72008DFE59 /* ChatPageViewController.swift */,
 				B9332EA42B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift */,
+				B9AD411C2E7B3A10005BF8F0 /* ChatPageViewController+FailedOutboxMessage.swift */,
 				B9AD411E2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift */,
 				B90C910B2B69CD18008DFE59 /* ChatPageViewController+MessagesDataSource.swift */,
 				B90C91132B69D280008DFE59 /* ChatPageViewController+MessagesDisplayDelegate.swift */,
@@ -4265,6 +4268,7 @@
 				B90249CE2B57458800D62855 /* PermissionPageViewStrings.swift in Sources */,
 				B91822262B6DDE030068BDAB /* TypingIndicatorService.swift in Sources */,
 				B900B5482B1ADB6100BA2F1D /* ContactPair.swift in Sources */,
+				B9AD411D2E7B3A10005BF8F0 /* ChatPageViewController+FailedOutboxMessage.swift in Sources */,
 				B9AD411F2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift in Sources */,
 				B9D5C72C2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift in Sources */,
 				B9975C8B2B201AA4008CE353 /* CommonServices.swift in Sources */,

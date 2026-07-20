@@ -94,7 +94,13 @@ final class ChatPageViewController: MessagesViewController {
             return systemMessageCell
         }
 
-        return super.collectionView(collectionView, cellForItemAt: indexPath)
+        let cell = super.collectionView(collectionView, cellForItemAt: indexPath)
+        configureFailedIndicator(
+            on: cell,
+            for: message as? Message
+        )
+
+        return cell
     }
 
     // MARK: - UIScrollView
