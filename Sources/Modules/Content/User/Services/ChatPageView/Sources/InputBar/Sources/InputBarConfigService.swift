@@ -24,6 +24,7 @@ struct InputBarConfigService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.dataUsageService) private var dataUsageService: DataUsageService
     @Dependency(\.clientSession.entity) private var entitySession: EntitySession
+    @Dependency(\.navigation) private var navigation: Navigation
 
     // MARK: - Computed Properties
 
@@ -77,7 +78,13 @@ struct InputBarConfigService {
         forRecording: Bool,
         isHighlighted: Bool
     ) -> UIImage? {
-        if dataUsageService.atOrAboveDataUsageLimit {
+        if !build.isOnline,
+           forRecording,
+           navigation.state.userContent.sheet == .newChat {
+            // Offline glyph only applies to audio/media; text sends are
+            // allowed offline via the outbox fail-fast → auto-retry path.
+            .init(systemName: Strings.sendButtonOfflineImageSystemName)
+        } else if dataUsageService.atOrAboveDataUsageLimit {
             .init(systemName: Strings.sendButtonStorageLimitReachedImageSystemName)
         } else if forRecording {
             isHighlighted ? .recordHighlighted : .record

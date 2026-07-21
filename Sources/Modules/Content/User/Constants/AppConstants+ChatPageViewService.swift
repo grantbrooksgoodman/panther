@@ -241,7 +241,7 @@ extension AppConstants.Strings {
 
             static let recordButtonSemanticTag = "RECORD_BUTTON"
 
-//            static let sendButtonOfflineImageSystemName = "wifi.slash"
+            static let sendButtonOfflineImageSystemName = "wifi.slash"
             static let sendButtonSemanticTag = "SEND_BUTTON" // swiftlint:disable:next identifier_name
             static let sendButtonStorageLimitReachedImageSystemName = "externaldrive.trianglebadge.exclamationmark"
 
