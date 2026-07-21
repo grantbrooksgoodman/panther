@@ -865,11 +865,11 @@ final class IntegrityService: @unchecked Sendable {
         guard !orphanedMediaFilePaths.isEmpty else { return (false, nil) }
 
         do {
-            try await Array(orphanedMediaFilePaths).map(
+            try await Array(orphanedMediaFilePaths).forEachConcurrently(
                 failFast: false
-            ) {
+            ) { filePath throws(Exception) in
                 try await self.networking.storage.deleteItem(
-                    at: "\(NetworkPath.media.rawValue)/\($0)"
+                    at: "\(NetworkPath.media.rawValue)/\(filePath)"
                 )
             }
         } catch {

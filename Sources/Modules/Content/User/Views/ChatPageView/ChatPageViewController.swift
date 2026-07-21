@@ -183,7 +183,7 @@ final class ChatPageViewController: MessagesViewController {
         typealias Strings = AppConstants.Strings.ChatPageView.FailedOutboxIndicator
 
         guard let contentCell = cell as? MessageContentCell else { return }
-        let existingButton = contentCell.firstSubview(
+        let existingButton = contentCell.contentView.firstSubview(
             for: Strings.indicatorButtonSemanticTag
         ) as? UIButton
 

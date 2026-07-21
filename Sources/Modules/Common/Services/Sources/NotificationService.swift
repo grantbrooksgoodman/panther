@@ -72,14 +72,14 @@ struct NotificationService {
 
         let currentUserFormattedPhoneNumberString = currentUser.phoneNumber.formattedString()
         guard let reaction else {
-            try await users.map {
+            try await users.forEachConcurrently { user throws(Exception) in
                 do throws(Exception) {
                     try await self.notify(
-                        $0,
-                        title: isPenPalsConversation ? self.penPalsName(for: $0) : currentUserFormattedPhoneNumberString,
+                        user,
+                        title: isPenPalsConversation ? self.penPalsName(for: user) : currentUserFormattedPhoneNumberString,
                         body: self.notificationBody(
                             for: message,
-                            user: $0
+                            user: user
                         ),
                         conversationIDKey: conversationIDKey,
                         isReaction: false
@@ -94,17 +94,18 @@ struct NotificationService {
             return
         }
 
-        try await users.map {
+        try await users.forEachConcurrently { user throws(Exception) in
             let reactedString = Localized(
                 .reacted,
-                languageCode: $0.languageCode
+                languageCode: user.languageCode
             ).wrappedValue
+
             let reactionSuffix = "\(reactedString) \(reaction.style.emojiValue)"
 
-            let titlePrefix = isPenPalsConversation ? penPalsName(for: $0) : currentUserFormattedPhoneNumberString
+            let titlePrefix = isPenPalsConversation ? penPalsName(for: user) : currentUserFormattedPhoneNumberString
             var body = notificationBody(
                 for: message,
-                user: $0
+                user: user
             )
 
             if let resolvedBody = body,
@@ -114,7 +115,7 @@ struct NotificationService {
 
             do throws(Exception) {
                 try await self.notify(
-                    $0,
+                    user,
                     title: "\(titlePrefix) \(reactionSuffix)",
                     body: body,
                     conversationIDKey: conversationIDKey,
@@ -146,14 +147,14 @@ struct NotificationService {
             partialResult.append(contentsOf: map.keys)
         }
 
-        try await pushTokens.unique.map(
+        try await pushTokens.unique.forEachConcurrently(
             failFast: false
-        ) {
+        ) { pushToken throws(Exception) in
             try await sendNotification(
                 title: title,
                 body: body,
                 badgeNumber: 0,
-                pushToken: $0,
+                pushToken: pushToken,
                 userInfo: [:],
                 isReaction: false
             )

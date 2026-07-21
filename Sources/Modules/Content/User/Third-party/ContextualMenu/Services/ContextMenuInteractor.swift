@@ -35,6 +35,7 @@ final class ContextMenuInteractor {
     var contextMenuViewController: ContextMenuViewController?
     weak var viewOriginalWindow: UIWindow?
 
+    private var interactionOrigin: CGPoint?
     private var isShowing = false
 
     // MARK: - Computed Properties
@@ -97,6 +98,7 @@ final class ContextMenuInteractor {
                   let view = sender.view,
                   let interaction = interactions.object(forKey: view) else { return }
 
+            interactionOrigin = sender.location(in: sender.view)
             contextMenuService?.interaction.setIsPresentingContextMenu(true)
             interaction.onInteractionBeganEffect?()
 
@@ -121,11 +123,19 @@ final class ContextMenuInteractor {
             menuView.highlightElement(at: sender.location(in: menuView))
 
         case .ended:
+            defer { interactionOrigin = nil }
+
             guard let contextMenuViewController,
                   let menuView = contextMenuViewController.menuView else { return }
 
+            let location = sender.location(in: sender.view)
+            let didDragFromOrigin = interactionOrigin.map { origin in
+                hypot(location.x - origin.x, location.y - origin.y) > 10
+            } ?? false
+
             let locationInMenuView = sender.location(in: menuView)
-            if let element = menuView.element(at: locationInMenuView) {
+            if didDragFromOrigin,
+               let element = menuView.element(at: locationInMenuView) {
                 menuView.unhighlightAllElements()
                 menuView.delegate?.dismissMenuView(
                     menuView: menuView,
@@ -137,6 +147,7 @@ final class ContextMenuInteractor {
 
         case .cancelled,
              .failed:
+            interactionOrigin = nil
             contextMenuViewController?.menuView?.unhighlightAllElements()
 
         default:

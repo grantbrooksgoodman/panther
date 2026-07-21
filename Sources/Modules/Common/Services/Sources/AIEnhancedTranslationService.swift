@@ -36,6 +36,7 @@ struct AIEnhancedTranslationService {
             didGrantAIEnhancedTranslationPermission
         )
 
+        // NIT: Can we be upserting here?
         _ = try await currentUser.update(
             \.aiEnhancedTranslationsEnabled,
             to: didGrantAIEnhancedTranslationPermission

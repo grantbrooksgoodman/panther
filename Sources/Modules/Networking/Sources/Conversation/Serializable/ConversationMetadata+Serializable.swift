@@ -75,12 +75,12 @@ extension ConversationMetadata: Serializable {
         }
 
         let messageRecipientConsentAcknowledgementData = try await encodedMessageRecipientConsentAcknowledgementData
-            .map {
+            .parallelMap {
                 try await MessageRecipientConsentAcknowledgementData(from: $0)
             }
 
         // swiftlint:enable identifier_name
-        let penPalsSharingData = try await encodedPenPalsSharingData.map {
+        let penPalsSharingData = try await encodedPenPalsSharingData.parallelMap {
             try await PenPalsSharingData(from: $0)
         }
 

@@ -1,5 +1,5 @@
 //
-//  UserStorageService.swift
+//  DataUsageService.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -18,7 +18,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-final class UserStorageService: @unchecked Sendable {
+final class DataUsageService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
@@ -29,7 +29,7 @@ final class UserStorageService: @unchecked Sendable {
 
     static let storageLimitInKilobytes: Double = 10240
 
-    fileprivate static let shared = UserStorageService()
+    fileprivate static let shared = DataUsageService()
 
     private static let coalescer = SingleSlotCoalescer<Int>()
 
@@ -42,13 +42,13 @@ final class UserStorageService: @unchecked Sendable {
 
     var atOrAboveDataUsageLimit: Bool {
         lastDataUsageCalculation.dataUsageInKilobytes >= Int(
-            UserStorageService.storageLimitInKilobytes
+            Self.storageLimitInKilobytes
         )
     }
 
     var isApproachingDataUsageLimit: Bool {
         lastDataUsageCalculation.dataUsageInKilobytes >= Int(
-            UserStorageService.storageLimitInKilobytes * warningAlertRatio
+            Self.storageLimitInKilobytes * warningAlertRatio
         )
     }
 
@@ -191,7 +191,7 @@ final class UserStorageService: @unchecked Sendable {
 
     func presentStorageWarningAlert() async {
         guard await ((try? (getCurrentUserDataUsage())) ?? 0) >= Int(
-            UserStorageService.storageLimitInKilobytes * warningAlertRatio
+            Self.storageLimitInKilobytes * warningAlertRatio
         ) else { return }
 
         if atOrAboveDataUsageLimit {
@@ -398,7 +398,7 @@ final class UserStorageService: @unchecked Sendable {
     private func totalSizeInKilobytes(
         of items: [String]
     ) async throws(Exception) -> Int {
-        try await items.map { filePath in
+        try await items.parallelMap { filePath in
             try await self.networking.storage.sizeInKilobytes(
                 ofItemAt: filePath
             )
@@ -424,16 +424,16 @@ private extension TranslationReference {
     }
 }
 
-enum UserStorageServiceDependency: DependencyKey {
-    static func resolve(_: DependencyValues) -> UserStorageService {
+enum DataUsageServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> DataUsageService {
         .shared
     }
 }
 
 extension DependencyValues {
-    var userStorageService: UserStorageService {
-        get { self[UserStorageServiceDependency.self] }
-        set { self[UserStorageServiceDependency.self] = newValue }
+    var dataUsageService: DataUsageService {
+        get { self[DataUsageServiceDependency.self] }
+        set { self[DataUsageServiceDependency.self] = newValue }
     }
 }
 

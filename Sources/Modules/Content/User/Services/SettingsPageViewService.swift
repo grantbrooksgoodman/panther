@@ -35,6 +35,7 @@ final class SettingsPageViewService {
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.dataUsageService) private var dataUsageService: DataUsageService
     @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
@@ -42,7 +43,6 @@ final class SettingsPageViewService {
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
-    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -570,7 +570,7 @@ final class SettingsPageViewService {
 
     /// `.viewAppeared`
     func getCurrentUserDataUsage() async throws(Exception) -> Int {
-        try await userStorageService.getCurrentUserDataUsage()
+        try await dataUsageService.getCurrentUserDataUsage()
     }
 
     // MARK: - Clear Cache

@@ -104,7 +104,7 @@ final class ConversationSyncService: @unchecked Sendable {
             )
         }
 
-        let updatedActivities = try await newActivities.map {
+        let updatedActivities = try await newActivities.parallelMap {
             try await Activity(from: $0)
         }
 
@@ -328,7 +328,7 @@ final class ConversationSyncService: @unchecked Sendable {
             )
         }
 
-        let updatedReactionMetadata = try await newReactionMetadata.map {
+        let updatedReactionMetadata = try await newReactionMetadata.parallelMap {
             try await ReactionMetadata(from: $0)
         }
 

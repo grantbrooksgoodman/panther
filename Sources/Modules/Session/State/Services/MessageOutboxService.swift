@@ -47,6 +47,10 @@ struct MessageOutboxService {
             .sorted { $0.createdDate < $1.createdDate }
     }
 
+    private var payloadDirectoryURL: URL {
+        fileManager.documentsDirectoryURL.appending(path: "outbox")
+    }
+
     // MARK: - Init
 
     private init() {
@@ -111,9 +115,52 @@ struct MessageOutboxService {
 
     // MARK: - Mutation Methods
 
+    /// Atomically claims the entry for retry, transitioning it to `.sending`.
+    /// Returns the claimed entry (with a reserved remote ID) or `nil`
+    /// if the entry is missing or already claimed by another caller.
+    func claimForRetry(
+        id: String,
+        candidateRemoteID: String
+    ) -> OutboxEntry? {
+        let claimedEntry: OutboxEntry? = entries
+            .projectedValue
+            .withValue { entries -> OutboxEntry? in
+                guard var entry = entries[id],
+                      entry.state != .sending else { return nil }
+
+                if entry.reservedRemoteID == nil {
+                    entry.reservedRemoteID = candidateRemoteID
+                }
+
+                entry.state = .sending
+                entry.attemptCount += 1
+                entry.lastAttemptDate = .now
+
+                entries[id] = entry
+                return entry
+            }
+
+        if let claimedEntry {
+            persistArchive()
+
+            Logger.log(
+                "Claimed outbox entry \(id) for retry (attempt \(claimedEntry.attemptCount)).",
+                domain: .messageOutbox,
+                sender: self
+            )
+
+            emitChange(.init(
+                removedIDs: [],
+                upsertedIDs: [id]
+            ))
+        }
+
+        return claimedEntry
+    }
+
     func enqueue(_ entry: OutboxEntry) {
         entries.projectedValue.withValue { $0[entry.id] = entry }
-        persist()
+        persistArchive()
 
         Logger.log(
             "Enqueued outbox entry \(entry.id) for conversation \(entry.conversationIDKey).",
@@ -131,30 +178,10 @@ struct MessageOutboxService {
         guard var entry = entries.wrappedValue[id] else { return }
         entry.state = .failed
         entries.projectedValue.withValue { $0[id] = entry }
-        persist()
+        persistArchive()
 
         Logger.log(
             "Marked outbox entry \(id) as failed (attempt \(entry.attemptCount)).",
-            domain: .messageOutbox,
-            sender: self
-        )
-
-        emitChange(.init(
-            removedIDs: [],
-            upsertedIDs: [id]
-        ))
-    }
-
-    func markSending(id: String) {
-        guard var entry = entries.wrappedValue[id] else { return }
-        entry.state = .sending
-        entry.attemptCount += 1
-        entry.lastAttemptDate = .now
-        entries.projectedValue.withValue { $0[id] = entry }
-        persist()
-
-        Logger.log(
-            "Marked outbox entry \(id) as sending (attempt \(entry.attemptCount)).",
             domain: .messageOutbox,
             sender: self
         )
@@ -169,7 +196,7 @@ struct MessageOutboxService {
         guard let entry = entries.wrappedValue[id] else { return }
         removePayloadFile(for: entry)
         entries.projectedValue.withValue { $0[id] = nil }
-        persist()
+        persistArchive()
 
         Logger.log(
             "Removed outbox entry \(id).",
@@ -193,7 +220,7 @@ struct MessageOutboxService {
         }
 
         entries.projectedValue.withValue { $0 = [:] }
-        persist()
+        persistArchive()
 
         Logger.log(
             "Removed all outbox entries (\(removedIDs.count)).",
@@ -236,10 +263,6 @@ struct MessageOutboxService {
     }
 
     // MARK: - Auxiliary
-
-    private var payloadDirectoryURL: URL {
-        fileManager.documentsDirectoryURL.appending(path: "outbox")
-    }
 
     private func emitChange(_ change: OutboxChange) {
         let matchingHandlers = Self.changeHandlers.wrappedValue.values
@@ -288,7 +311,7 @@ struct MessageOutboxService {
         }
     }
 
-    func persist() {
+    private func persistArchive() {
         persistedOutbox = Array(entries.wrappedValue.values)
     }
 

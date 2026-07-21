@@ -129,11 +129,11 @@ extension DevModeAction {
 
                         userSession.stopObservingCurrentUserChanges()
 
-                        try await conversations
+                        _ = try await conversations
                             .compactMap(\.messages)
                             .flatMap(\.self)
                             .filter { $0.currentUserReadReceipt != nil }
-                            .map { @Sendable in
+                            .parallelMap { @Sendable in
                                 let message = $0
                                 return try await message.update(
                                     \.readReceipts,

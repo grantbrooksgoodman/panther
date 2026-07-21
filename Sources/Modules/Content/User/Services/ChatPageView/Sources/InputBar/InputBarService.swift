@@ -39,10 +39,10 @@ final class InputBarService {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.clientSession.entity.conversation.currentConversation) private var currentConversation: Conversation?
+    @Dependency(\.dataUsageService) private var dataUsageService: DataUsageService
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
     @Dependency(\.uiApplication.mainScreen.bounds.width) private var screenWidth: CGFloat
-    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -333,7 +333,7 @@ final class InputBarService {
 
     private func getShouldEnableAttachMediaButton() -> Bool {
         guard build.isOnline,
-              !userStorageService.atOrAboveDataUsageLimit else { return false }
+              !dataUsageService.atOrAboveDataUsageLimit else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
@@ -359,7 +359,7 @@ final class InputBarService {
     }
 
     private func getShouldEnableSendButton() -> Bool {
-        guard !userStorageService.atOrAboveDataUsageLimit else { return false }
+        guard !dataUsageService.atOrAboveDataUsageLimit else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false

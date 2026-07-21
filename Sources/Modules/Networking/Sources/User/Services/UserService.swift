@@ -197,7 +197,7 @@ final class UserService: @unchecked Sendable {
         }
 
         do {
-            return try await ids.map(
+            return try await ids.parallelMap(
                 failForEmptyCollection: true
             ) {
                 try await self.getUser(

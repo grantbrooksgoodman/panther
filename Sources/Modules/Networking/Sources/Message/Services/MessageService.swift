@@ -226,7 +226,7 @@ struct MessageService {
         }
 
         do {
-            return try await ids.map {
+            return try await ids.parallelMap {
                 try await getMessage(id: $0)
             }
         } catch {
@@ -323,11 +323,11 @@ struct MessageService {
         updateConversationHash: Bool = true,
         failureStrategy: BatchFailureStrategy = .returnOnFailure
     ) async throws(Exception) {
-        try await messageIDs.map(
+        try await messageIDs.forEachConcurrently(
             failFast: failureStrategy == .returnOnFailure
-        ) {
+        ) { messageID throws(Exception) in
             try await deleteMessage(
-                id: $0,
+                id: messageID,
                 in: conversation,
                 updateConversationHash: updateConversationHash
             )

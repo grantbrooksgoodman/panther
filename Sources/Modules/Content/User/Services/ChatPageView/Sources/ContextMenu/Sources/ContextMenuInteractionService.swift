@@ -28,13 +28,13 @@ final class ContextMenuInteractionService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.dataUsageService) private var dataUsageService: DataUsageService
     @Dependency(\.commonServices.haptics) private var hapticsService: HapticsService
     @Dependency(\.mainBundle) private var mainBundle: Bundle
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.clientSession.entity.reaction) private var reactionSession: ReactionSessionService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
-    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -206,7 +206,7 @@ final class ContextMenuInteractionService {
                     .displayedMessages
                     .itemAt(indexPath.section),
                     !message.isConsentMessage,
-                    !userStorageService.atOrAboveDataUsageLimit else { return }
+                    !dataUsageService.atOrAboveDataUsageLimit else { return }
 
                 let convertedTouchPoint = viewController.messagesCollectionView.convert(
                     touchPoint,
@@ -319,13 +319,13 @@ final class ContextMenuInteractionService {
                     Task.delayed(by: .milliseconds(Floats.triggerExistingSelectionDelayMilliseconds)) { @MainActor in
                         self.triggerExistingSelection(reactionsViewController)
                         reactionsViewController.view.alpha = message.isConsentMessage ||
-                            self.userStorageService.atOrAboveDataUsageLimit ? 0 : 1
+                            self.dataUsageService.atOrAboveDataUsageLimit ? 0 : 1
                     }
 
                     reactionsViewController
                         .view
                         .isUserInteractionEnabled = message.isConsentMessage ||
-                        self.userStorageService.atOrAboveDataUsageLimit ? false : true
+                        self.dataUsageService.atOrAboveDataUsageLimit ? false : true
 
                     return ContextMenuConfiguration(
                         accessoryView: reactionsViewController.view,

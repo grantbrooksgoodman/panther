@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -19,7 +21,7 @@ final class ReactionSessionService {
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.clientSession.entity.conversation) private var conversationSession: ConversationSessionService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
@@ -54,9 +56,11 @@ final class ReactionSessionService {
     ) async throws(Exception) {
         guard !message.isMock,
               !message.isOutboxMessage else { return }
-        guard let conversation = conversationSession.currentConversation,
+        guard let conversation = clientSession.entity.conversation.currentConversation,
               let currentUserID = User.currentUserID,
-              let messageIndex = conversationSession
+              let messageIndex = clientSession
+              .entity
+              .conversation
               .displayedMessages
               .firstIndex(where: { $0.id == message.id }) else {
             throw Exception(
@@ -65,7 +69,7 @@ final class ReactionSessionService {
             )
         }
 
-        var reactionMetadata = conversation.reactionMetadata ?? []
+        let reactionMetadata = conversation.reactionMetadata ?? []
 
         // Remove reaction if same one is already applied
 
@@ -78,34 +82,7 @@ final class ReactionSessionService {
             return try await removeReaction(from: message)
         }
 
-        // Filter metadata to remove previous reactions to current message
-
         isReactingToMessage = true
-        reactionMetadata = reactionMetadata.filteringCurrentUserReactions(to: message.id)
-
-        // Add new reaction to metadata
-
-        if let existingMetadata = reactionMetadata.first(where: {
-            $0.messageID == message.id
-        }) {
-            var newReactions = existingMetadata.reactions
-            newReactions.append(reaction)
-
-            let newMetadata = ReactionMetadata(
-                messageID: message.id,
-                reactions: newReactions
-            )
-
-            reactionMetadata.removeAll(where: { $0.messageID == message.id })
-            reactionMetadata.append(newMetadata)
-        } else {
-            reactionMetadata.append(
-                .init(
-                    messageID: message.id,
-                    reactions: [reaction]
-                )
-            )
-        }
 
         // Notify users of reaction to message
 
@@ -120,17 +97,13 @@ final class ReactionSessionService {
             }
         }
 
-        // Update conversation with new metadata
+        // Update conversation with new reaction metadata
 
         chatPageViewService.contextMenu?.dismissMenu()
-        reactionMetadata = reactionMetadata
-            .filter { $0 != .empty }
-            .filter { !$0.reactions.isEmpty }
-
         try await updateConversation(
             conversation,
             messageData: (messageIndex, message),
-            reactionMetadata: reactionMetadata
+            newReaction: reaction
         )
     }
 
@@ -191,14 +164,17 @@ final class ReactionSessionService {
         to message: Message
     ) async throws(Exception) {
         guard message.fromAccountID != User.currentUserID else { return }
-        guard let conversation = conversationSession.currentConversation,
-              let currentUserID = User.currentUserID,
-              let user = conversation
-              .users?
-              .filter({ !($0.blockedUserIDs ?? []).contains(currentUserID) })
-              .first(where: { message.fromAccountID == $0.id }),
-              !message.isMock,
-              !message.isOutboxMessage else {
+        guard let conversation = clientSession
+            .entity
+            .conversation
+            .currentConversation,
+            let currentUserID = User.currentUserID,
+            let user = conversation
+            .users?
+            .filter({ !($0.blockedUserIDs ?? []).contains(currentUserID) })
+            .first(where: { message.fromAccountID == $0.id }),
+            !message.isMock,
+            !message.isOutboxMessage else {
             throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
@@ -218,15 +194,14 @@ final class ReactionSessionService {
     private func removeReaction(
         from message: Message
     ) async throws(Exception) {
-        guard let conversation = conversationSession.currentConversation,
-              let messageIndex = conversationSession
+        guard let conversation = clientSession.entity.conversation.currentConversation,
+              let messageIndex = clientSession
+              .entity
+              .conversation
               .displayedMessages
               .firstIndex(where: { $0.id == message.id }),
               !message.isMock,
-              !message.isOutboxMessage,
-              let reactionMetadata = conversation
-              .reactionMetadata?
-              .filteringCurrentUserReactions(to: message.id) else {
+              !message.isOutboxMessage else {
             throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
@@ -237,7 +212,7 @@ final class ReactionSessionService {
         try await updateConversation(
             conversation,
             messageData: (messageIndex, message),
-            reactionMetadata: reactionMetadata
+            newReaction: nil
         )
     }
 
@@ -245,18 +220,162 @@ final class ReactionSessionService {
         effects.values.forEach { $0() }
     }
 
-    @MainActor
+    @MainActor // swiftlint:disable:next function_body_length
     private func updateConversation(
         _ conversation: Conversation,
         messageData: (index: Int, message: Message),
-        reactionMetadata: [ReactionMetadata]
+        newReaction: Reaction?
     ) async throws(Exception) {
-        let updatedConversation: Conversation
-        do {
-            updatedConversation = try await conversation.update(
-                \.reactionMetadata,
-                to: reactionMetadata
+        guard let currentUserID = User.currentUserID else {
+            throw Exception(
+                "Current user ID has not been set.",
+                metadata: .init(sender: self)
             )
+        }
+
+        let encodedReactionStyle = newReaction?.style.encodedValue
+        let messageID = messageData.message.id
+        let reactionUserID = newReaction?.userID
+
+        let reactionMetadataPath = [
+            NetworkPath.conversations.rawValue,
+            conversation.id.key,
+            Conversation.SerializableKey.reactionMetadata.rawValue,
+        ].joined(separator: "/")
+
+        // Atomically read-modify-write the reactionMetadata node.
+
+        let updatedConversation: Conversation
+        do throws(Exception) {
+            let database = LockIsolated(networking.database).wrappedValue
+            let committedUpdates = try await database.runTransaction(
+                at: reactionMetadataPath
+            ) { currentValue in
+                typealias ReactionKey = Reaction.SerializableKey
+                typealias ReactionMetadataKey = ReactionMetadata.SerializableKey
+
+                var metadata = (currentValue as? [[String: Any]]) ?? []
+
+                // Strip sentinel entries.
+                metadata = metadata.filter {
+                    ($0[ReactionMetadataKey.messageID.rawValue] as? String) != String.bangQualifiedEmpty
+                }
+
+                // Remove current user's reactions to this message.
+                metadata = metadata.compactMap { entry -> [String: Any]? in
+                    guard (entry[
+                        ReactionMetadataKey.messageID.rawValue
+                    ] as? String) == messageID else { return entry }
+
+                    var reactions = (entry[
+                        ReactionMetadataKey.reactions.rawValue
+                    ] as? [[String: Any]]) ?? []
+
+                    reactions.removeAll { ($0[
+                        ReactionKey.userID.rawValue
+                    ] as? String) == currentUserID }
+
+                    guard !reactions.isEmpty else { return nil }
+
+                    var updated = entry
+                    updated[ReactionMetadataKey.reactions.rawValue] = reactions
+                    return updated
+                }
+
+                // Add new reaction if provided.
+                if let encodedReactionStyle,
+                   let reactionUserID {
+                    let reactionStyle = Reaction.Style(
+                        encodedValue: encodedReactionStyle
+                    ) ?? .love
+
+                    let reaction = Reaction(
+                        reactionStyle,
+                        userID: reactionUserID
+                    )
+
+                    if let index = metadata.firstIndex(where: {
+                        ($0[ReactionMetadataKey.messageID.rawValue] as? String) == messageID
+                    }) {
+                        var reactions = (metadata[index][
+                            ReactionMetadataKey.reactions.rawValue
+                        ] as? [[String: Any]]) ?? []
+
+                        reactions.append(reaction.encoded)
+                        metadata[index][
+                            ReactionMetadataKey.reactions.rawValue
+                        ] = reactions
+                    } else {
+                        metadata.append(
+                            ReactionMetadata(
+                                messageID: messageID,
+                                reactions: [reaction]
+                            ).encoded
+                        )
+                    }
+                }
+
+                // Return empty sentinel if no reactions remain.
+                guard !metadata.isEmpty else { return ReactionMetadata.empty.encoded }
+                return metadata
+            }
+
+            // Decode committed value.
+
+            guard let encodedMetadata = committedUpdates as? [[String: Any]] else {
+                throw Exception(
+                    "Failed to decode committed reaction metadata.",
+                    metadata: .init(sender: self)
+                )
+            }
+
+            let reactionMetadata = try await encodedMetadata.parallelMap(
+                failForEmptyCollection: true
+            ) { @Sendable in
+                try await ReactionMetadata(from: $0)
+            }
+
+            // Build updated conversation.
+
+            guard let modified = conversation.modifyKey(
+                .reactionMetadata,
+                withValue: reactionMetadata
+            ) else {
+                throw Exception(
+                    "Failed to build updated conversation.",
+                    metadata: .init(sender: self)
+                )
+            }
+
+            updatedConversation = modified
+
+            // Commit hash and participant updates.
+
+            let conversationPath = [
+                NetworkPath.conversations.rawValue,
+                updatedConversation.id.key,
+            ].joined(separator: "/")
+
+            var updates = [String: Any]()
+
+            updates[
+                "\(conversationPath)/\(Conversation.SerializableKey.encodedHash.rawValue)"
+            ] = updatedConversation.id.hash
+
+            for participant in updatedConversation.participants {
+                updates[
+                    [
+                        NetworkPath.users.rawValue,
+                        participant.userID,
+                        User.SerializableKey.conversationIDs.rawValue,
+                        updatedConversation.id.key,
+                    ].joined(separator: "/")
+                ] = updatedConversation.id.hash
+            }
+
+            SelfWriteRegistry.record(updatedConversation.id)
+            try await database.commit(updates)
+            clientSession.store.upsertConversation(updatedConversation)
         } catch {
             isReactingToMessage = false
             throw error
@@ -270,7 +389,9 @@ final class ReactionSessionService {
         )
 
         guard chatPageState.isPresented,
-              conversationSession
+              clientSession
+              .entity
+              .conversation
               .currentConversation?
               .id
               .key == conversation.id.key else { return }
@@ -295,3 +416,5 @@ final class ReactionSessionService {
             .updateDurationLabelIfNeeded(forMessage: messageData.message)
     }
 }
+
+// swiftlint:enable file_length type_body_length

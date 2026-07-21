@@ -15,8 +15,8 @@ import Translator
 
 extension OutboxEntry {
     var asDisplayMessage: Message {
-        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
-        let languageCode = currentUser?.languageCode ?? "en"
+        @Dependency(\.clientSession) var clientSession: ClientSession
+        let languageCode = clientSession.entity.user.currentUser?.languageCode ?? "en"
         let selfTranslationPair = LanguagePair(
             from: languageCode,
             to: languageCode
@@ -24,8 +24,7 @@ extension OutboxEntry {
 
         switch payload {
         case let .audio(inputFileName):
-            let outbox = MessageOutboxService.shared
-            let fileURL = outbox.payloadFileURL(forFileName: inputFileName)
+            let fileURL = clientSession.outbox.payloadFileURL(forFileName: inputFileName)
             let audioFile = AudioFile(
                 fileURL,
                 name: inputFileName,
@@ -58,9 +57,8 @@ extension OutboxEntry {
             )
 
         case let .media(fileName, fileExtension):
-            let relativePath = "outbox/\(fileName)"
             let mediaFile = MediaFile(
-                relativePath,
+                "outbox/\(fileName)",
                 name: fileName,
                 fileExtension: fileExtension
             )

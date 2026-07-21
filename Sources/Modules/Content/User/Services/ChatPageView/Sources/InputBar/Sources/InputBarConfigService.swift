@@ -22,8 +22,8 @@ struct InputBarConfigService {
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.build) private var build: Build
+    @Dependency(\.dataUsageService) private var dataUsageService: DataUsageService
     @Dependency(\.clientSession.entity) private var entitySession: EntitySession
-    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Computed Properties
 
@@ -77,7 +77,7 @@ struct InputBarConfigService {
         forRecording: Bool,
         isHighlighted: Bool
     ) -> UIImage? {
-        if userStorageService.atOrAboveDataUsageLimit {
+        if dataUsageService.atOrAboveDataUsageLimit {
             .init(systemName: Strings.sendButtonStorageLimitReachedImageSystemName)
         } else if forRecording {
             isHighlighted ? .recordHighlighted : .record

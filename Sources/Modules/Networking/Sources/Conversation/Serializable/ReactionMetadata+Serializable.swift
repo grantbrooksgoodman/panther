@@ -20,7 +20,7 @@ extension ReactionMetadata: Serializable {
 
     // MARK: - Types
 
-    private enum SerializableKey: String {
+    enum SerializableKey: String {
         case messageID
         case reactions
     }
@@ -47,7 +47,7 @@ extension ReactionMetadata: Serializable {
             )
         }
 
-        let reactions = try await encodedReactions.map(
+        let reactions = try await encodedReactions.parallelMap(
             failForEmptyCollection: true
         ) {
             try await Reaction(from: $0)

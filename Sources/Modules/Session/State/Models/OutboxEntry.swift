@@ -9,10 +9,10 @@
 /* Native */
 import Foundation
 
-struct OutboxEntry: Codable, Equatable, Identifiable {
+struct OutboxEntry: Codable {
     // MARK: - Types
 
-    enum Payload: Codable, Equatable {
+    enum Payload: Codable {
         case audio(inputFileName: String)
         case media(fileName: String, fileExtension: MediaFileExtension)
         case text(String)
