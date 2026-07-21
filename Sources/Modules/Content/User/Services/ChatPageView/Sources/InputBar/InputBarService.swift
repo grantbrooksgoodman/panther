@@ -42,6 +42,7 @@ final class InputBarService {
     @Dependency(\.dataUsageService) private var dataUsageService: DataUsageService
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.uiApplication.mainScreen.bounds.width) private var screenWidth: CGFloat
 
     // MARK: - Properties
@@ -372,6 +373,11 @@ final class InputBarService {
             return !isConversationEmpty &&
                 !isRecipientBarFirstResponder &&
                 !isSendingMessage
+        }
+
+        if !build.isOnline,
+           navigation.state.userContent.sheet == .newChat {
+            return false
         }
 
         let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
