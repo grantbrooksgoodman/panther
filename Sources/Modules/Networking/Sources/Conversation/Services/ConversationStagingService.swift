@@ -1054,7 +1054,7 @@ struct ConversationStagingService {
         toUsers recipientUsers: [User],
         forcedOutputs: [String: String] = [:]
     ) async throws(Exception) -> [Translation] {
-        try await recipientUsers.map(\.languageCode).unique.map { languageCode in
+        try await recipientUsers.map(\.languageCode).unique.parallelMap { languageCode in
             if let forcedOutput = forcedOutputs[languageCode] {
                 let translation = Translation(
                     input: .init(text),

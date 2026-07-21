@@ -168,14 +168,13 @@ extension CoreKit.Utilities {
 
         var updates: [String: Any] = [:]
         for userID in userData.keys {
-            // TODO: Audit this with new schema.
             updates[
                 [
                     NetworkPath.users.rawValue,
                     userID,
                     User.SerializableKey.conversationIDs.rawValue,
                 ].joined(separator: "/")
-            ] = [String.bangQualifiedEmpty]
+            ] = NSNull()
         }
 
         updates[NetworkPath.conversations.rawValue] = NSNull()
@@ -214,13 +213,12 @@ extension CoreKit.Utilities {
 
         let userIDs = Array(userData.keys)
         let database = LockIsolated(networking.database)
-        try await userIDs.map { @Sendable in
-            // TODO: Audit this with new schema.
+        try await userIDs.forEachConcurrently { @Sendable userID throws(Exception) in
             try await database.wrappedValue.setValue(
-                [String.bangQualifiedEmpty],
+                NSNull(),
                 forKey: [
                     NetworkPath.users.rawValue,
-                    $0,
+                    userID,
                     User.SerializableKey.pushTokens.rawValue,
                 ].joined(separator: "/")
             )

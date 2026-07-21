@@ -128,7 +128,7 @@ struct ConversationService {
         }
 
         do {
-            return try await idKeys.map {
+            return try await idKeys.parallelMap {
                 try await getConversation(idKey: $0)
             }
         } catch {

@@ -88,6 +88,7 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
 
     func sceneDidBecomeActive(_ scene: UIScene) {
         Observables.traitCollectionChanged.trigger()
+        Task { await clientSession.outbox.retryAllEligible() }
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {

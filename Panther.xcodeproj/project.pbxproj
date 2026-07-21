@@ -7,8 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0BAF4EBF51C22E10052C22BD /* MessageOutboxService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC46C9C8A805C60F23920D0 /* MessageOutboxService.swift */; };
+		0CE6962C89A4485C9DF4DD42 /* OutboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1024564CEF8638666D30233F /* OutboxEntry.swift */; };
+		247517486803C9A125BD821C /* OutboxEntry+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF3FCA5F163DEEAAC9F1FF2 /* OutboxEntry+UserContentExtensions.swift */; };
 		27FF0CF8664D05EB60530B42 /* AppConstants+SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B695E08BBD8687953BC6C3A5 /* AppConstants+SessionStore.swift */; };
 		33261DB5EDC8D88347774727 /* UICacheInvalidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B8D4F6D87373A21AC2D9B0 /* UICacheInvalidationService.swift */; };
+		944C2C255D851B9A9551ED35 /* MessageOutboxService+Retry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D796340D4837FEB17610C1 /* MessageOutboxService+Retry.swift */; };
 		A200C552300180C3002D9651 /* ChatPageHeaderReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */; };
 		A200C554300180CA002D9651 /* ChatPageHeaderObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200C553300180CA002D9651 /* ChatPageHeaderObserver.swift */; };
 		A2110CEA2EDC122200954DA2 /* UIColor+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */; };
@@ -36,8 +40,7 @@
 		A26D734E2F2C7C9500D43FA1 /* FeaturePermissionPageViewConfiguration+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26D734D2F2C7C9500D43FA1 /* FeaturePermissionPageViewConfiguration+UserContentExtensions.swift */; };
 		A26D73502F2C7E4C00D43FA1 /* AIEnhancedTranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26D734F2F2C7E4C00D43FA1 /* AIEnhancedTranslationService.swift */; };
 		A26DCA342EC6A70A00F08AA3 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */; };
-		A27181962FC555E200D6E3CC /* LocalizedStrings.plist in Resources */ = {isa = PBXBuildFile; fileRef = A27181952FC555E200D6E3CC /* LocalizedStrings.plist */; };
-		A271D7C02F02F9BA00B874C5 /* UserStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A271D7BF2F02F9BA00B874C5 /* UserStorageService.swift */; };
+		A271D7C02F02F9BA00B874C5 /* DataUsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A271D7BF2F02F9BA00B874C5 /* DataUsageService.swift */; };
 		A276DB8B2FCF272400CACAB5 /* StagingModeDateFormatterDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = A276DB8A2FCF272400CACAB5 /* StagingModeDateFormatterDependency.swift */; };
 		A276DC052FCF447F00CACAB5 /* StagedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = A276DC042FCF447F00CACAB5 /* StagedText.swift */; };
 		A276DC072FCF44AB00CACAB5 /* StagedUsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A276DC062FCF44AB00CACAB5 /* StagedUsers.swift */; };
@@ -73,6 +76,7 @@
 		A2DF2CAA28199CE20089DEA1 /* San Francisco (Light).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C9E28199CE20089DEA1 /* San Francisco (Light).otf */; };
 		A2DF2CAB28199CE20089DEA1 /* San Francisco (Bold).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C9F28199CE20089DEA1 /* San Francisco (Bold).otf */; };
 		A2DF2CAC28199CE20089DEA1 /* San Francisco (Light Italic).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2CA028199CE20089DEA1 /* San Francisco (Light Italic).otf */; };
+		A2E13878300DB0C600573396 /* LocalizedStrings.plist in Resources */ = {isa = PBXBuildFile; fileRef = A2E13877300DB0C600573396 /* LocalizedStrings.plist */; };
 		A2E28006300C31B6005F3FCC /* EntitySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E28005300C31B6005F3FCC /* EntitySession.swift */; };
 		A2E28008300C31E0005F3FCC /* SyncSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E28007300C31E0005F3FCC /* SyncSession.swift */; };
 		A2E494942EA98398009A1D62 /* UIViewController+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E494932EA98398009A1D62 /* UIViewController+CommonExtensions.swift */; };
@@ -785,8 +789,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0FC46C9C8A805C60F23920D0 /* MessageOutboxService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageOutboxService.swift; sourceTree = "<group>"; };
+		1024564CEF8638666D30233F /* OutboxEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutboxEntry.swift; sourceTree = "<group>"; };
 		32B8D4F6D87373A21AC2D9B0 /* UICacheInvalidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICacheInvalidationService.swift; sourceTree = "<group>"; };
+		46D796340D4837FEB17610C1 /* MessageOutboxService+Retry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageOutboxService+Retry.swift"; sourceTree = "<group>"; };
 		520CADEF63996EC3E433927D /* SessionStoreChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreChange.swift; sourceTree = "<group>"; };
+		8AF3FCA5F163DEEAAC9F1FF2 /* OutboxEntry+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OutboxEntry+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageHeaderReducer.swift; sourceTree = "<group>"; };
 		A200C553300180CA002D9651 /* ChatPageHeaderObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageHeaderObserver.swift; sourceTree = "<group>"; };
 		A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+UserContentExtensions.swift"; sourceTree = "<group>"; };
@@ -813,8 +821,7 @@
 		A26D734D2F2C7C9500D43FA1 /* FeaturePermissionPageViewConfiguration+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeaturePermissionPageViewConfiguration+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A26D734F2F2C7E4C00D43FA1 /* AIEnhancedTranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnhancedTranslationService.swift; sourceTree = "<group>"; };
 		A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
-		A27181952FC555E200D6E3CC /* LocalizedStrings.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = LocalizedStrings.plist; sourceTree = "<group>"; };
-		A271D7BF2F02F9BA00B874C5 /* UserStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStorageService.swift; sourceTree = "<group>"; };
+		A271D7BF2F02F9BA00B874C5 /* DataUsageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataUsageService.swift; sourceTree = "<group>"; };
 		A276DB8A2FCF272400CACAB5 /* StagingModeDateFormatterDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StagingModeDateFormatterDependency.swift; sourceTree = "<group>"; };
 		A276DC042FCF447F00CACAB5 /* StagedText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StagedText.swift; sourceTree = "<group>"; };
 		A276DC062FCF44AB00CACAB5 /* StagedUsers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StagedUsers.swift; sourceTree = "<group>"; };
@@ -851,6 +858,7 @@
 		A2DF2C9E28199CE20089DEA1 /* San Francisco (Light).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Light).otf"; sourceTree = "<group>"; };
 		A2DF2C9F28199CE20089DEA1 /* San Francisco (Bold).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Bold).otf"; sourceTree = "<group>"; };
 		A2DF2CA028199CE20089DEA1 /* San Francisco (Light Italic).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Light Italic).otf"; sourceTree = "<group>"; };
+		A2E13877300DB0C600573396 /* LocalizedStrings.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = LocalizedStrings.plist; sourceTree = "<group>"; };
 		A2E28005300C31B6005F3FCC /* EntitySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitySession.swift; sourceTree = "<group>"; };
 		A2E28007300C31E0005F3FCC /* SyncSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncSession.swift; sourceTree = "<group>"; };
 		A2E494932EA98398009A1D62 /* UIViewController+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+CommonExtensions.swift"; sourceTree = "<group>"; };
@@ -1831,6 +1839,7 @@
 		A2E27FFE300C27AE005F3FCC /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				1024564CEF8638666D30233F /* OutboxEntry.swift */,
 				C1AABB012F66000100000001 /* SelfWriteRecord.swift */,
 				520CADEF63996EC3E433927D /* SessionStoreChange.swift */,
 			);
@@ -1861,6 +1870,8 @@
 		A2E28001300C2816005F3FCC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				0FC46C9C8A805C60F23920D0 /* MessageOutboxService.swift */,
+				46D796340D4837FEB17610C1 /* MessageOutboxService+Retry.swift */,
 				C1AABB032F66000100000003 /* SelfWriteRegistry.swift */,
 				A25F1C2D2FF34E4B00425FC2 /* SessionStore.swift */,
 			);
@@ -3039,7 +3050,7 @@
 				B9D0D9132B0300EF00078A93 /* CallingCodes.plist */,
 				A2A92DC82FE0FE13008C356C /* GoogleService-Info.plist */,
 				A2DF2C6228199B670089DEA1 /* Info.plist */,
-				A27181952FC555E200D6E3CC /* LocalizedStrings.plist */,
+				A2E13877300DB0C600573396 /* LocalizedStrings.plist */,
 				B9D0D9152B0300F300078A93 /* LookupTables.plist */,
 			);
 			path = "Property Lists";
@@ -3498,6 +3509,7 @@
 				B986C46D2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift */,
 				B98982492BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift */,
 				B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */,
+				8AF3FCA5F163DEEAAC9F1FF2 /* OutboxEntry+UserContentExtensions.swift */,
 				B98FA6322D8E1F9C00EE7024 /* PenPalsSharingData+UserContentExtensions.swift */,
 				B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */,
 				A614D5D4A6F3B22606AB10D0 /* SessionStore+UserContentExtensions.swift */,
@@ -3524,11 +3536,11 @@
 				A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */,
 				B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */,
 				B9F47B292B5A071200D86C67 /* ConversationsPageViewService.swift */,
+				A271D7BF2F02F9BA00B874C5 /* DataUsageService.swift */,
 				B942625A2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift */,
 				B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */,
 				B96EDD8C2B635A6000CB925B /* SettingsPageViewService.swift */,
 				32B8D4F6D87373A21AC2D9B0 /* UICacheInvalidationService.swift */,
-				A271D7BF2F02F9BA00B874C5 /* UserStorageService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -3806,8 +3818,8 @@
 				B9D0D8332B0300B000078A93 /* ae.png in Resources */,
 				B9D0D8D02B0300B100078A93 /* gd.png in Resources */,
 				B9D0D8A22B0300B000078A93 /* mt.png in Resources */,
-				A27181962FC555E200D6E3CC /* LocalizedStrings.plist in Resources */,
 				B9D0D83B2B0300B000078A93 /* vc.png in Resources */,
+				A2E13878300DB0C600573396 /* LocalizedStrings.plist in Resources */,
 				B9D0D88D2B0300B000078A93 /* aw.png in Resources */,
 				B9D0D8F42B0300B100078A93 /* bf.png in Resources */,
 				B9D0D87E2B0300B000078A93 /* cf.png in Resources */,
@@ -4157,6 +4169,7 @@
 				A26D73502F2C7E4C00D43FA1 /* AIEnhancedTranslationService.swift in Sources */,
 				B980E8B42B225F380090F141 /* User+Serializable.swift in Sources */,
 				B90C910E2B69CD95008DFE59 /* Message+UserContentExtensions.swift in Sources */,
+				247517486803C9A125BD821C /* OutboxEntry+UserContentExtensions.swift in Sources */,
 				B99195992B47E99E00BD5BBC /* AppConstants+VerifyNumberPageView.swift in Sources */,
 				B991958D2B47E12300BD5BBC /* AppConstants+SelectLanguagePageView.swift in Sources */,
 				B90C91082B69C9ED008DFE59 /* ChatPageView.swift in Sources */,
@@ -4427,6 +4440,9 @@
 				B9C6964F2B8961FC005F0BFE /* ChatInfoPageView.swift in Sources */,
 				A25F1C2E2FF34E4B00425FC2 /* SessionStore.swift in Sources */,
 				BCFA191F8A419DEF1E3DA8E9 /* SessionStoreChange.swift in Sources */,
+				0BAF4EBF51C22E10052C22BD /* MessageOutboxService.swift in Sources */,
+				944C2C255D851B9A9551ED35 /* MessageOutboxService+Retry.swift in Sources */,
+				0CE6962C89A4485C9DF4DD42 /* OutboxEntry.swift in Sources */,
 				B94758272BCF8689001E4872 /* ContentPickerContentSource.swift in Sources */,
 				B9EFBA162B2694C500624794 /* Array+CommonNetworkingExtensions.swift in Sources */,
 				B94758252BCF864D001E4872 /* ContentPicker.swift in Sources */,
@@ -4483,7 +4499,7 @@
 				B9E00A522C2B85BC004E350E /* MediaFileExtensions.swift in Sources */,
 				A249CA512ED3D758006E81E2 /* SystemMessageCell.swift in Sources */,
 				B943F2482C41EA610047EDD5 /* MediaMessagePreviewService.swift in Sources */,
-				A271D7C02F02F9BA00B874C5 /* UserStorageService.swift in Sources */,
+				A271D7C02F02F9BA00B874C5 /* DataUsageService.swift in Sources */,
 				B900B54A2B1ADC3C00BA2F1D /* ContactService.swift in Sources */,
 				B9DCCAA32B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift in Sources */,
 				B916E01A2D0B8A440079CDDF /* ChatInfoPageObserver.swift in Sources */,

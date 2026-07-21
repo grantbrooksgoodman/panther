@@ -36,6 +36,7 @@ struct MessageSessionService {
     // swiftlint:disable:next function_body_length
     func sendAudioMessage(
         _ inputFile: AudioFile,
+        presetID: String? = nil,
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
     ) async throws(Exception) -> Conversation {
@@ -199,6 +200,7 @@ struct MessageSessionService {
                 conversation: conversation,
                 initiatingUser: currentUser,
                 otherUsers: users,
+                presetID: presetID,
                 richContent: .audio(audioComponents),
                 translations: translations
             )
@@ -212,6 +214,7 @@ struct MessageSessionService {
 
     func sendMediaMessage(
         _ mediaFile: MediaFile,
+        presetID: String? = nil,
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
     ) async throws(Exception) -> Conversation {
@@ -226,6 +229,7 @@ struct MessageSessionService {
             conversation: conversation,
             initiatingUser: currentUser,
             otherUsers: users,
+            presetID: presetID,
             richContent: .media(mediaFile),
             translations: nil
         )
@@ -235,6 +239,7 @@ struct MessageSessionService {
 
     func sendTextMessage(
         _ text: String,
+        presetID: String? = nil,
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
     ) async throws(Exception) -> Conversation {
@@ -274,7 +279,7 @@ struct MessageSessionService {
             userCount: users.count
         )
 
-        let translations = try await uniqueLanguageCodes.map { languageCode in
+        let translations = try await uniqueLanguageCodes.parallelMap { languageCode in
             try await networking.hostedTranslation.translate(
                 .init(text),
                 with: .init(
@@ -296,6 +301,7 @@ struct MessageSessionService {
             conversation: conversation,
             initiatingUser: currentUser,
             otherUsers: users,
+            presetID: presetID,
             richContent: nil,
             translations: translations
         )
@@ -307,6 +313,7 @@ struct MessageSessionService {
         conversation: (value: Conversation?, isPenPalsConversation: Bool),
         initiatingUser: User,
         otherUsers: [User],
+        presetID: String? = nil,
         richContent: RichMessageContent?,
         translations: [Translation]?
     ) async throws(Exception) -> Conversation {
@@ -363,6 +370,7 @@ struct MessageSessionService {
         do {
             message = try await networking.messageService.buildMessage(
                 fromAccountID: initiatingUser.id,
+                presetID: presetID,
                 richContent: richContent,
                 translations: translations
             )

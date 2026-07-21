@@ -20,7 +20,7 @@ extension Reaction: Serializable {
 
     // MARK: - Types
 
-    private enum SerializableKey: String {
+    enum SerializableKey: String {
         case style
         case userID
     }

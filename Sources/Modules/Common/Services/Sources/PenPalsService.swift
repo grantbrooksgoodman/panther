@@ -112,7 +112,7 @@ struct PenPalsService {
                 return (penPalsConversation, newMetadata)
             }
 
-        try await conversationsAndNewMetadata.map { conversation, newMetadata in
+        try await conversationsAndNewMetadata.forEachConcurrently { conversation, newMetadata throws(Exception) in
             _ = try await conversation.update(
                 \.metadata,
                 to: newMetadata

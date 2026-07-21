@@ -31,6 +31,12 @@ extension ChatPageViewController: @MainActor MessagesLayoutDelegate {
         guard let currentConversation,
               let message = message as? Message,
               !message.isMock else { return 0 }
+
+        if message.isFailedOutboxMessage {
+            return Floats.cellBottomLabelHeight
+        }
+
+        guard !message.isOutboxMessage else { return 0 }
         let messages = displayedMessages
 
         if let alternateMessageService,

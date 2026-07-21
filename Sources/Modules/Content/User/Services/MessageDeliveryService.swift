@@ -39,6 +39,14 @@ final class MessageDeliveryService {
         clientSession.entity.conversation.currentConversation
     }
 
+    private var conversationContext: (value: Conversation?, isPenPalsConversation: Bool) {
+        ((conversation?.isMock ?? true) ? nil : conversation, isPenPalsConversation)
+    }
+
+    private var isExistingConversation: Bool {
+        conversation != nil && conversation?.isMock != true
+    }
+
     private var isPenPalsConversation: Bool {
         // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
         (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName)) ||
@@ -92,61 +100,91 @@ final class MessageDeliveryService {
             recipientBarLayoutService?.setIsUserInteractionEnabled(false)
         }
 
-        typealias Strings = AppConstants.Strings.MessageSessionService
-        notificationCenter.addObserver(
-            self,
-            name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
-            removeAfterFirstPost: true
-        ) { notification in
-            guard let userInfo = notification.userInfo,
-                  let conversationIDKey = userInfo[Strings.conversationIDKeyNotificationUserInfoKey] as? String,
-                  let inputFile = userInfo[Strings.inputFileNotificationUserInfoKey] as? AudioFile,
-                  let isPenPalsConversation = userInfo[Strings.isPenPalsConversationNotificationUserInfoKey] as? Bool else { return }
+        var outboxEntryID: String?
 
-            guard conversationIDKey == self.clientSession.entity.conversation.currentConversation?.id.key else { return }
-            self.addMockMessageToCurrentConversation(
-                audioFile: inputFile,
-                mediaFile: nil,
-                text: nil,
-                isPenPalsConversation: isPenPalsConversation
-            )
-        }
+        if isExistingConversation,
+           let conversation,
+           let currentUser = clientSession.entity.user.currentUser {
+            do {
+                let payloadFileName = try clientSession.outbox.storePayloadFile(
+                    from: inputFile.url
+                )
 
-        defer {
-            isSendingMessage = false
-            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-            chatPageViewService.inputBar?.toggleSendingUI(on: false)
+                let entry = OutboxEntry(
+                    conversationIDKey: conversation.id.key,
+                    createdDate: .now,
+                    fromAccountID: currentUser.id,
+                    id: "outbox-\(UUID().uuidString)",
+                    isPenPalsConversation: isPenPalsConversation,
+                    payload: .audio(inputFileName: payloadFileName),
+                    recipientUserIDs: users.map(\.id),
+                    attemptCount: 1,
+                    lastAttemptDate: .now,
+                    state: .sending
+                )
 
-            if clientSession.entity.conversation.currentConversation?.id.key == conversation?.id.key {
-                chatPageViewService
-                    .deliveryProgressIndicator?
-                    .stopAnimatingDeliveryProgress()
+                outboxEntryID = entry.id
+                clientSession.outbox.enqueue(entry)
+            } catch {
+                Logger.log(
+                    .init(
+                        error,
+                        metadata: .init(sender: self)
+                    )
+                )
             }
         }
+
+        // Register the notification handler for the draft path only.
+        if outboxEntryID == nil {
+            typealias Strings = AppConstants.Strings.MessageSessionService
+            notificationCenter.addObserver(
+                self,
+                name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
+                removeAfterFirstPost: true
+            ) { notification in
+                guard let userInfo = notification.userInfo,
+                      let conversationIDKey = userInfo[Strings.conversationIDKeyNotificationUserInfoKey] as? String,
+                      let inputFile = userInfo[Strings.inputFileNotificationUserInfoKey] as? AudioFile,
+                      let isPenPalsConversation = userInfo[Strings.isPenPalsConversationNotificationUserInfoKey] as? Bool else { return }
+
+                guard conversationIDKey == self.clientSession.entity.conversation.currentConversation?.id.key else { return }
+                self.addMockMessageToCurrentConversation(
+                    audioFile: inputFile,
+                    mediaFile: nil,
+                    text: nil,
+                    isPenPalsConversation: isPenPalsConversation
+                )
+            }
+        }
+
+        defer { cleanUpAfterSend() }
 
         do {
             let conversation = try await clientSession.entity.message.sendAudioMessage(
                 inputFile,
                 toUsers: users,
-                inConversation: ((conversation?.isMock ?? true) ? nil : conversation, isPenPalsConversation)
+                inConversation: conversationContext
             )
 
+            if let outboxEntryID {
+                clientSession.outbox.remove(id: outboxEntryID)
+            }
+
             services.analytics.logEvent(.sendAudioMessage)
-
-            if let currentConversation = clientSession.entity.conversation.currentConversation,
-               !currentConversation.isMock {
-                guard currentConversation.id.key == conversation.id.key else { return }
-            }
-
-            clientSession.entity.conversation.setCurrentConversation(conversation)
-            chatPageViewService.reloadCollectionView()
+            setCurrentConversationIfApplicable(conversation)
         } catch {
-            Task { @MainActor in
-                @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
-                recipientBarLayoutService?.setIsUserInteractionEnabled(true)
-            }
+            if let outboxEntryID {
+                clientSession.outbox.markFailed(id: outboxEntryID)
+                Logger.log(error)
+            } else {
+                Task { @MainActor in
+                    @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
+                    recipientBarLayoutService?.setIsUserInteractionEnabled(true)
+                }
 
-            throw error
+                throw error
+            }
         }
     }
 
@@ -158,12 +196,51 @@ final class MessageDeliveryService {
         guard !users.isEmpty else { return }
 
         services.haptics.generateFeedback(.medium)
-        addMockMessageToCurrentConversation(
-            audioFile: nil,
-            mediaFile: mediaFile,
-            text: nil,
-            isPenPalsConversation: isPenPalsConversation
-        )
+
+        var outboxEntryID: String?
+
+        if isExistingConversation,
+           let conversation,
+           let currentUser = clientSession.entity.user.currentUser {
+            do {
+                let payloadFileName = try clientSession.outbox.storePayloadFile(
+                    from: mediaFile.localPathURL
+                )
+
+                let entry = OutboxEntry(
+                    conversationIDKey: conversation.id.key,
+                    createdDate: .now,
+                    fromAccountID: currentUser.id,
+                    id: "outbox-\(UUID().uuidString)",
+                    isPenPalsConversation: isPenPalsConversation,
+                    payload: .media(
+                        fileName: payloadFileName,
+                        fileExtension: mediaFile.fileExtension
+                    ),
+                    recipientUserIDs: users.map(\.id),
+                    attemptCount: 1,
+                    lastAttemptDate: .now,
+                    state: .sending
+                )
+
+                outboxEntryID = entry.id
+                clientSession.outbox.enqueue(entry)
+            } catch {
+                Logger.log(
+                    .init(
+                        error,
+                        metadata: .init(sender: self)
+                    )
+                )
+            }
+        } else {
+            addMockMessageToCurrentConversation(
+                audioFile: nil,
+                mediaFile: mediaFile,
+                text: nil,
+                isPenPalsConversation: isPenPalsConversation
+            )
+        }
 
         isSendingMessage = true
         chatPageViewService.inputBar?.toggleSendingUI(
@@ -173,32 +250,29 @@ final class MessageDeliveryService {
 
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
-        defer {
-            isSendingMessage = false
-            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-            chatPageViewService.inputBar?.toggleSendingUI(on: false)
+        defer { cleanUpAfterSend() }
 
-            if clientSession.entity.conversation.currentConversation?.id.key == conversation?.id.key {
-                chatPageViewService
-                    .deliveryProgressIndicator?
-                    .stopAnimatingDeliveryProgress()
+        do {
+            let conversation = try await clientSession.entity.message.sendMediaMessage(
+                mediaFile,
+                toUsers: users,
+                inConversation: conversationContext
+            )
+
+            if let outboxEntryID {
+                clientSession.outbox.remove(id: outboxEntryID)
+            }
+
+            services.analytics.logEvent(.sendMediaMessage)
+            setCurrentConversationIfApplicable(conversation)
+        } catch {
+            if let outboxEntryID {
+                clientSession.outbox.markFailed(id: outboxEntryID)
+                Logger.log(error)
+            } else {
+                throw error
             }
         }
-
-        let conversation = try await clientSession.entity.message.sendMediaMessage(
-            mediaFile,
-            toUsers: users,
-            inConversation: ((conversation?.isMock ?? true) ? nil : conversation, isPenPalsConversation)
-        )
-
-        services.analytics.logEvent(.sendMediaMessage)
-        if let currentConversation = clientSession.entity.conversation.currentConversation,
-           !currentConversation.isMock {
-            guard currentConversation.id.key == conversation.id.key else { return }
-        }
-
-        clientSession.entity.conversation.setCurrentConversation(conversation)
-        chatPageViewService.reloadCollectionView()
     }
 
     // MARK: - Send Text Message
@@ -210,43 +284,63 @@ final class MessageDeliveryService {
               !text.isBlank else { return }
 
         services.haptics.generateFeedback(.medium)
-        addMockMessageToCurrentConversation(
-            audioFile: nil,
-            mediaFile: nil,
-            text: text,
-            isPenPalsConversation: isPenPalsConversation
-        )
+
+        var outboxEntryID: String?
+
+        if isExistingConversation,
+           let conversation,
+           let currentUser = clientSession.entity.user.currentUser {
+            let entry = OutboxEntry(
+                conversationIDKey: conversation.id.key,
+                createdDate: .now,
+                fromAccountID: currentUser.id,
+                id: "outbox-\(UUID().uuidString)",
+                isPenPalsConversation: isPenPalsConversation,
+                payload: .text(text),
+                recipientUserIDs: users.map(\.id),
+                attemptCount: 1,
+                lastAttemptDate: .now,
+                state: .sending
+            )
+
+            outboxEntryID = entry.id
+            clientSession.outbox.enqueue(entry)
+        } else {
+            addMockMessageToCurrentConversation(
+                audioFile: nil,
+                mediaFile: nil,
+                text: text,
+                isPenPalsConversation: isPenPalsConversation
+            )
+        }
 
         isSendingMessage = true
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
-        defer {
-            isSendingMessage = false
-            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-            chatPageViewService.inputBar?.toggleSendingUI(on: false)
+        defer { cleanUpAfterSend() }
 
-            if clientSession.entity.conversation.currentConversation?.id.key == conversation?.id.key {
-                chatPageViewService
-                    .deliveryProgressIndicator?
-                    .stopAnimatingDeliveryProgress()
+        do {
+            let conversation = try await clientSession.entity.message.sendTextMessage(
+                text,
+                toUsers: users,
+                inConversation: conversationContext
+            )
+
+            if let outboxEntryID {
+                clientSession.outbox.remove(id: outboxEntryID)
+            }
+
+            services.analytics.logEvent(.sendTextMessage)
+            setCurrentConversationIfApplicable(conversation)
+        } catch {
+            if let outboxEntryID {
+                clientSession.outbox.markFailed(id: outboxEntryID)
+                Logger.log(error)
+            } else {
+                throw error
             }
         }
-
-        let conversation = try await clientSession.entity.message.sendTextMessage(
-            text,
-            toUsers: users,
-            inConversation: ((conversation?.isMock ?? true) ? nil : conversation, isPenPalsConversation)
-        )
-
-        services.analytics.logEvent(.sendTextMessage)
-        if let currentConversation = clientSession.entity.conversation.currentConversation,
-           !currentConversation.isMock {
-            guard currentConversation.id.key == conversation.id.key else { return }
-        }
-
-        clientSession.entity.conversation.setCurrentConversation(conversation)
-        chatPageViewService.reloadCollectionView()
     }
 
     // MARK: - Auxiliary
@@ -345,6 +439,18 @@ final class MessageDeliveryService {
         Observables.firstMessageSentInNewChat.trigger()
     }
 
+    private func cleanUpAfterSend() {
+        isSendingMessage = false
+        chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+        chatPageViewService.inputBar?.toggleSendingUI(on: false)
+
+        if clientSession.entity.conversation.currentConversation?.id.key == conversation?.id.key {
+            chatPageViewService
+                .deliveryProgressIndicator?
+                .stopAnimatingDeliveryProgress()
+        }
+    }
+
     private func didSetIsSendingMessage() {
         switch isSendingMessage {
         case true:
@@ -401,6 +507,18 @@ final class MessageDeliveryService {
             text: nil,
             isPenPalsConversation: isPenPalsConversation
         )
+    }
+
+    private func setCurrentConversationIfApplicable(
+        _ conversation: Conversation
+    ) {
+        if let currentConversation = clientSession.entity.conversation.currentConversation,
+           !currentConversation.isMock {
+            guard currentConversation.id.key == conversation.id.key else { return }
+        }
+
+        clientSession.entity.conversation.setCurrentConversation(conversation)
+        chatPageViewService.reloadCollectionView()
     }
 }
 

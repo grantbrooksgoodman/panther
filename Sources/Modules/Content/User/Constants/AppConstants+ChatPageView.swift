@@ -31,6 +31,11 @@ extension AppConstants.CGFloats {
             static let attributedStringParagraphStyleLineSpacing: CGFloat = 1.25
         }
 
+        enum FailedOutboxIndicator {
+            static let indicatorButtonSize: CGFloat = 22
+            static let indicatorButtonSpacing: CGFloat = 6
+        }
+
         enum MessagesDataSource {
             static let cellBottomLabelAttributedTextBoldAttributesSystemFontSize: CGFloat = 12
             static let cellBottomLabelAttributedTextEmojiAttributesSystemFontSize: CGFloat = 14
@@ -108,6 +113,11 @@ extension AppConstants.Colors {
 
 extension AppConstants.Strings {
     enum ChatPageView {
+        enum FailedOutboxIndicator {
+            static let buttonImageSystemName = "exclamationmark.circle"
+            static let indicatorButtonSemanticTag = "INDICATOR_BUTTON"
+        }
+
         enum MessagesDataSource {
             static let messageTopLabelAttributedTextAttributesFontName = "SFUIText-Regular"
         }

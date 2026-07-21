@@ -49,6 +49,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
     ) -> Bool {
         Application.initialize()
         setUpFirebaseAnalytics()
+        setUpMessageOutboxRetry()
         setUpPushNotifications()
         services.analytics.logEvent(.openApp)
         return true
@@ -64,6 +65,24 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
 
     private func setUpFirebaseAnalytics() {
         Analytics.setAnalyticsCollectionEnabled(AnalyticsService.shouldEnableDataCollection)
+    }
+
+    // MARK: - Set Up Message Outbox Retry
+
+    private func setUpMessageOutboxRetry() {
+        @Dependency(\.build) var build: Build
+        @Dependency(\.clientSession.outbox) var outbox: MessageOutboxService
+
+        // Retry eligible entries on launch.
+        Task { await outbox.retryAllEligible() }
+
+        // Retry eligible entries when connectivity is restored.
+        services.connectionStatus.addEffectUponConnectionChanged(
+            id: .retryMessageOutbox
+        ) {
+            guard build.isOnline else { return }
+            Task { await outbox.retryAllEligible() }
+        }
     }
 
     // MARK: - Set Up Push Notifications

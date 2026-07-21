@@ -124,7 +124,7 @@ extension Conversation: Serializable {
 
         // Decode reaction metadata
 
-        let reactionMetadata = try await encodedReactionMetadata.map(
+        let reactionMetadata = try await encodedReactionMetadata.parallelMap(
             failForEmptyCollection: true
         ) {
             try await ReactionMetadata(from: $0)
@@ -154,7 +154,7 @@ extension Conversation: Serializable {
 
         try await self.init(
             conversationID,
-            activities: encodedActivities.map(
+            activities: encodedActivities.parallelMap(
                 failForEmptyCollection: true
             ) { try await Activity(from: $0) },
             messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,

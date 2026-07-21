@@ -110,7 +110,7 @@ struct ConversationsPageReducer: Reducer {
         }
 
         var shouldShowStorageFullButton: Bool {
-            @Dependency(\.userStorageService.atOrAboveDataUsageLimit) var atOrAboveDataUsageLimit: Bool
+            @Dependency(\.dataUsageService.atOrAboveDataUsageLimit) var atOrAboveDataUsageLimit: Bool
             return atOrAboveDataUsageLimit
         }
     }

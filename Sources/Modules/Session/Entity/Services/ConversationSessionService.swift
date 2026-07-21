@@ -68,6 +68,11 @@ final class ConversationSessionService: @unchecked Sendable {
             guard let self else { return }
             handleStoreChange($0)
         }
+
+        MessageOutboxService.addChangeHandler { [weak self] _ in
+            guard let self else { return }
+            updateDisplayedMessages()
+        }
     }
 
     // MARK: - Add Messages
@@ -86,7 +91,7 @@ final class ConversationSessionService: @unchecked Sendable {
         var appendedMessages = conversation.messages ?? []
         appendedMessages.append(contentsOf: messages)
         appendedMessages = appendedMessages.filter {
-            !$0.isMock
+            !$0.isMock && !$0.isOutboxMessage
         }.sortedByAscendingSentDate
 
         return try await conversation.update(
@@ -329,11 +334,22 @@ final class ConversationSessionService: @unchecked Sendable {
     }
 
     private func updateDisplayedMessages() {
-        displayedMessages = withMessagesOffset(
+        var messages = withMessagesOffset(
             hydratedMessages.offsetFromCurrentUserAdditionDate(
                 activities: currentConversation?.activities
             ).sortedByAscendingSentDate
         )
+
+        if let conversationIDKey = currentConversation?.id.key {
+            messages.append(
+                contentsOf: clientSession
+                    .outbox
+                    .entries(forConversationIDKey: conversationIDKey)
+                    .map(\.asDisplayMessage)
+            )
+        }
+
+        displayedMessages = messages
     }
 
     private func withMessagesOffset(

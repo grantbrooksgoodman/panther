@@ -31,10 +31,10 @@ final class UserSessionService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.dataUsageService) private var dataUsageService: DataUsageService
     @Dependency(\.build.isOnline) private var isOnline: Bool
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
-    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -394,7 +394,7 @@ final class UserSessionService: @unchecked Sendable {
 
         guard !Task.isCancelled else { return }
         try await decodedConversations.merge(
-            with: conversationsNeedingUpdate.map {
+            with: conversationsNeedingUpdate.parallelMap {
                 @Dependency(\.clientSession.sync.conversationSync) var conversationSyncService: ConversationSyncService
                 return try await conversationSyncService.synchronizeConversation($0)
             }
@@ -468,9 +468,9 @@ final class UserSessionService: @unchecked Sendable {
             domain: .userSession
         )
 
-        try await conversationsNeedingMessages.map {
+        try await conversationsNeedingMessages.forEachConcurrently { conversation throws(Exception) in
             guard !Task.isCancelled else { return }
-            try await $0.resolveMessages()
+            try await conversation.resolveMessages()
         }
     }
 
@@ -484,9 +484,9 @@ final class UserSessionService: @unchecked Sendable {
         guard !Task.isCancelled else { return }
         try await conversations
             .visibleForCurrentUser
-            .map {
+            .forEachConcurrently { conversation throws(Exception) in
                 guard !Task.isCancelled else { return }
-                try await $0.resolveUsers()
+                try await conversation.resolveUsers()
             }
     }
 
@@ -553,7 +553,7 @@ final class UserSessionService: @unchecked Sendable {
                         delay: .seconds(5),
                         priority: .utility
                     ) {
-                        _ = try? await self.userStorageService.getCurrentUserDataUsage()
+                        _ = try? await self.dataUsageService.getCurrentUserDataUsage()
                     }
                 } catch {
                     Logger.log(

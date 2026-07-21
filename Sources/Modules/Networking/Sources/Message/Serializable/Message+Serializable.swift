@@ -69,7 +69,7 @@ extension Message: Serializable {
 
         var readReceipts: [ReadReceipt]?
         if !encodedReadReceipts.isBangQualifiedEmpty {
-            readReceipts = try await encodedReadReceipts.map {
+            readReceipts = try await encodedReadReceipts.parallelMap {
                 try await ReadReceipt(from: $0)
             }
         }
@@ -261,7 +261,7 @@ extension Message: Serializable {
             )
         }
 
-        let translations = try await references.map {
+        let translations = try await references.parallelMap {
             try await Self.getTranslation($0)
         }
 

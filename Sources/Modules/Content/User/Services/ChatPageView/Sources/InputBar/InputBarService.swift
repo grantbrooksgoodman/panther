@@ -39,10 +39,10 @@ final class InputBarService {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.clientSession.entity.conversation.currentConversation) private var currentConversation: Conversation?
+    @Dependency(\.dataUsageService) private var dataUsageService: DataUsageService
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
     @Dependency(\.uiApplication.mainScreen.bounds.width) private var screenWidth: CGFloat
-    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -333,7 +333,7 @@ final class InputBarService {
 
     private func getShouldEnableAttachMediaButton() -> Bool {
         guard build.isOnline,
-              !userStorageService.atOrAboveDataUsageLimit else { return false }
+              !dataUsageService.atOrAboveDataUsageLimit else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
@@ -359,15 +359,22 @@ final class InputBarService {
     }
 
     private func getShouldEnableSendButton() -> Bool {
-        guard build.isOnline,
-              !userStorageService.atOrAboveDataUsageLimit else { return false }
+        guard !dataUsageService.atOrAboveDataUsageLimit else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
         let isSendButtonConfiguredForText = !inputBar.sendButton.isRecordButton
-        let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
 
-        guard isSendButtonConfiguredForText else { return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage }
+        // Audio/media recording requires connectivity; text sends are allowed
+        // offline and handled by the outbox fail-fast → auto-retry path.
+        guard isSendButtonConfiguredForText else {
+            guard build.isOnline else { return false }
+            return !isConversationEmpty &&
+                !isRecipientBarFirstResponder &&
+                !isSendingMessage
+        }
+
+        let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
         return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage && !isTextViewTextBlank
     }
 

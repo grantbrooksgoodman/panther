@@ -65,7 +65,14 @@ final class TapGestureRecognizerService {
         let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
         guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint) else { return }
 
-        if let mediaCell = selectedCell as? MediaMessageCell {
+        let message = viewController.displayedMessages.itemAt(indexPath.section)
+        if let message,
+           message.isFailedOutboxMessage {
+            viewController.presentFailedMessageActionSheet(
+                forMessageID: message.id,
+                sourceView: selectedCell.messageContainerView
+            )
+        } else if let mediaCell = selectedCell as? MediaMessageCell {
             mediaMessagePreviewService?.didTapImage(in: mediaCell)
         } else if let textCell = selectedCell as? TextMessageCell {
             attributeDetectionService.handleGesture(

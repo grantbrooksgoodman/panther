@@ -39,38 +39,65 @@ extension User: RemotelyUpdatable {
         forKey key: SerializableKey,
         updating updated: User
     ) async throws(Exception) -> WriteAction<User> {
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
+
         switch key {
         case .blockedUserIDs:
-            let newIDs = Set(updated.blockedUserIDs ?? [])
-            let oldIDs = Set(blockedUserIDs ?? [])
+            guard let updates = merge(
+                updates: updated.blockedUserIDs,
+                with: blockedUserIDs,
+                at: [
+                    NetworkPath.users.rawValue,
+                    id,
+                    SerializableKey.blockedUserIDs.rawValue,
+                ].joined(separator: "/")
+            ) else { return .handled(updated) }
 
-            guard newIDs != oldIDs else { return .handled(updated) }
+            try await database.commit(updates)
+            return .handled(updated)
 
-            let basePath = [
-                NetworkPath.users.rawValue,
-                id,
-                SerializableKey.blockedUserIDs.rawValue,
-            ].joined(separator: "/")
+        case .pushTokens:
+            guard let updates = merge(
+                updates: updated.pushTokens,
+                with: pushTokens,
+                at: [
+                    NetworkPath.users.rawValue,
+                    id,
+                    SerializableKey.pushTokens.rawValue,
+                ].joined(separator: "/")
+            ) else { return .handled(updated) }
 
-            var updates = [String: Any]()
-            for added in newIDs.subtracting(oldIDs) {
-                updates["\(basePath)/\(added)"] = true
-            }
-
-            for removed in oldIDs.subtracting(newIDs) {
-                updates["\(basePath)/\(removed)"] = NSNull()
-            }
-
-            guard !updates.isEmpty else { return .handled(updated) }
-
-            @Dependency(\.networking.database) var database: DatabaseDelegate
             try await database.commit(updates)
             return .handled(updated)
 
         default:
-            @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
             guard let date = value as? Date else { return .proceed }
             return .encoded(timestampDateFormatter.string(from: date))
         }
+    }
+
+    // MARK: - Auxiliary
+
+    private func merge(
+        updates newData: [String]?,
+        with currentData: [String]?,
+        at path: String
+    ) -> [String: Any]? {
+        let currentData = Set(currentData ?? [])
+        let newData = Set(newData ?? [])
+        guard currentData != newData else { return nil }
+
+        var updates = [String: Any]()
+        for added in newData.subtracting(currentData) {
+            updates["\(path)/\(added)"] = true
+        }
+
+        for removed in currentData.subtracting(newData) {
+            updates["\(path)/\(removed)"] = NSNull()
+        }
+
+        guard !updates.isEmpty else { return nil }
+        return updates
     }
 }

@@ -53,11 +53,11 @@ final class ConversationsPageViewService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.dataUsageService) private var dataUsageService: DataUsageService
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
-    @Dependency(\.userStorageService) private var userStorageService: UserStorageService
 
     // MARK: - Properties
 
@@ -152,7 +152,7 @@ final class ConversationsPageViewService {
     /// `.composeToolbarButtonTapped`
     func storageFullButtonTapped() {
         Task {
-            await userStorageService.presentStorageWarningAlert()
+            await dataUsageService.presentStorageWarningAlert()
         }
     }
 
@@ -367,9 +367,9 @@ final class ConversationsPageViewService {
     @MainActor
     private func showPromptsIfNeeded() async {
         do throws(Exception) {
-            _ = try await userStorageService.getCurrentUserDataUsage()
-            if userStorageService.isApproachingDataUsageLimit {
-                await userStorageService.presentStorageWarningAlert()
+            _ = try await dataUsageService.getCurrentUserDataUsage()
+            if dataUsageService.isApproachingDataUsageLimit {
+                await dataUsageService.presentStorageWarningAlert()
             } else if await services.permission.notificationPermissionStatus == .unknown {
                 _ = try await services.permission.requestPermission(for: .notifications)
             } else if await !(services.invite.suggestInvitationIfNeeded()) {

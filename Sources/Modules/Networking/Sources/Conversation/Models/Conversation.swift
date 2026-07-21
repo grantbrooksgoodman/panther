@@ -127,7 +127,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             try await sessionStore.upsertMessages(Set(
                 ids
                     .filter { messageIDs.contains($0) }
-                    .map { try await messageService.getMessage(id: $0) }
+                    .parallelMap { try await messageService.getMessage(id: $0) }
             ))
 
             return
