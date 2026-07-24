@@ -6,7 +6,7 @@
 //  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable cyclomatic_complexity function_body_length
+// swiftlint:disable cyclomatic_complexity file_length function_body_length type_body_length
 
 /* Native */
 import Foundation
@@ -18,7 +18,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-@MainActor // swiftlint:disable:next type_body_length
+@MainActor
 final class SplashPageViewService: ObservableObject {
     // MARK: - Dependencies
 
@@ -92,7 +92,8 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: Offline User Setup */
 
-        guard build.isOnline else {
+        guard build.isOnline,
+              networking.health.health.tier != .poor else {
             guard let currentUser = clientSession.entity.user.currentUser else {
                 return Logger.log(
                     .init(
@@ -359,6 +360,25 @@ final class SplashPageViewService: ObservableObject {
         ).present(translating: translationOptionKeys)
     }
 
+    /// Waits briefly for the health estimator to accumulate
+    /// samples from early network calls, then returns `true`
+    /// if the network is poor and a cached user is available.
+    func resolveCachedUserIfPoorNetwork() async -> Bool {
+        try? await Task.sleep(for: .seconds(3))
+
+        guard networking.health.health.tier == .poor,
+              let currentUser = clientSession.entity.user.currentUser else {
+            return false
+        }
+
+        initializationProgress = 1
+        core.utils.setLanguageCode(
+            currentUser.languageCode
+        )
+
+        return true
+    }
+
     private func checkPrevaricationMode(_ phoneNumber: PhoneNumber) {
         let isUsingTestAccount = [
             "15555555555",
@@ -383,4 +403,4 @@ final class SplashPageViewService: ObservableObject {
     }
 }
 
-// swiftlint:enable cyclomatic_complexity function_body_length
+// swiftlint:enable cyclomatic_complexity file_length function_body_length type_body_length

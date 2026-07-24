@@ -125,6 +125,7 @@ final class MessageDeliveryService {
 
                 outboxEntryID = entry.id
                 clientSession.outbox.enqueue(entry)
+                hideRecipientBar()
             } catch {
                 Logger.log(
                     .init(
@@ -225,6 +226,7 @@ final class MessageDeliveryService {
 
                 outboxEntryID = entry.id
                 clientSession.outbox.enqueue(entry)
+                hideRecipientBar()
             } catch {
                 Logger.log(
                     .init(
@@ -249,7 +251,6 @@ final class MessageDeliveryService {
         )
 
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
-
         defer { cleanUpAfterSend() }
 
         do {
@@ -284,7 +285,6 @@ final class MessageDeliveryService {
               !text.isBlank else { return }
 
         services.haptics.generateFeedback(.medium)
-
         var outboxEntryID: String?
 
         if isExistingConversation,
@@ -305,6 +305,7 @@ final class MessageDeliveryService {
 
             outboxEntryID = entry.id
             clientSession.outbox.enqueue(entry)
+            hideRecipientBar()
         } else {
             addMockMessageToCurrentConversation(
                 audioFile: nil,
@@ -317,7 +318,6 @@ final class MessageDeliveryService {
         isSendingMessage = true
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
-
         defer { cleanUpAfterSend() }
 
         do {
@@ -431,12 +431,9 @@ final class MessageDeliveryService {
 
         clientSession.entity.conversation.setCurrentConversation(newConversation)
         Task { @MainActor in
-            @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
-            recipientBarLayoutService?.removeFromSuperview()
+            hideRecipientBar()
             chatPageViewService.reloadCollectionView()
         }
-
-        Observables.firstMessageSentInNewChat.trigger()
     }
 
     private func cleanUpAfterSend() {
@@ -481,6 +478,15 @@ final class MessageDeliveryService {
             uponIsSendingMessageChangedToFalse.values.forEach { $0() }
             uponIsSendingMessageChangedToFalse = .init()
         }
+    }
+
+    private func hideRecipientBar() {
+        Task { @MainActor in
+            @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
+            recipientBarLayoutService?.removeFromSuperview()
+        }
+
+        Observables.firstMessageSentInNewChat.trigger()
     }
 
     @objc

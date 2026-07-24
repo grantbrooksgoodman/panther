@@ -22,7 +22,7 @@ struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate {
     // MARK: - Computed Properties
 
     var backgroundColor: Color? {
-        nil
+        defaultNetworkActivityIndicatorDelegate.backgroundColor
     }
 
     var progressViewTintColor: Color? {

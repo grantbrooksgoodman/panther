@@ -20,7 +20,7 @@ struct WelcomePageReducer: Reducer {
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
-    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
+    @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Actions
 
@@ -78,6 +78,18 @@ struct WelcomePageReducer: Reducer {
             core.utils.restoreDeviceLanguageCode()
             onboardingService.flushValues()
 
+            let auth = LockIsolated(networking.auth)
+            return .fireAndForget {
+                do throws(Exception) {
+                    _ = try await auth.wrappedValue.signInAnonymously()
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toastInPrerelease
+                    )
+                }
+            }
+
         case .viewFirstAppeared:
             state.viewState = .loading
             core.ui.overrideUserInterfaceStyle(.unspecified)
@@ -94,10 +106,13 @@ struct WelcomePageReducer: Reducer {
                 }
             }
 
+            let translator = LockIsolated(networking.hostedTranslation)
             return .task {
                 do throws(Exception) {
                     return try await .resolveReturned(
-                        translator.resolve(WelcomePageViewStrings.self)
+                        translator.wrappedValue.resolve(
+                            WelcomePageViewStrings.self
+                        )
                     )
                 } catch {
                     return .resolveFailed(error)

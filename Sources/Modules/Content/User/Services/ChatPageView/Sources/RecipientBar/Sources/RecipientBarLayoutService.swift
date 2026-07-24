@@ -324,15 +324,15 @@ final class RecipientBarLayoutService {
                 )
             )
         )
-        textField.onSuperfluousBackspace { service.actionHandler.onSuperflousBackspace() }
 
+        textField.onSuperfluousBackspace { service.actionHandler.onSuperflousBackspace() }
         textField.addTarget(
             service.actionHandler,
             action: #selector(service.actionHandler.textFieldChanged(_:)),
             for: .editingChanged
         )
-        textField.delegate = recipientBarView
 
+        textField.delegate = recipientBarView
         textField.frame.origin.x = toLabel.frame.maxX + Floats.textFieldXOriginIncrement
         textField.center.y = toLabel.center.y
 
@@ -369,12 +369,12 @@ final class RecipientBarLayoutService {
 
         let xOriginOffset = recipientBarView.frame.maxX - selectContactButton.frame.size.width
         let decrementValue = Floats.selectContactButtonXOriginDecrement
-        let xOriginModifier = uiApplication.preferredContentSizeCategory > .large ? -decrementValue : decrementValue
 
-        selectContactButton.frame.origin.x = xOriginOffset - xOriginModifier
+        selectContactButton.frame.origin.x = xOriginOffset - decrementValue
         while selectContactButton.frame.maxX > recipientBarView.frame.maxX {
             selectContactButton.frame.origin.x -= 1
         }
+
         selectContactButton.center.y = (toLabel ?? recipientBarView).center.y
     }
 
@@ -382,7 +382,9 @@ final class RecipientBarLayoutService {
         guard let selectContactButton,
               let textField else { return }
 
-        while textField.frame.maxX >= (selectContactButton.frame.minX - Floats.selectContactButtonMinXDecrement) {
+        while textField.frame.maxX >= (
+            selectContactButton.frame.minX - Floats.selectContactButtonMinXDecrement
+        ) {
             textField.frame.size.width -= 1
         }
     }

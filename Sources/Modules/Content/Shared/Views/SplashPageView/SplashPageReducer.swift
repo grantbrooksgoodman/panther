@@ -132,16 +132,55 @@ struct SplashPageReducer: Reducer {
 
     // MARK: - Auxiliary
 
+    // TODO: Audit the code style here. Likely can be cleaned up.
     private static func initializeBundleTask(
         fromRetry: Bool = false
     ) -> Effect<Action> {
         .task {
-            @Dependency(\.splashPageViewService) var viewService: SplashPageViewService
-            do throws(Exception) {
-                try await viewService.initializeBundle(fromRetry: fromRetry)
-                return .initializedBundle(nil)
-            } catch {
-                return .initializedBundle(error)
+            await withTaskGroup(of: Action.self) { taskGroup in
+                taskGroup.addTask {
+                    @Dependency(\.splashPageViewService) var viewService: SplashPageViewService
+
+                    do throws(Exception) {
+                        try await viewService.initializeBundle(fromRetry: fromRetry)
+                        return .initializedBundle(nil)
+                    } catch {
+                        return .initializedBundle(error)
+                    }
+                }
+
+                taskGroup.addTask {
+                    @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
+                    @Dependency(\.splashPageViewService) var viewService: SplashPageViewService
+
+                    guard await viewService.resolveCachedUserIfPoorNetwork() else {
+                        // Network is healthy; yield to initializeBundle.
+                        while !Task.isCancelled {
+                            try? await Task.sleep(for: .seconds(60))
+                        }
+
+                        return .initializedBundle(nil)
+                    }
+
+                    Logger.log(
+                        "Loading from cached user due to poor network health.",
+                        with: .toastInPrerelease(style: .warning),
+                        sender: self
+                    )
+
+                    Task.detached(priority: .background) {
+                        if RuntimeStorage.lastSignInDate == nil {
+                            try? await currentUser?.updateLastSignedInDate()
+                        }
+                    }
+
+                    return .initializedBundle(nil)
+                }
+
+                // First task to finish wins.
+                let taskGroupResult = await taskGroup.next()!
+                taskGroup.cancelAll()
+                return taskGroupResult
             }
         }
     }
