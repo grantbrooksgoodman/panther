@@ -174,6 +174,8 @@ struct SignInPageReducer: Reducer {
             }
 
         case let .accountDoesNotExistAlertDismissed(cancelled: cancelled):
+            coreUI.removeOverlay()
+
             guard !cancelled else {
                 state.isBackButtonEnabled = true
                 state.isContinueButtonEnabled = state.numberIsValidLength

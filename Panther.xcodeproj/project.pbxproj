@@ -4974,7 +4974,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
 			requirement = {
-				branch = main;
+				branch = health;
 				kind = branch;
 			};
 		};

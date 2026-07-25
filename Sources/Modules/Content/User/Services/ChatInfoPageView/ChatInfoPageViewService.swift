@@ -230,6 +230,10 @@ final class ChatInfoPageViewService {
                   ]) else { return }
 
             Observables.chatInfoPageLoadingStateUpdated.trigger()
+            RuntimeStorage.store(
+                false,
+                as: .shouldNotifyOfConversationAvailability
+            )
 
             do throws(Exception) {
                 try await clientSession.entity.activity.removeFromConversation(
@@ -239,7 +243,6 @@ final class ChatInfoPageViewService {
 
                 Application.dismissSheets()
                 clientSession.store.removeConversation(idKey: conversation.id.key)
-                navigation.navigate(to: .userContent(.stack([])))
             } catch {
                 Logger.log(
                     error,

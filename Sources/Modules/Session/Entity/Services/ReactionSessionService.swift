@@ -316,7 +316,7 @@ final class ReactionSessionService {
                 }
 
                 // Return empty sentinel if no reactions remain.
-                guard !metadata.isEmpty else { return ReactionMetadata.empty.encoded }
+                guard !metadata.isEmpty else { return [ReactionMetadata.empty.encoded] }
                 return metadata
             }
 

@@ -81,6 +81,11 @@ struct ConversationCellViewService {
                     style: .preferred
                 ) {
                     Task { @MainActor in
+                        RuntimeStorage.store(
+                            false,
+                            as: .shouldNotifyOfConversationAvailability
+                        )
+
                         Application.reset()
                         Application.dismissSheets()
 

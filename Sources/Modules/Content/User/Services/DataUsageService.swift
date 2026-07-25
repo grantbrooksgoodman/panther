@@ -81,7 +81,7 @@ final class DataUsageService: @unchecked Sendable {
               isDataUsageCalculationInvalid else {
             Logger.log( // swiftlint:disable:next line_length
                 "Returning last known data usage calculation (\(lastDataUsageCalculation.dataUsageInKilobytes)kb), from \(abs(lastDataUsageCalculation.date.seconds(from: .now)))s ago.",
-                domain: .storageSession,
+                domain: .dataUsage,
                 sender: self
             )
 
@@ -96,10 +96,10 @@ final class DataUsageService: @unchecked Sendable {
 
         dataUsageInKilobytes += try getSizeOfUserObject()
 
-        defer { Logger.closeStream(domain: .storageSession) }
+        defer { Logger.closeStream(domain: .dataUsage) }
         Logger.openStream(
             message: "Size of user object: \(dataUsageInKilobytes)kb",
-            domain: .storageSession,
+            domain: .dataUsage,
             sender: self
         )
 
@@ -109,7 +109,7 @@ final class DataUsageService: @unchecked Sendable {
         dataUsageInKilobytes += conversationDataSize
         Logger.logToStream(
             "Conversation data usage: \(conversationDataSize)kb",
-            domain: .storageSession,
+            domain: .dataUsage,
             line: #line
         )
 
@@ -119,7 +119,7 @@ final class DataUsageService: @unchecked Sendable {
         dataUsageInKilobytes += messageDataSize
         Logger.logToStream(
             "Message data usage: \(messageDataSize)kb",
-            domain: .storageSession,
+            domain: .dataUsage,
             line: #line
         )
 
@@ -129,7 +129,7 @@ final class DataUsageService: @unchecked Sendable {
         dataUsageInKilobytes += translationDataSize
         Logger.logToStream(
             "Translation data usage: \(translationDataSize)kb",
-            domain: .storageSession,
+            domain: .dataUsage,
             line: #line
         )
 
@@ -139,7 +139,7 @@ final class DataUsageService: @unchecked Sendable {
         dataUsageInKilobytes += combinedAudioSize
         Logger.logToStream(
             "Audio data usage: \(combinedAudioSize)kb",
-            domain: .storageSession,
+            domain: .dataUsage,
             line: #line
         )
 
@@ -149,14 +149,14 @@ final class DataUsageService: @unchecked Sendable {
         dataUsageInKilobytes += combinedMediaSize
         Logger.logToStream(
             "Media data usage: \(combinedMediaSize)kb",
-            domain: .storageSession,
+            domain: .dataUsage,
             line: #line
         )
 
         // Aggregate
 
         Logger.closeStream(
-            domain: .storageSession,
+            domain: .dataUsage,
             onLine: #line
         )
 
@@ -167,7 +167,7 @@ final class DataUsageService: @unchecked Sendable {
 
         Logger.log(
             "Total data usage: \(dataUsageInKilobytes)kb / \(usageInMB)mb",
-            domain: .storageSession,
+            domain: .dataUsage,
             sender: self
         )
 
@@ -202,7 +202,7 @@ final class DataUsageService: @unchecked Sendable {
             } catch {
                 Logger.log(
                     error,
-                    domain: .storageSession,
+                    domain: .dataUsage,
                     with: .toastInPrerelease
                 )
             }

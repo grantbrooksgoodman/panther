@@ -106,7 +106,10 @@ struct ConversationObserverService {
             return Logger.log(
                 .init(
                     "Received non-decodable conversation snapshot.",
-                    userInfo: ["ConversationIDKey": conversationIDKey],
+                    userInfo: [
+                        "ConversationIDKey": conversationIDKey,
+                        "Data": data,
+                    ],
                     metadata: .init(sender: self)
                 ),
                 domain: .conversationObserver,

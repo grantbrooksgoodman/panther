@@ -33,6 +33,7 @@ import AppSubsystem
 extension StoredItemKey {
     static let lastSignInDate: StoredItemKey = .init("lastSignInDate")
     static let populatedTemporaryCaches: StoredItemKey = .init("populatedTemporaryCaches")
+    static let shouldNotifyOfConversationAvailability: StoredItemKey = .init("shouldNotifyOfConversationAvailability")
 }
 
 /// Use this extension to add convenience accessors for stored runtime
@@ -54,5 +55,9 @@ extension RuntimeStorage {
 
     static var populatedTemporaryCaches: Bool {
         retrieve(.populatedTemporaryCaches) as? Bool ?? false
+    }
+
+    static var shouldNotifyOfConversationAvailability: Bool {
+        retrieve(.shouldNotifyOfConversationAvailability) as? Bool ?? true
     }
 }

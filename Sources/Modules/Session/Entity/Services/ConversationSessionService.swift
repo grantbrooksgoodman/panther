@@ -235,13 +235,17 @@ final class ConversationSessionService: @unchecked Sendable {
                 // participant).
                 Task { @MainActor in
                     navigation.navigate(to: .userContent(.stack([])))
-                    Toast.show(
-                        .init(
-                            .banner(style: .info),
-                            message: "This conversation is no longer available."
-                        ),
-                        translating: Toast.TranslationOptionKey.allCases
-                    )
+                    if RuntimeStorage.shouldNotifyOfConversationAvailability {
+                        Toast.show(
+                            .init(
+                                .banner(style: .info),
+                                message: "This conversation is no longer available."
+                            ),
+                            translating: Toast.TranslationOptionKey.allCases
+                        )
+                    } else {
+                        RuntimeStorage.remove(.shouldNotifyOfConversationAvailability)
+                    }
                 }
 
                 return clearPointer()

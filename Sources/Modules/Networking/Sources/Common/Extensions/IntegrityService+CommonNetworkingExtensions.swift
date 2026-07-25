@@ -20,7 +20,8 @@ extension IntegrityService {
     func repairDatabase(
         _ exceptions: [Exception]? = nil,
         _ methodsUsedForRepair: [String]? = nil,
-        isFirstRun: Bool = true
+        isFirstRun: Bool = true,
+        onProgressUpdate: (@MainActor @Sendable (Double) -> Void)? = nil
     ) async throws(Exception) {
         @Dependency(\.alertKitConfig) var alertKitConfig: AlertKit.Config
         @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
@@ -42,7 +43,8 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
 
@@ -62,6 +64,16 @@ extension IntegrityService {
         var exceptions = exceptions ?? .init()
         var methodsUsedForRepair = methodsUsedForRepair ?? .init()
 
+        // Keep in sync with the number of `reportProgressUpdate` calls below.
+        let progressUpdateStepCount = 15
+        var completedProgressUpdateSteps = 0
+        func reportProgressUpdate() async {
+            completedProgressUpdateSteps += 1
+            await onProgressUpdate?(
+                Double(completedProgressUpdateSteps) / Double(progressUpdateStepCount)
+            )
+        }
+
         // Resolve Integrity Service Session
 
         do {
@@ -70,10 +82,15 @@ extension IntegrityService {
             throw error
         }
 
+        await reportProgressUpdate()
+
         // Prune Deleted Users & Invalidated Caches
 
         do { try await pruneDeletedUsers() } catch { exceptions.append(error) }
+        await reportProgressUpdate()
+
         do { try await pruneInvalidatedCaches() } catch { exceptions.append(error) }
+        await reportProgressUpdate()
 
         // Repair Malformed Data
 
@@ -84,9 +101,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         let repairMalformedConversationsResult = await repairMalformedConversations()
         if let exception = repairMalformedConversationsResult.exception { exceptions.append(exception) }
@@ -95,9 +115,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         let repairMalformedUsersResult = await repairMalformedUsers()
         if let exception = repairMalformedUsersResult.exception { exceptions.append(exception) }
@@ -106,9 +129,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         // Repair Broken Data
 
@@ -119,9 +145,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         let resolveBrokenMessageChainResult = await resolveBrokenMessageChain()
         if let exception = resolveBrokenMessageChainResult.exception { exceptions.append(exception) }
@@ -130,9 +159,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         let resolveMismatchedParticipantsResult = await resolveMismatchedParticipants()
         if let exception = resolveMismatchedParticipantsResult.exception { exceptions.append(exception) }
@@ -141,9 +173,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         let resolveNoAudioComponentMessagesResult = await resolveNoAudioComponentMessages()
         if let exception = resolveNoAudioComponentMessagesResult.exception { exceptions.append(exception) }
@@ -152,9 +187,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         let resolveNoMediaComponentMessagesResult = await resolveNoMediaComponentMessages()
         if let exception = resolveNoMediaComponentMessagesResult.exception { exceptions.append(exception) }
@@ -163,9 +201,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         let resolveNonExistentParticipantsResult = await resolveNonExistentParticipants()
         if let exception = resolveNonExistentParticipantsResult.exception { exceptions.append(exception) }
@@ -174,9 +215,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         let resolveNonExistentTranslationsResult = await resolveNonExistentTranslations()
         if let exception = resolveNonExistentTranslationsResult.exception { exceptions.append(exception) }
@@ -185,9 +229,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         let resolveOrphanedMediaResult = await resolveOrphanedMedia()
         if let exception = resolveOrphanedMediaResult.exception { exceptions.append(exception) }
@@ -196,9 +243,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         let resolveOrphanedMessagesResult = await resolveOrphanedMessages()
         if let exception = resolveOrphanedMessagesResult.exception { exceptions.append(exception) }
@@ -207,9 +257,12 @@ extension IntegrityService {
             return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
-                isFirstRun: false
+                isFirstRun: false,
+                onProgressUpdate: onProgressUpdate
             )
         }
+
+        await reportProgressUpdate()
 
         defer {
             networking.database.setGlobalCacheStrategy(nil)

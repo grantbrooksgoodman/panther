@@ -38,6 +38,10 @@ extension DevModeAction {
     /// The delegate that supplies app-specific actions to the
     /// Developer Mode menu.
     struct AppActions: AppSubsystem.Delegates.DevModeAppActionDelegate {
+        // MARK: - Dependencies
+
+        @Dependency(\.mainBundle) private var mainBundle: Bundle
+
         // MARK: - Properties
 
         /// The actions to display in the Developer Mode action sheet.
@@ -46,14 +50,23 @@ extension DevModeAction {
                 Breadcrumbs.manageBreadcrumbsCaptureAction,
                 AppActions.markMessagesUnreadAction,
                 AppActions.setCurrentUserIDAction,
-                AppActions.stagingModeOptionsAction,
                 AppActions.triggerForcedUpdateModalAction,
                 AppActions.validateDatabaseIntegrityAction,
                 AppActions.dangerZoneAction,
             ]
 
             if Networking.config.environment != .production {
-                actions.insert(AppActions.createNewMessagesAction, at: 1)
+                actions.insert(
+                    AppActions.createNewMessagesAction,
+                    at: 1
+                )
+
+                if mainBundle.containsStagingAssets {
+                    actions.insert(
+                        AppActions.stagingModeOptionsAction,
+                        at: 2
+                    )
+                }
             }
 
             return actions
@@ -171,7 +184,6 @@ extension DevModeAction {
                 Task { @MainActor in
                     @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
                     @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
-                    @Dependency(\.mainBundle) var mainBundle: Bundle
 
                     @Persistent(.isInStagingMode) var isInStagingMode: Bool?
                     let stageConversationsAction = AKAction(
@@ -208,22 +220,12 @@ extension DevModeAction {
                         )
                     }
 
-                    let actions: [AKAction?] = [
-                        currentUser == nil ? nil : stageConversationsAction,
-                        toggleStagingModeAction,
-                    ]
-
-                    guard mainBundle.containsStagingAssets else {
-                        return await AKAlert(
-                            title: "Assets Not Found",
-                            message: "Failed to find the resources necessary for staging.\n\nPlease ensure the app bundle includes the required assets.",
-                            actions: [.cancelAction(title: "OK")]
-                        ).present(translating: [])
-                    }
-
                     await AKActionSheet(
                         title: "Staging Mode Options",
-                        actions: actions.compactMap(\.self)
+                        actions: [
+                            currentUser == nil ? nil : stageConversationsAction,
+                            toggleStagingModeAction,
+                        ].compactMap(\.self)
                     ).present(translating: [])
                 }
             }
@@ -328,14 +330,19 @@ extension DevModeAction {
         private static var validateDatabaseIntegrityAction: DevModeAction {
             @Sendable
             func validateDatabaseIntegrity() {
-                Task {
-                    @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+                Task { @MainActor in
                     @Dependency(\.networking.integrityService) var integrityService: IntegrityService
 
-                    coreHUD.showProgress(isModal: true)
-                    defer { coreHUD.hide() }
+                    let progressAlert = AKProgressAlert(
+                        title: "Validate Database Integrity",
+                        message: "Please wait..."
+                    )
+
+                    await progressAlert.present(translating: [])
+                    defer { progressAlert.dismiss() }
+
                     do throws(Exception) {
-                        try await integrityService.repairDatabase()
+                        try await integrityService.repairDatabase { progressAlert.updateProgress($0) }
                     } catch {
                         Logger.log(
                             error,

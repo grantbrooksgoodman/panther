@@ -298,7 +298,8 @@ final class UserSessionService: @unchecked Sendable {
         guard let updatedLastSignedInString,
               let updatedLastSignedInDate = timestampDateFormatter.date(
                   from: updatedLastSignedInString
-              ) else { return false }
+              ),
+              networking.health.health.tier == .good else { return false }
 
         return !(currentLastSignedInDate?.isWithinSameSecond(as: updatedLastSignedInDate) ?? true)
     }
