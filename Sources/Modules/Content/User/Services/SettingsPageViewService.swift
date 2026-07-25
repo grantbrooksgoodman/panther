@@ -448,9 +448,6 @@ final class SettingsPageViewService {
                             .stopObservingCurrentUserChanges()
 
                         try await currentUser.removeCurrentPushToken()
-                        try await currentUser.updateLastSignedInDate(
-                            to: .init(timeIntervalSince1970: 0)
-                        )
                     } catch {
                         Logger.log(error)
                     }

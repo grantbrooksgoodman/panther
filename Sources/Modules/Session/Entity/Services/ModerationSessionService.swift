@@ -179,10 +179,14 @@ struct ModerationSessionService {
             User.SerializableKey.blockedUserIDs.rawValue,
         ].joined(separator: "/")
 
-        let rawValue: [String: Any] = try await networking.database.getValues(at: path)
-        let blockedUserIDs = Array(rawValue.keys)
+        let rawValue: [String: Any] = try await networking.database.getValues(
+            at: path,
+            cacheStrategy: .adaptive
+        )
 
-        return try await networking.userService.getUsers(ids: blockedUserIDs)
+        return try await networking.userService.getUsers(
+            ids: Array(rawValue.keys)
+        )
     }
 
     @MainActor

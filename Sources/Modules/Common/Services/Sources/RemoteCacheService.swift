@@ -22,7 +22,8 @@ struct RemoteCacheService {
 
     func cacheStatus(userID: String) async throws(Exception) -> RemoteCacheStatus {
         let invalidatedCaches: [String] = try await networking.database.getValues(
-            at: NetworkPath.invalidatedCaches.rawValue
+            at: NetworkPath.invalidatedCaches.rawValue,
+            cacheStrategy: .adaptive
         )
 
         return invalidatedCaches.contains(userID) ? .invalid : .valid

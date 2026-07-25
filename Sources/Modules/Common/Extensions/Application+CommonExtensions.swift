@@ -93,7 +93,6 @@ extension Application {
         ))
 
         defaults.synchronize()
-        RuntimeStorage.remove(.lastSignInDate)
         RuntimeStorage.remove(.populatedTemporaryCaches)
 
         do {

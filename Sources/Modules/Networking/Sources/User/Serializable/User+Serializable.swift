@@ -26,9 +26,9 @@ extension User: Serializable {
         case badgeNumber
         case blockedUserIDs
         case conversationIDs = "openConversations"
+        case deviceID
         case isPenPalsParticipant
         case languageCode
-        case lastSignedIn
         case messageRecipientConsentRequired
         case phoneNumber
         case previousLanguageCodes
@@ -73,9 +73,9 @@ extension User: Serializable {
             Keys.aiEnhancedTranslationsEnabled.rawValue: aiEnhancedTranslationsEnabled,
             Keys.blockedUserIDs.rawValue: encodedBlockedUserIDs,
             Keys.conversationIDs.rawValue: encodedConversationIDs,
+            Keys.deviceID.rawValue: deviceID,
             Keys.isPenPalsParticipant.rawValue: isPenPalsParticipant,
             Keys.languageCode.rawValue: languageCode,
-            Keys.lastSignedIn.rawValue: Date.timestampFromOptional(date: lastSignedIn),
             Keys.messageRecipientConsentRequired.rawValue: messageRecipientConsentRequired,
             Keys.phoneNumber.rawValue: phoneNumber.encoded,
             Keys.previousLanguageCodes.rawValue: previousLanguageCodes ?? .bangQualifiedEmpty,
@@ -88,15 +88,12 @@ extension User: Serializable {
     init(
         from data: [String: Any]
     ) async throws(Exception) {
-        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
-
         guard let id = data[Keys.id.rawValue] as? String,
               let aiEnhancedTranslationsEnabled = data[Keys.aiEnhancedTranslationsEnabled.rawValue] as? Bool,
+              let deviceID = data[Keys.deviceID.rawValue] as? String,
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               let isPenPalsParticipant = data[Keys.isPenPalsParticipant.rawValue] as? Bool,
               let languageCode = data[Keys.languageCode.rawValue] as? String,
-              let lastSignedInString = data[Keys.lastSignedIn.rawValue] as? String,
-              let lastSignedIn = timestampDateFormatter.date(from: lastSignedInString),
               let messageRecipientConsentRequired = data[Keys.messageRecipientConsentRequired.rawValue] as? Bool,
               let previousLanguageCodes = data[Keys.previousLanguageCodes.rawValue] as? [String] else {
             throw .Networking.decodingFailed(
@@ -141,9 +138,9 @@ extension User: Serializable {
             aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
             blockedUserIDs: blockedUserIDs.isBangQualifiedEmpty ? nil : blockedUserIDs,
             conversationIDs: conversationIDs.isEmpty ? nil : conversationIDs,
+            deviceID: deviceID,
             isPenPalsParticipant: isPenPalsParticipant,
             languageCode: languageCode,
-            lastSignedIn: lastSignedIn,
             messageRecipientConsentRequired: messageRecipientConsentRequired,
             phoneNumber: phoneNumber,
             previousLanguageCodes: previousLanguageCodes.isBangQualifiedEmpty ? nil : previousLanguageCodes,
@@ -154,21 +151,18 @@ extension User: Serializable {
     // MARK: - Methods
 
     static func canDecode(from data: [String: Any]) -> Bool {
-        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
-
         guard data[Keys.id.rawValue] is String,
               data[Keys.aiEnhancedTranslationsEnabled.rawValue] is Bool,
               data[Keys.blockedUserIDs.rawValue] is [String: Any] ||
               data[Keys.blockedUserIDs.rawValue] == nil,
               data[Keys.conversationIDs.rawValue] is [String: String] ||
               data[Keys.conversationIDs.rawValue] == nil,
+              data[Keys.deviceID.rawValue] is String,
               data[Keys.isPenPalsParticipant.rawValue] is Bool,
               data[Keys.messageRecipientConsentRequired.rawValue] is Bool,
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               PhoneNumber.canDecode(from: encodedPhoneNumber),
               data[Keys.languageCode.rawValue] is String,
-              let lastSignedInString = data[Keys.lastSignedIn.rawValue] as? String,
-              timestampDateFormatter.date(from: lastSignedInString) != nil,
               data[Keys.previousLanguageCodes.rawValue] is [String],
               data[Keys.pushTokens.rawValue] is [String: Any] ||
               data[Keys.pushTokens.rawValue] == nil else { return false }

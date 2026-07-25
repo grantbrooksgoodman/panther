@@ -20,10 +20,10 @@ struct User: Codable, EncodedHashable, Hashable {
     @Updatable let aiEnhancedTranslationsEnabled: Bool
     @Updatable(nilIf: .isBangQualifiedEmpty) let blockedUserIDs: [String]?
     @Updatable let conversationIDs: [ConversationID]?
+    @Updatable let deviceID: String
     let id: String
     @Updatable let isPenPalsParticipant: Bool
     let languageCode: String
-    @Updatable(nilIf: .custom("$0 == .init(timeIntervalSince1970: 0)")) let lastSignedIn: Date?
     @Updatable let messageRecipientConsentRequired: Bool
     let phoneNumber: PhoneNumber
     @Updatable(nilIf: .isBangQualifiedEmpty) let previousLanguageCodes: [String]?
@@ -50,10 +50,9 @@ struct User: Codable, EncodedHashable, Hashable {
         factors.append(aiEnhancedTranslationsEnabled.description)
         factors.append(contentsOf: blockedUserIDs ?? [])
         factors.append(contentsOf: conversationIDs?.map(\.encoded) ?? [])
-        factors.append(id)
+        factors.append(deviceID)
         factors.append(isPenPalsParticipant.description)
         factors.append(languageCode)
-        factors.append(Date.timestampFromOptional(date: lastSignedIn))
         factors.append(messageRecipientConsentRequired.description)
         factors.append(phoneNumber.encodedHash)
         factors.append(contentsOf: previousLanguageCodes ?? [])
@@ -87,9 +86,9 @@ struct User: Codable, EncodedHashable, Hashable {
         aiEnhancedTranslationsEnabled: Bool,
         blockedUserIDs: [String]?,
         conversationIDs: [ConversationID]?,
+        deviceID: String,
         isPenPalsParticipant: Bool,
         languageCode: String,
-        lastSignedIn: Date?,
         messageRecipientConsentRequired: Bool,
         phoneNumber: PhoneNumber,
         previousLanguageCodes: [String]?,
@@ -99,9 +98,9 @@ struct User: Codable, EncodedHashable, Hashable {
         self.aiEnhancedTranslationsEnabled = aiEnhancedTranslationsEnabled
         self.blockedUserIDs = blockedUserIDs
         self.conversationIDs = conversationIDs
+        self.deviceID = deviceID
         self.isPenPalsParticipant = isPenPalsParticipant
         self.languageCode = languageCode
-        self.lastSignedIn = lastSignedIn
         self.messageRecipientConsentRequired = messageRecipientConsentRequired
         self.phoneNumber = phoneNumber
         self.previousLanguageCodes = previousLanguageCodes

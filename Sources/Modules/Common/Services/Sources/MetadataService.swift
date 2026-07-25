@@ -111,7 +111,8 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
         try await assignValues(
             from: database.getValues(
                 at: NetworkPath.shared.rawValue,
-                prependingEnvironment: false
+                prependingEnvironment: false,
+                cacheStrategy: .adaptive
             )
         )
     }

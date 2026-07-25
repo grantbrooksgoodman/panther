@@ -18,6 +18,7 @@
 		A2110CEA2EDC122200954DA2 /* UIColor+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */; };
 		A21951122ECD8340000A6177 /* ContactSelectorPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */; };
 		A21951142ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */; };
+		A220F689301546170065B54C /* DeviceID.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220F688301546170065B54C /* DeviceID.swift */; };
 		A23338B82ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338B72ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift */; };
 		A23338BA2ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338B92ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift */; };
 		A23338BC2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338BB2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift */; };
@@ -800,6 +801,7 @@
 		A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewService.swift; sourceTree = "<group>"; };
 		A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewServiceDependency.swift; sourceTree = "<group>"; };
+		A220F688301546170065B54C /* DeviceID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceID.swift; sourceTree = "<group>"; };
 		A23338B72ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ReactionsViewController.swift"; sourceTree = "<group>"; };
 		A23338B92ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SystemMessageCell.swift"; sourceTree = "<group>"; };
 		A23338BB2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+V26HeaderViewModifier.swift"; sourceTree = "<group>"; };
@@ -3170,6 +3172,7 @@
 		B9E6D7A52B125C05000BC88D /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				A220F688301546170065B54C /* DeviceID.swift */,
 				B9E6D7AE2B125FC0000BC88D /* User.swift */,
 				B966E9AA2B5E556200874F44 /* UserDataSnapshot.swift */,
 			);
@@ -4124,6 +4127,7 @@
 				B94A80082DFFE086003E2483 /* ComponentKit+SharedContentExtensions.swift in Sources */,
 				B94758202BCF7A18001E4872 /* CameraPickerView+Coordinator.swift in Sources */,
 				B90249D22B57459700D62855 /* PermissionPageView.swift in Sources */,
+				A220F689301546170065B54C /* DeviceID.swift in Sources */,
 				B99195772B47C7CA00BD5BBC /* SelectLanguagePageView.swift in Sources */,
 				A2110CEA2EDC122200954DA2 /* UIColor+UserContentExtensions.swift in Sources */,
 				B900B5132B1A973C00BA2F1D /* TextToSpeechService.swift in Sources */,

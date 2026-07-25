@@ -14,7 +14,7 @@ enum NotificationExtensionConstants {
     static let contactArchiveDefaultsKeyName = "notificationExtensionContactArchive"
     static let conversationNameMapDefaultsKeyName = "notificationExtensionConversationNameMap"
     static let conversationIDKeyUserInfoKey = "conversationIDKey"
-    static let isReactionUserInfoKey = "isReaction"
+    static let reactionMessageIDUserInfoKey = "reactionMessageID"
     static let reactionSuffixUserInfoKey = "reactionSuffix"
     static let userNumberHashUserInfoKey = "userNumberHash"
 }

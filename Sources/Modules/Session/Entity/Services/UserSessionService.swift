@@ -34,7 +34,6 @@ final class UserSessionService: @unchecked Sendable {
     @Dependency(\.dataUsageService) private var dataUsageService: DataUsageService
     @Dependency(\.build.isOnline) private var isOnline: Bool
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
 
     // MARK: - Properties
 
@@ -135,7 +134,7 @@ final class UserSessionService: @unchecked Sendable {
                         if blockedUserIDsDidChange(dictionary) ||
                             conversationsDidChange(dictionary) {
                             updateCurrentUser()
-                        } else if lastSignedInDateDidChange(dictionary) {
+                        } else if deviceIDDidChange(dictionary) {
                             signOutToPreserveSingleActiveUser()
                         } else {
                             Logger.log(
@@ -275,6 +274,20 @@ final class UserSessionService: @unchecked Sendable {
         return true
     }
 
+    private func deviceIDDidChange(_ dictionary: [String: Any]) -> Bool {
+        let currentDeviceID = DeviceID.current
+        let updatedDeviceID = dictionary[
+            User.SerializableKey.deviceID.rawValue
+        ] as? String
+
+        if let updatedDeviceID,
+           networking.health.health.tier != .poor {
+            return currentDeviceID != updatedDeviceID
+        }
+
+        return false
+    }
+
     /// A conversation version is "known" when the session
     /// store already holds it, when this client wrote it and
     /// the store is still settling, or when the conversation-
@@ -287,21 +300,6 @@ final class UserSessionService: @unchecked Sendable {
         clientSession.store.getConversation(id: conversationID) != nil ||
             SelfWriteRegistry.contains(conversationID) ||
             clientSession.sync.conversationObserver.isActivelyObserving(conversationID.key)
-    }
-
-    private func lastSignedInDateDidChange(_ dictionary: [String: Any]) -> Bool {
-        let currentLastSignedInDate = RuntimeStorage.lastSignInDate ?? currentUser?.lastSignedIn
-        let updatedLastSignedInString = dictionary[
-            User.SerializableKey.lastSignedIn.rawValue
-        ] as? String
-
-        guard let updatedLastSignedInString,
-              let updatedLastSignedInDate = timestampDateFormatter.date(
-                  from: updatedLastSignedInString
-              ),
-              networking.health.health.tier == .good else { return false }
-
-        return !(currentLastSignedInDate?.isWithinSameSecond(as: updatedLastSignedInDate) ?? true)
     }
 
     /// Fetches the current user from the server and upserts

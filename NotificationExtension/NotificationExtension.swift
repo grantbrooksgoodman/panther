@@ -67,9 +67,9 @@ final class NotificationExtension: UNNotificationServiceExtension {
                 matchingContactKey
             ] else { return }
 
-        if let isReaction = bestAttemptContent.userInfo[
-            NotificationExtensionConstants.isReactionUserInfoKey
-        ] as? String, isReaction == "true" {
+        if let reactionMessageID = bestAttemptContent.userInfo[
+            NotificationExtensionConstants.reactionMessageIDUserInfoKey
+        ] as? String, reactionMessageID != "!" {
             if let reactionSuffix = bestAttemptContent.userInfo[
                 NotificationExtensionConstants.reactionSuffixUserInfoKey
             ] as? String, !reactionSuffix.isEmpty {

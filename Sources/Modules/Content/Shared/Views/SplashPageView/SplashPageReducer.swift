@@ -168,12 +168,6 @@ struct SplashPageReducer: Reducer {
                         sender: self
                     )
 
-                    Task.detached(priority: .background) {
-                        if RuntimeStorage.lastSignInDate == nil {
-                            try? await currentUser?.updateLastSignedInDate()
-                        }
-                    }
-
                     return .initializedBundle(nil)
                 }
 

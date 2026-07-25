@@ -82,7 +82,7 @@ struct NotificationService {
                             user: user
                         ),
                         conversationIDKey: conversationIDKey,
-                        isReaction: false
+                        reactionMessageID: reaction == nil ? nil : message.id
                     )
                 } catch {
                     guard !error.isEqual(
@@ -119,7 +119,7 @@ struct NotificationService {
                     title: "\(titlePrefix) \(reactionSuffix)",
                     body: body,
                     conversationIDKey: conversationIDKey,
-                    isReaction: true,
+                    reactionMessageID: message.id,
                     reactionSuffix: reactionSuffix
                 )
             } catch {
@@ -183,7 +183,7 @@ struct NotificationService {
         }
 
         guard let conversationIDKey = notificationContent.userInfo["conversationIDKey"] as? String,
-              let isReactionString = notificationContent.userInfo["isReaction"] as? String,
+              let reactionMessageID = notificationContent.userInfo["reactionMessageID"] as? String,
               let recipientUserID = notificationContent.userInfo["recipientUserID"] as? String else {
             throw Exception(
                 "Failed to resolve required values.",
@@ -218,7 +218,7 @@ struct NotificationService {
                 .id
                 .key == conversationIDKey
         ) else {
-            guard isReactionString == "true" else { return [] }
+            guard !reactionMessageID.isBangQualifiedEmpty else { return [] }
             services.haptics.generateFeedback(.medium)
             return []
         }
@@ -234,8 +234,10 @@ struct NotificationService {
             Task { @MainActor in
                 @Dependency(\.navigation) var navigation: Navigation
                 guard chatPageState.isPresented else {
-                    navigation.navigate(to: .userContent(.push(.chat(conversation))))
-                    return
+                    return navigation.navigate(to: .userContent(.push(.chat(
+                        conversation,
+                        focusedMessageID: reactionMessageID.isBangQualifiedEmpty ? nil : reactionMessageID
+                    ))))
                 }
 
                 navigation.navigate(to: .userContent(.stack([])))
@@ -245,7 +247,10 @@ struct NotificationService {
                 ) {
                     Task { @MainActor in
                         Application.dismissSheets()
-                        navigation.navigate(to: .userContent(.push(.chat(conversation))))
+                        navigation.navigate(to: .userContent(.push(.chat(
+                            conversation,
+                            focusedMessageID: reactionMessageID.isBangQualifiedEmpty ? nil : reactionMessageID
+                        ))))
                     }
                 }
             }
@@ -345,9 +350,10 @@ struct NotificationService {
         title: String,
         body: String?,
         conversationIDKey: String,
-        isReaction: Bool,
+        reactionMessageID: String?,
         reactionSuffix: String? = nil
     ) async throws(Exception) {
+        let isReaction = reactionMessageID != nil
         let userInfo = ["UserID": user.id]
 
         guard let currentUser = clientSession.entity.user.currentUser else {
@@ -391,7 +397,7 @@ struct NotificationService {
                     pushToken: pushToken,
                     userInfo: [
                         "conversationIDKey": conversationIDKey,
-                        "isReaction": isReaction ? "true" : "false",
+                        "reactionMessageID": reactionMessageID ?? String.bangQualifiedEmpty,
                         "reactionSuffix": reactionSuffix ?? "",
                         "recipientUserID": user.id,
                         "userNumberHash": userNumberHash,

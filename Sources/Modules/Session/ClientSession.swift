@@ -72,7 +72,8 @@ struct ClientSession: @unchecked Sendable {
                 NetworkPath.users.rawValue,
                 currentUserID,
                 User.SerializableKey.languageCode.rawValue,
-            ].joined(separator: "/")
+            ].joined(separator: "/"),
+            cacheStrategy: .adaptive
         )
 
         Logger.log(

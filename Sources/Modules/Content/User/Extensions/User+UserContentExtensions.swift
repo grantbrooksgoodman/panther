@@ -92,18 +92,13 @@ extension User {
         )
     }
 
-    func updateLastSignedInDate(
-        to date: Date = .now
-    ) async throws(Exception) {
-        _ = try await update(
-            \.lastSignedIn,
-            to: date
-        )
-
-        RuntimeStorage.store(
-            date,
-            as: .lastSignInDate
-        )
+    func updateDeviceIDIfNeeded() async throws(Exception) {
+        if deviceID != DeviceID.current {
+            _ = try await update(
+                \.deviceID,
+                to: DeviceID.current
+            )
+        }
     }
 }
 
