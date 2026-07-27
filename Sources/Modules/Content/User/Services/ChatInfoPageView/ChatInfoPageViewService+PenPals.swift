@@ -18,13 +18,16 @@ extension ChatInfoPageViewService {
 
     /// `.penPalParticipantViewTapped`
     /// `.penPalsSharingDataSwitchToggledOn`
-    /// - Returns: `true` if the user selected the confirmation option.
+    /// - Returns: The target user's ID if the user selected the confirmation option.
     func presentPenPalsSharingDataConfirmationActionSheet(
         _ userID: String,
         displayName: String
-    ) async -> ConversationMetadata? {
+    ) async -> String? {
         await withCheckedContinuation { continuation in
-            presentPenPalsSharingDataConfirmationActionSheet(userID, displayName: displayName) { userID in
+            presentPenPalsSharingDataConfirmationActionSheet(
+                userID,
+                displayName: displayName
+            ) { userID in
                 continuation.resume(returning: userID)
             }
         }
@@ -33,33 +36,11 @@ extension ChatInfoPageViewService {
     private func presentPenPalsSharingDataConfirmationActionSheet(
         _ userID: String,
         displayName: String,
-        completion: @escaping @Sendable (ConversationMetadata?) -> Void
+        completion: @escaping @Sendable (String?) -> Void
     ) {
         Task {
             let confirmAction: AKAction = .init("Share Phone Number") {
-                @Dependency(\.clientSession.entity.conversation.currentConversation) var conversation: Conversation?
-                guard let conversation,
-                      let currentUserID = User.currentUserID,
-                      let currentUserPenPalsSharingData = conversation.currentUserPenPalsSharingData else {
-                    return completion(nil)
-                }
-
-                let newCurrentUserPenPalsSharingData: PenPalsSharingData = .init(
-                    userID: currentUserID,
-                    sharesDataWithUserIDs: ((currentUserPenPalsSharingData.sharesDataWithUserIDs ?? []) + [userID]).unique
-                )
-
-                var newPenPalsSharingData = conversation.metadata.penPalsSharingData.filter { $0.userID != currentUserID }
-                newPenPalsSharingData.append(newCurrentUserPenPalsSharingData)
-
-                let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? conversation.metadata.copyWith(
-                    isPenPalsConversation: false,
-                    penPalsSharingData: PenPalsSharingData.empty(userIDs: conversation.participants.map(\.userID))
-                ) : conversation.metadata.copyWith(
-                    penPalsSharingData: newPenPalsSharingData
-                )
-
-                completion(newMetadata)
+                completion(userID)
             }
 
             let cancelAction: AKAction = .init(

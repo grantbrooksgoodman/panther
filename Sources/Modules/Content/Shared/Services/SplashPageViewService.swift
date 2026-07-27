@@ -72,7 +72,8 @@ final class SplashPageViewService: ObservableObject {
             initializationStartDate = .now
 
             Task.delayed(by: .milliseconds(2500)) { @MainActor in
-                guard initializationProgress <= 0.6 else { return }
+                guard !Task.isCancelled,
+                      initializationProgress <= 0.6 else { return }
                 didSurpassQuickLoadTimeoutDuration = true
             }
         }
@@ -92,8 +93,7 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: Offline User Setup */
 
-        guard build.isOnline,
-              networking.health.health.tier != .poor else {
+        guard build.isOnline else {
             guard let currentUser = clientSession.entity.user.currentUser else {
                 return Logger.log(
                     .init(
@@ -123,11 +123,14 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: Anonymous Sign-In */
 
+        guard !Task.isCancelled else { return }
         _ = try? await LockIsolated(networking.auth)
             .wrappedValue
             .signInAnonymously()
 
         /* MARK: Parallel Initialization */
+
+        guard !Task.isCancelled else { return }
 
         // Launch the heaviest independent network calls concurrently.
         async let resolveCurrentUserResult = clientSession.entity.user.resolveCurrentUser()
@@ -135,6 +138,7 @@ final class SplashPageViewService: ObservableObject {
         async let resolveValuesResult: Void = services.metadata.resolveValues()
 
         do {
+            guard !Task.isCancelled else { return }
             if User.currentUserID != nil {
                 try await resolveLanguageCodeResult
             }
@@ -153,6 +157,7 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: UpdateService Setup */
 
+        guard !Task.isCancelled else { return }
         services.update.incrementRelaunchCountIfNeeded()
         try await services.update.promptToUpdateIfNeeded()
 
@@ -163,6 +168,7 @@ final class SplashPageViewService: ObservableObject {
         // Runs while resolveCurrentUser() continues in the background.
         if let currentUserID = User.currentUserID {
             do {
+                guard !Task.isCancelled else { return }
                 let cacheStatus = try await services.remoteCache.cacheStatus(
                     userID: currentUserID
                 )
@@ -170,6 +176,7 @@ final class SplashPageViewService: ObservableObject {
                 initializationProgress += 0.02
 
                 if cacheStatus == .invalid {
+                    guard !Task.isCancelled else { return }
                     try await services.remoteCache.setCacheStatus(
                         .valid,
                         userID: currentUserID
@@ -189,6 +196,7 @@ final class SplashPageViewService: ObservableObject {
 
         // User resolution likely completed during the metadata + update + cache gates above.
         do {
+            guard !Task.isCancelled else { return }
             try await resolveCurrentUserResult
             initializationProgress += 0.2
 
@@ -199,11 +207,7 @@ final class SplashPageViewService: ObservableObject {
                 )
             }
 
-            /* MARK: Last Sign In Date Update */
-
-            // Must complete before the Firebase observer starts (post-splash),
-            // otherwise the observer sees the change and triggers sign-out.
-            try await currentUser.updateDeviceIDIfNeeded()
+            /* MARK: UI Setup */
 
             Networking.config.setIsEnhancedDialogTranslationEnabled(
                 currentUser.aiEnhancedTranslationsEnabled
@@ -212,9 +216,17 @@ final class SplashPageViewService: ObservableObject {
             checkPrevaricationMode(currentUser.phoneNumber)
             loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
+            /* MARK: Device ID Update */
+
+            // Must complete before the Firebase observer starts (post-splash),
+            // otherwise the observer sees the change and triggers sign-out.
+            guard !Task.isCancelled else { return }
+            try await currentUser.updateDeviceIDIfNeeded()
+
             /* MARK: Contact Pair Archive + Temporary Cache Population */
 
             do {
+                guard !Task.isCancelled else { return }
                 try await ContactService.syncIfNeeded()
             } catch {
                 Logger.log(error)
@@ -224,6 +236,7 @@ final class SplashPageViewService: ObservableObject {
                clientSession.store.conversations.isEmpty {
                 let database = LockIsolated(networking.database)
                 do {
+                    guard !Task.isCancelled else { return }
                     try await database.wrappedValue.populateTemporaryCaches()
                 } catch {
                     Logger.log(error)
@@ -232,6 +245,7 @@ final class SplashPageViewService: ObservableObject {
 
             /* MARK: Conversation Resolution */
 
+            guard !Task.isCancelled else { return }
             clientSession.entity.conversation.setCurrentConversation(nil)
             try await clientSession.entity.user.resolveCurrentUser(
                 and: .allDataTypes
@@ -242,11 +256,13 @@ final class SplashPageViewService: ObservableObject {
             /* MARK: Post-launch Maintenance */
 
             Task { [weak self] in
-                guard let self else { return }
+                guard let self,
+                      !Task.isCancelled else { return }
 
                 let pushTokenService = LockIsolated(services.pushToken)
                 if Networking.config.environment != .staging {
                     do throws(Exception) {
+                        guard !Task.isCancelled else { return }
                         try await pushTokenService
                             .wrappedValue
                             .prunePushTokensForCurrentUser()
@@ -259,6 +275,7 @@ final class SplashPageViewService: ObservableObject {
                 }
 
                 do throws(Exception) {
+                    guard !Task.isCancelled else { return }
                     try await TypingIndicatorService
                         .resetTypingIndicatorStatusForCurrentUser()
                 } catch {
@@ -270,6 +287,7 @@ final class SplashPageViewService: ObservableObject {
 
                 do throws(Exception) {
                     let currentUser = LockIsolated(currentUser)
+                    guard !Task.isCancelled else { return }
                     try await services
                         .notification
                         .setBadgeNumber(
@@ -283,6 +301,7 @@ final class SplashPageViewService: ObservableObject {
                 }
 
                 do throws(Exception) {
+                    guard !Task.isCancelled else { return }
                     try await services
                         .penPals
                         .updateSharingDataForKnownUsers()
@@ -355,21 +374,86 @@ final class SplashPageViewService: ObservableObject {
         ).present(translating: translationOptionKeys)
     }
 
-    /// Waits briefly for the health estimator to accumulate
-    /// samples from early network calls, then returns `true`
-    /// if the network is poor and a cached user is available.
+    /// Returns `true` if a complete cached user is available and
+    /// either the network health degrades to poor or the fallback
+    /// deadline elapses before bundle initialization settles.
     func resolveCachedUserIfPoorNetwork() async -> Bool {
-        try? await Task.sleep(for: .seconds(3))
-
-        guard networking.health.health.tier == .poor,
-              let currentUser = clientSession.entity.user.currentUser else {
+        guard let currentUser = clientSession.entity.user.currentUser,
+              let conversations = currentUser.conversations,
+              conversations.allSatisfy({ $0.messages != nil }),
+              conversations.allSatisfy({ $0.users != nil }) else {
+            Logger.log(.init(
+                "Insufficient data to load from cached user.",
+                isReportable: false,
+                metadata: .init(sender: self)
+            ))
             return false
         }
 
-        initializationProgress = 1
+        // The values stream doesn't replay the current value, so
+        // check it first; also resolves instantly on retry, when the
+        // health is already known to be poor.
+        if networking.health.health.tier != .poor {
+            let shouldTriggerDeferredResolution = await withTaskGroup(
+                of: Void.self
+            ) { taskGroup in
+                taskGroup.addTask {
+                    for await health in Observables.networkHealth.values where health.tier == .poor {
+                        return
+                    }
+                }
+
+                taskGroup.addTask {
+                    // Fallback deadline; on a dead network, the
+                    // health estimator has no evidence until the
+                    // first censored timeout sample lands.
+                    try? await Task.sleep(for: .seconds(5))
+                }
+
+                _ = await taskGroup.next()
+                taskGroup.cancelAll()
+                return !Task.isCancelled
+            }
+
+            guard shouldTriggerDeferredResolution else { return false }
+        }
+
+        initializationProgress = 0.9
         core.utils.setLanguageCode(
             currentUser.languageCode
         )
+
+        Task(priority: .background) { @MainActor [weak self] in
+            await self?.waitForUsableNetworkHealth()
+            do throws(Exception) {
+                try await self?.clientSession.entity.user.resolveCurrentUser(
+                    and: .allDataTypes
+                )
+
+                guard self?.build.milestone != .generalRelease else { return }
+                let logMessage = "Deferred resolution of current user data was successful."
+
+                Logger.log(
+                    logMessage,
+                    sender: self ?? SplashPageViewService.self
+                )
+
+                Toast.show(.init(
+                    .capsule(style: .success),
+                    message: logMessage,
+                    perpetuation: .ephemeral(.seconds(5))
+                ))
+            } catch {
+                Logger.log(error)
+                guard self?.build.milestone != .generalRelease else { return }
+                Toast.show(.init(
+                    .banner(style: .error),
+                    title: "Deferred Resolution Failed",
+                    message: error.descriptor,
+                    perpetuation: .persistent
+                ))
+            }
+        }
 
         return true
     }
@@ -395,6 +479,26 @@ final class SplashPageViewService: ObservableObject {
             UITheme.prevaricationMode,
             checkStyle: false
         )
+    }
+
+    /// Suspends until the network health becomes usable – `.fair`
+    /// or `.good` – returning immediately if it already is.
+    private func waitForUsableNetworkHealth() async {
+        let usableTiers: [NetworkHealthTier] = [
+            .fair,
+            .good,
+        ]
+
+        // The values stream doesn't replay the current value, so
+        // check it first.
+        if let tier = networking.health.health.tier,
+           usableTiers.contains(tier) { return }
+
+        for await health in Observables.networkHealth.values {
+            guard let tier = health.tier,
+                  usableTiers.contains(tier) else { continue }
+            return
+        }
     }
 }
 

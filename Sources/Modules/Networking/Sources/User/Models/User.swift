@@ -23,7 +23,7 @@ struct User: Codable, EncodedHashable, Hashable {
     @Updatable let deviceID: String
     let id: String
     @Updatable let isPenPalsParticipant: Bool
-    let languageCode: String
+    @Updatable let languageCode: String
     @Updatable let messageRecipientConsentRequired: Bool
     let phoneNumber: PhoneNumber
     @Updatable(nilIf: .isBangQualifiedEmpty) let previousLanguageCodes: [String]?

@@ -6,8 +6,6 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable file_length type_body_length
-
 /* Native */
 import Foundation
 import UIKit
@@ -16,6 +14,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 final class ReactionSessionService {
     // MARK: - Dependencies
 
@@ -23,7 +22,6 @@ final class ReactionSessionService {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
-    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
     // MARK: - Properties
@@ -220,7 +218,7 @@ final class ReactionSessionService {
         effects.values.forEach { $0() }
     }
 
-    @MainActor // swiftlint:disable:next function_body_length
+    @MainActor
     private func updateConversation(
         _ conversation: Conversation,
         messageData: (index: Int, message: Message),
@@ -237,145 +235,84 @@ final class ReactionSessionService {
         let messageID = messageData.message.id
         let reactionUserID = newReaction?.userID
 
-        let reactionMetadataPath = [
-            NetworkPath.conversations.rawValue,
-            conversation.id.key,
-            Conversation.SerializableKey.reactionMetadata.rawValue,
-        ].joined(separator: "/")
-
-        // Atomically read-modify-write the reactionMetadata node.
+        // Atomically read-modify-write the reactionMetadata
+        // node; didWrite commits the hash and participant
+        // token fan-out and upserts to the session store.
 
         let updatedConversation: Conversation
         do throws(Exception) {
-            let database = LockIsolated(networking.database).wrappedValue
-            let committedUpdates = try await database.runTransaction(
-                at: reactionMetadataPath
-            ) { currentValue in
-                typealias ReactionKey = Reaction.SerializableKey
-                typealias ReactionMetadataKey = ReactionMetadata.SerializableKey
+            updatedConversation = try await conversation.update(
+                \.reactionMetadata,
+                applyingRaw: { currentValue in
+                    typealias ReactionKey = Reaction.SerializableKey
+                    typealias ReactionMetadataKey = ReactionMetadata.SerializableKey
 
-                var metadata = (currentValue as? [[String: Any]]) ?? []
+                    var metadata = (currentValue as? [[String: Any]]) ?? []
 
-                // Strip sentinel entries.
-                metadata = metadata.filter {
-                    ($0[ReactionMetadataKey.messageID.rawValue] as? String) != String.bangQualifiedEmpty
-                }
+                    // Strip sentinel entries.
+                    metadata = metadata.filter {
+                        ($0[ReactionMetadataKey.messageID.rawValue] as? String) != String.bangQualifiedEmpty
+                    }
 
-                // Remove current user's reactions to this message.
-                metadata = metadata.compactMap { entry -> [String: Any]? in
-                    guard (entry[
-                        ReactionMetadataKey.messageID.rawValue
-                    ] as? String) == messageID else { return entry }
+                    // Remove current user's reactions to this message.
+                    metadata = metadata.compactMap { entry -> [String: Any]? in
+                        guard (entry[
+                            ReactionMetadataKey.messageID.rawValue
+                        ] as? String) == messageID else { return entry }
 
-                    var reactions = (entry[
-                        ReactionMetadataKey.reactions.rawValue
-                    ] as? [[String: Any]]) ?? []
-
-                    reactions.removeAll { ($0[
-                        ReactionKey.userID.rawValue
-                    ] as? String) == currentUserID }
-
-                    guard !reactions.isEmpty else { return nil }
-
-                    var updated = entry
-                    updated[ReactionMetadataKey.reactions.rawValue] = reactions
-                    return updated
-                }
-
-                // Add new reaction if provided.
-                if let encodedReactionStyle,
-                   let reactionUserID {
-                    let reactionStyle = Reaction.Style(
-                        encodedValue: encodedReactionStyle
-                    ) ?? .love
-
-                    let reaction = Reaction(
-                        reactionStyle,
-                        userID: reactionUserID
-                    )
-
-                    if let index = metadata.firstIndex(where: {
-                        ($0[ReactionMetadataKey.messageID.rawValue] as? String) == messageID
-                    }) {
-                        var reactions = (metadata[index][
+                        var reactions = (entry[
                             ReactionMetadataKey.reactions.rawValue
                         ] as? [[String: Any]]) ?? []
 
-                        reactions.append(reaction.encoded)
-                        metadata[index][
-                            ReactionMetadataKey.reactions.rawValue
-                        ] = reactions
-                    } else {
-                        metadata.append(
-                            ReactionMetadata(
-                                messageID: messageID,
-                                reactions: [reaction]
-                            ).encoded
-                        )
+                        reactions.removeAll { ($0[
+                            ReactionKey.userID.rawValue
+                        ] as? String) == currentUserID }
+
+                        guard !reactions.isEmpty else { return nil }
+
+                        var updated = entry
+                        updated[ReactionMetadataKey.reactions.rawValue] = reactions
+                        return updated
                     }
+
+                    // Add new reaction if provided.
+                    if let encodedReactionStyle,
+                       let reactionUserID {
+                        let reactionStyle = Reaction.Style(
+                            encodedValue: encodedReactionStyle
+                        ) ?? .love
+
+                        let reaction = Reaction(
+                            reactionStyle,
+                            userID: reactionUserID
+                        )
+
+                        if let index = metadata.firstIndex(where: {
+                            ($0[ReactionMetadataKey.messageID.rawValue] as? String) == messageID
+                        }) {
+                            var reactions = (metadata[index][
+                                ReactionMetadataKey.reactions.rawValue
+                            ] as? [[String: Any]]) ?? []
+
+                            reactions.append(reaction.encoded)
+                            metadata[index][
+                                ReactionMetadataKey.reactions.rawValue
+                            ] = reactions
+                        } else {
+                            metadata.append(
+                                ReactionMetadata(
+                                    messageID: messageID,
+                                    reactions: [reaction]
+                                ).encoded
+                            )
+                        }
+                    }
+
+                    // Return empty sentinel if no reactions remain.
+                    guard !metadata.isEmpty else { return [ReactionMetadata.empty.encoded] }
+                    return metadata
                 }
-
-                // Return empty sentinel if no reactions remain.
-                guard !metadata.isEmpty else { return [ReactionMetadata.empty.encoded] }
-                return metadata
-            }
-
-            // Decode committed value.
-
-            guard let encodedMetadata = committedUpdates as? [[String: Any]] else {
-                throw Exception(
-                    "Failed to decode committed reaction metadata.",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            let reactionMetadata = try await encodedMetadata.parallelMap(
-                failForEmptyCollection: true
-            ) { @Sendable in
-                try await ReactionMetadata(from: $0)
-            }
-
-            // Build updated conversation.
-
-            guard let modified = conversation.modifyKey(
-                .reactionMetadata,
-                withValue: reactionMetadata
-            ) else {
-                throw Exception(
-                    "Failed to build updated conversation.",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            updatedConversation = modified
-
-            // Commit hash and participant updates.
-
-            let conversationPath = [
-                NetworkPath.conversations.rawValue,
-                updatedConversation.id.key,
-            ].joined(separator: "/")
-
-            var updates = [String: Any]()
-
-            updates[
-                "\(conversationPath)/\(Conversation.SerializableKey.encodedHash.rawValue)"
-            ] = updatedConversation.id.hash
-
-            for participant in updatedConversation.participants {
-                updates[
-                    [
-                        NetworkPath.users.rawValue,
-                        participant.userID,
-                        User.SerializableKey.conversationIDs.rawValue,
-                        updatedConversation.id.key,
-                    ].joined(separator: "/")
-                ] = updatedConversation.id.hash
-            }
-
-            SelfWriteRegistry.record(updatedConversation.id)
-            try await database.commit(updates)
-            clientSession.store.upsertConversation(updatedConversation)
+            )
         } catch {
             isReactingToMessage = false
             throw error
@@ -416,5 +353,3 @@ final class ReactionSessionService {
             .updateDurationLabelIfNeeded(forMessage: messageData.message)
     }
 }
-
-// swiftlint:enable file_length type_body_length

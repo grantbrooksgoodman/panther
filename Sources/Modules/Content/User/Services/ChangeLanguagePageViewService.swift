@@ -19,7 +19,6 @@ struct ChangeLanguagePageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.networking.database) private var database: DatabaseDelegate
     @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
     // MARK: - Reducer Action Handlers
@@ -67,10 +66,9 @@ struct ChangeLanguagePageViewService {
     private func changeLanguage(
         to languageCode: String
     ) async throws(Exception) {
-        guard let currentUserID = User.currentUserID,
-              let currentUser = userSession.currentUser else {
+        guard let currentUser = userSession.currentUser else {
             throw Exception(
-                "Failed to resolve required values.",
+                "Current user has not been set.",
                 metadata: .init(sender: self)
             )
         }
@@ -129,24 +127,19 @@ struct ChangeLanguagePageViewService {
         loadedData.wrappedValue = true
         timeout.cancel()
 
-        let languageCodePath = [
-            NetworkPath.users.rawValue,
-            currentUserID,
-            User.SerializableKey.languageCode.rawValue,
-        ].joined(separator: "/")
-
-        let previousLanguageCodesPath = [
-            NetworkPath.users.rawValue,
-            currentUserID,
-            User.SerializableKey.previousLanguageCodes.rawValue,
-        ].joined(separator: "/")
-
-        try await database.commit([
-            languageCodePath: languageCode,
-            previousLanguageCodesPath: newPreviousLanguageCodes.isEmpty
-                ? Array.bangQualifiedEmpty
-                : newPreviousLanguageCodes,
-        ])
+        // Both fields land in a single atomic write on the user node.
+        _ = try await currentUser.update {
+            Assign(
+                \.languageCode,
+                to: languageCode
+            )
+            Assign(
+                \.previousLanguageCodes,
+                to: newPreviousLanguageCodes.isEmpty
+                    ? Array.bangQualifiedEmpty
+                    : newPreviousLanguageCodes
+            )
+        }
 
         await MainActor.run {
             Application.reset(

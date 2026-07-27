@@ -120,27 +120,55 @@ final class MessageRecipientConsentService {
         forUser user: User,
         inConversation conversation: Conversation
     ) async throws(Exception) {
-        let newUserAcknowledgementData: MessageRecipientConsentAcknowledgementData = .init(
-            userID: user.id,
-            consentAcknowledged: true
-        )
+        let participantUserIDs = conversation.participants.map(\.userID)
+        let userID = user.id
 
-        let currentAcknowledgementData = conversation.metadata.messageRecipientConsentAcknowledgementData
-        var newAcknowledgementData = currentAcknowledgementData.filter { $0.userID != user.id }
-        newAcknowledgementData.append(newUserAcknowledgementData)
-
-        let emptyAcknowledgementData = MessageRecipientConsentAcknowledgementData.empty(userIDs: conversation.participants.map(\.userID))
-        if let initatorUserID = conversation.metadata.requiresConsentFromInitiator,
-           newAcknowledgementData.filter({ $0.userID != initatorUserID }).allSatisfy(\.consentAcknowledged) {
-            newAcknowledgementData = emptyAcknowledgementData
-        }
-
+        // Atomically read-modify-write the acknowledgement
+        // data so concurrent acknowledgements from other
+        // participants are never overwritten.
         _ = try await conversation.update(
             \.metadata,
-            to: conversation.metadata.copyWith(
-                messageRecipientConsentAcknowledgementData: newAcknowledgementData,
-                nilRequiresConsentFromInitiator: newAcknowledgementData == emptyAcknowledgementData
-            )
+            applyingRaw: { currentValue in
+                typealias MetadataKey = ConversationMetadata.SerializableKey
+
+                guard var metadata = currentValue as? [String: Any],
+                      let encodedAcknowledgementData = metadata[
+                          MetadataKey.messageRecipientConsentAcknowledgementData.rawValue
+                      ] as? [String] else { return currentValue }
+
+                // Parse "<userID>: <acknowledged>" entries.
+                var acknowledgementsByUserID = [String: Bool]()
+                for entry in encodedAcknowledgementData {
+                    let components = entry.components(separatedBy: ": ")
+                    guard components.count == 2 else { continue }
+                    acknowledgementsByUserID[components[0]] = components[1] != false.description
+                }
+
+                acknowledgementsByUserID[userID] = true
+
+                // Once all non-initiator participants have
+                // acknowledged, consent is fully granted and
+                // the requirement resets in the same
+                // transaction.
+                if let initiatorUserID = metadata[
+                    MetadataKey.requiresConsentFromInitiator.rawValue
+                ] as? String,
+                    !initiatorUserID.isBangQualifiedEmpty,
+                    acknowledgementsByUserID
+                    .filter({ $0.key != initiatorUserID })
+                    .allSatisfy(\.value) {
+                    metadata[MetadataKey.requiresConsentFromInitiator.rawValue] = String.bangQualifiedEmpty
+                    acknowledgementsByUserID = participantUserIDs.reduce(
+                        into: [String: Bool]()
+                    ) { $0[$1] = true }
+                }
+
+                metadata[MetadataKey.messageRecipientConsentAcknowledgementData.rawValue] = acknowledgementsByUserID
+                    .map { "\($0.key): \($0.value ? String.bangQualifiedEmpty : false.description)" }
+                    .sorted()
+
+                return metadata
+            }
         )
     }
 

@@ -61,6 +61,7 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
             let activityIndicatorWindow = PassthroughWindow(windowScene: windowScene)
 
             activityIndicatorWindow.backgroundColor = .clear
+            activityIndicatorWindow.keyRestorationWindow = window
             activityIndicatorWindow.windowLevel = .statusBar + 1
 
             let hostingController = UIHostingController(
@@ -156,6 +157,21 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
 }
 
 private final class PassthroughWindow: UIWindow {
+    // MARK: - Properties
+
+    /// The window that reclaims key status whenever this window
+    /// becomes key.
+    weak var keyRestorationWindow: UIWindow?
+
+    // MARK: - UIWindow
+
+    override func becomeKey() {
+        super.becomeKey()
+        Task { @MainActor [weak self] in
+            self?.keyRestorationWindow?.makeKey()
+        }
+    }
+
     override func hitTest(
         _ point: CGPoint,
         with event: UIEvent?
@@ -187,5 +203,10 @@ private final class PassthroughWindow: UIWindow {
         guard let hitView = super.hitTest(point, with: event),
               _hitTest(point, from: hitView) != rootViewController?.view else { return nil }
         return hitView
+    }
+
+    override func makeKey() {
+        // This window must never become key; AppSubsystem resolves
+        // the main window by key status.
     }
 }

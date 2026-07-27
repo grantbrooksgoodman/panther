@@ -52,7 +52,7 @@ struct ChatInfoPageReducer: Reducer {
         case mediaItemViewTapped(MediaItemView.Metadata)
 
         case penPalParticipantViewTapped(ChatParticipant) // swiftlint:disable:next identifier_name
-        case penPalsSharingDataConfirmationActionSheetDismissed(ConversationMetadata?)
+        case penPalsSharingDataConfirmationActionSheetDismissed(String?)
         case penPalsSharingDataSwitchToggledOn
         case photoPickerDismissed(Exception?)
 
@@ -352,14 +352,13 @@ struct ChatInfoPageReducer: Reducer {
                 startingIndex: state.mediaItemMetadata.map(\.file).firstIndex(of: metadata.file) ?? 0
             )
 
-        case let .penPalsSharingDataConfirmationActionSheetDismissed(newMetadata):
+        case let .penPalsSharingDataConfirmationActionSheetDismissed(userID):
             guard let conversation = state.conversation,
-                  let newMetadata else { return .none }
+                  let userID else { return .none }
             return .task {
                 do throws(Exception) {
-                    _ = try await conversation.update(
-                        \.metadata,
-                        to: newMetadata
+                    _ = try await conversation.updatePenPalsSharingData(
+                        sharingWith: [userID]
                     )
 
                     return .updateMetadataReturned(

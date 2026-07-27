@@ -8,16 +8,16 @@
 
 /* Native */
 import Foundation
-import UIKit
 
 /* Proprietary */
+import AlertKit
 import AppSubsystem
 import Networking
 
 final class AccountDeletionService: @unchecked Sendable {
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.networking) private var networking: NetworkServices
 
@@ -25,8 +25,11 @@ final class AccountDeletionService: @unchecked Sendable {
 
     @LockIsolated private var completedUnits: Double = 0
     @LockIsolated private var completionPercent: Double = 0 {
-        didSet { updateHUDLabel() }
+        didSet { updateProgressAlert() }
     }
+
+    @MainActor
+    private var progressAlert: AKProgressAlert?
 
     // MARK: - Delete Account
 
@@ -42,18 +45,33 @@ final class AccountDeletionService: @unchecked Sendable {
         }
 
         entitySession.user.stopObservingCurrentUserChanges()
-        defer { core.hud.hide() }
+        let progressAlert = await MainActor.run {
+            let progressAlert = AKProgressAlert(
+                title: Localized(.deletingData).wrappedValue,
+                message: Localized(.pleaseWait).wrappedValue
+            )
+
+            self.progressAlert = progressAlert
+            return progressAlert
+        }
+
+        defer {
+            Task { @MainActor in
+                self.progressAlert = nil
+                progressAlert.dismiss()
+            }
+        }
+
         await MainActor.run {
-            core.ui.addOverlay(
+            coreUI.addOverlay(
                 alpha: 0.5,
                 activityIndicator: nil,
                 isModal: false
             )
         }
 
-        core.hud.showProgress(
-            text: Localized(.deletingData).wrappedValue,
-            isModal: true
+        await progressAlert.present(
+            translating: []
         )
 
         // Add to deleted users + synchronize conversations.
@@ -217,22 +235,9 @@ final class AccountDeletionService: @unchecked Sendable {
         }
     }
 
-    private func updateHUDLabel() {
+    private func updateProgressAlert() {
         Task { @MainActor in
-            @Dependency(\.uiApplication.presentedViews) var presentedViews: [UIView]
-            let statusString = Localized(.deletingData).wrappedValue
-            let progressLabel = presentedViews
-                .compactMap { $0 as? UILabel }
-                .first(where: {
-                    $0.text?.contains(statusString) == true
-                })
-
-            let roundedValue = completionPercent.roundedString
-            guard let integer = Int(roundedValue),
-                  integer < 100 else { return progressLabel?.text = Localized(.finishingUp).wrappedValue }
-
-            progressLabel?.text = "\(statusString) (\(roundedValue)%)"
-            progressLabel?.adjustsFontSizeToFitWidth = true
+            progressAlert?.updateProgress(completionPercent)
         }
     }
 }

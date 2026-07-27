@@ -260,11 +260,11 @@ struct MessageRetranslationService {
         messageID: String
     ) async throws(Exception) {
         conversation.markStaleLocally()
-        _ = try await conversation.update(
-            \.metadata,
-            to: conversation.metadata.copyWith(lastModifiedDate: .now)
-        )
 
+        // A narrow child write bumps the date without
+        // overwriting sibling metadata from a stale
+        // snapshot.
+        try await conversation.updateLastModifiedDate()
         try await conversationsPageViewService.reloadData()
     }
 }

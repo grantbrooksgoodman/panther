@@ -87,7 +87,6 @@ struct SplashPageReducer: Reducer {
 
             if let exception {
                 defer { Logger.log(exception) }
-
                 guard state.didAttemptAutomaticErrorRecovery else {
                     Logger.log(
                         "Attempting automatic error recovery.",
@@ -132,15 +131,15 @@ struct SplashPageReducer: Reducer {
 
     // MARK: - Auxiliary
 
-    // TODO: Audit the code style here. Likely can be cleaned up.
     private static func initializeBundleTask(
         fromRetry: Bool = false
     ) -> Effect<Action> {
-        .task {
-            await withTaskGroup(of: Action.self) { taskGroup in
+        .run { send in
+            let viewService = Dependency(\.splashPageViewService).wrappedValue
+            return await withTaskGroup(
+                of: Action?.self
+            ) { taskGroup in
                 taskGroup.addTask {
-                    @Dependency(\.splashPageViewService) var viewService: SplashPageViewService
-
                     do throws(Exception) {
                         try await viewService.initializeBundle(fromRetry: fromRetry)
                         return .initializedBundle(nil)
@@ -150,31 +149,28 @@ struct SplashPageReducer: Reducer {
                 }
 
                 taskGroup.addTask {
-                    @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
-                    @Dependency(\.splashPageViewService) var viewService: SplashPageViewService
-
-                    guard await viewService.resolveCachedUserIfPoorNetwork() else {
-                        // Network is healthy; yield to initializeBundle.
-                        while !Task.isCancelled {
-                            try? await Task.sleep(for: .seconds(60))
-                        }
-
-                        return .initializedBundle(nil)
-                    }
+                    // Yields to initializeBundle when it settles first.
+                    guard await viewService.resolveCachedUserIfPoorNetwork() else { return nil }
 
                     Logger.log(
-                        "Loading from cached user due to poor network health.",
-                        with: .toastInPrerelease(style: .warning),
+                        "Loading from cached user; network is poor or initialization stalled.",
+                        with: .toastInPrerelease(
+                            style: .warning,
+                            isPersistent: false
+                        ),
                         sender: self
                     )
 
                     return .initializedBundle(nil)
                 }
 
-                // First task to finish wins.
-                let taskGroupResult = await taskGroup.next()!
-                taskGroup.cancelAll()
-                return taskGroupResult
+                // First task to produce an action wins.
+                for await action in taskGroup {
+                    guard let action else { continue }
+                    taskGroup.cancelAll()
+                    await send(action)
+                    break
+                }
             }
         }
     }

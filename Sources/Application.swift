@@ -117,6 +117,11 @@ enum Application {
 
         Networking.initialize()
         Networking.config.registerActivityIndicatorDelegate(NetworkActivityIndicatorService())
+        Networking.config.setNetworkHealthConfiguration(
+            .init(
+                probeConfiguration: Networking.probeConfiguration
+            )
+        )
 
         @Dependency(\.networking) var networking: NetworkServices
         networking.database.prewarm()
@@ -158,4 +163,11 @@ enum Application {
         // FIXME: Remove prior to 5.1.0 release.
         guard Networking.config.environment != .production else { exit(0) }
     }
+}
+
+private extension Networking {
+    static let probeConfiguration: NetworkHealthProbeConfiguration? = {
+        guard let url = URL(string: "https://www.apple.com") else { return nil }
+        return NetworkHealthProbeConfiguration(url: url)
+    }()
 }

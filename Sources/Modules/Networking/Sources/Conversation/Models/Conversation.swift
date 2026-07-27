@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 
@@ -236,6 +238,131 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         sessionStore.upsertUsers(Set(fetchedUsers))
     }
 
+    // MARK: - Update Last Modified Date
+
+    /// Writes a new last-modified date for the conversation
+    /// using narrow child paths, leaving sibling metadata
+    /// untouched.
+    ///
+    /// The date, conversation hash, and participant token
+    /// entries are committed in a single atomic fan-out.
+    func updateLastModifiedDate(
+        to date: Date = .now
+    ) async throws(Exception) {
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
+
+        let conversationPath = [
+            NetworkPath.conversations.rawValue,
+            id.key,
+        ].joined(separator: "/")
+
+        let newHash = copying(
+            metadata: metadata.copyWith(lastModifiedDate: date)
+        ).encodedHash
+
+        var updates: [String: Any] = [
+            [
+                conversationPath,
+                SerializableKey.metadata.rawValue,
+                ConversationMetadata.SerializableKey.lastModifiedDate.rawValue,
+            ].joined(separator: "/"): dateFormatter.string(from: date),
+            "\(conversationPath)/\(SerializableKey.encodedHash.rawValue)": newHash,
+        ]
+
+        for participant in participants {
+            updates[
+                [
+                    NetworkPath.users.rawValue,
+                    participant.userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                    id.key,
+                ].joined(separator: "/")
+            ] = newHash
+        }
+
+        try await database.commit(updates)
+    }
+
+    // MARK: - Update PenPals Sharing Data
+
+    /// Atomically merges the given user IDs into the current
+    /// user's PenPals sharing data for this conversation.
+    ///
+    /// The merge runs inside a database transaction against
+    /// the metadata node, so concurrent sharing updates from
+    /// other participants are never overwritten. When the
+    /// merge results in every participant sharing with every
+    /// other, the conversation is converted to a standard
+    /// conversation in the same transaction.
+    func updatePenPalsSharingData(
+        sharingWith userIDs: [String]
+    ) async throws(Exception) -> Conversation {
+        guard let currentUserID = User.currentUserID else {
+            throw Exception(
+                "Current user ID has not been set.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        let participantUserIDs = participants.map(\.userID)
+        return try await update(
+            \.metadata,
+            applyingRaw: { currentValue in
+                typealias MetadataKey = ConversationMetadata.SerializableKey
+
+                guard var metadata = currentValue as? [String: Any],
+                      let encodedSharingData = metadata[
+                          MetadataKey.penPalsSharingData.rawValue
+                      ] as? [String] else { return currentValue }
+
+                // Parse "<userID>: <id1>, <id2>" entries.
+                var sharesByUserID = [String: Set<String>]()
+                for entry in encodedSharingData {
+                    let components = entry.components(separatedBy: ": ")
+                    guard components.count == 2 else { continue }
+                    sharesByUserID[components[0]] = Set(
+                        components[1]
+                            .components(separatedBy: ", ")
+                            .filter { !$0.isBangQualifiedEmpty }
+                    )
+                }
+
+                for participantUserID in participantUserIDs where sharesByUserID[participantUserID] == nil {
+                    sharesByUserID[participantUserID] = []
+                }
+
+                sharesByUserID[currentUserID, default: []].formUnion(userIDs)
+
+                // All participants sharing with each other
+                // converts this to a standard conversation.
+                let entryUserIDs = Set(sharesByUserID.keys)
+                let allShareWithEachOther = sharesByUserID.allSatisfy { userID, sharedUserIDs in
+                    sharedUserIDs == entryUserIDs.subtracting([userID])
+                }
+
+                if allShareWithEachOther {
+                    metadata[MetadataKey.isPenPalsConversation.rawValue] = false
+                    sharesByUserID = participantUserIDs.reduce(
+                        into: [String: Set<String>]()
+                    ) { $0[$1] = [] }
+                }
+
+                metadata[MetadataKey.penPalsSharingData.rawValue] = sharesByUserID
+                    .map { userID, sharedUserIDs in
+                        let encodedSharedUserIDs = sharedUserIDs.isEmpty
+                            ? String.bangQualifiedEmpty
+                            : sharedUserIDs.sorted().joined(separator: ", ")
+
+                        return "\(userID): \(encodedSharedUserIDs)"
+                    }
+                    .sorted()
+
+                return metadata
+            }
+        )
+    }
+
     // MARK: - Update Read Date
 
     func updateReadDate(
@@ -366,3 +493,5 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         hasher.combine(id.hash)
     }
 }
+
+// swiftlint:enable file_length type_body_length

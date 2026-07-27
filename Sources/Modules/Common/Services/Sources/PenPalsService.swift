@@ -78,9 +78,9 @@ struct PenPalsService {
                       .filter { $0 != currentUser.id }
                       .contains(where: { isKnownToCurrentUser($0) }) }) else { return }
 
-        let conversationsAndNewMetadata: [(
+        let conversationsAndKnownUserIDs: [(
             Conversation,
-            ConversationMetadata
+            [String]
         )] = penPalsConversationsWithKnownUsers
             .compactMap { penPalsConversation in
                 guard let currentUserPenPalsSharingData = penPalsConversation.currentUserPenPalsSharingData else { return nil }
@@ -92,30 +92,19 @@ struct PenPalsService {
                         if isKnownToCurrentUser(userID) { partialResult.append(userID) }
                     }
 
-                let newCurrentUserSharesDataWithUserIDs = ((currentUserPenPalsSharingData.sharesDataWithUserIDs ?? []) + knownToCurrentUser).unique
-                var newPenPalsSharingData = penPalsConversation.metadata.penPalsSharingData.filter { $0.userID != currentUser.id }
-                newPenPalsSharingData.append(
-                    .init(
-                        userID: currentUser.id,
-                        sharesDataWithUserIDs: newCurrentUserSharesDataWithUserIDs.isEmpty ? nil : newCurrentUserSharesDataWithUserIDs
-                    )
+                let currentUserSharesDataWithUserIDs = currentUserPenPalsSharingData.sharesDataWithUserIDs ?? []
+                guard !knownToCurrentUser.allSatisfy({
+                    currentUserSharesDataWithUserIDs.contains($0)
+                }) else { return nil }
+                return (
+                    penPalsConversation,
+                    knownToCurrentUser
                 )
-
-                let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? penPalsConversation.metadata.copyWith(
-                    isPenPalsConversation: false,
-                    penPalsSharingData: PenPalsSharingData.empty(userIDs: penPalsConversation.participants.map(\.userID))
-                ) : penPalsConversation.metadata.copyWith(
-                    penPalsSharingData: newPenPalsSharingData
-                )
-
-                guard penPalsConversation.metadata != newMetadata else { return nil }
-                return (penPalsConversation, newMetadata)
             }
 
-        try await conversationsAndNewMetadata.forEachConcurrently { conversation, newMetadata throws(Exception) in
-            _ = try await conversation.update(
-                \.metadata,
-                to: newMetadata
+        try await conversationsAndKnownUserIDs.forEachConcurrently { conversation, knownUserIDs throws(Exception) in
+            _ = try await conversation.updatePenPalsSharingData(
+                sharingWith: knownUserIDs
             )
 
             Logger.log(

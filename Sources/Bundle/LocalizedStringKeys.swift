@@ -82,6 +82,7 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case originalInLanguage
 
     case people
+    case pleaseWait
 
     case reacted
     case reactionDetails
