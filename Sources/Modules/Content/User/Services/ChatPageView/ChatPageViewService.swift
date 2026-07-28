@@ -57,8 +57,8 @@ final class ChatPageViewService {
     private(set) var typingIndicator: TypingIndicatorService?
 
     private var configuration: ChatPageView.Configuration = .default
-    private var outboxChangeHandlerID: UUID?
-    private var sessionStoreChangeHandlerID: UUID?
+    private var outboxChangeTask: Task<Void, Never>?
+    private var sessionStoreChangeTask: Task<Void, Never>?
     private var viewController: ChatPageViewController?
 
     // MARK: - Computed Properties
@@ -177,20 +177,28 @@ final class ChatPageViewService {
             )
         }
 
-        if sessionStoreChangeHandlerID == nil {
-            sessionStoreChangeHandlerID = SessionStore.addChangeHandler(
-                for: [
-                    .conversations,
-                    .messages,
-                ]
-            ) { [weak self] in
-                self?.handleSessionStoreChange($0)
+        // NIT: Does ordering of these change handler registrations matter?
+
+        if sessionStoreChangeTask == nil {
+            let sessionStoreChanges = Observables.sessionStoreDidChange.values(
+                bufferingPolicy: .unbounded
+            )
+
+            sessionStoreChangeTask = Task { [weak self] in
+                for await change in sessionStoreChanges {
+                    guard let change,
+                          [.conversations, .messages].contains(change.kind) else { continue }
+                    self?.handleSessionStoreChange(change)
+                }
             }
         }
 
-        if outboxChangeHandlerID == nil {
-            outboxChangeHandlerID = MessageOutboxService.addChangeHandler { [weak self] _ in
-                self?.handleOutboxChange()
+        if outboxChangeTask == nil {
+            let outboxChanges = Observables.messageOutboxDidChange.values
+            outboxChangeTask = Task { [weak self] in
+                for await _ in outboxChanges {
+                    self?.handleOutboxChange()
+                }
             }
         }
 
@@ -258,15 +266,11 @@ final class ChatPageViewService {
         chatPageState.setIsPresented(false)
         clientSession.sync.conversationObserver.stopObserving()
 
-        if let outboxChangeHandlerID {
-            MessageOutboxService.removeChangeHandler(outboxChangeHandlerID)
-            self.outboxChangeHandlerID = nil
-        }
+        outboxChangeTask?.cancel()
+        outboxChangeTask = nil
 
-        if let sessionStoreChangeHandlerID {
-            SessionStore.removeChangeHandler(sessionStoreChangeHandlerID)
-            self.sessionStoreChangeHandlerID = nil
-        }
+        sessionStoreChangeTask?.cancel()
+        sessionStoreChangeTask = nil
 
         contextMenu?.interaction.removeKeyboardWillShowObserver()
 

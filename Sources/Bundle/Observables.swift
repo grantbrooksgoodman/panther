@@ -42,6 +42,7 @@ extension Observables {
     static let didGrantPenPalsPermission = Observable<Bool>(false)
     static let firstMessageSentInNewChat = Observable<Nil>()
     static let isNewChatPageDoneToolbarButtonEnabled = Observable<Bool>(true)
+    static let messageOutboxDidChange = Observable<Nil>()
     static let networkActivityOccurred = Observable<Nil>()
     static let newChatPagePenPalsToolbarButtonAnimation = Observable<Nil>()
     static let sessionStoreDidChange = Observable<SessionStoreChange?>(nil)

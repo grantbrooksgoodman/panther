@@ -33,8 +33,8 @@ final class TypingIndicatorService: @unchecked Sendable {
 
     private let viewController: ChatPageViewController
 
-    private var changeHandlerID: UUID?
     private var isUpdatingIsTypingForCurrentUser = false
+    private var sessionStoreChangeTask: Task<Void, Never>?
 
     // MARK: - Computed Properties
 
@@ -69,20 +69,24 @@ final class TypingIndicatorService: @unchecked Sendable {
             checkForTypingIndicatorChanges()
         }
 
-        changeHandlerID = SessionStore.addChangeHandler(
-            for: [.conversations]
-        ) { [weak self] change in
-            guard let self else { return }
-            Task.delayed(by: .seconds(1)) { @MainActor in
-                handleStoreChange(change)
+        let sessionStoreChanges = Observables.sessionStoreDidChange.values(
+            bufferingPolicy: .unbounded
+        )
+
+        sessionStoreChangeTask = Task { [weak self] in
+            for await change in sessionStoreChanges {
+                guard let change,
+                      change.kind == .conversations else { continue }
+                Task.delayed(by: .seconds(1)) { @MainActor [weak self] in
+                    self?.handleStoreChange(change)
+                }
             }
         }
     }
 
     deinit {
-        if let changeHandlerID {
-            SessionStore.removeChangeHandler(changeHandlerID)
-        }
+        sessionStoreChangeTask?.cancel()
+        sessionStoreChangeTask = nil
     }
 
     // MARK: - Reset Typing Indicator Status for Current User

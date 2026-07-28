@@ -25,9 +25,9 @@ final class UICacheInvalidationService {
 
     fileprivate static let shared = UICacheInvalidationService()
 
-    private var changeHandlerID: UUID?
     private var pendingConversationIDKeys = Set<String>()
     private var pendingUserIDs = Set<String>()
+    private var sessionStoreChangeTask: Task<Void, Never>?
 
     // MARK: - Init
 
@@ -40,9 +40,16 @@ final class UICacheInvalidationService {
     }
 
     func startObserving() {
-        guard changeHandlerID == nil else { return }
-        changeHandlerID = SessionStore.addChangeHandler { [weak self] in
-            self?.handleChange($0)
+        guard sessionStoreChangeTask == nil else { return }
+        let sessionStoreChanges = Observables.sessionStoreDidChange.values(
+            bufferingPolicy: .unbounded
+        )
+
+        sessionStoreChangeTask = Task { [weak self] in
+            for await change in sessionStoreChanges {
+                guard let change else { continue }
+                self?.handleChange(change)
+            }
         }
     }
 }

@@ -26,6 +26,7 @@ struct ConversationCellViewData: Equatable {
     )
 
     let dateLabelText: String
+    let isAwaitingMessageHydration: Bool
     let isShowingUnreadIndicator: Bool
     let otherUser: User?
     let subtitleLabelText: String
@@ -40,7 +41,8 @@ struct ConversationCellViewData: Equatable {
         dateLabelText: String,
         isShowingUnreadIndicator: Bool,
         otherUser: User?,
-        thumbnailImage: UIImage?
+        thumbnailImage: UIImage?,
+        isAwaitingMessageHydration: Bool = false
     ) {
         self.titleLabelText = titleLabelText
         self.subtitleLabelText = subtitleLabelText
@@ -48,6 +50,7 @@ struct ConversationCellViewData: Equatable {
         self.isShowingUnreadIndicator = isShowingUnreadIndicator
         self.otherUser = otherUser
         self.thumbnailImage = thumbnailImage
+        self.isAwaitingMessageHydration = isAwaitingMessageHydration
     }
 
     init(user: User) {
@@ -57,6 +60,7 @@ struct ConversationCellViewData: Equatable {
         isShowingUnreadIndicator = ConversationCellViewData.empty.isShowingUnreadIndicator
         otherUser = user
         thumbnailImage = ConversationCellViewData.empty.thumbnailImage
+        isAwaitingMessageHydration = ConversationCellViewData.empty.isAwaitingMessageHydration
     }
 
     @MainActor // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -66,6 +70,7 @@ struct ConversationCellViewData: Equatable {
         useCachedValue: Bool = true
     ) {
         @Dependency(\.currentCalendar) var calendar: Calendar
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
         @Dependency(\.stagingModeDateFormatter) var stagingModeDateFormatter: DateFormatter
 
         let cacheQuery = (searchQuery == nil || searchQuery?.isBlank == true) ? String.bangQualifiedEmpty : searchQuery!
@@ -133,7 +138,15 @@ struct ConversationCellViewData: Equatable {
 
         let messages = conversation
             .withMessagesOffsetFromCurrentUserAdditionDate
-            .messages
+            .messages?
+            .filteringSystemMessages
+
+        // Distinguishes "no messages exist" from "messages not yet
+        // hydrated into the session store".
+        let hasUnresolvedMessages = conversation
+            .messageIDs
+            .filter { $0.hasPrefix("-") }
+            .contains { sessionStore.messages[$0] == nil }
 
         var lastMessage = messages?.last
         if let searchQuery,
@@ -172,12 +185,16 @@ struct ConversationCellViewData: Equatable {
 
                 subtitleLabelText = resolvedText
             }
-        } else if let activity = conversation.activities?.last {
-            dateLabelText = activity.date.formattedShortString
-            subtitleLabelText = activity.description.sanitized
-        } else {
-            dateLabelText = Date(timeIntervalSince1970: 0).formattedShortString
-            subtitleLabelText = Localized(.cannotDisplayMessage).wrappedValue
+        } else if !hasUnresolvedMessages {
+            // The fallbacks apply only to fully hydrated conversations;
+            // provisional builds keep placeholder values instead.
+            if let activity = conversation.activities?.last {
+                dateLabelText = activity.date.formattedShortString
+                subtitleLabelText = activity.description.sanitized
+            } else {
+                dateLabelText = Date(timeIntervalSince1970: 0).formattedShortString
+                subtitleLabelText = Localized(.cannotDisplayMessage).wrappedValue
+            }
         }
 
         // Set unread indicator status
@@ -194,8 +211,13 @@ struct ConversationCellViewData: Equatable {
             dateLabelText: dateLabelText,
             isShowingUnreadIndicator: isShowingUnreadIndicator,
             otherUser: otherUser,
-            thumbnailImage: thumbnailImage
+            thumbnailImage: thumbnailImage,
+            isAwaitingMessageHydration: hasUnresolvedMessages
         )
+
+        // Never cache provisional data; the next build must re-derive
+        // it from the hydrated conversation.
+        guard !hasUnresolvedMessages else { return }
 
         // swiftlint:disable:next identifier_name
         var cachedDataByConversationIDForSearchQueries = _ConversationCellViewDataCache.cachedDataByConversationIDForSearchQueries ?? [:]

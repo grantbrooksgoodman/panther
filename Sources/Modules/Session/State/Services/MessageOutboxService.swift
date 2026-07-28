@@ -13,17 +13,6 @@ import Foundation
 import AppSubsystem
 
 struct MessageOutboxService {
-    // MARK: - Types
-
-    struct OutboxChange: Equatable {
-        let removedIDs: Set<String>
-        let upsertedIDs: Set<String>
-    }
-
-    private struct ChangeRegistration {
-        let handler: @MainActor @Sendable (OutboxChange) -> Void
-    }
-
     // MARK: - Dependencies
 
     @Dependency(\.fileManager) private var fileManager: FileManager
@@ -31,8 +20,6 @@ struct MessageOutboxService {
     // MARK: - Properties
 
     static let shared = MessageOutboxService()
-
-    private static let changeHandlers = LockIsolated<[UUID: ChangeRegistration]>([:])
 
     let entries = LockIsolated<[String: OutboxEntry]>([:])
 
@@ -83,24 +70,6 @@ struct MessageOutboxService {
         garbageCollectPayloadFiles()
     }
 
-    // MARK: - Change Handler Methods
-
-    @discardableResult
-    static func addChangeHandler(
-        _ handler: @escaping @MainActor @Sendable (OutboxChange) -> Void
-    ) -> UUID {
-        let id = UUID()
-        changeHandlers.projectedValue.withValue {
-            $0[id] = .init(handler: handler)
-        }
-
-        return id
-    }
-
-    static func removeChangeHandler(_ id: UUID) {
-        changeHandlers.projectedValue.withValue { $0[id] = nil }
-    }
-
     // MARK: - Query Methods
 
     func entries(forConversationIDKey conversationIDKey: String) -> [OutboxEntry] {
@@ -149,10 +118,7 @@ struct MessageOutboxService {
                 sender: self
             )
 
-            emitChange(.init(
-                removedIDs: [],
-                upsertedIDs: [id]
-            ))
+            Observables.messageOutboxDidChange.trigger()
         }
 
         return claimedEntry
@@ -168,14 +134,12 @@ struct MessageOutboxService {
             sender: self
         )
 
-        emitChange(.init(
-            removedIDs: [],
-            upsertedIDs: [entry.id]
-        ))
+        Observables.messageOutboxDidChange.trigger()
     }
 
     func markFailed(id: String) {
         guard var entry = entries.wrappedValue[id] else { return }
+
         entry.state = .failed
         entries.projectedValue.withValue { $0[id] = entry }
         persistArchive()
@@ -186,14 +150,12 @@ struct MessageOutboxService {
             sender: self
         )
 
-        emitChange(.init(
-            removedIDs: [],
-            upsertedIDs: [id]
-        ))
+        Observables.messageOutboxDidChange.trigger()
     }
 
     func remove(id: String) {
         guard let entry = entries.wrappedValue[id] else { return }
+
         removePayloadFile(for: entry)
         entries.projectedValue.withValue { $0[id] = nil }
         persistArchive()
@@ -204,10 +166,7 @@ struct MessageOutboxService {
             sender: self
         )
 
-        emitChange(.init(
-            removedIDs: [id],
-            upsertedIDs: []
-        ))
+        Observables.messageOutboxDidChange.trigger()
     }
 
     func removeAll() {
@@ -228,10 +187,7 @@ struct MessageOutboxService {
             sender: self
         )
 
-        emitChange(.init(
-            removedIDs: removedIDs,
-            upsertedIDs: []
-        ))
+        Observables.messageOutboxDidChange.trigger()
     }
 
     // MARK: - Payload Directory Methods
@@ -263,21 +219,6 @@ struct MessageOutboxService {
     }
 
     // MARK: - Auxiliary
-
-    private func emitChange(_ change: OutboxChange) {
-        let matchingHandlers = Self.changeHandlers.wrappedValue.values
-        guard !matchingHandlers.isEmpty else {
-            return Logger.log(
-                "Skipping outbox change emission. Nobody is listening.",
-                domain: .messageOutbox,
-                sender: self
-            )
-        }
-
-        Task { @MainActor in
-            matchingHandlers.forEach { $0.handler(change) }
-        }
-    }
 
     private func garbageCollectPayloadFiles() {
         let directory = payloadDirectoryURL

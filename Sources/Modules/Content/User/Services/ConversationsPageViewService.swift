@@ -107,9 +107,7 @@ final class ConversationsPageViewService {
             return chatPageState.addEffectUponIsPresented(
                 changedTo: false,
                 id: .updateAppearance
-            ) {
-                Observables.traitCollectionChanged.trigger()
-            }
+            ) { Observables.traitCollectionChanged.trigger() }
         }
 
         guard navigation.state.userContent.sheet == nil else { return }

@@ -485,41 +485,6 @@ struct SessionStore {
     }
 }
 
-extension SessionStore {
-    // MARK: - Types
-
-    private struct ChangeRegistration {
-        let handler: @MainActor @Sendable (SessionStoreChange) -> Void
-        let kinds: Set<SessionStoreChange.Kind>
-    }
-
-    // MARK: - Properties
-
-    private static let changeHandlers = LockIsolated<[UUID: ChangeRegistration]>([:])
-
-    // MARK: - Methods
-
-    @discardableResult
-    static func addChangeHandler(
-        for kinds: Set<SessionStoreChange.Kind> = Set(SessionStoreChange.Kind.allCases),
-        _ handler: @escaping @MainActor @Sendable (SessionStoreChange) -> Void
-    ) -> UUID {
-        let id = UUID()
-        changeHandlers.projectedValue.withValue {
-            $0[id] = .init(
-                handler: handler,
-                kinds: kinds
-            )
-        }
-
-        return id
-    }
-
-    static func removeChangeHandler(_ id: UUID) {
-        changeHandlers.projectedValue.withValue { $0[id] = nil }
-    }
-}
-
 private extension Conversation {
     func isTypingStatusEqual(to conversation: Conversation) -> Bool {
         Set(participants.map(\.isTyping)) ==
@@ -577,21 +542,6 @@ private extension SessionStore {
 
     private func emitChange(_ change: SessionStoreChange) {
         Observables.sessionStoreDidChange.value = change
-        let matchingHandlers = Self.changeHandlers.wrappedValue.values.filter {
-            $0.kinds.contains(change.kind)
-        }
-
-        guard !matchingHandlers.isEmpty else {
-            return Logger.log(
-                "Skipping change emission for \(change.kind). Nobody is listening.",
-                domain: .sessionStore,
-                sender: self
-            )
-        }
-
-        Task { @MainActor in
-            matchingHandlers.forEach { $0.handler(change) }
-        }
     }
 
     private func persistConversationArchive() {

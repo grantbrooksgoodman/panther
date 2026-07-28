@@ -111,6 +111,12 @@ struct ConversationCellReducer: Reducer {
 
             state.cellViewData = cellViewData
 
+            // Backstop for provisional builds; message hydration may
+            // have completed before this cell's observer registered
+            // for session store changes.
+            guard cellViewData.isAwaitingMessageHydration else { return .none }
+            return .task(delay: .seconds(1)) { .reloadData }
+
         case .blockUsersButtonTapped:
             let conversation = state.conversation
             return .fireAndForget {

@@ -54,10 +54,16 @@ extension Conversation: RemotelyUpdatable {
 
         case .messages:
             guard let value = value as? [Message] else { return nil }
+
+            // The session store never stores system messages; filter
+            // them here too so hydrated display arrays can't leak
+            // their IDs into the conversation's message IDs.
+            let messages = value.uniquedByID.filteringSystemMessages
+
             // Messages set via updateValues bypass Message.didWrite.
-            sessionStore.upsertMessages(Set(value.uniquedByID))
+            sessionStore.upsertMessages(Set(messages))
             return updateIDHash(
-                copying(messageIDs: value.map(\.id).unique)
+                copying(messageIDs: messages.map(\.id).unique)
             )
 
         case .metadata:
