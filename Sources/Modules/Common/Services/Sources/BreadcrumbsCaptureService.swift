@@ -187,7 +187,7 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
 
         captureHistory.insert(viewHierarchyID)
         self.captureHistory = captureHistory
-        Observables.breadcrumbsDidCapture.trigger()
+        Shared.breadcrumbsDidCapture.send()
 
         Task.detached(priority: .background) {
             guard let imageData = image.dataCompressed(toKB: 100) ?? image.jpegData(compressionQuality: 0.5) else { return }

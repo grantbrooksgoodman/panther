@@ -26,14 +26,17 @@ struct SplashPageView: View {
 
     // MARK: - Properties
 
-    @StateObject private var observer: ViewObserver<SplashPageObserver>
     @StateObject private var viewModel: ViewModel<SplashPageReducer>
 
     // MARK: - Init
 
     init(_ viewModel: ViewModel<SplashPageReducer>) {
-        _viewModel = .init(wrappedValue: viewModel)
-        _observer = .init(wrappedValue: .init(.init(viewModel)))
+        _viewModel = .init(
+            wrappedValue: viewModel
+                .observing(Shared.networkActivityOccurred.events) { _ in
+                    .bundleInitializationProgressOccurred
+                }
+        )
     }
 
     // MARK: - View

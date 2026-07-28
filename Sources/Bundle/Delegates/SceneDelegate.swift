@@ -87,7 +87,7 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-        Observables.traitCollectionChanged.trigger()
+        Shared.traitCollectionChanged.send()
         Task { await clientSession.outbox.retryAllEligible() }
     }
 
@@ -126,7 +126,7 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
         traitCollection previousTraitCollection: UITraitCollection
     ) {
         RootWindowScene.traitCollectionChanged()
-        Observables.traitCollectionChanged.trigger()
+        Shared.traitCollectionChanged.send()
     }
 
     // MARK: - UIGestureRecognizer

@@ -262,7 +262,7 @@ struct SettingsPageReducer: Reducer {
                 NavigationBar.setAppearance(.conversationsPageView)
                 ConversationsPageView.reapplyNavigationBarItemGlassTintIfNeeded()
                 guard traitCollectionChanged else { return .none }
-                Observables.traitCollectionChanged.trigger()
+                Shared.traitCollectionChanged.send()
                 return .none
             }
         }

@@ -69,14 +69,10 @@ final class TypingIndicatorService: @unchecked Sendable {
             checkForTypingIndicatorChanges()
         }
 
-        let sessionStoreChanges = Observables.sessionStoreDidChange.values(
-            bufferingPolicy: .unbounded
-        )
-
+        let sessionStoreChanges = Shared.sessionStoreDidChange.events
         sessionStoreChangeTask = Task { [weak self] in
             for await change in sessionStoreChanges {
-                guard let change,
-                      change.kind == .conversations else { continue }
+                guard change.kind == .conversations else { continue }
                 Task.delayed(by: .seconds(1)) { @MainActor [weak self] in
                     self?.handleStoreChange(change)
                 }

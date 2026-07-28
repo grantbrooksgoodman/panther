@@ -14,6 +14,12 @@ import SwiftUI
 import AppSubsystem
 
 struct ConversationCellReducer: Reducer {
+    // MARK: - Types
+
+    private enum TaskID: String {
+        case reloadData
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
@@ -30,6 +36,7 @@ struct ConversationCellReducer: Reducer {
         case deleteConversationButtonTapped
         case reloadData
         case reportUsersButtonTapped
+        case sessionStoreDidChange(SessionStoreChange)
         case userInfoBadgeTapped
 
         case deleteConversationReturned(Exception?)
@@ -112,8 +119,8 @@ struct ConversationCellReducer: Reducer {
             state.cellViewData = cellViewData
 
             // Backstop for provisional builds; message hydration may
-            // have completed before this cell's observer registered
-            // for session store changes.
+            // have completed before this cell subscribed to session
+            // store changes.
             guard cellViewData.isAwaitingMessageHydration else { return .none }
             return .task(delay: .seconds(1)) { .reloadData }
 
@@ -190,11 +197,48 @@ struct ConversationCellReducer: Reducer {
                 }
             }
 
+        case let .sessionStoreDidChange(change):
+            guard isRelevantChange(
+                change,
+                for: state.conversation
+            ) else { return .none }
+
+            return .task(delay: .milliseconds(250)) {
+                .reloadData
+            }
+            .cancellable(
+                id: "\(String.fromCurrentEditorContext(sender: self))/\(state.conversation.id.key)/\(TaskID.reloadData.rawValue)",
+                cancelInFlight: true
+            )
+
         case .userInfoBadgeTapped:
             guard let otherUser = state.cellViewData.otherUser else { return .none }
             viewService.presentUserInfoAlert(otherUser)
         }
 
         return .none
+    }
+}
+
+private extension ConversationCellReducer {
+    func isRelevantChange(
+        _ change: SessionStoreChange,
+        for conversation: Conversation
+    ) -> Bool {
+        switch change {
+        case let .conversations(upsertedIDKeys, removedIDKeys):
+            upsertedIDKeys.contains(conversation.id.key) ||
+                removedIDKeys.contains(conversation.id.key)
+
+        case let .messages(upsertedIDs, removedIDs):
+            !Set(
+                conversation.messageIDs
+            ).isDisjoint(with: upsertedIDs.union(removedIDs))
+
+        case let .users(upsertedIDs, removedIDs):
+            !Set(
+                conversation.participants.map(\.userID)
+            ).isDisjoint(with: upsertedIDs.union(removedIDs))
+        }
     }
 }

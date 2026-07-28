@@ -59,19 +59,15 @@ final class ConversationSessionService: @unchecked Sendable {
     // MARK: - Init
 
     init() {
-        let sessionStoreChanges = Observables.sessionStoreDidChange.values(
-            bufferingPolicy: .unbounded
-        )
-
+        let sessionStoreChanges = Shared.sessionStoreDidChange.events
         Task { @MainActor [weak self] in
             for await change in sessionStoreChanges {
-                guard let change,
-                      [.conversations, .messages].contains(change.kind) else { continue }
+                guard [.conversations, .messages].contains(change.kind) else { continue }
                 self?.handleStoreChange(change)
             }
         }
 
-        let outboxChanges = Observables.messageOutboxDidChange.values
+        let outboxChanges = Shared.messageOutboxDidChange.events
         Task { @MainActor [weak self] in
             for await _ in outboxChanges {
                 self?.updateDisplayedMessages()

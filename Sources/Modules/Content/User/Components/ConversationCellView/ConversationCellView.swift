@@ -23,14 +23,17 @@ struct ConversationCellView: View {
 
     // MARK: - Properties
 
-    @StateObject private var observer: ViewObserver<ConversationCellObserver>
     @StateObject private var viewModel: ViewModel<ConversationCellReducer>
 
     // MARK: - Init
 
     init(_ viewModel: ViewModel<ConversationCellReducer>) {
-        _viewModel = .init(wrappedValue: viewModel)
-        _observer = .init(wrappedValue: .init(.init(viewModel)))
+        _viewModel = .init(
+            wrappedValue: viewModel
+                .observing(Shared.sessionStoreDidChange.events) {
+                    .sessionStoreDidChange($0)
+                }
+        )
     }
 
     // MARK: - Body

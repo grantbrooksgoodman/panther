@@ -117,7 +117,7 @@ final class SettingsPageViewService {
                             removeAfterFirstPost: true
                         ) { _ in
                             Task.delayed(by: .milliseconds(500)) { @MainActor in
-                                Observables.traitCollectionChanged.trigger()
+                                Shared.traitCollectionChanged.send()
                             }
                         }
                     }
@@ -316,7 +316,7 @@ final class SettingsPageViewService {
                     Localized(.cancel).wrappedValue,
                     style: .cancel
                 ) {
-                    Observables.didGrantPenPalsPermission.value = true
+                    Shared.didGrantPenPalsPermission.value = true
                 }
 
                 return await AKActionSheet(

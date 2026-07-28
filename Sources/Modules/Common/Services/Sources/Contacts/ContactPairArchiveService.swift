@@ -75,7 +75,7 @@ final class ContactPairArchiveService {
         cachedContactPairsForPhoneNumbers = cachedContactPairsForPhoneNumbers?.filter { !contactPairs.contains($0.value) }
 
         coreUtilities.clearCaches([.contactImage])
-        Observables.updatedContactPairArchive.trigger()
+        Shared.updatedContactPairArchive.send()
     }
 
     // MARK: - Removal

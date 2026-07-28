@@ -23,7 +23,6 @@ struct ConversationsPageView: View {
 
     // MARK: - Properties
 
-    @StateObject private var observer: ViewObserver<ConversationsPageObserver>
     @StateObject private var viewModel: ViewModel<ConversationsPageReducer>
 
     // MARK: - Bindings
@@ -45,8 +44,18 @@ struct ConversationsPageView: View {
     // MARK: - Init
 
     init(_ viewModel: ViewModel<ConversationsPageReducer>) {
-        _viewModel = .init(wrappedValue: viewModel)
-        _observer = .init(wrappedValue: .init(.init(viewModel)))
+        _viewModel = .init(
+            wrappedValue: viewModel
+                .observing(Shared.sessionStoreDidChange.events) { _ in
+                    .sessionStoreDidChange
+                }
+                .observing(Shared.traitCollectionChanged.events) { _ in
+                    .traitCollectionChanged
+                }
+                .observing(Shared.updatedContactPairArchive.events) { _ in
+                    .traitCollectionChanged
+                }
+        )
     }
 
     // MARK: - View

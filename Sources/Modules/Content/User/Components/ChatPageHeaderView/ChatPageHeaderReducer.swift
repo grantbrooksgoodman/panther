@@ -13,6 +13,12 @@ import Foundation
 import AppSubsystem
 
 struct ChatPageHeaderReducer: Reducer {
+    // MARK: - Types
+
+    private enum TaskID: String {
+        case reloadData
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.navigation) private var navigation: Navigation
@@ -23,6 +29,7 @@ struct ChatPageHeaderReducer: Reducer {
         case backButtonTapped
         case chatInfoButtonTapped
         case reloadData
+        case sessionStoreDidChange(SessionStoreChange)
     }
 
     // MARK: - State
@@ -65,8 +72,45 @@ struct ChatPageHeaderReducer: Reducer {
 
         case .reloadData:
             state.viewID = UUID()
+
+        case let .sessionStoreDidChange(change):
+            guard isRelevantChange(
+                change,
+                for: state.conversation
+            ) else { return .none }
+
+            return .task(delay: .milliseconds(250)) {
+                .reloadData
+            }
+            .cancellable(
+                id: "\(String.fromCurrentEditorContext(sender: self))/\(state.conversation.id.key)/\(TaskID.reloadData.rawValue)",
+                cancelInFlight: true
+            )
         }
 
         return .none
+    }
+}
+
+private extension ChatPageHeaderReducer {
+    func isRelevantChange(
+        _ change: SessionStoreChange,
+        for conversation: Conversation
+    ) -> Bool {
+        switch change {
+        case let .conversations(upsertedIDKeys, removedIDKeys):
+            upsertedIDKeys.contains(conversation.id.key) ||
+                removedIDKeys.contains(conversation.id.key)
+
+        case let .messages(upsertedIDs, removedIDs):
+            !Set(
+                conversation.messageIDs
+            ).isDisjoint(with: upsertedIDs.union(removedIDs))
+
+        case let .users(upsertedIDs, removedIDs):
+            !Set(
+                conversation.participants.map(\.userID)
+            ).isDisjoint(with: upsertedIDs.union(removedIDs))
+        }
     }
 }

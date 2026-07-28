@@ -473,7 +473,7 @@ struct ChatInfoPageReducer: Reducer {
             let oldConversationIsPenPalsConversation = state.conversation?.metadata.isPenPalsConversation == true
 
             chatPageViewService.reloadCollectionView() // TODO: Audit why this didn't seem necessary before, but is now.
-            Observables.currentConversationMetadataChanged.trigger()
+            Shared.currentConversationMetadataChanged.send()
 
             if let titleLabelText = state.cellViewData?.titleLabelText {
                 chatPageViewService.setNavigationTitle(titleLabelText)

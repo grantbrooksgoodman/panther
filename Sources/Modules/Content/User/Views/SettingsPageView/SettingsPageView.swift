@@ -29,8 +29,6 @@ struct SettingsPageView: View {
 
     @StateObject var viewModel: ViewModel<SettingsPageReducer>
 
-    @StateObject private var observer: ViewObserver<SettingsPageObserver>
-
     // MARK: - Bindings
 
     private var sheetBinding: Binding<SettingsNavigatorState.SheetPaths?> {
@@ -43,8 +41,26 @@ struct SettingsPageView: View {
     // MARK: - Init
 
     init(_ viewModel: ViewModel<SettingsPageReducer>) {
-        _viewModel = .init(wrappedValue: viewModel)
-        _observer = .init(wrappedValue: .init(.init(viewModel)))
+        _viewModel = .init(
+            wrappedValue: viewModel
+                .observing(
+                    // Dropping the first element skips the replayed current
+                    // value; the switch state is synchronized from the
+                    // current user on appearance, and only permission
+                    // changes occurring after subscription should update it.
+                    Shared.didGrantAIEnhancedTranslationPermission.changes.dropFirst()
+                ) { .aiEnhancedTranslationsSwitchToggled(on: $0) }
+                .observing(
+                    // Dropping the first element skips the replayed current
+                    // value; the switch state is synchronized from the
+                    // current user on appearance, and only permission
+                    // changes occurring after subscription should update it.
+                    Shared.didGrantPenPalsPermission.changes.dropFirst()
+                ) { .penPalsParticipantSwitchToggled(on: $0) }
+                .observing(Shared.traitCollectionChanged.events) { _ in
+                    .traitCollectionChanged
+                }
+        )
     }
 
     // MARK: - View

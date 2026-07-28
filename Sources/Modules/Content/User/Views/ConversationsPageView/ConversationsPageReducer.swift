@@ -15,6 +15,12 @@ import AppSubsystem
 import Networking
 
 struct ConversationsPageReducer: Reducer {
+    // MARK: - Types
+
+    private enum TaskID: String {
+        case handleChatPageStoreChange
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
@@ -36,6 +42,7 @@ struct ConversationsPageReducer: Reducer {
         case createRandomMessagesToolbarButtonTapped
         case deleteConversationsToolbarButtonTapped
 
+        case handleChatPageStoreChange
         case pulledToRefresh
         case sessionStoreDidChange
         case traitCollectionChanged
@@ -160,6 +167,11 @@ struct ConversationsPageReducer: Reducer {
         case .deleteConversationsToolbarButtonTapped:
             viewService.deleteConversationsToolbarButtonTapped()
 
+        case .handleChatPageStoreChange:
+            return .fireAndForget { @MainActor in
+                viewService.handleChatPageStoreChange()
+            }
+
         case let .isSearchingChanged(isSearching):
             state.isSearching = isSearching
 
@@ -202,9 +214,23 @@ struct ConversationsPageReducer: Reducer {
             state.searchQuery = searchQuery
 
         case .sessionStoreDidChange:
-            guard navigation.state.modal == .userContent else { return .none }
+            var handleChatPageStoreChangeTask: Effect<Action> {
+                .task(
+                    priority: .userInitiated,
+                    delay: .milliseconds(250)
+                ) {
+                    .handleChatPageStoreChange
+                }
+                .cancellable(
+                    id: "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.handleChatPageStoreChange.rawValue)",
+                    cancelInFlight: true
+                )
+            }
+
+            guard navigation.state.modal == .userContent else { return handleChatPageStoreChangeTask }
             state.conversationsChangeToken = UUID()
             viewService.showSecondsToLoadToastIfNeeded()
+            return handleChatPageStoreChangeTask
 
         case .settingsToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.settings)))

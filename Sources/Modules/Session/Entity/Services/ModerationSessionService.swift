@@ -315,6 +315,6 @@ struct ModerationSessionService {
             to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
         )
 
-        Observables.traitCollectionChanged.trigger()
+        Shared.traitCollectionChanged.send()
     }
 }

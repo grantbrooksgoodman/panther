@@ -81,11 +81,13 @@ struct NewChatPageReducer: Reducer {
             state.navigationTitle = Application.isInPrevaricationMode ? "Create chat" : Localized(.newMessage).wrappedValue
             state.shouldShowPenPalsToolbarButton = entitySession.user.currentUser?.isPenPalsParticipant ?? false
 
-            Observables.newChatPagePenPalsToolbarButtonAnimation.trigger()
+            Shared.newChatPagePenPalsToolbarButtonAnimation.send()
 
         case .animatePenPalsToolbarButtonBackgroundColor:
             state.penPalsToolbarButtonBackgroundColor = .random
-            Task.delayed(by: .milliseconds(750)) { Observables.newChatPagePenPalsToolbarButtonAnimation.trigger() }
+            Task.delayed(by: .milliseconds(750)) {
+                Shared.newChatPagePenPalsToolbarButtonAnimation.send()
+            }
 
         case .doneToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.none)))

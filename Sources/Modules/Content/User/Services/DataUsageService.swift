@@ -173,16 +173,14 @@ final class DataUsageService: @unchecked Sendable {
 
         defer { lastDataUsageCalculation = .init(dataUsage: dataUsageInKilobytes) }
         guard chatPageState.isPresented else {
-            Observables.updatedContactPairArchive.trigger()
+            Shared.updatedContactPairArchive.send()
             return dataUsageInKilobytes
         }
 
         chatPageState.addEffectUponIsPresented(
             changedTo: false,
             id: .updateAppearance
-        ) {
-            Observables.updatedContactPairArchive.trigger()
-        }
+        ) { Shared.updatedContactPairArchive.send() }
 
         return dataUsageInKilobytes
     }

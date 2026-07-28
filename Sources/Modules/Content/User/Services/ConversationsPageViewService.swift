@@ -52,8 +52,10 @@ final class ConversationsPageViewService {
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
+    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.dataUsageService) private var dataUsageService: DataUsageService
+    @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
@@ -107,7 +109,7 @@ final class ConversationsPageViewService {
             return chatPageState.addEffectUponIsPresented(
                 changedTo: false,
                 id: .updateAppearance
-            ) { Observables.traitCollectionChanged.trigger() }
+            ) { Shared.traitCollectionChanged.send() }
         }
 
         guard navigation.state.userContent.sheet == nil else { return }
@@ -139,6 +141,96 @@ final class ConversationsPageViewService {
                     with: .toast
                 )
             }
+        }
+    }
+
+    /// Handles chat-page–specific behaviors (read receipts, badge number,
+    /// 1:1 read-receipt re-fetch, navigation title, consent button) in
+    /// response to debounced store changes.
+    func handleChatPageStoreChange() {
+        guard chatPageState.isPresented else { return }
+        guard !messageDeliveryService.isSendingMessage else {
+            Logger.log(
+                "Awaiting message send completion before handling chat page store change...",
+                domain: .conversation,
+                sender: self
+            )
+
+            return messageDeliveryService.addEffectUponIsSendingMessage(
+                changedTo: false,
+                id: .updateConversations
+            ) { [weak self] in self?.handleChatPageStoreChange() }
+        }
+
+        // swiftlint:disable:next closure_body_length
+        Task { @MainActor [weak self] in
+            guard let self,
+                  let currentConversation = clientSession
+                  .entity
+                  .conversation
+                  .currentConversation else { return }
+
+            // Re-fetch the last message in 1:1 conversations to pick up
+            // read receipt changes that don't affect the conversation hash.
+            if currentConversation.participants.count == 2,
+               let lastMessageID = currentConversation.messages?.last?.id ?? currentConversation.messageIDs.last {
+                await resolveLastMessage(
+                    lastMessageID,
+                    for: currentConversation
+                )
+            }
+
+            // Mark unread messages as read and update the badge.
+            if let unreadMessages = currentConversation.messages?
+                .filter({
+                    !$0.isFromCurrentUser &&
+                        $0.currentUserReadReceipt == nil
+                }),
+                !unreadMessages.isEmpty {
+                do throws(Exception) {
+                    try await currentConversation.updateReadDate(
+                        for: unreadMessages
+                    )
+
+                    if let badgeNumber = clientSession
+                        .entity
+                        .user
+                        .currentUser?
+                        .calculateBadgeNumber() {
+                        do throws(Exception) {
+                            try await services.notification.setBadgeNumber(
+                                badgeNumber
+                            )
+                        } catch {
+                            Logger.log(
+                                error,
+                                domain: .conversation
+                            )
+                        }
+                    }
+
+                    guard matchesCurrentConversation(currentConversation.id.key) else { return }
+                    return configureInputBarIfNeeded()
+                } catch {
+                    return Logger.log(
+                        error,
+                        domain: .conversation
+                    )
+                }
+            }
+
+            guard matchesCurrentConversation(currentConversation.id.key) else { return }
+
+            if chatPageViewService.recipientBar?.layout.recipientBarView == nil,
+               let navigationTitle = ConversationCellViewData(
+                   currentConversation,
+                   useCachedValue: true
+               )?.titleLabelText {
+                chatPageViewService.setNavigationTitle(navigationTitle)
+            }
+
+            configureInputBarIfNeeded()
+            Shared.currentConversationMetadataChanged.send()
         }
     }
 
@@ -223,6 +315,11 @@ final class ConversationsPageViewService {
         }
     }
 
+    private func configureInputBarIfNeeded() {
+        guard chatPageViewService.inputBar?.isShowingConsentButton == true else { return }
+        chatPageViewService.inputBar?.configureInputBar()
+    }
+
     private func enableOfflineModeSideEffects() {
         func showOfflineModeToast() {
             Toast.show(.init(
@@ -241,7 +338,7 @@ final class ConversationsPageViewService {
             )
 
             Task.delayed(by: .milliseconds(500)) { @MainActor in
-                Observables.traitCollectionChanged.trigger()
+                Shared.traitCollectionChanged.send()
             }
         }
 
@@ -289,6 +386,10 @@ final class ConversationsPageViewService {
             }
             .unique
             .forEach { $0.backgroundColor = searchBarTextFieldBackgroundColor }
+    }
+
+    private func matchesCurrentConversation(_ idKey: String) -> Bool {
+        clientSession.entity.conversation.currentConversation?.id.key == idKey
     }
 
     private func reloadData(
@@ -344,6 +445,32 @@ final class ConversationsPageViewService {
             ]) {
                 throw error
             }
+        }
+    }
+
+    /// Nonisolated so that the non-Sendable database delegate is
+    /// resolved and consumed outside the main actor's region.
+    private nonisolated func resolveLastMessage(
+        _ lastMessageID: String,
+        for conversation: Conversation
+    ) async {
+        @Dependency(\.networking) var networking: NetworkServices
+        do {
+            try await networking.database.withGlobalCacheStrategy(
+                .returnCacheOnFailure
+            ) {
+                try await conversation.resolveMessages(
+                    ids: [lastMessageID]
+                )
+            }
+        } catch {
+            Logger.log(
+                .init(
+                    error,
+                    metadata: .init(sender: self)
+                ),
+                domain: .conversation
+            )
         }
     }
 

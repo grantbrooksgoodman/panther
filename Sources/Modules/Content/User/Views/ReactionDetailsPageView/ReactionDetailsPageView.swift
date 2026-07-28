@@ -21,14 +21,17 @@ struct ReactionDetailsPageView: View {
 
     // MARK: - Properties
 
-    @StateObject private var observer: ViewObserver<ReactionDetailsPageObserver>
     @StateObject private var viewModel: ViewModel<ReactionDetailsPageReducer>
 
     // MARK: - Init
 
     init(_ viewModel: ViewModel<ReactionDetailsPageReducer>) {
-        _viewModel = .init(wrappedValue: viewModel)
-        _observer = .init(wrappedValue: .init(.init(viewModel)))
+        _viewModel = .init(
+            wrappedValue: viewModel
+                .observing(Shared.currentConversationMetadataChanged.events) { _ in
+                    .updateViewID
+                }
+        )
     }
 
     // MARK: - View

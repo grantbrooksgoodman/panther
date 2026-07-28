@@ -29,8 +29,6 @@ struct NewChatPageView: View {
 
     @StateObject var viewModel: ViewModel<NewChatPageReducer>
 
-    @StateObject private var observer: ViewObserver<NewChatPageObserver>
-
     // MARK: - Bindings
 
     private var sheetBinding: Binding<ChatNavigatorState.SheetPaths?> {
@@ -43,8 +41,22 @@ struct NewChatPageView: View {
     // MARK: - Init
 
     init(_ viewModel: ViewModel<NewChatPageReducer>) {
-        _viewModel = .init(wrappedValue: viewModel)
-        _observer = .init(wrappedValue: .init(.init(viewModel)))
+        _viewModel = .init(
+            wrappedValue: viewModel
+                .observing(Shared.firstMessageSentInNewChat.events) { _ in
+                    .firstMessageSent
+                }
+                .observing(
+                    // Dropping the first element skips the replayed current
+                    // value, which may be stale from a previous page
+                    // instance; only changes occurring after subscription
+                    // should update the button.
+                    Shared.isNewChatPageDoneToolbarButtonEnabled.changes.dropFirst()
+                ) { .isDoneToolbarButtonEnabledChanged($0) }
+                .observing(Shared.newChatPagePenPalsToolbarButtonAnimation.events) { _ in
+                    .animatePenPalsToolbarButtonBackgroundColor
+                }
+        )
     }
 
     // MARK: - View
@@ -115,6 +127,10 @@ struct NewChatPageView: View {
                     .frame(
                         width: Floats.penPalsToolbarButtonFrameWidth,
                         height: Floats.penPalsToolbarButtonFrameHeight
+                    )
+                    .animation(
+                        .linear,
+                        value: viewModel.penPalsToolbarButtonBackgroundColor
                     )
             }
         }

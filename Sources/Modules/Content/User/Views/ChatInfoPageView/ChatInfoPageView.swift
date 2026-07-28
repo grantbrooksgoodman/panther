@@ -29,7 +29,6 @@ struct ChatInfoPageView: View {
 
     // MARK: - Properties
 
-    @StateObject private var observer: ViewObserver<ChatInfoPageObserver>
     @StateObject private var viewModel: ViewModel<ChatInfoPageReducer>
 
     // MARK: - Bindings
@@ -58,8 +57,18 @@ struct ChatInfoPageView: View {
     // MARK: - Init
 
     init(_ viewModel: ViewModel<ChatInfoPageReducer>) {
-        _viewModel = .init(wrappedValue: viewModel)
-        _observer = .init(wrappedValue: .init(.init(viewModel)))
+        _viewModel = .init(
+            wrappedValue: viewModel
+                .observing(Shared.chatInfoPageLoadingStateUpdated.events) { _ in
+                    .loadingStateUpdated
+                }
+                .observing(Shared.currentConversationActivityChanged.events) { _ in
+                    .viewAppeared
+                }
+                .observing(Shared.currentConversationMetadataChanged.events) { _ in
+                    .currentConversationMetadataChanged
+                }
+        )
     }
 
     // MARK: - Body

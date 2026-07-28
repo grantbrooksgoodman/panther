@@ -398,7 +398,7 @@ final class SplashPageViewService: ObservableObject {
                 of: Void.self
             ) { taskGroup in
                 taskGroup.addTask {
-                    for await health in Observables.networkHealth.values where health.tier == .poor {
+                    for await health in Shared.networkHealth.changes where health.tier == .poor {
                         return
                     }
                 }
@@ -494,7 +494,7 @@ final class SplashPageViewService: ObservableObject {
         if let tier = networking.health.health.tier,
            usableTiers.contains(tier) { return }
 
-        for await health in Observables.networkHealth.values {
+        for await health in Shared.networkHealth.changes {
             guard let tier = health.tier,
                   usableTiers.contains(tier) else { continue }
             return

@@ -42,7 +42,6 @@ extension LoggerDomain {
         let domainsExcludedFromSessionRecord: [LoggerDomain] = [
             .caches,
             .concurrency,
-            .observer,
         ]
 
         /// The domains the logger subscribes to at launch.

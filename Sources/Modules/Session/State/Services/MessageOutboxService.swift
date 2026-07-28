@@ -118,7 +118,7 @@ struct MessageOutboxService {
                 sender: self
             )
 
-            Observables.messageOutboxDidChange.trigger()
+            Shared.messageOutboxDidChange.send()
         }
 
         return claimedEntry
@@ -134,7 +134,7 @@ struct MessageOutboxService {
             sender: self
         )
 
-        Observables.messageOutboxDidChange.trigger()
+        Shared.messageOutboxDidChange.send()
     }
 
     func markFailed(id: String) {
@@ -150,7 +150,7 @@ struct MessageOutboxService {
             sender: self
         )
 
-        Observables.messageOutboxDidChange.trigger()
+        Shared.messageOutboxDidChange.send()
     }
 
     func remove(id: String) {
@@ -166,7 +166,7 @@ struct MessageOutboxService {
             sender: self
         )
 
-        Observables.messageOutboxDidChange.trigger()
+        Shared.messageOutboxDidChange.send()
     }
 
     func removeAll() {
@@ -187,7 +187,7 @@ struct MessageOutboxService {
             sender: self
         )
 
-        Observables.messageOutboxDidChange.trigger()
+        Shared.messageOutboxDidChange.send()
     }
 
     // MARK: - Payload Directory Methods

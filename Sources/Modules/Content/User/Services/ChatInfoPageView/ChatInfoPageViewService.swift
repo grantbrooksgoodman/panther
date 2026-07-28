@@ -229,7 +229,7 @@ final class ChatInfoPageViewService {
                       .title,
                   ]) else { return }
 
-            Observables.chatInfoPageLoadingStateUpdated.trigger()
+            Shared.chatInfoPageLoadingStateUpdated.send()
             RuntimeStorage.store(
                 false,
                 as: .shouldNotifyOfConversationAvailability
@@ -291,7 +291,7 @@ final class ChatInfoPageViewService {
             ]) else { return }
 
             navigation.navigate(to: .chat(.sheet(.none)))
-            Observables.chatInfoPageLoadingStateUpdated.trigger()
+            Shared.chatInfoPageLoadingStateUpdated.send()
 
             do throws(Exception) {
                 try await clientSession.entity.activity.removeFromConversation(
@@ -300,7 +300,7 @@ final class ChatInfoPageViewService {
                 )
 
                 chatPageViewService.reloadCollectionView()
-                Observables.currentConversationActivityChanged.trigger()
+                Shared.currentConversationActivityChanged.send()
             } catch {
                 Logger.log(
                     error,
@@ -347,9 +347,7 @@ final class ChatInfoPageViewService {
         messageDeliveryService.addEffectUponIsSendingMessage(
             changedTo: false,
             id: .updateChatInfoPageView
-        ) {
-            Observables.currentConversationMetadataChanged.trigger()
-        }
+        ) { Shared.currentConversationMetadataChanged.send() }
     }
 
     /// `.getChatParticipantsReturned(.success)`

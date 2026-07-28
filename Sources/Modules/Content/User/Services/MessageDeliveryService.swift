@@ -486,7 +486,7 @@ final class MessageDeliveryService {
             recipientBarLayoutService?.removeFromSuperview()
         }
 
-        Observables.firstMessageSentInNewChat.trigger()
+        Shared.firstMessageSentInNewChat.send()
     }
 
     @objc

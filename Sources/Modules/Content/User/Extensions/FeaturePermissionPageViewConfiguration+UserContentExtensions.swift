@@ -33,7 +33,7 @@ extension FeaturePermissionPageView.Configuration {
                 }
             },
             declineButtonAction: {
-                Observables.didGrantAIEnhancedTranslationPermission.value = false
+                Shared.didGrantAIEnhancedTranslationPermission.value = false
             }
         )
     }
@@ -59,7 +59,7 @@ extension FeaturePermissionPageView.Configuration {
                 }
             },
             declineButtonAction: {
-                Observables.didGrantPenPalsPermission.value = false
+                Shared.didGrantPenPalsPermission.value = false
             }
         )
     }

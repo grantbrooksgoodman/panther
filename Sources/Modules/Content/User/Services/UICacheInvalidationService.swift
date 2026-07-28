@@ -41,13 +41,10 @@ final class UICacheInvalidationService {
 
     func startObserving() {
         guard sessionStoreChangeTask == nil else { return }
-        let sessionStoreChanges = Observables.sessionStoreDidChange.values(
-            bufferingPolicy: .unbounded
-        )
 
+        let sessionStoreChanges = Shared.sessionStoreDidChange.events
         sessionStoreChangeTask = Task { [weak self] in
             for await change in sessionStoreChanges {
-                guard let change else { continue }
                 self?.handleChange(change)
             }
         }

@@ -48,7 +48,6 @@ struct UserContentContainerView: View {
     // MARK: - Properties
 
     @State private var chatPageHeaderHeight = Floats.chatPageHeaderContentHeight
-    @StateObject private var observer: ViewObserver<UserContentContainerObserver>
     @StateObject private var viewModel: ViewModel<UserContentContainerReducer>
 
     // MARK: - Bindings
@@ -70,8 +69,12 @@ struct UserContentContainerView: View {
     // MARK: - Init
 
     init(_ viewModel: ViewModel<UserContentContainerReducer>) {
-        _viewModel = .init(wrappedValue: viewModel)
-        _observer = .init(wrappedValue: .init(.init(viewModel)))
+        _viewModel = .init(
+            wrappedValue: viewModel
+                .observing(Shared.currentConversationMetadataChanged.events) { _ in
+                    .conversationMetadataChanged
+                }
+        )
     }
 
     // MARK: - View

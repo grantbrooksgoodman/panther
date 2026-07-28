@@ -101,7 +101,7 @@ struct ContactSelectorPageViewService {
             ) {
                 Task { @MainActor in
                     navigation.navigate(to: .chat(.sheet(.none)))
-                    Observables.chatInfoPageLoadingStateUpdated.trigger()
+                    Shared.chatInfoPageLoadingStateUpdated.send()
 
                     do throws(Exception) {
                         try await entitySession.activity.addToConversation(
@@ -110,7 +110,7 @@ struct ContactSelectorPageViewService {
                         )
 
                         chatPageViewService.reloadCollectionView()
-                        Observables.currentConversationActivityChanged.trigger()
+                        Shared.currentConversationActivityChanged.send()
                     } catch {
                         Logger.log(
                             error,

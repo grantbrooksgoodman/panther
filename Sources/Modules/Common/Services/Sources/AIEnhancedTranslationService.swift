@@ -30,7 +30,7 @@ struct AIEnhancedTranslationService {
             )
         }
 
-        Observables.didGrantAIEnhancedTranslationPermission.value = didGrantAIEnhancedTranslationPermission
+        Shared.didGrantAIEnhancedTranslationPermission.value = didGrantAIEnhancedTranslationPermission
 
         Networking.config.setIsEnhancedDialogTranslationEnabled(
             didGrantAIEnhancedTranslationPermission

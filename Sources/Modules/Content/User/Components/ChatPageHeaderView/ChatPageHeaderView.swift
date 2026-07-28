@@ -23,14 +23,17 @@ struct ChatPageHeaderView: View {
 
     // MARK: - Properties
 
-    @StateObject private var observer: ViewObserver<ChatPageHeaderObserver>
     @StateObject private var viewModel: ViewModel<ChatPageHeaderReducer>
 
     // MARK: - Init
 
     init(_ viewModel: ViewModel<ChatPageHeaderReducer>) {
-        _viewModel = .init(wrappedValue: viewModel)
-        _observer = .init(wrappedValue: .init(.init(viewModel)))
+        _viewModel = .init(
+            wrappedValue: viewModel
+                .observing(Shared.sessionStoreDidChange.events) {
+                    .sessionStoreDidChange($0)
+                }
+        )
     }
 
     // MARK: - View

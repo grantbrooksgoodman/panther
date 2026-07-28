@@ -107,7 +107,7 @@ struct ChangeLanguagePageReducer: Reducer {
 
         case .viewDisappeared:
             settingsPageViewService.isMainPagePresented = true
-            Observables.traitCollectionChanged.trigger()
+            Shared.traitCollectionChanged.send()
         }
 
         return .none

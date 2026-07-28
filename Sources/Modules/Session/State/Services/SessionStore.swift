@@ -541,7 +541,7 @@ private extension SessionStore {
     // MARK: - Methods
 
     private func emitChange(_ change: SessionStoreChange) {
-        Observables.sessionStoreDidChange.value = change
+        Shared.sessionStoreDidChange.send(change)
     }
 
     private func persistConversationArchive() {

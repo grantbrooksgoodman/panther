@@ -41,6 +41,6 @@ struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate {
 
     func show() {
         defaultNetworkActivityIndicatorDelegate.show()
-        Observables.networkActivityOccurred.trigger()
+        Shared.networkActivityOccurred.send()
     }
 }

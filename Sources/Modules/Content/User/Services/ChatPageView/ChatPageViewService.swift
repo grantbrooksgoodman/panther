@@ -177,27 +177,21 @@ final class ChatPageViewService {
             )
         }
 
-        // NIT: Does ordering of these change handler registrations matter?
-
-        if sessionStoreChangeTask == nil {
-            let sessionStoreChanges = Observables.sessionStoreDidChange.values(
-                bufferingPolicy: .unbounded
-            )
-
-            sessionStoreChangeTask = Task { [weak self] in
-                for await change in sessionStoreChanges {
-                    guard let change,
-                          [.conversations, .messages].contains(change.kind) else { continue }
-                    self?.handleSessionStoreChange(change)
+        if outboxChangeTask == nil {
+            let outboxChanges = Shared.messageOutboxDidChange.events
+            outboxChangeTask = Task { [weak self] in
+                for await _ in outboxChanges {
+                    self?.handleOutboxChange()
                 }
             }
         }
 
-        if outboxChangeTask == nil {
-            let outboxChanges = Observables.messageOutboxDidChange.values
-            outboxChangeTask = Task { [weak self] in
-                for await _ in outboxChanges {
-                    self?.handleOutboxChange()
+        if sessionStoreChangeTask == nil {
+            let sessionStoreChanges = Shared.sessionStoreDidChange.events
+            sessionStoreChangeTask = Task { [weak self] in
+                for await change in sessionStoreChanges {
+                    guard [.conversations, .messages].contains(change.kind) else { continue }
+                    self?.handleSessionStoreChange(change)
                 }
             }
         }
