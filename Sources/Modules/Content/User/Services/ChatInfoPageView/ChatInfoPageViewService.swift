@@ -46,6 +46,9 @@ final class ChatInfoPageViewService {
     private(set) var isPreviewingMedia = false
 
     @Cached(CacheKey.chatParticipantsForUserIDs) private var cachedChatParticipantsForUserIDs: [String: ChatParticipant]?
+    @SharedEvent(\.chatInfoPageLoadingStateUpdated) private var chatInfoPageLoadingStateUpdated
+    @SharedEvent(\.currentConversationActivityChanged) private var currentConversationActivityChanged
+    @SharedEvent(\.currentConversationMetadataChanged) private var currentConversationMetadataChanged
 
     // MARK: - Init
 
@@ -229,7 +232,7 @@ final class ChatInfoPageViewService {
                       .title,
                   ]) else { return }
 
-            Shared.chatInfoPageLoadingStateUpdated.send()
+            chatInfoPageLoadingStateUpdated.send()
             RuntimeStorage.store(
                 false,
                 as: .shouldNotifyOfConversationAvailability
@@ -291,7 +294,7 @@ final class ChatInfoPageViewService {
             ]) else { return }
 
             navigation.navigate(to: .chat(.sheet(.none)))
-            Shared.chatInfoPageLoadingStateUpdated.send()
+            chatInfoPageLoadingStateUpdated.send()
 
             do throws(Exception) {
                 try await clientSession.entity.activity.removeFromConversation(
@@ -300,7 +303,7 @@ final class ChatInfoPageViewService {
                 )
 
                 chatPageViewService.reloadCollectionView()
-                Shared.currentConversationActivityChanged.send()
+                currentConversationActivityChanged.send()
             } catch {
                 Logger.log(
                     error,
@@ -347,7 +350,7 @@ final class ChatInfoPageViewService {
         messageDeliveryService.addEffectUponIsSendingMessage(
             changedTo: false,
             id: .updateChatInfoPageView
-        ) { Shared.currentConversationMetadataChanged.send() }
+        ) { self.currentConversationMetadataChanged.send() }
     }
 
     /// `.getChatParticipantsReturned(.success)`

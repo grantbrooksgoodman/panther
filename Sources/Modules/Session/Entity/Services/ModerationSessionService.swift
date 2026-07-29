@@ -23,6 +23,10 @@ struct ModerationSessionService {
     @Dependency(\.commonServices.penPals) private var penPalsService: PenPalsService
     @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
+    // MARK: - Properties
+
+    @SharedEvent(\.traitCollectionChanged) private var traitCollectionChanged
+
     // MARK: - Content Moderation
 
     func blockUsers(
@@ -315,6 +319,6 @@ struct ModerationSessionService {
             to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
         )
 
-        Shared.traitCollectionChanged.send()
+        traitCollectionChanged.send()
     }
 }

@@ -49,6 +49,7 @@ final class SplashPageViewService: ObservableObject {
     private var didAttemptDatabaseRepair = false
     private var didSurpassQuickLoadTimeoutDuration = false
     private var initializationStartDate = Date(timeIntervalSince1970: 0)
+    @SharedState(\.networkHealth) private var networkHealth
 
     // MARK: - Computed Properties
 
@@ -394,11 +395,12 @@ final class SplashPageViewService: ObservableObject {
         // check it first; also resolves instantly on retry, when the
         // health is already known to be poor.
         if networking.health.health.tier != .poor {
+            let healthChanges = $networkHealth.changes
             let shouldTriggerDeferredResolution = await withTaskGroup(
                 of: Void.self
             ) { taskGroup in
                 taskGroup.addTask {
-                    for await health in Shared.networkHealth.changes where health.tier == .poor {
+                    for await health in healthChanges where health.tier == .poor {
                         return
                     }
                 }
@@ -494,7 +496,7 @@ final class SplashPageViewService: ObservableObject {
         if let tier = networking.health.health.tier,
            usableTiers.contains(tier) { return }
 
-        for await health in Shared.networkHealth.changes {
+        for await health in $networkHealth.changes {
             guard let tier = health.tier,
                   usableTiers.contains(tier) else { continue }
             return

@@ -37,6 +37,7 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
     var window: UIWindow?
 
     private var networkActivityIndicatorWindow: UIWindow?
+    @SharedEvent(\.traitCollectionChanged) private var traitCollectionChanged
 
     // MARK: - UIScene
 
@@ -87,7 +88,7 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-        Shared.traitCollectionChanged.send()
+        traitCollectionChanged.send()
         Task { await clientSession.outbox.retryAllEligible() }
     }
 
@@ -126,7 +127,7 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
         traitCollection previousTraitCollection: UITraitCollection
     ) {
         RootWindowScene.traitCollectionChanged()
-        Shared.traitCollectionChanged.send()
+        traitCollectionChanged.send()
     }
 
     // MARK: - UIGestureRecognizer

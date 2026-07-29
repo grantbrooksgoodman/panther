@@ -41,6 +41,7 @@ struct SessionStore {
     @Persistent(.conversationArchive) private var persistedConversationArchive: Set<Conversation>?
     @Persistent(.messageArchive) private var persistedMessageArchive: Set<Message>?
     @Persistent(.userArchive) private var persistedUserArchive: Set<User>?
+    @SharedEvent(\.sessionStoreDidChange) private var sessionStoreDidChange
 
     // MARK: - Computed Properties
 
@@ -541,7 +542,7 @@ private extension SessionStore {
     // MARK: - Methods
 
     private func emitChange(_ change: SessionStoreChange) {
-        Shared.sessionStoreDidChange.send(change)
+        sessionStoreDidChange.send(change)
     }
 
     private func persistConversationArchive() {

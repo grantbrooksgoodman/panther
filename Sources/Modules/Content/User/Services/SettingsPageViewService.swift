@@ -49,6 +49,7 @@ final class SettingsPageViewService {
     var isMainPagePresented = true
 
     @Cached(CacheKey.cnContactForCurrentUser) private var cachedCNContactForCurrentUser: CNContact?
+    @SharedEvent(\.traitCollectionChanged) private var traitCollectionChanged
 
     // MARK: - Init
 
@@ -117,7 +118,7 @@ final class SettingsPageViewService {
                             removeAfterFirstPost: true
                         ) { _ in
                             Task.delayed(by: .milliseconds(500)) { @MainActor in
-                                Shared.traitCollectionChanged.send()
+                                self.traitCollectionChanged.send()
                             }
                         }
                     }
@@ -316,7 +317,7 @@ final class SettingsPageViewService {
                     Localized(.cancel).wrappedValue,
                     style: .cancel
                 ) {
-                    Shared.didGrantPenPalsPermission.value = true
+                    SharedState(\.didGrantPenPalsPermission).wrappedValue = true
                 }
 
                 return await AKActionSheet(

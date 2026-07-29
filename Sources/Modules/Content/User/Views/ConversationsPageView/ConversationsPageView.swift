@@ -46,15 +46,21 @@ struct ConversationsPageView: View {
     init(_ viewModel: ViewModel<ConversationsPageReducer>) {
         _viewModel = .init(
             wrappedValue: viewModel
-                .observing(Shared.sessionStoreDidChange.events) { _ in
-                    .sessionStoreDidChange
-                }
-                .observing(Shared.traitCollectionChanged.events) { _ in
-                    .traitCollectionChanged
-                }
-                .observing(Shared.updatedContactPairArchive.events) { _ in
-                    .traitCollectionChanged
-                }
+                .observing(
+                    SharedEvent(\.sessionStoreDidChange)
+                        .wrappedValue
+                        .events
+                ) { _ in .sessionStoreDidChange }
+                .observing(
+                    SharedEvent(\.traitCollectionChanged)
+                        .wrappedValue
+                        .events
+                ) { _ in .traitCollectionChanged }
+                .observing(
+                    SharedEvent(\.updatedContactPairArchive)
+                        .wrappedValue
+                        .events
+                ) { _ in .traitCollectionChanged }
         )
     }
 

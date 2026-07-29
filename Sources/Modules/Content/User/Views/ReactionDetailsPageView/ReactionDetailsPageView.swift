@@ -28,9 +28,11 @@ struct ReactionDetailsPageView: View {
     init(_ viewModel: ViewModel<ReactionDetailsPageReducer>) {
         _viewModel = .init(
             wrappedValue: viewModel
-                .observing(Shared.currentConversationMetadataChanged.events) { _ in
-                    .updateViewID
-                }
+                .observing(
+                    SharedEvent(\.currentConversationMetadataChanged)
+                        .wrappedValue
+                        .events
+                ) { _ in .updateViewID }
         )
     }
 

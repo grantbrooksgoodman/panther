@@ -19,6 +19,8 @@ struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate {
 
     private let defaultNetworkActivityIndicatorDelegate = DefaultNetworkActivityIndicatorDelegate()
 
+    @SharedEvent(\.networkActivityOccurred) private var networkActivityOccurred
+
     // MARK: - Computed Properties
 
     var backgroundColor: Color? {
@@ -41,6 +43,6 @@ struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate {
 
     func show() {
         defaultNetworkActivityIndicatorDelegate.show()
-        Shared.networkActivityOccurred.send()
+        networkActivityOccurred.send()
     }
 }

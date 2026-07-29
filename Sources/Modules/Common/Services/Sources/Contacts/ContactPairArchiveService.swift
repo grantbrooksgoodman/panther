@@ -29,6 +29,7 @@ final class ContactPairArchiveService {
     @Cached(CacheKey.archive) private var cachedArchive: [ContactPair]?
     @Cached(CacheKey.contactPairsForPhoneNumbers) private var cachedContactPairsForPhoneNumbers: [String: ContactPair]?
     @Persistent(.contactPairArchive) private var persistedArchive: [ContactPair]?
+    @SharedEvent(\.updatedContactPairArchive) private var updatedContactPairArchive
 
     // MARK: - Computed Properties
 
@@ -75,7 +76,7 @@ final class ContactPairArchiveService {
         cachedContactPairsForPhoneNumbers = cachedContactPairsForPhoneNumbers?.filter { !contactPairs.contains($0.value) }
 
         coreUtilities.clearCaches([.contactImage])
-        Shared.updatedContactPairArchive.send()
+        updatedContactPairArchive.send()
     }
 
     // MARK: - Removal

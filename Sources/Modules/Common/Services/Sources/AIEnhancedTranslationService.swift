@@ -18,6 +18,10 @@ struct AIEnhancedTranslationService {
 
     @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
+    // MARK: - Properties
+
+    @SharedState(\.didGrantAIEnhancedTranslationPermission) private var didGrantAIEnhancedTranslationPermission
+
     // MARK: - Set Did Grant AI-Enhanced Translation Permission
 
     func setDidGrantAIEnhancedTranslationPermission(
@@ -30,8 +34,7 @@ struct AIEnhancedTranslationService {
             )
         }
 
-        Shared.didGrantAIEnhancedTranslationPermission.value = didGrantAIEnhancedTranslationPermission
-
+        self.didGrantAIEnhancedTranslationPermission = didGrantAIEnhancedTranslationPermission
         Networking.config.setIsEnhancedDialogTranslationEnabled(
             didGrantAIEnhancedTranslationPermission
         )

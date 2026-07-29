@@ -39,6 +39,8 @@ final class ConversationSessionService: @unchecked Sendable {
 
     @LockIsolated private var currentConversationReference = CurrentConversationReference.none
     @LockIsolated private var messageOffset = Floats.defaultMessageOffset
+    @SharedEvent(\.messageOutboxDidChange) private var messageOutboxDidChange
+    @SharedEvent(\.sessionStoreDidChange) private var sessionStoreDidChange
 
     // MARK: - Computed Properties
 
@@ -59,16 +61,16 @@ final class ConversationSessionService: @unchecked Sendable {
     // MARK: - Init
 
     init() {
-        let sessionStoreChanges = Shared.sessionStoreDidChange.events
         Task { @MainActor [weak self] in
+            guard let sessionStoreChanges = self?.sessionStoreDidChange.events else { return }
             for await change in sessionStoreChanges {
                 guard [.conversations, .messages].contains(change.kind) else { continue }
                 self?.handleStoreChange(change)
             }
         }
 
-        let outboxChanges = Shared.messageOutboxDidChange.events
         Task { @MainActor [weak self] in
+            guard let outboxChanges = self?.messageOutboxDidChange.events else { return }
             for await _ in outboxChanges {
                 self?.updateDisplayedMessages()
             }

@@ -22,6 +22,10 @@ struct ChangeLanguagePageReducer: Reducer {
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.changeLanguagePageViewService) private var viewService: ChangeLanguagePageViewService
 
+    // MARK: - Properties
+
+    @SharedEvent(\.traitCollectionChanged) private var traitCollectionChanged
+
     // MARK: - Actions
 
     enum Action {
@@ -107,7 +111,7 @@ struct ChangeLanguagePageReducer: Reducer {
 
         case .viewDisappeared:
             settingsPageViewService.isMainPagePresented = true
-            Shared.traitCollectionChanged.send()
+            traitCollectionChanged.send()
         }
 
         return .none

@@ -43,19 +43,26 @@ struct NewChatPageView: View {
     init(_ viewModel: ViewModel<NewChatPageReducer>) {
         _viewModel = .init(
             wrappedValue: viewModel
-                .observing(Shared.firstMessageSentInNewChat.events) { _ in
-                    .firstMessageSent
-                }
+                .observing(
+                    SharedEvent(\.firstMessageSentInNewChat)
+                        .wrappedValue
+                        .events
+                ) { _ in .firstMessageSent }
                 .observing(
                     // Dropping the first element skips the replayed current
                     // value, which may be stale from a previous page
                     // instance; only changes occurring after subscription
                     // should update the button.
-                    Shared.isNewChatPageDoneToolbarButtonEnabled.changes.dropFirst()
+                    SharedState(\.isNewChatPageDoneToolbarButtonEnabled)
+                        .projectedValue
+                        .changes
+                        .dropFirst()
                 ) { .isDoneToolbarButtonEnabledChanged($0) }
-                .observing(Shared.newChatPagePenPalsToolbarButtonAnimation.events) { _ in
-                    .animatePenPalsToolbarButtonBackgroundColor
-                }
+                .observing(
+                    SharedEvent(\.newChatPagePenPalsToolbarButtonAnimation)
+                        .wrappedValue
+                        .events
+                ) { _ in .animatePenPalsToolbarButtonBackgroundColor }
         )
     }
 

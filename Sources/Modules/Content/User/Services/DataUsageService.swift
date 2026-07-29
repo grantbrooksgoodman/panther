@@ -37,6 +37,7 @@ final class DataUsageService: @unchecked Sendable {
 
     @LockIsolated private var isCalculatingDataUsage = false
     @LockIsolated private var lastDataUsageCalculation: DataUsageCalculation = .empty
+    @SharedEvent(\.updatedContactPairArchive) private var updatedContactPairArchive
 
     // MARK: - Computed Properties
 
@@ -173,14 +174,14 @@ final class DataUsageService: @unchecked Sendable {
 
         defer { lastDataUsageCalculation = .init(dataUsage: dataUsageInKilobytes) }
         guard chatPageState.isPresented else {
-            Shared.updatedContactPairArchive.send()
+            updatedContactPairArchive.send()
             return dataUsageInKilobytes
         }
 
         chatPageState.addEffectUponIsPresented(
             changedTo: false,
             id: .updateAppearance
-        ) { Shared.updatedContactPairArchive.send() }
+        ) { self.updatedContactPairArchive.send() }
 
         return dataUsageInKilobytes
     }

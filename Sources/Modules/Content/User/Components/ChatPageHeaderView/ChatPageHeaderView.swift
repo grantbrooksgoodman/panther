@@ -30,9 +30,11 @@ struct ChatPageHeaderView: View {
     init(_ viewModel: ViewModel<ChatPageHeaderReducer>) {
         _viewModel = .init(
             wrappedValue: viewModel
-                .observing(Shared.sessionStoreDidChange.events) {
-                    .sessionStoreDidChange($0)
-                }
+                .observing(
+                    SharedEvent(\.sessionStoreDidChange)
+                        .wrappedValue
+                        .events
+                ) { .sessionStoreDidChange($0) }
         )
     }
 

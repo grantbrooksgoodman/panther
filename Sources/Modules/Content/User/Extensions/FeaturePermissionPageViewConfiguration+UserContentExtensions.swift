@@ -33,7 +33,9 @@ extension FeaturePermissionPageView.Configuration {
                 }
             },
             declineButtonAction: {
-                Shared.didGrantAIEnhancedTranslationPermission.value = false
+                SharedState(
+                    \.didGrantAIEnhancedTranslationPermission
+                ).wrappedValue = false
             }
         )
     }
@@ -59,7 +61,9 @@ extension FeaturePermissionPageView.Configuration {
                 }
             },
             declineButtonAction: {
-                Shared.didGrantPenPalsPermission.value = false
+                SharedState(
+                    \.didGrantPenPalsPermission
+                ).wrappedValue = false
             }
         )
     }

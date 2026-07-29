@@ -20,6 +20,10 @@ struct PenPalsService {
     @Dependency(\.networking.userService) private var userService: UserService
     @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
+    // MARK: - Properties
+
+    @SharedState(\.didGrantPenPalsPermission) private var didGrantPenPalsPermission
+
     // MARK: - Computed Properties
 
     private var contactPairArchiveUserIDs: [String] {
@@ -165,7 +169,7 @@ struct PenPalsService {
             )
         }
 
-        Shared.didGrantPenPalsPermission.value = didGrantPenPalsPermission
+        self.didGrantPenPalsPermission = didGrantPenPalsPermission
         _ = try await currentUser.update(
             \.isPenPalsParticipant,
             to: didGrantPenPalsPermission

@@ -21,6 +21,10 @@ struct NewChatPageReducer: Reducer {
     @Dependency(\.chatPageViewService.recipientBar) private var recipientBarService: RecipientBarService?
     @Dependency(\.commonServices) private var services: CommonServices
 
+    // MARK: - Properties
+
+    @SharedEvent(\.newChatPagePenPalsToolbarButtonAnimation) private var newChatPagePenPalsToolbarButtonAnimation
+
     // MARK: - Actions
 
     enum Action {
@@ -81,12 +85,12 @@ struct NewChatPageReducer: Reducer {
             state.navigationTitle = Application.isInPrevaricationMode ? "Create chat" : Localized(.newMessage).wrappedValue
             state.shouldShowPenPalsToolbarButton = entitySession.user.currentUser?.isPenPalsParticipant ?? false
 
-            Shared.newChatPagePenPalsToolbarButtonAnimation.send()
+            newChatPagePenPalsToolbarButtonAnimation.send()
 
         case .animatePenPalsToolbarButtonBackgroundColor:
             state.penPalsToolbarButtonBackgroundColor = .random
             Task.delayed(by: .milliseconds(750)) {
-                Shared.newChatPagePenPalsToolbarButtonAnimation.send()
+                await newChatPagePenPalsToolbarButtonAnimation.send()
             }
 
         case .doneToolbarButtonTapped:

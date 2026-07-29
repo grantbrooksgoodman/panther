@@ -59,15 +59,21 @@ struct ChatInfoPageView: View {
     init(_ viewModel: ViewModel<ChatInfoPageReducer>) {
         _viewModel = .init(
             wrappedValue: viewModel
-                .observing(Shared.chatInfoPageLoadingStateUpdated.events) { _ in
-                    .loadingStateUpdated
-                }
-                .observing(Shared.currentConversationActivityChanged.events) { _ in
-                    .viewAppeared
-                }
-                .observing(Shared.currentConversationMetadataChanged.events) { _ in
-                    .currentConversationMetadataChanged
-                }
+                .observing(
+                    SharedEvent(\.chatInfoPageLoadingStateUpdated)
+                        .wrappedValue
+                        .events
+                ) { _ in .loadingStateUpdated }
+                .observing(
+                    SharedEvent(\.currentConversationActivityChanged)
+                        .wrappedValue
+                        .events
+                ) { _ in .viewAppeared }
+                .observing(
+                    SharedEvent(\.currentConversationMetadataChanged)
+                        .wrappedValue
+                        .events
+                ) { _ in .currentConversationMetadataChanged }
         )
     }
 

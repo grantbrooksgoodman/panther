@@ -30,9 +30,11 @@ struct ConversationCellView: View {
     init(_ viewModel: ViewModel<ConversationCellReducer>) {
         _viewModel = .init(
             wrappedValue: viewModel
-                .observing(Shared.sessionStoreDidChange.events) {
-                    .sessionStoreDidChange($0)
-                }
+                .observing(
+                    SharedEvent(\.sessionStoreDidChange)
+                        .wrappedValue
+                        .events
+                ) { .sessionStoreDidChange($0) }
         )
     }
 

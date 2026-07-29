@@ -35,6 +35,7 @@ final class RecipientBarLayoutService {
     private let viewController: ChatPageViewController
 
     private var hasLaidOutSubviewsOnce = false
+    @SharedState(\.isNewChatPageDoneToolbarButtonEnabled) private var isNewChatPageDoneToolbarButtonEnabled
     private var wasTextFieldFirstResponder = false
 
     // MARK: - Computed Properties
@@ -101,7 +102,7 @@ final class RecipientBarLayoutService {
             recipientBarView?.removeFromSuperview()
             viewController.messagesCollectionView.contentInset.top = 0
             viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = 0
-            Shared.isNewChatPageDoneToolbarButtonEnabled.value = true
+            isNewChatPageDoneToolbarButtonEnabled = true
         }
     }
 
@@ -109,7 +110,7 @@ final class RecipientBarLayoutService {
 
     func setIsUserInteractionEnabled(_ isUserInteractionEnabled: Bool) {
         Task { @MainActor in
-            Shared.isNewChatPageDoneToolbarButtonEnabled.value = isUserInteractionEnabled
+            isNewChatPageDoneToolbarButtonEnabled = isUserInteractionEnabled
 
             guard let recipientBarView,
                   let textField else { return }

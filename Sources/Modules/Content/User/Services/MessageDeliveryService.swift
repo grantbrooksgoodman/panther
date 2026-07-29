@@ -30,6 +30,7 @@ final class MessageDeliveryService {
         didSet { didSetIsSendingMessage() }
     }
 
+    @SharedEvent(\.firstMessageSentInNewChat) private var firstMessageSentInNewChat
     private var uponIsSendingMessageChangedToFalse = [MessageDeliveryServiceEffectID: () -> Void]()
     private var uponIsSendingMessageChangedToTrue = [MessageDeliveryServiceEffectID: () -> Void]()
 
@@ -486,7 +487,7 @@ final class MessageDeliveryService {
             recipientBarLayoutService?.removeFromSuperview()
         }
 
-        Shared.firstMessageSentInNewChat.send()
+        firstMessageSentInNewChat.send()
     }
 
     @objc

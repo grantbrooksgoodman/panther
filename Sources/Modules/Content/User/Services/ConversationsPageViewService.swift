@@ -63,8 +63,10 @@ final class ConversationsPageViewService {
 
     // MARK: - Properties
 
+    @SharedEvent(\.currentConversationMetadataChanged) private var currentConversationMetadataChanged
     private var currentReloadType: ReloadType = .full
     private var didShowSecondsToLoadToast = false
+    @SharedEvent(\.traitCollectionChanged) private var traitCollectionDidChange
 
     // MARK: - View Lifecycle
 
@@ -109,7 +111,9 @@ final class ConversationsPageViewService {
             return chatPageState.addEffectUponIsPresented(
                 changedTo: false,
                 id: .updateAppearance
-            ) { Shared.traitCollectionChanged.send() }
+            ) { [weak self] in
+                self?.traitCollectionDidChange.send()
+            }
         }
 
         guard navigation.state.userContent.sheet == nil else { return }
@@ -230,7 +234,7 @@ final class ConversationsPageViewService {
             }
 
             configureInputBarIfNeeded()
-            Shared.currentConversationMetadataChanged.send()
+            currentConversationMetadataChanged.send()
         }
     }
 
@@ -337,8 +341,8 @@ final class ConversationsPageViewService {
                 sender: self
             )
 
-            Task.delayed(by: .milliseconds(500)) { @MainActor in
-                Shared.traitCollectionChanged.send()
+            Task.delayed(by: .milliseconds(500)) { @MainActor [weak self] in
+                self?.traitCollectionDidChange.send()
             }
         }
 

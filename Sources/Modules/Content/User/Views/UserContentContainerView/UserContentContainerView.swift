@@ -71,9 +71,11 @@ struct UserContentContainerView: View {
     init(_ viewModel: ViewModel<UserContentContainerReducer>) {
         _viewModel = .init(
             wrappedValue: viewModel
-                .observing(Shared.currentConversationMetadataChanged.events) { _ in
-                    .conversationMetadataChanged
-                }
+                .observing(
+                    SharedEvent(\.currentConversationMetadataChanged)
+                        .wrappedValue
+                        .events
+                ) { _ in .conversationMetadataChanged }
         )
     }
 

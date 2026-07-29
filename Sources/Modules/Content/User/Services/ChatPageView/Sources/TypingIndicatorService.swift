@@ -35,6 +35,7 @@ final class TypingIndicatorService: @unchecked Sendable {
 
     private var isUpdatingIsTypingForCurrentUser = false
     private var sessionStoreChangeTask: Task<Void, Never>?
+    @SharedEvent(\.sessionStoreDidChange) private var sessionStoreDidChange
 
     // MARK: - Computed Properties
 
@@ -69,8 +70,8 @@ final class TypingIndicatorService: @unchecked Sendable {
             checkForTypingIndicatorChanges()
         }
 
-        let sessionStoreChanges = Shared.sessionStoreDidChange.events
         sessionStoreChangeTask = Task { [weak self] in
+            guard let sessionStoreChanges = self?.sessionStoreDidChange.events else { return }
             for await change in sessionStoreChanges {
                 guard change.kind == .conversations else { continue }
                 Task.delayed(by: .seconds(1)) { @MainActor [weak self] in

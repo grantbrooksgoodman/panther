@@ -28,6 +28,7 @@ final class UICacheInvalidationService {
     private var pendingConversationIDKeys = Set<String>()
     private var pendingUserIDs = Set<String>()
     private var sessionStoreChangeTask: Task<Void, Never>?
+    @SharedEvent(\.sessionStoreDidChange) private var sessionStoreDidChange
 
     // MARK: - Init
 
@@ -41,9 +42,8 @@ final class UICacheInvalidationService {
 
     func startObserving() {
         guard sessionStoreChangeTask == nil else { return }
-
-        let sessionStoreChanges = Shared.sessionStoreDidChange.events
         sessionStoreChangeTask = Task { [weak self] in
+            guard let sessionStoreChanges = self?.sessionStoreDidChange.events else { return }
             for await change in sessionStoreChanges {
                 self?.handleChange(change)
             }

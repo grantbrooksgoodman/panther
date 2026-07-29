@@ -33,9 +33,11 @@ struct SplashPageView: View {
     init(_ viewModel: ViewModel<SplashPageReducer>) {
         _viewModel = .init(
             wrappedValue: viewModel
-                .observing(Shared.networkActivityOccurred.events) { _ in
-                    .bundleInitializationProgressOccurred
-                }
+                .observing(
+                    SharedEvent(\.networkActivityOccurred)
+                        .wrappedValue
+                        .events
+                ) { _ in .bundleInitializationProgressOccurred }
         )
     }
 

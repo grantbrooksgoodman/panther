@@ -26,6 +26,10 @@ struct ChatInfoPageReducer: Reducer {
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 
+    // MARK: - Properties
+
+    @SharedEvent(\.currentConversationMetadataChanged) private var currentConversationMetadataChanged
+
     // MARK: - Actions
 
     enum Action {
@@ -473,7 +477,7 @@ struct ChatInfoPageReducer: Reducer {
             let oldConversationIsPenPalsConversation = state.conversation?.metadata.isPenPalsConversation == true
 
             chatPageViewService.reloadCollectionView() // TODO: Audit why this didn't seem necessary before, but is now.
-            Shared.currentConversationMetadataChanged.send()
+            currentConversationMetadataChanged.send()
 
             if let titleLabelText = state.cellViewData?.titleLabelText {
                 chatPageViewService.setNavigationTitle(titleLabelText)

@@ -25,6 +25,10 @@ struct SettingsPageReducer: Reducer {
     @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
     @Dependency(\.settingsPageViewService) private var viewService: SettingsPageViewService
 
+    // MARK: - Properties
+
+    @SharedEvent(\.traitCollectionChanged) private var traitCollectionChanged
+
     // MARK: - Actions
 
     enum Action {
@@ -257,12 +261,12 @@ struct SettingsPageReducer: Reducer {
             state.groupedListViewsID = UUID()
 
         case .viewDisappeared:
-            let traitCollectionChanged = state.traitCollectionChanged
+            let traitCollectionDidChange = state.traitCollectionChanged
             return .task { @MainActor in
                 NavigationBar.setAppearance(.conversationsPageView)
                 ConversationsPageView.reapplyNavigationBarItemGlassTintIfNeeded()
-                guard traitCollectionChanged else { return .none }
-                Shared.traitCollectionChanged.send()
+                guard traitCollectionDidChange else { return .none }
+                traitCollectionChanged.send()
                 return .none
             }
         }

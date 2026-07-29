@@ -37,6 +37,7 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
     private(set) var captureGranularity: CaptureGranularity = .broad
     private(set) var savesToPhotos = true
 
+    @SharedEvent(\.breadcrumbsDidCapture) private var breadcrumbsDidCapture
     private var captureTask: Task<Void, Never>?
     private var recordedViewControllers = Set<String>()
     private var recordedViews = Set<String>()
@@ -187,7 +188,7 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
 
         captureHistory.insert(viewHierarchyID)
         self.captureHistory = captureHistory
-        Shared.breadcrumbsDidCapture.send()
+        breadcrumbsDidCapture.send()
 
         Task.detached(priority: .background) {
             guard let imageData = image.dataCompressed(toKB: 100) ?? image.jpegData(compressionQuality: 0.5) else { return }

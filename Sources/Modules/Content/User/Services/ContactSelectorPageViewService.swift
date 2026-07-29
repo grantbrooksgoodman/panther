@@ -25,6 +25,11 @@ struct ContactSelectorPageViewService {
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
 
+    // MARK: - Properties
+
+    @SharedEvent(\.chatInfoPageLoadingStateUpdated) private var chatInfoPageLoadingStateUpdated
+    @SharedEvent(\.currentConversationActivityChanged) private var currentConversationActivityChanged
+
     // MARK: - Reducer Action Handlers
 
     @MainActor
@@ -101,7 +106,7 @@ struct ContactSelectorPageViewService {
             ) {
                 Task { @MainActor in
                     navigation.navigate(to: .chat(.sheet(.none)))
-                    Shared.chatInfoPageLoadingStateUpdated.send()
+                    chatInfoPageLoadingStateUpdated.send()
 
                     do throws(Exception) {
                         try await entitySession.activity.addToConversation(
@@ -110,7 +115,7 @@ struct ContactSelectorPageViewService {
                         )
 
                         chatPageViewService.reloadCollectionView()
-                        Shared.currentConversationActivityChanged.send()
+                        currentConversationActivityChanged.send()
                     } catch {
                         Logger.log(
                             error,

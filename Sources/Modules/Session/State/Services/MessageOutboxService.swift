@@ -23,6 +23,7 @@ struct MessageOutboxService {
 
     let entries = LockIsolated<[String: OutboxEntry]>([:])
 
+    @SharedEvent(\.messageOutboxDidChange) private var messageOutboxDidChange
     @Persistent(.messageOutbox) private var persistedOutbox: [OutboxEntry]?
 
     // MARK: - Computed Properties
@@ -118,7 +119,7 @@ struct MessageOutboxService {
                 sender: self
             )
 
-            Shared.messageOutboxDidChange.send()
+            messageOutboxDidChange.send()
         }
 
         return claimedEntry
@@ -134,7 +135,7 @@ struct MessageOutboxService {
             sender: self
         )
 
-        Shared.messageOutboxDidChange.send()
+        messageOutboxDidChange.send()
     }
 
     func markFailed(id: String) {
@@ -150,7 +151,7 @@ struct MessageOutboxService {
             sender: self
         )
 
-        Shared.messageOutboxDidChange.send()
+        messageOutboxDidChange.send()
     }
 
     func remove(id: String) {
@@ -166,7 +167,7 @@ struct MessageOutboxService {
             sender: self
         )
 
-        Shared.messageOutboxDidChange.send()
+        messageOutboxDidChange.send()
     }
 
     func removeAll() {
@@ -187,7 +188,7 @@ struct MessageOutboxService {
             sender: self
         )
 
-        Shared.messageOutboxDidChange.send()
+        messageOutboxDidChange.send()
     }
 
     // MARK: - Payload Directory Methods

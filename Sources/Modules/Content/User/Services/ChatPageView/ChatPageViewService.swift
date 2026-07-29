@@ -57,8 +57,10 @@ final class ChatPageViewService {
     private(set) var typingIndicator: TypingIndicatorService?
 
     private var configuration: ChatPageView.Configuration = .default
+    @SharedEvent(\.messageOutboxDidChange) private var messageOutboxDidChange
     private var outboxChangeTask: Task<Void, Never>?
     private var sessionStoreChangeTask: Task<Void, Never>?
+    @SharedEvent(\.sessionStoreDidChange) private var sessionStoreDidChange
     private var viewController: ChatPageViewController?
 
     // MARK: - Computed Properties
@@ -178,8 +180,8 @@ final class ChatPageViewService {
         }
 
         if outboxChangeTask == nil {
-            let outboxChanges = Shared.messageOutboxDidChange.events
             outboxChangeTask = Task { [weak self] in
+                guard let outboxChanges = self?.messageOutboxDidChange.events else { return }
                 for await _ in outboxChanges {
                     self?.handleOutboxChange()
                 }
@@ -187,8 +189,8 @@ final class ChatPageViewService {
         }
 
         if sessionStoreChangeTask == nil {
-            let sessionStoreChanges = Shared.sessionStoreDidChange.events
             sessionStoreChangeTask = Task { [weak self] in
+                guard let sessionStoreChanges = self?.sessionStoreDidChange.events else { return }
                 for await change in sessionStoreChanges {
                     guard [.conversations, .messages].contains(change.kind) else { continue }
                     self?.handleSessionStoreChange(change)

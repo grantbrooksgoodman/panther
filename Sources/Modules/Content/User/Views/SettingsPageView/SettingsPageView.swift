@@ -48,18 +48,26 @@ struct SettingsPageView: View {
                     // value; the switch state is synchronized from the
                     // current user on appearance, and only permission
                     // changes occurring after subscription should update it.
-                    Shared.didGrantAIEnhancedTranslationPermission.changes.dropFirst()
+                    SharedState(\.didGrantAIEnhancedTranslationPermission)
+                        .projectedValue
+                        .changes
+                        .dropFirst()
                 ) { .aiEnhancedTranslationsSwitchToggled(on: $0) }
                 .observing(
                     // Dropping the first element skips the replayed current
                     // value; the switch state is synchronized from the
                     // current user on appearance, and only permission
                     // changes occurring after subscription should update it.
-                    Shared.didGrantPenPalsPermission.changes.dropFirst()
+                    SharedState(\.didGrantPenPalsPermission)
+                        .projectedValue
+                        .changes
+                        .dropFirst()
                 ) { .penPalsParticipantSwitchToggled(on: $0) }
-                .observing(Shared.traitCollectionChanged.events) { _ in
-                    .traitCollectionChanged
-                }
+                .observing(
+                    SharedEvent(\.traitCollectionChanged)
+                        .wrappedValue
+                        .events
+                ) { _ in .traitCollectionChanged }
         )
     }
 
