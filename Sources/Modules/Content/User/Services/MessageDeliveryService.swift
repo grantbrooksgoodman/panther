@@ -21,7 +21,6 @@ final class MessageDeliveryService {
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
@@ -30,6 +29,8 @@ final class MessageDeliveryService {
         didSet { didSetIsSendingMessage() }
     }
 
+    @SharedEvent(\.audioMessageTranscriptionSucceeded) private var audioMessageTranscriptionSucceeded
+    private var eventChangeTask: Task<Void, Never>?
     @SharedEvent(\.firstMessageSentInNewChat) private var firstMessageSentInNewChat
     private var uponIsSendingMessageChangedToFalse = [MessageDeliveryServiceEffectID: () -> Void]()
     private var uponIsSendingMessageChangedToTrue = [MessageDeliveryServiceEffectID: () -> Void]()
@@ -66,12 +67,8 @@ final class MessageDeliveryService {
 
     @MainActor
     deinit {
-        typealias Strings = AppConstants.Strings.MessageSessionService
-        notificationCenter.removeObserver(
-            self,
-            name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
-            object: nil
-        )
+        eventChangeTask?.cancel()
+        eventChangeTask = nil
     }
 
     // MARK: - Add Effect
@@ -139,24 +136,22 @@ final class MessageDeliveryService {
 
         // Register the notification handler for the draft path only.
         if outboxEntryID == nil {
-            typealias Strings = AppConstants.Strings.MessageSessionService
-            notificationCenter.addObserver(
-                self,
-                name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
-                removeAfterFirstPost: true
-            ) { notification in
-                guard let userInfo = notification.userInfo,
-                      let conversationIDKey = userInfo[Strings.conversationIDKeyNotificationUserInfoKey] as? String,
-                      let inputFile = userInfo[Strings.inputFileNotificationUserInfoKey] as? AudioFile,
-                      let isPenPalsConversation = userInfo[Strings.isPenPalsConversationNotificationUserInfoKey] as? Bool else { return }
+            eventChangeTask = Task { [weak self] in
+                guard let self else { return }
+                for await transcriptionData in audioMessageTranscriptionSucceeded.events {
+                    defer {
+                        eventChangeTask?.cancel()
+                        eventChangeTask = nil
+                    }
 
-                guard conversationIDKey == self.clientSession.entity.conversation.currentConversation?.id.key else { return }
-                self.addMockMessageToCurrentConversation(
-                    audioFile: inputFile,
-                    mediaFile: nil,
-                    text: nil,
-                    isPenPalsConversation: isPenPalsConversation
-                )
+                    guard transcriptionData.conversationIDKey == conversation?.id.key else { return }
+                    addMockMessageToCurrentConversation(
+                        audioFile: transcriptionData.inputFile,
+                        mediaFile: nil,
+                        text: nil,
+                        isPenPalsConversation: transcriptionData.isPenPalsConversation
+                    )
+                }
             }
         }
 
@@ -488,32 +483,6 @@ final class MessageDeliveryService {
         }
 
         firstMessageSentInNewChat.send()
-    }
-
-    @objc
-    private func postedTranscriptionSucceededNotification(_ notification: Notification) {
-        typealias Strings = AppConstants.Strings.MessageSessionService
-
-        guard let userInfo = notification.userInfo,
-              let conversationIDKey = userInfo[Strings.conversationIDKeyNotificationUserInfoKey] as? String,
-              let inputFile = userInfo[Strings.inputFileNotificationUserInfoKey] as? AudioFile,
-              let isPenPalsConversation = userInfo[Strings.isPenPalsConversationNotificationUserInfoKey] as? Bool else { return }
-
-        defer {
-            notificationCenter.removeObserver(
-                self,
-                name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
-                object: nil
-            )
-        }
-
-        guard conversationIDKey == clientSession.entity.conversation.currentConversation?.id.key else { return }
-        addMockMessageToCurrentConversation(
-            audioFile: inputFile,
-            mediaFile: nil,
-            text: nil,
-            isPenPalsConversation: isPenPalsConversation
-        )
     }
 
     private func setCurrentConversationIfApplicable(

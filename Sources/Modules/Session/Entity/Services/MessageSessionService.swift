@@ -20,7 +20,6 @@ struct MessageSessionService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.MessageSessionService
-    private typealias Strings = AppConstants.Strings.MessageSessionService
 
     // MARK: - Dependencies
 
@@ -28,8 +27,11 @@ struct MessageSessionService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.languageRecognitionService) private var languageRecognitionService: LanguageRecognitionService
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.commonServices) private var services: CommonServices
+
+    // MARK: - Properties
+
+    @SharedEvent(\.audioMessageTranscriptionSucceeded) private var audioMessageTranscriptionSucceeded
 
     // MARK: - Send Audio Message
 
@@ -52,14 +54,12 @@ struct MessageSessionService {
             languageCode: currentUser.languageCode
         )
 
-        notificationCenter.post(
-            name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
-            object: self,
-            userInfo: [
-                Strings.conversationIDKeyNotificationUserInfoKey: conversation.value?.id.key ?? CommonConstants.newConversationID,
-                Strings.inputFileNotificationUserInfoKey: inputFile,
-                Strings.isPenPalsConversationNotificationUserInfoKey: conversation.isPenPalsConversation,
-            ]
+        audioMessageTranscriptionSucceeded.send(
+            .init(
+                conversationIDKey: conversation.value?.id.key ?? CommonConstants.newConversationID,
+                inputFile: inputFile,
+                isPenPalsConversation: conversation.isPenPalsConversation
+            )
         )
 
         if shouldAnimateDeliveryProgress(in: conversation.value) {

@@ -26,14 +26,3 @@ extension AppConstants.CGFloats {
         static let updateValueDeliveryProgressIncrement: Float = 0.2
     }
 }
-
-// MARK: - String
-
-extension AppConstants.Strings {
-    enum MessageSessionService { // swiftlint:disable:next identifier_name
-        static let audioMessageTranscriptionSucceededNotificationName = "audioMessageTranscriptionSucceeded"
-        static let conversationIDKeyNotificationUserInfoKey = "conversationIDKey"
-        static let inputFileNotificationUserInfoKey = "inputFile" // swiftlint:disable:next identifier_name
-        static let isPenPalsConversationNotificationUserInfoKey = "isPenPalsConversation"
-    }
-}
