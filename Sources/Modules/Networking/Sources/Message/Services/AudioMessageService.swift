@@ -67,7 +67,8 @@ struct AudioMessageService {
 
     func uploadAudioComponents(
         _ audioComponents: [AudioMessageReference],
-        for message: Message
+        for message: Message,
+        inputUploadTask: Task<Callback<Void, Exception>, Never>? = nil
     ) async throws(Exception) {
         enum UploadOperation {
             case input
@@ -108,24 +109,20 @@ struct AudioMessageService {
         func uploadInput() async throws(Exception) {
             guard let originalFile = audioComponents.first?.original else { return }
 
-            let inputFile: AudioFile = .init(
-                originalFile.url,
-                name: message.id,
-                fileExtension: originalFile.fileExtension,
-                contentDuration: originalFile.contentDuration ?? .init()
-            )
-
-            if await !preRecordedInputExists(for: inputFile) {
-                try await upload(
-                    audioFile: inputFile,
-                    to: NetworkPath.audioMessageInputs.rawValue
+            if let inputUploadTask {
+                try await (inputUploadTask.value).get()
+            } else {
+                try await uploadInputAudioComponent(
+                    originalFile,
+                    messageID: message.id,
+                    isRetry: true
                 )
             }
 
-            let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(message.id).\(inputFile.fileExtension.rawValue)"
+            let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(message.id).\(originalFile.fileExtension.rawValue)"
             do {
                 try fileManager.move(
-                    fileAt: inputFile.url,
+                    fileAt: originalFile.url,
                     toPath: fileManager.documentsDirectoryURL.appending(path: inputFilePath)
                 )
             } catch {
@@ -133,10 +130,13 @@ struct AudioMessageService {
             }
         }
 
+        /// The placeholder convention is authoritative: for a
+        /// non-idempotent pair, translated.url == original.url means a
+        /// pre-recorded output exists and there is nothing to upload.
         func uploadOutput(for audioComponent: AudioMessageReference) async throws(Exception) {
-            guard !audioComponent.translation.languagePair.isIdempotent else { return }
+            guard !audioComponent.translation.languagePair.isIdempotent,
+                  audioComponent.translated.url != audioComponent.original.url else { return }
             defer { moveOutputFile(for: audioComponent) }
-            guard await !preRecordedOutputExists(for: audioComponent.translation) else { return }
 
             try await upload(
                 audioFile: audioComponent.translated,
@@ -153,6 +153,34 @@ struct AudioMessageService {
                     try await uploadOutput(for: audioComponent)
                 }
             }
+    }
+
+    /// Uploads the input recording under the specified message ID
+    /// without moving the local file; sequencing of the move is the
+    /// caller's responsibility.
+    func uploadInputAudioComponent(
+        _ inputFile: AudioFile,
+        messageID: String,
+        isRetry: Bool
+    ) async throws(Exception) {
+        let renamedInputFile: AudioFile = .init(
+            inputFile.url,
+            name: messageID,
+            fileExtension: inputFile.fileExtension,
+            contentDuration: inputFile.contentDuration ?? .init()
+        )
+
+        // Only a retry with a reserved ID can find a pre-recorded
+        // input; fresh sends upload immediately.
+        if isRetry,
+           await preRecordedInputExists(for: renamedInputFile) {
+            return
+        }
+
+        try await upload(
+            audioFile: renamedInputFile,
+            to: NetworkPath.audioMessageInputs.rawValue
+        )
     }
 
     // MARK: - Auxiliary
@@ -242,7 +270,7 @@ struct AudioMessageService {
         to path: String
     ) async throws(Exception) {
         try await networking.storage.upload(
-            Data.fromURL(audioFile.url),
+            fileAt: audioFile.url,
             metadata: .init(
                 [
                     path,

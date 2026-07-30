@@ -47,6 +47,7 @@ struct MessageService {
     func buildMessage(
         fromAccountID: String,
         presetID: String? = nil,
+        inputUploadTask: Task<Callback<Void, Exception>, Never>? = nil,
         richContent: RichMessageContent?,
         sentDate: Date = .now,
         translations: [Translation]?
@@ -102,7 +103,8 @@ struct MessageService {
 
             try await audio.uploadAudioComponents(
                 audioComponents,
-                for: mockMessage
+                for: mockMessage,
+                inputUploadTask: inputUploadTask
             )
 
             // NIT: Can have uploadAudioComponents modify the message.

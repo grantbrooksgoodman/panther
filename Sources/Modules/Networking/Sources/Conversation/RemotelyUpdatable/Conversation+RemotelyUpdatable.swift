@@ -262,6 +262,18 @@ extension Conversation: RemotelyUpdatable {
             uniquingKeysWith: { _, new in new }
         )
 
+        // Merge pending hosted-archive entries into the same payload;
+        // a message node must never commit without its translations
+        // being resolvable from the hosted archive.
+        for newMessage in newMessages {
+            for reference in newMessage.translationReferences ?? [] {
+                guard let entry = PendingTranslationArchive.drain(
+                    for: reference.hostingKey
+                ) else { continue }
+                updates[entry.key] = entry.value
+            }
+        }
+
         SelfWriteRegistry.record(conversation.id)
         try await database.commit(updates)
         return .handled(conversation)

@@ -105,60 +105,63 @@ struct MediaMessageService {
         _ mediaComponent: MediaFile,
         for message: Message
     ) async throws(Exception) {
+        enum UploadOperation {
+            case primary
+            case thumbnail
+        }
+
         let pathPrefix = "\(NetworkPath.media.rawValue)/\(mediaComponent.encodedHash.shortened)"
         let relativePath = "\(pathPrefix).\(mediaComponent.fileExtension.rawValue)"
         let thumbnailRelativePath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 
-        if await (try? networking.storage.itemExists(at: relativePath)) == true {
-            guard mediaComponent.hasThumbnail,
-                  await (try? networking.storage.itemExists(at: thumbnailRelativePath)) == false else {
-                try fileManager.move(
+        func uploadPrimary() async throws(Exception) {
+            if await (try? networking.storage.itemExists(at: relativePath)) != true {
+                try await networking.storage.upload(
                     fileAt: mediaComponent.localPathURL,
-                    toPath: fileManager.documentsDirectoryURL.appending(
-                        path: relativePath
-                    )
-                )
-
-                guard mediaComponent.hasThumbnail,
-                      let thumbnailPath = mediaComponent.localPathURL.thumbnailPath else { return }
-
-                return try fileManager.move(
-                    fileAt: thumbnailPath,
-                    toPath: fileManager.documentsDirectoryURL.appending(
-                        path: thumbnailRelativePath
+                    metadata: .init(
+                        relativePath,
+                        contentType: mediaComponent.fileExtension.contentTypeString
                     )
                 )
             }
+
+            try fileManager.move(
+                fileAt: mediaComponent.localPathURL,
+                toPath: fileManager.documentsDirectoryURL.appending(path: relativePath)
+            )
         }
 
-        try await networking.storage.upload(
-            Data.fromURL(mediaComponent.localPathURL),
-            metadata: .init(
-                relativePath,
-                contentType: mediaComponent.fileExtension.contentTypeString
+        func uploadThumbnail() async throws(Exception) {
+            guard mediaComponent.hasThumbnail,
+                  let thumbnailPath = mediaComponent.localPathURL.thumbnailPath else { return }
+
+            if await (try? networking.storage.itemExists(at: thumbnailRelativePath)) != true {
+                try await networking.storage.upload(
+                    fileAt: thumbnailPath,
+                    metadata: .init(
+                        thumbnailRelativePath,
+                        contentType: MediaFileExtension.image(.jpeg).contentTypeString
+                    )
+                )
+            }
+
+            try fileManager.move(
+                fileAt: thumbnailPath,
+                toPath: fileManager.documentsDirectoryURL.appending(path: thumbnailRelativePath)
             )
-        )
+        }
 
-        try fileManager.move(
-            fileAt: mediaComponent.localPathURL,
-            toPath: fileManager.documentsDirectoryURL.appending(path: relativePath)
-        )
-
-        guard mediaComponent.hasThumbnail,
-              let thumbnailPath = mediaComponent.localPathURL.thumbnailPath else { return }
-
-        try await networking.storage.upload(
-            Data.fromURL(thumbnailPath),
-            metadata: .init(
-                thumbnailRelativePath,
-                contentType: MediaFileExtension.image(.jpeg).contentTypeString
-            )
-        )
-
-        try fileManager.move(
-            fileAt: thumbnailPath,
-            toPath: fileManager.documentsDirectoryURL.appending(path: thumbnailRelativePath)
-        )
+        // The primary file and its thumbnail are independent Storage
+        // objects; each existence check gates only its own upload.
+        try await [
+            UploadOperation.primary,
+            .thumbnail,
+        ].forEachConcurrently { operation throws(Exception) in
+            switch operation {
+            case .primary: try await uploadPrimary()
+            case .thumbnail: try await uploadThumbnail()
+            }
+        }
     }
 
     // MARK: - Auxiliary

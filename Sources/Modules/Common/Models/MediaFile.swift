@@ -20,6 +20,8 @@ struct MediaFile: Codable, EncodedHashable, Hashable {
     let name: String
     let relativePath: String
 
+    private static let contentHashes = LockIsolated([String: String]())
+
     // MARK: - Computed Properties
 
     var hashFactors: [String] {
@@ -27,7 +29,7 @@ struct MediaFile: Codable, EncodedHashable, Hashable {
 
         do {
             try factors.append(
-                Data.fromURL(localPathURL).hash
+                Self.contentHash(forFileAt: localPathURL)
             )
         } catch {
             Logger.log(error)
@@ -82,6 +84,34 @@ struct MediaFile: Codable, EncodedHashable, Hashable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(hashFactors)
+    }
+
+    // MARK: - Auxiliary
+
+    /// Files at these paths are effectively immutable once written,
+    /// so a path + size + modification date key is sufficient; a
+    /// changed file produces a new key.
+    private static func contentHash(forFileAt url: URL) throws(Exception) -> String {
+        @Dependency(\.fileManager) var fileManager: FileManager
+
+        var cacheKey: String?
+        if let attributes = try? fileManager.attributesOfItem(atPath: url.path(percentEncoded: false)),
+           let fileSize = attributes[.size] as? Int,
+           let modificationDate = attributes[.modificationDate] as? Date {
+            cacheKey = "\(url.path())|\(fileSize)|\(modificationDate.timeIntervalSince1970)"
+        }
+
+        if let cacheKey,
+           let contentHash = contentHashes.wrappedValue[cacheKey] {
+            return contentHash
+        }
+
+        let contentHash = try Data.fromURL(url).hash
+        if let cacheKey {
+            contentHashes.wrappedValue[cacheKey] = contentHash
+        }
+
+        return contentHash
     }
 }
 

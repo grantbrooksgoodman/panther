@@ -756,6 +756,7 @@
 		BCFA191F8A419DEF1E3DA8E9 /* SessionStoreChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520CADEF63996EC3E433927D /* SessionStoreChange.swift */; };
 		C1AABB022F66000100000002 /* SelfWriteRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AABB012F66000100000001 /* SelfWriteRecord.swift */; };
 		C1AABB042F66000100000004 /* SelfWriteRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AABB032F66000100000003 /* SelfWriteRegistry.swift */; };
+		C1AABB062F66000100000006 /* PendingTranslationArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AABB052F66000100000005 /* PendingTranslationArchive.swift */; };
 		FC0174F277EC2B91EC5821FA /* SessionStore+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A614D5D4A6F3B22606AB10D0 /* SessionStore+UserContentExtensions.swift */; };
 /* End PBXBuildFile section */
 
@@ -1606,6 +1607,7 @@
 		B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorService.swift; sourceTree = "<group>"; };
 		C1AABB012F66000100000001 /* SelfWriteRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfWriteRecord.swift; sourceTree = "<group>"; };
 		C1AABB032F66000100000003 /* SelfWriteRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfWriteRegistry.swift; sourceTree = "<group>"; };
+		C1AABB052F66000100000005 /* PendingTranslationArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTranslationArchive.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1861,6 +1863,7 @@
 			children = (
 				0FC46C9C8A805C60F23920D0 /* MessageOutboxService.swift */,
 				46D796340D4837FEB17610C1 /* MessageOutboxService+Retry.swift */,
+				C1AABB052F66000100000005 /* PendingTranslationArchive.swift */,
 				C1AABB032F66000100000003 /* SelfWriteRegistry.swift */,
 				A25F1C2D2FF34E4B00425FC2 /* SessionStore.swift */,
 			);
@@ -4334,6 +4337,7 @@
 				B90C91242B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift in Sources */,
 				B99E48E22CE16AC2006D6AFC /* ConversationSyncService.swift in Sources */,
 				C1AABB042F66000100000004 /* SelfWriteRegistry.swift in Sources */,
+				C1AABB062F66000100000006 /* PendingTranslationArchive.swift in Sources */,
 				B98589B52B60515D00E549C0 /* ConversationCellViewData.swift in Sources */,
 				B9870AA62C4574C3002B1093 /* URL+UserContentExtensions.swift in Sources */,
 				A2BE20212F2C42860006F7AF /* FeaturePermissionPageReducer.swift in Sources */,

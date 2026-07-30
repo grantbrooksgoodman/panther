@@ -50,6 +50,30 @@ struct MessageSessionService {
             )
         }
 
+        guard let messageID = presetID ?? networking.database.generateKey(
+            for: NetworkPath.messages.rawValue
+        ) else {
+            throw Exception(
+                "Failed to generate key for new message.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        // The input recording is the largest payload and depends only
+        // on itself and the message ID; upload it behind the
+        // transcription + translation + TTS compute. Concurrent reads
+        // of the file are safe; the local move is sequenced after this
+        // task completes, inside uploadAudioComponents.
+        let inputUploadTask = Task {
+            await Callback.asCallback {
+                try await networking.messageService.audio.uploadInputAudioComponent(
+                    inputFile,
+                    messageID: messageID,
+                    isRetry: presetID != nil
+                )
+            }
+        }
+
         var transcription = transcription ?? ""
         if transcription.trimmingBorderedWhitespace.isEmpty {
             transcription = try await services.audio.transcription.transcribeAudioFile(
@@ -103,8 +127,11 @@ struct MessageSessionService {
                                 from: currentUser.languageCode,
                                 to: languageCode
                             ),
-                            enhance: enhancementConfig
+                            enhance: enhancementConfig,
+                            archive: .deferred
                         )
+
+                        await recordPendingArchiveEntry(for: translation)
 
                         if !translation.languagePair.isIdempotent,
                            await !networking.messageService.audio.preRecordedOutputExists(for: translation) {
@@ -203,7 +230,8 @@ struct MessageSessionService {
                 conversation: conversation,
                 initiatingUser: currentUser,
                 otherUsers: users,
-                presetID: presetID,
+                presetID: messageID,
+                inputUploadTask: inputUploadTask,
                 richContent: .audio(audioComponents),
                 translations: translations
             )
@@ -289,14 +317,18 @@ struct MessageSessionService {
         )
 
         let translations = try await uniqueLanguageCodes.parallelMap { languageCode in
-            try await networking.hostedTranslation.translate(
+            let translation = try await networking.hostedTranslation.translate(
                 .init(text),
                 with: .init(
                     from: sourceLanguageCode,
                     to: languageCode
                 ),
-                enhance: enhancementConfig
+                enhance: enhancementConfig,
+                archive: .deferred
             )
+
+            await recordPendingArchiveEntry(for: translation)
+            return translation
         }
 
         guard translations.isWellFormed else {
@@ -323,6 +355,7 @@ struct MessageSessionService {
         initiatingUser: User,
         otherUsers: [User],
         presetID: String? = nil,
+        inputUploadTask: Task<Callback<Void, Exception>, Never>? = nil,
         richContent: RichMessageContent?,
         translations: [Translation]?
     ) async throws(Exception) -> Conversation {
@@ -380,6 +413,7 @@ struct MessageSessionService {
             message = try await networking.messageService.buildMessage(
                 fromAccountID: initiatingUser.id,
                 presetID: presetID,
+                inputUploadTask: inputUploadTask,
                 richContent: richContent,
                 translations: translations
             )
@@ -469,6 +503,21 @@ struct MessageSessionService {
         Task { @MainActor in
             clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: by)
         }
+    }
+
+    /// Deferred-archival translations archive atomically with the
+    /// message commit; the entry waits in ``PendingTranslationArchive``
+    /// until the commit drains it into its fan-out payload.
+    @MainActor
+    private func recordPendingArchiveEntry(for translation: Translation) {
+        guard let archiveEntry = networking.hostedTranslation.hostedArchiveEntry(
+            for: translation
+        ) else { return }
+
+        PendingTranslationArchive.record(
+            archiveEntry,
+            for: translation.reference.hostingKey
+        )
     }
 
     /// An input written in another participant's language becomes the

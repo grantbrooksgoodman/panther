@@ -108,6 +108,16 @@ struct ConversationService {
             $0.key != Message.SerializableKey.id.rawValue
         }
 
+        // Merge pending hosted-archive entries into the same payload;
+        // a message node must never commit without its translations
+        // being resolvable from the hosted archive.
+        for reference in firstMessage.translationReferences ?? [] {
+            guard let entry = PendingTranslationArchive.drain(
+                for: reference.hostingKey
+            ) else { continue }
+            updates[entry.key] = entry.value
+        }
+
         try await networking.database.commit(updates)
         mockConversation = mockConversation.copying(id: conversationID)
         return mockConversation
