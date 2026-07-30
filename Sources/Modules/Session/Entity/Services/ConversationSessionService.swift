@@ -180,7 +180,7 @@ final class ConversationSessionService: @unchecked Sendable {
             )
         }
 
-        displayedMessages = messages
+        displayedMessages = messages.uniquedByID
     }
 
     // MARK: - Deletion

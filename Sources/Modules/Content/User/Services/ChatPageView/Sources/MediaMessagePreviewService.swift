@@ -45,9 +45,8 @@ final class MediaMessagePreviewService {
 
     private var mediaPaths: [String] {
         viewController
-            .currentConversation?
-            .messages?
-            .compactMap { $0.richContent?.mediaComponent?.localPathURL.path() } ?? []
+            .displayedMessages
+            .compactMap { $0.richContent?.mediaComponent?.localPathURL.path() }
     }
 
     // MARK: - Init
@@ -70,10 +69,7 @@ final class MediaMessagePreviewService {
 
     func didTapImage(in cell: MessageCollectionViewCell) {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
-              let message = viewController
-              .currentConversation?
-              .messages?
-              .itemAt(indexPath.section),
+              let message = viewController.displayedMessages.itemAt(indexPath.section),
               message.contentType.isMedia,
               let filePath = message.richContent?.mediaComponent?.localPathURL.path(),
               fileManager.fileExists(atPath: filePath),

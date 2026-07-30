@@ -44,6 +44,7 @@ struct ConversationCellReducer: Reducer {
         case reloadData
         case reloadingConversationsChanged(Set<String>)
         case reportUsersButtonTapped
+        case searchQueryChanged(String)
         case sessionStoreDidChange(SessionStoreChange)
         case userInfoBadgeTapped
 
@@ -212,16 +213,10 @@ struct ConversationCellReducer: Reducer {
             }
 
         case .reloadData:
-            guard let cellViewData = ConversationCellViewData(
-                state.conversation,
-                searchQuery: state.searchQuery,
+            return reloadCellViewData(
+                into: &state,
                 useCachedValue: false
-            ) else {
-                return reloadDataRetryTask(for: state.conversation)
-            }
-
-            guard cellViewData != state.cellViewData else { return .none }
-            state.cellViewData = cellViewData
+            )
 
         case let .reloadingConversationsChanged(conversationIDKeys):
             state.isConversationReloading = conversationIDKeys.contains(state.conversationIDKey)
@@ -235,6 +230,11 @@ struct ConversationCellReducer: Reducer {
                     Logger.log(error)
                 }
             }
+
+        case let .searchQueryChanged(searchQuery):
+            guard state.searchQuery != searchQuery else { return .none }
+            state.searchQuery = searchQuery
+            return reloadCellViewData(into: &state)
 
         case let .sessionStoreDidChange(change):
             guard isRelevantChange(
@@ -287,6 +287,23 @@ private extension ConversationCellReducer {
                 conversation.participants.map(\.userID)
             ).isDisjoint(with: upsertedIDs.union(removedIDs))
         }
+    }
+
+    func reloadCellViewData(
+        into state: inout State,
+        useCachedValue: Bool = true
+    ) -> Effect<Action> {
+        guard let cellViewData = ConversationCellViewData(
+            state.conversation,
+            searchQuery: state.searchQuery,
+            useCachedValue: useCachedValue
+        ) else {
+            return reloadDataRetryTask(for: state.conversation)
+        }
+
+        guard cellViewData != state.cellViewData else { return .none }
+        state.cellViewData = cellViewData
+        return .none
     }
 
     /// Retries the reload rather than consuming it; participants or

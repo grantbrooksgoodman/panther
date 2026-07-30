@@ -31,7 +31,9 @@ final class SearchInteractionService {
     // MARK: - Computed Properties
 
     private var focusedMessageCellGestureRecognizer: UILongPressGestureRecognizer? {
-        guard let focusedMessageIndex = displayedMessages.firstIndex(where: { $0.id == focusedMessageID }) else { return nil }
+        guard let focusedMessageIndex = displayedMessages.firstIndex(where: {
+            $0.id == focusedMessageID
+        }) else { return nil }
         return viewController
             .messagesCollectionView
             .cellForItem(at: .init(item: 0, section: focusedMessageIndex))?
@@ -75,6 +77,14 @@ final class SearchInteractionService {
 
         focusedMessageCellGestureRecognizer.state = .began
         ContextMenuInteractor.shared.beginInteraction(focusedMessageCellGestureRecognizer)
+
+        // The synthetic `.began` above has no touch sequence to complete
+        // it, and a long press recognizer wedged in the in-progress state
+        // swallows all future presses on the cell; toggling `isEnabled`
+        // resets it to `.possible`.
+        focusedMessageCellGestureRecognizer.isEnabled = false
+        focusedMessageCellGestureRecognizer.isEnabled = true
+
         hasTriggeredInteractionOnce = true
     }
 }

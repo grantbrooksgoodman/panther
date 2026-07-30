@@ -121,26 +121,50 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
     }
 
     private func loadVideo(_ itemProvider: NSItemProvider) {
-        itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { url, error in
+        typealias Strings = AppConstants.Strings.ChatPageViewService.MediaActionHandler
+
+        let fileManager = fileManager
+        let temporaryFileName = "\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
+        let temporaryFilePath = fileManager.temporaryDirectory.appending(path: temporaryFileName)
+
+        itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { @Sendable url, error in
+            // The system deletes the source file when this handler returns; the copy must complete synchronously here.
+            let copyResult: Callback<URL, Exception>
+
+            if let url {
+                try? fileManager.removeItem(atPath: temporaryFilePath.path())
+
+                do {
+                    try fileManager.copyItem(
+                        at: url,
+                        to: temporaryFilePath
+                    )
+
+                    copyResult = .success(temporaryFilePath)
+                } catch {
+                    copyResult = .failure(.init(
+                        error,
+                        metadata: .init(sender: self)
+                    ))
+                }
+            } else {
+                copyResult = .failure(.init(
+                    error,
+                    metadata: .init(sender: self)
+                ))
+            }
+
             Task { @MainActor in
                 self.timeout?.cancel()
                 self.core.hud.hide()
 
-                guard let url else {
-                    return self.dismissReturningFailure(.init(error, metadata: .init(sender: self)))
-                }
-
-                typealias Strings = AppConstants.Strings.ChatPageViewService.MediaActionHandler
-                let temporaryFileName = "\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
-                let temporaryFilePath = self.fileManager.temporaryDirectory.appending(path: temporaryFileName)
-                try? self.fileManager.removeItem(atPath: temporaryFilePath.path())
-
-                do {
-                    try self.fileManager.copyItem(at: url, to: temporaryFilePath)
-                    self._onDismiss?(.success(.video(temporaryFilePath)))
+                switch copyResult {
+                case let .success(videoFilePath):
+                    self._onDismiss?(.success(.video(videoFilePath)))
                     self._onDismiss = nil
-                } catch {
-                    self.dismissReturningFailure(.init(error, metadata: .init(sender: self)))
+
+                case let .failure(exception):
+                    self.dismissReturningFailure(exception)
                 }
             }
         }

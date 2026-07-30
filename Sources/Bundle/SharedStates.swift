@@ -36,6 +36,7 @@ import AppSubsystem
 /// Subscribe view models with ``ViewModelOf/observing(_:_:)``, or iterate
 /// the ``StateStream/changes`` stream from services.
 extension SharedStates {
+    var conversationsSearchQuery: StateStream<String> { state("") }
     var didGrantAIEnhancedTranslationPermission: StateStream<Bool> { state(false) }
     var didGrantPenPalsPermission: StateStream<Bool> { state(false) }
     var isNewChatPageDoneToolbarButtonEnabled: StateStream<Bool> { state(true) }

@@ -32,6 +32,7 @@ struct ConversationsPageReducer: Reducer {
     // MARK: - Properties
 
     @SharedEvent(\.conversationsPageReappeared) private var conversationsPageReappeared
+    @SharedState(\.conversationsSearchQuery) private var conversationsSearchQuery
 
     // MARK: - Actions
 
@@ -139,6 +140,11 @@ struct ConversationsPageReducer: Reducer {
         case .viewFirstAppeared:
             state.viewState = .loading
 
+            // Clears any query left in the shared stream by a previous
+            // page instance; cells subscribe against this instance's
+            // fresh state.
+            conversationsSearchQuery = state.searchQuery
+
             viewService.viewAppeared()
             viewService.showSecondsToLoadToastIfNeeded()
 
@@ -230,21 +236,9 @@ struct ConversationsPageReducer: Reducer {
         case let .searchQueryChanged(searchQuery):
             guard state.searchQuery != searchQuery else { return .none }
             state.searchQuery = searchQuery
+            conversationsSearchQuery = searchQuery
 
         case .sessionStoreDidChange:
-            var handleChatPageStoreChangeTask: Effect<Action> {
-                .task(
-                    priority: .userInitiated,
-                    delay: .milliseconds(250)
-                ) {
-                    .handleChatPageStoreChange
-                }
-                .cancellable(
-                    id: "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.handleChatPageStoreChange.rawValue)",
-                    cancelInFlight: true
-                )
-            }
-
             guard navigation.state.modal == .userContent else { return handleChatPageStoreChangeTask }
             state.conversationsChangeToken = UUID()
             viewService.showSecondsToLoadToastIfNeeded()
@@ -262,5 +256,20 @@ struct ConversationsPageReducer: Reducer {
         }
 
         return .none
+    }
+}
+
+private extension ConversationsPageReducer {
+    var handleChatPageStoreChangeTask: Effect<Action> {
+        .task(
+            priority: .userInitiated,
+            delay: .milliseconds(250)
+        ) {
+            .handleChatPageStoreChange
+        }
+        .cancellable(
+            id: "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.handleChatPageStoreChange.rawValue)",
+            cancelInFlight: true
+        )
     }
 }

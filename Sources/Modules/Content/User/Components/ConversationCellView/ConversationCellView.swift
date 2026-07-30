@@ -36,6 +36,14 @@ struct ConversationCellView: View {
                         .events
                 ) { _ in .reloadData }
                 .observing(
+                    // The replayed current value is deduplicated by the
+                    // reducer; cells are created with the query already
+                    // active at that moment.
+                    SharedState(\.conversationsSearchQuery)
+                        .projectedValue
+                        .changes
+                ) { .searchQueryChanged($0) }
+                .observing(
                     // The replayed current value is kept so that cells
                     // appearing mid-refresh redact immediately.
                     SharedState(\.reloadingConversationIDKeys)
