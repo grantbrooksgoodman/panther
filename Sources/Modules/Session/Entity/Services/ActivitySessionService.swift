@@ -100,6 +100,7 @@ struct ActivitySessionService {
         let newActivities = ((conversation.activities ?? []) + [activity]).filter { $0 != .empty }
         let newParticipants = conversation.participants.filter { $0.userID != userID }
         let newMetadata = conversation.metadata.copyWith(
+            name: newParticipants.count == 2 ? nil : conversation.metadata.name,
             messageRecipientConsentAcknowledgementData: conversation
                 .metadata
                 .messageRecipientConsentAcknowledgementData
@@ -108,6 +109,7 @@ struct ActivitySessionService {
                 .metadata
                 .penPalsSharingData
                 .filter { $0.userID != userID },
+            nilImageData: newParticipants.count == 2,
             nilRequiresConsentFromInitiator: conversation
                 .metadata
                 .requiresConsentFromInitiator == userID

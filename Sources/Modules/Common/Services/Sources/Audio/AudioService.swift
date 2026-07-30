@@ -18,7 +18,6 @@ struct AudioService {
 
     enum FileNames {
         static let inputM4A = "input.\(MediaFileExtension.audio(.m4a).rawValue)"
-        static let outputCAF = "output.\(MediaFileExtension.audio(.caf).rawValue)"
         static let outputM4A = "output.\(MediaFileExtension.audio(.m4a).rawValue)"
     }
 

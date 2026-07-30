@@ -114,19 +114,6 @@ struct AudioMessageService {
                 } catch {
                     Logger.log(error)
                 }
-
-                do {
-                    try fileManager.removeItem(
-                        at: fileManager.documentsDirectoryURL.appending(
-                            path: "\(audioComponent.translated.name).\(AudioFileExtension.caf.rawValue)"
-                        )
-                    )
-                } catch {
-                    Logger.log(.init(
-                        error,
-                        metadata: .init(sender: self)
-                    ))
-                }
             }
 
             try await uploadInput(audioComponent.original)

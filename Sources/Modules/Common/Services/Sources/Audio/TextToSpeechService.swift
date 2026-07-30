@@ -7,7 +7,7 @@
 //
 
 /* Native */
-import AVFoundation
+import AVFAudio
 import Foundation
 
 /* Proprietary */
@@ -37,11 +37,8 @@ struct TextToSpeechService {
             )
         }
 
-        return try await convertToM4A(
-            file: getAudioFile(
-                from: text,
-                languageCode: languageCode
-            ),
+        return try await getAudioFile(
+            from: text,
             languageCode: languageCode
         )
     }
@@ -101,97 +98,6 @@ struct TextToSpeechService {
 
     // MARK: - Auxiliary
 
-    private func convertToM4A(
-        file url: URL,
-        languageCode: String
-    ) async throws(Exception) -> URL {
-        let userInfo = ["FileURLString": url.absoluteString]
-
-        let fileName = "\(languageCode)-\(FileNames.outputM4A)"
-        let outputURL = fileManager.documentsDirectoryURL.appending(path: fileName)
-
-        let asset = AVURLAsset(url: url)
-        guard let exportSession = AVAssetExportSession(
-            asset: asset,
-            presetName: AVAssetExportPresetAppleM4A
-        ) else {
-            throw Exception(
-                "Failed to create export session.",
-                userInfo: userInfo,
-                metadata: .init(sender: self)
-            )
-        }
-
-        if fileManager.fileExists(
-            atPath: fileManager.pathToFileInDocuments(named: fileName)
-        ) {
-            do {
-                try fileManager.removeItem(at: outputURL)
-            } catch {
-                throw Exception(
-                    error,
-                    metadata: .init(sender: self)
-                ).appending(userInfo: userInfo)
-            }
-        }
-
-        exportSession.outputFileType = AVFileType.m4a
-        exportSession.outputURL = outputURL
-
-        do {
-            exportSession.metadata = try await asset.load(.metadata)
-        } catch {
-            throw Exception(
-                error,
-                metadata: .init(sender: self)
-            ).appending(userInfo: userInfo)
-        }
-
-        var didComplete = false
-        var canComplete: Bool {
-            guard !didComplete else { return false }
-            didComplete = true
-            return true
-        }
-
-        do {
-            return try await withCheckedThrowingContinuation { continuation in
-                let timeout = Timeout(after: .seconds(10)) {
-                    guard canComplete else { return }
-                    continuation.resume(
-                        throwing: Exception.timedOut(
-                            metadata: .init(sender: self)
-                        ).appending(userInfo: userInfo)
-                    )
-                }
-
-                exportSession.exportAsynchronously {
-                    guard canComplete else { return }
-                    timeout.cancel()
-                    guard let error = exportSession.error else {
-                        return continuation.resume(returning: outputURL)
-                    }
-
-                    continuation.resume(
-                        throwing: Exception(
-                            error,
-                            metadata: .init(sender: self)
-                        ).appending(userInfo: userInfo)
-                    )
-                }
-            }
-        } catch {
-            guard let exception = error as? Exception else {
-                throw Exception(
-                    error,
-                    metadata: .init(sender: self)
-                )
-            }
-
-            throw exception
-        }
-    }
-
     private func getAudioFile(
         from text: String,
         languageCode: String
@@ -199,9 +105,21 @@ struct TextToSpeechService {
         try await TextToSpeechWriteGate
             .shared
             .run { () async throws(Exception) -> URL in
-                let filePath = fileManager.documentsDirectoryURL.appending(
-                    path: "\(languageCode)-\(FileNames.outputCAF)"
-                )
+                let fileName = "\(languageCode)-\(FileNames.outputM4A)"
+                let filePath = fileManager.documentsDirectoryURL.appending(path: fileName)
+
+                if fileManager.fileExists(
+                    atPath: fileManager.pathToFileInDocuments(named: fileName)
+                ) {
+                    do {
+                        try fileManager.removeItem(at: filePath)
+                    } catch {
+                        throw Exception(
+                            error,
+                            metadata: .init(sender: self)
+                        ).appending(userInfo: ["FileURLString": filePath.absoluteString])
+                    }
+                }
 
                 let utterance = AVSpeechUtterance(string: text)
                 utterance.voice = highestQualityVoice(
@@ -243,7 +161,12 @@ struct TextToSpeechService {
                                 if output == nil {
                                     output = try AVAudioFile(
                                         forWriting: filePath,
-                                        settings: pcmBuffer.format.settings,
+                                        settings: [
+                                            AVFormatIDKey: kAudioFormatMPEG4AAC,
+                                            AVSampleRateKey: pcmBuffer.format.sampleRate,
+                                            AVNumberOfChannelsKey: pcmBuffer.format.channelCount,
+                                            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+                                        ],
                                         commonFormat: .pcmFormatFloat32,
                                         interleaved: false
                                     )
@@ -354,5 +277,3 @@ private actor TextToSpeechWriteGate {
         waiters.removeFirst().resume()
     }
 }
-
-extension AVAssetExportSession: @retroactive @unchecked Sendable {}
