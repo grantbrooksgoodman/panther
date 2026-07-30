@@ -32,6 +32,8 @@ extension AppConstants.CGFloats {
         static let navigationLinkFrameWidth: CGFloat = 0
         static let navigationLinkOpacity: CGFloat = 0
 
+        static let redactedTitleLabelSystemFontSize: CGFloat = 20
+
         // swiftlint:disable:next identifier_name
         static let subtitleLabelForegroundColorAdjustmentPercentage: CGFloat = 3
         static let subtitleLabelLineLimit: CGFloat = 2
@@ -69,6 +71,8 @@ extension AppConstants.Strings {
         static let blockUsersButtonImageSystemName = "flag"
         static let chevronImageSystemName = "chevron.forward"
         static let deleteConversationButtonImageSystemName = "trash"
+        static let redactedDateLabelText = "0/00/00"
+        static let redactedSubtitleLabelText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
         static let reportUsersButtonImageSystemName = "exclamationmark.bubble"
     }
 }

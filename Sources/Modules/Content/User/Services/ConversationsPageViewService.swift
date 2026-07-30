@@ -66,6 +66,7 @@ final class ConversationsPageViewService {
     @SharedEvent(\.currentConversationMetadataChanged) private var currentConversationMetadataChanged
     private var currentReloadType: ReloadType = .full
     private var didShowSecondsToLoadToast = false
+    @SharedState(\.reloadingConversationIDKeys) private var reloadingConversationIDKeys
     @SharedEvent(\.traitCollectionChanged) private var traitCollectionDidChange
 
     // MARK: - View Lifecycle
@@ -240,6 +241,7 @@ final class ConversationsPageViewService {
 
     /// `.pulledToRefresh`
     func reloadData() async throws(Exception) {
+        defer { reloadingConversationIDKeys = [] }
         try await reloadData(type: currentReloadType)
     }
 
@@ -419,6 +421,7 @@ final class ConversationsPageViewService {
                 }
             }
 
+            reloadingConversationIDKeys = Set(conversationsToReload.map(\.id.key))
             conversationsToReload.forEach { $0.markStaleLocally() }
         }
 

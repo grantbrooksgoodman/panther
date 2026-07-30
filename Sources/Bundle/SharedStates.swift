@@ -39,6 +39,7 @@ extension SharedStates {
     var didGrantAIEnhancedTranslationPermission: StateStream<Bool> { state(false) }
     var didGrantPenPalsPermission: StateStream<Bool> { state(false) }
     var isNewChatPageDoneToolbarButtonEnabled: StateStream<Bool> { state(true) }
+    var reloadingConversationIDKeys: StateStream<Set<String>> { state([]) }
 }
 
 // swiftformat:enable wrapPropertyBodies

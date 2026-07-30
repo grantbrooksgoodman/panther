@@ -27,6 +27,8 @@ struct AvatarImageView: View {
     private let image: UIImage?
     private let size: CGSize
 
+    @Environment(\.redactionReasons) private var redactionReasons
+
     // MARK: - Init
 
     init(
@@ -43,7 +45,14 @@ struct AvatarImageView: View {
 
     var body: some View {
         Group {
-            if let image {
+            if !redactionReasons.isEmpty {
+                Components.symbol(
+                    Strings.defaultImageSystemName,
+                    foregroundColor: Colors.imageForeground,
+                    usesIntrinsicSize: false
+                )
+                .clipShape(Circle())
+            } else if let image {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -54,6 +63,7 @@ struct AvatarImageView: View {
                     foregroundColor: Colors.imageForeground,
                     usesIntrinsicSize: false
                 )
+                .clipShape(Circle())
             }
         }
         .font(.system(size: Floats.systemFontSize))

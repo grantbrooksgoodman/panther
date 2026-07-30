@@ -31,6 +31,13 @@ struct ConversationCellView: View {
         _viewModel = .init(
             wrappedValue: viewModel
                 .observing(
+                    // The replayed current value is kept so that cells
+                    // appearing mid-refresh redact immediately.
+                    SharedState(\.reloadingConversationIDKeys)
+                        .projectedValue
+                        .changes
+                ) { .reloadingConversationsChanged($0) }
+                .observing(
                     SharedEvent(\.sessionStoreDidChange)
                         .wrappedValue
                         .events
@@ -45,8 +52,10 @@ struct ConversationCellView: View {
             viewModel.send(.cellTapped)
         } label: {
             cellView
+                .redacted(reason: viewModel.isShowingRedactedContent ? .placeholder : [])
                 .redrawsOnTraitCollectionChange()
         }
+        .disabled(viewModel.isShowingRedactedContent)
         .contextMenu {
             contextMenuButtons
         } preview: { // Modify with caution – ChatPageViewService relies on this specific stack to detect misconfigured previews.
@@ -133,12 +142,15 @@ struct ConversationCellView: View {
                     x: Floats.unreadIndicatorViewXOffset,
                     y: Floats.unreadIndicatorViewYOffset
                 )
-                .opacity(viewModel.cellViewData.isShowingUnreadIndicator ? 1 : 0)
+                .opacity(
+                    viewModel.cellViewData.isShowingUnreadIndicator &&
+                        !viewModel.isShowingRedactedContent ? 1 : 0
+                )
                 .padding(.trailing, Floats.unreadIndicatorViewTrailingPadding)
 
             AvatarImageView(
                 viewModel.cellViewData.thumbnailImage,
-                badgeCount: viewModel.conversation.participants.count - 1
+                badgeCount: viewModel.isShowingRedactedContent ? 0 : viewModel.conversation.participants.count - 1
             )
             .padding(.top, Floats.avatarImageViewTopPadding)
 
@@ -147,9 +159,16 @@ struct ConversationCellView: View {
                     HStack {
                         HStack {
                             ThemedView {
+                                // Redaction placeholders size from unscaled font metrics,
+                                // ignoring the minimum scale factor fit, so the title must
+                                // render at a fixed size while redacted.
                                 Components.text(
                                     viewModel.cellViewData.titleLabelText,
-                                    font: .systemSemibold(scale: .custom(Floats.titleLabelSystemFontSize))
+                                    font: .systemSemibold(
+                                        scale: .custom(
+                                            viewModel.isShowingRedactedContent ? Floats.redactedTitleLabelSystemFontSize : Floats.titleLabelSystemFontSize
+                                        )
+                                    )
                                 )
                                 .minimumScaleFactor(Floats.titleLabelMinimumScaleFactor)
                                 .padding(.bottom, Floats.titleLabelBottomPadding)
@@ -159,6 +178,7 @@ struct ConversationCellView: View {
                                 UserInfoBadgeView(otherUser) {
                                     viewModel.send(.userInfoBadgeTapped)
                                 }
+                                .opacity(viewModel.isShowingRedactedContent ? 0 : 1)
                             }
                         }
 
@@ -166,7 +186,7 @@ struct ConversationCellView: View {
 
                         HStack(spacing: Floats.chevronImageAndDateLabelHStackSpacing) {
                             Components.text(
-                                viewModel.cellViewData.dateLabelText,
+                                viewModel.dateLabelText,
                                 font: .system(scale: .custom(Floats.dateLabelSystemFontSize)),
                                 foregroundColor: .subtitleText
                             )
@@ -174,7 +194,9 @@ struct ConversationCellView: View {
                                 .trailing,
                                 Application.isInPrevaricationMode ? 0 : Floats.dateLabelPaddingTrailing
                             )
-                            .if(Application.isInPrevaricationMode) { $0.offset(x: Floats.chevronImageFrameMaxWidth) }
+                            .if(Application.isInPrevaricationMode) {
+                                $0.offset(x: Floats.chevronImageFrameMaxWidth)
+                            }
 
                             ThemedView {
                                 Components.symbol(
@@ -187,13 +209,16 @@ struct ConversationCellView: View {
                                     maxWidth: Floats.chevronImageFrameMaxWidth,
                                     maxHeight: Floats.chevronImageFrameMaxHeight
                                 )
-                                .if(Application.isInPrevaricationMode) { $0.opacity(0) }
+                                .if(
+                                    Application.isInPrevaricationMode ||
+                                        viewModel.isShowingRedactedContent
+                                ) { $0.opacity(0) }
                             }
                         }
                     }
 
                     Components.text(
-                        viewModel.cellViewData.subtitleLabelText,
+                        viewModel.subtitleLabelText,
                         font: .system(scale: .custom(Floats.subtitleLabelSystemFontSize)),
                         foregroundColor: viewModel.subtitleLabelTextForegroundColor
                     )

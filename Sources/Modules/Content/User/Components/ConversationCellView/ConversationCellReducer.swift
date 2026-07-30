@@ -35,6 +35,7 @@ struct ConversationCellReducer: Reducer {
         case cellTapped
         case deleteConversationButtonTapped
         case reloadData
+        case reloadingConversationsChanged(Set<String>)
         case reportUsersButtonTapped
         case sessionStoreDidChange(SessionStoreChange)
         case userInfoBadgeTapped
@@ -51,6 +52,7 @@ struct ConversationCellReducer: Reducer {
         @Localized(.blockUser) var blockUsersButtonText: String
         var cellViewData: ConversationCellViewData = .empty
         @Localized(.delete) var deleteConversationButtonText: String
+        var isConversationReloading = false
         @Localized(.reportUser) var reportUsersButtonText: String
 
         fileprivate let conversationIDKey: String
@@ -79,8 +81,30 @@ struct ConversationCellReducer: Reducer {
             )
         }
 
+        var dateLabelText: String {
+            guard isShowingRedactedContent,
+                  cellViewData.dateLabelText.isBlank else {
+                return cellViewData.dateLabelText
+            }
+
+            return AppConstants.Strings.ConversationCellView.redactedDateLabelText
+        }
+
         var focusedMessageID: String? {
             conversation.messages?.last(where: { $0.textContains(searchQuery) })?.id
+        }
+
+        var isShowingRedactedContent: Bool {
+            cellViewData.isAwaitingMessageHydration || isConversationReloading
+        }
+
+        var subtitleLabelText: String {
+            guard isShowingRedactedContent,
+                  cellViewData.subtitleLabelText.isBlank else {
+                return cellViewData.subtitleLabelText
+            }
+
+            return AppConstants.Strings.ConversationCellView.redactedSubtitleLabelText
         }
 
         @MainActor
@@ -186,6 +210,9 @@ struct ConversationCellReducer: Reducer {
             ), cellViewData != state.cellViewData else { return .none }
 
             state.cellViewData = cellViewData
+
+        case let .reloadingConversationsChanged(conversationIDKeys):
+            state.isConversationReloading = conversationIDKeys.contains(state.conversationIDKey)
 
         case .reportUsersButtonTapped:
             let conversation = state.conversation
