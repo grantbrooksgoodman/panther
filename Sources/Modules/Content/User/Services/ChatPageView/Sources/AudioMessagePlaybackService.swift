@@ -117,7 +117,7 @@ final class AudioMessagePlaybackService {
             return stopPlayback()
         }
 
-        avSpeechSynthesizer.stopSpeaking(at: .immediate)
+        avSpeechSynthesizer.stopSpeakingIfNeeded()
 
         resetVisibleCells()
         playingCell = cell

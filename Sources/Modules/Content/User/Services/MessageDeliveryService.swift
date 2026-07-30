@@ -119,7 +119,8 @@ final class MessageDeliveryService {
                     recipientUserIDs: users.map(\.id),
                     attemptCount: 1,
                     lastAttemptDate: .now,
-                    state: .sending
+                    state: .sending,
+                    transcription: transcription
                 )
 
                 outboxEntryID = entry.id

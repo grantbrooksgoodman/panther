@@ -7,6 +7,7 @@
 //
 
 /* Native */
+import AVFAudio
 import Foundation
 import UIKit
 
@@ -126,6 +127,10 @@ enum Application {
         @Dependency(\.networking) var networking: NetworkServices
         networking.database.prewarm()
         networking.storage.prewarm()
+
+        // The first voice catalog fetch is a seconds-slow XPC call that is unsafe
+        // under concurrent first access; prewarming keeps it off the send path.
+        Task.background { _ = AVSpeechSynthesisVoice.speechVoices() }
 
         @Persistent(.hasRunOnce) var hasRunOnce: Bool?
         if UIDevice.isSimulator,

@@ -296,7 +296,7 @@ final class ChatPageViewService {
         ConversationsPageView.reapplyNavigationBarItemGlassTintIfNeeded()
         services.connectionStatus.removeEffect(.configureInputBar)
 
-        avSpeechSynthesizer.stopSpeaking(at: .immediate)
+        avSpeechSynthesizer.stopSpeakingIfNeeded()
         audioMessagePlayback?.stopPlayback()
 
         do {

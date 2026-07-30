@@ -38,6 +38,8 @@ final class SplashPageViewService: ObservableObject {
             percentageLabelText = initializationProgress >= 1 ? "100%" : "\(initializationProgress.roundedString)%"
             guard initializationProgress == 1 else { return }
             Task.delayed(by: .seconds(2)) { @MainActor in
+                // Skip if a new initialization has since begun.
+                guard initializationProgress == 1 else { return }
                 initializationProgress = 0
             }
         }
@@ -69,7 +71,7 @@ final class SplashPageViewService: ObservableObject {
 
         if !fromRetry {
             didSurpassQuickLoadTimeoutDuration = false
-            initializationProgress = initializationProgress == 1 ? 0 : initializationProgress
+            initializationProgress = 0
             initializationStartDate = .now
 
             Task.delayed(by: .milliseconds(2500)) { @MainActor in

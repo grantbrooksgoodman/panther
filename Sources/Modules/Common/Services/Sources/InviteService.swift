@@ -57,7 +57,6 @@ struct InviteService {
         let promptMessage = "Hey, let's chat on ⌘\(build.finalName)⌘! It's a simple messaging app that allows us to easily talk to each other in our native languages!"
 
         services.analytics.logEvent(.invite)
-
         guard languageCode != "en" else {
             return presentActivityViewController(
                 appShareLink: appShareLink,

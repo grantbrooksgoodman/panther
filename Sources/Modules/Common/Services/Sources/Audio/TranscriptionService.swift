@@ -54,26 +54,44 @@ struct TranscriptionService {
             )
         }
 
-        var didComplete = false
+        let didComplete = LockIsolated(false)
         var canComplete: Bool {
-            guard !didComplete else { return false }
-            didComplete = true
-            return true
+            didComplete.projectedValue.withValue {
+                guard !$0 else { return false }
+                $0 = true
+                return true
+            }
         }
+
+        let recognitionTask = LockIsolated<SFSpeechRecognitionTask?>(nil)
+        let timeout = LockIsolated<Timeout?>(nil)
 
         do {
             return try await withCheckedThrowingContinuation { continuation in
-                recognizer.recognitionTask(with: request) { result, error in
+                timeout.wrappedValue = Timeout(after: .seconds(30)) {
+                    guard canComplete else { return }
+                    recognitionTask.wrappedValue?.cancel()
+                    continuation.resume(throwing: Exception.timedOut(
+                        metadata: .init(sender: self)
+                    ))
+                }
+
+                recognitionTask.wrappedValue = recognizer.recognitionTask(
+                    with: request
+                ) { result, error in
                     guard let result else {
                         guard canComplete else { return }
+                        timeout.wrappedValue?.cancel()
+
                         return continuation.resume(throwing: Exception(
                             error,
                             metadata: .init(sender: self)
                         ))
                     }
 
-                    guard canComplete,
-                          result.isFinal else { return }
+                    guard result.isFinal,
+                          canComplete else { return }
+                    timeout.wrappedValue?.cancel()
                     continuation.resume(
                         returning: result.bestTranscription.formattedString
                     )

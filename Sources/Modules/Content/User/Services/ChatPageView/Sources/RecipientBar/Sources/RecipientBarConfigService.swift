@@ -75,7 +75,7 @@ final class RecipientBarConfigService {
                 chatPageViewService.alternateMessage?.restoreAllAlternateTextMessageIDs()
                 chatPageViewService.alternateMessage?.restoreAllAudioTranscriptionMessageIDs()
 
-                avSpeechSynthesizer.stopSpeaking(at: .immediate)
+                avSpeechSynthesizer.stopSpeakingIfNeeded()
                 chatPageViewService.audioMessagePlayback?.stopPlayback()
 
                 await chatPageViewService.recordingUI?.hideRecordingUI()

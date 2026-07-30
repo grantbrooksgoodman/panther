@@ -87,8 +87,10 @@ final class InputBarActionHandlerService {
             defer { isStoppingRecording = false }
             liveTranscriptionSession?.cancel()
             liveTranscriptionSession = nil
+
             await chatPageViewService.recordingUI?.hideRecordingUI()
             chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(true)
+
             do {
                 try services.audio.recording.cancelRecording()
             } catch {
@@ -103,14 +105,17 @@ final class InputBarActionHandlerService {
 
         case .startRecording:
             guard !services.audio.recording.isInOrWillTransitionToRecordingState else { return }
-            avSpeechSynthesizer.stopSpeaking(at: .immediate)
+            avSpeechSynthesizer.stopSpeakingIfNeeded()
+
             chatPageViewService.audioMessagePlayback?.stopPlayback()
             await chatPageViewService.recordingUI?.showRecordingUI()
             chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(false)
             services.haptics.generateFeedback(.medium)
 
             if let languageCode = clientSession.entity.user.currentUser?.languageCode {
-                liveTranscriptionSession = services.audio.transcription.startLiveSession(languageCode: languageCode)
+                liveTranscriptionSession = services.audio.transcription.startLiveSession(
+                    languageCode: languageCode
+                )
             }
 
             let liveTranscriptionSession = liveTranscriptionSession
@@ -175,7 +180,7 @@ final class InputBarActionHandlerService {
         }
 
         guard !isConversationEmpty else { return }
-        avSpeechSynthesizer.stopSpeaking(at: .immediate)
+        avSpeechSynthesizer.stopSpeakingIfNeeded()
         try await messageDeliveryService.sendTextMessage(text)
     }
 

@@ -239,8 +239,7 @@ final class ContextMenuActionHandlerService {
             avSpeechSynthesizer.delegate = viewController
 
             guard !avSpeechSynthesizer.isSpeaking else {
-                avSpeechSynthesizer.stopSpeaking(at: .immediate)
-                return
+                return avSpeechSynthesizer.stopSpeakingIfNeeded()
             }
 
             chatPageViewService.audioMessagePlayback?.stopPlayback()

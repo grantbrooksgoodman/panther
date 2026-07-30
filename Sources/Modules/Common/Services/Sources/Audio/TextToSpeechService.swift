@@ -102,117 +102,264 @@ struct TextToSpeechService {
         from text: String,
         languageCode: String
     ) async throws(Exception) -> URL {
-        let outputDirectoryURL = fileManager.documentsDirectoryURL.appending(
-            path: "\(DirectoryNames.textToSpeechOutputPrefix)\(UUID().uuidString)"
-        )
+        await SynthesisThrottle.shared.acquire()
 
         do {
+            let outputDirectoryURL = fileManager.documentsDirectoryURL.appending(
+                path: "\(DirectoryNames.textToSpeechOutputPrefix)\(UUID().uuidString)"
+            )
+
             try fileManager.createDirectory(
                 at: outputDirectoryURL,
                 withIntermediateDirectories: true
             )
+
+            let utterance = AVSpeechUtterance(string: text)
+            utterance.voice = highestQualityVoice(
+                languageCode,
+                mustIncludeAudioFileSettings: true
+            )
+
+            let outputFileURL = try await TextToSpeechSynthesisSession(
+                outputDirectoryURL: outputDirectoryURL,
+                outputFileURL: outputDirectoryURL.appending(path: "\(languageCode)-\(FileNames.outputM4A)"),
+                utterance: utterance
+            ).synthesize()
+
+            await SynthesisThrottle.shared.release()
+            return outputFileURL
         } catch {
-            throw Exception(
+            let exception = error as? Exception ?? .init(
                 error,
                 metadata: .init(sender: self)
             )
+
+            if exception.isEqual(to: .timedOut) {
+                await SynthesisThrottle.shared.recordTimeout()
+            }
+
+            await SynthesisThrottle.shared.release()
+            throw exception
         }
+    }
+}
 
-        let filePath = outputDirectoryURL.appending(path: "\(languageCode)-\(FileNames.outputM4A)")
+private final class TextToSpeechSynthesisSession: @unchecked Sendable {
+    // MARK: - Types
 
-        let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = highestQualityVoice(
-            languageCode,
-            mustIncludeAudioFileSettings: true
-        )
-
-        let avSpeechSynthesizer = AVSpeechSynthesizer()
-        defer { withExtendedLifetime(avSpeechSynthesizer) {} }
-
+    private struct State {
+        var avSpeechSynthesizer: AVSpeechSynthesizer?
+        var continuation: CheckedContinuation<URL, Error>?
+        var gracePeriodTimeout: Timeout?
         var output: AVAudioFile?
         var timeout: Timeout?
+    }
 
-        var didComplete = false
-        var canComplete: Bool {
-            guard !didComplete else { return false }
-            didComplete = true
-            return true
-        }
+    // MARK: - Dependencies
 
-        do {
-            return try await withCheckedThrowingContinuation { continuation in
-                timeout = Timeout(after: .seconds(10)) {
-                    guard canComplete else { return }
-                    continuation.resume(throwing: Exception.timedOut(
+    @Dependency(\.fileManager) private var fileManager: FileManager
+
+    // MARK: - Properties
+
+    private static let retainedSessions = LockIsolated([UUID: TextToSpeechSynthesisSession]())
+    private static let writeQueue = DispatchQueue(
+        label: "us.neotechnica.panther.tts-write",
+        qos: .userInitiated
+    )
+
+    private let id = UUID()
+    private let outputDirectoryURL: URL
+    private let outputFileURL: URL
+    private let utterance: AVSpeechUtterance
+
+    @LockIsolated private var state = State()
+
+    // MARK: - Init
+
+    init(
+        outputDirectoryURL: URL,
+        outputFileURL: URL,
+        utterance: AVSpeechUtterance
+    ) {
+        self.outputDirectoryURL = outputDirectoryURL
+        self.outputFileURL = outputFileURL
+        self.utterance = utterance
+    }
+
+    // MARK: - Synthesize
+
+    func synthesize() async throws -> URL {
+        try await withCheckedThrowingContinuation { continuation in
+            $state.withValue { state in
+                state.continuation = continuation
+                state.timeout = Timeout(after: .seconds(10)) { [weak self] in
+                    guard let self else { return }
+                    complete(throwing: .timedOut(
                         metadata: .init(sender: self)
                     ))
                 }
+            }
 
-                avSpeechSynthesizer.write(utterance) { buffer in
-                    guard !didComplete else { return }
-                    guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
-                        guard canComplete else { return }
-                        timeout?.cancel()
+            // Initiating the write on a dedicated queue keeps a stalled TTS daemon
+            // from wedging a cooperative-pool thread.
+            Self.writeQueue.async {
+                let avSpeechSynthesizer = AVSpeechSynthesizer()
+                self.$state.withValue { $0.avSpeechSynthesizer = avSpeechSynthesizer }
 
-                        return continuation.resume(throwing: Exception(
-                            "Failed to typecast buffer to AVAudioPCMBuffer.",
-                            metadata: .init(sender: self)
-                        ))
-                    }
-
-                    do {
-                        if output == nil {
-                            output = try AVAudioFile(
-                                forWriting: filePath,
-                                settings: [
-                                    AVFormatIDKey: kAudioFormatMPEG4AAC,
-                                    AVSampleRateKey: pcmBuffer.format.sampleRate,
-                                    AVNumberOfChannelsKey: pcmBuffer.format.channelCount,
-                                    AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
-                                ],
-                                commonFormat: .pcmFormatFloat32,
-                                interleaved: false
-                            )
-                        }
-
-                        if pcmBuffer.frameLength == 0 {
-                            guard canComplete else { return }
-                            timeout?.cancel()
-
-                            guard let outputFileURL = output?.url else {
-                                return continuation.resume(throwing: Exception(
-                                    "Failed to generate output.",
-                                    metadata: .init(sender: self)
-                                ))
-                            }
-
-                            // Releasing the file reference finalizes the M4A container; the URL must not escape before then.
-                            output = nil
-                            return continuation.resume(returning: outputFileURL)
-                        }
-
-                        try output?.write(from: pcmBuffer)
-                    } catch {
-                        guard canComplete else { return }
-                        timeout?.cancel()
-
-                        continuation.resume(throwing: Exception(
-                            error,
-                            metadata: .init(sender: self)
-                        ))
-                    }
+                avSpeechSynthesizer.write(self.utterance) { [weak self] buffer in
+                    self?.handle(buffer)
                 }
             }
-        } catch {
-            try? fileManager.removeItem(at: outputDirectoryURL)
-            guard let exception = error as? Exception else {
-                throw Exception(
-                    error,
-                    metadata: .init(sender: self)
-                )
+        }
+    }
+
+    // MARK: - Auxiliary
+
+    private func complete(throwing exception: Exception) {
+        let continuation: CheckedContinuation<URL, Error>? = $state.withValue { state in
+            state.timeout?.cancel()
+            state.timeout = nil
+
+            defer { state.continuation = nil }
+            return state.continuation
+        }
+
+        guard let continuation else { return }
+
+        // Deallocating a synthesizer with an active write session poisons the TTS daemon;
+        // retain the session until its terminal buffer arrives or the grace period lapses.
+        Self.retainedSessions.projectedValue[id] = self
+        $state.withValue { state in
+            state.gracePeriodTimeout = Timeout(after: .seconds(15)) { [weak self] in
+                self?.releaseFromRetentionRegistry()
+            }
+        }
+
+        Self.writeQueue.async {
+            self.state.avSpeechSynthesizer?.stopSpeakingIfNeeded()
+        }
+
+        continuation.resume(throwing: exception)
+    }
+
+    private func handle(_ buffer: AVAudioBuffer) {
+        guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
+            return complete(throwing: .init(
+                "Failed to typecast buffer to AVAudioPCMBuffer.",
+                metadata: .init(sender: self)
+            ))
+        }
+
+        guard pcmBuffer.frameLength != 0 else { return handleTerminalBuffer() }
+
+        let writeError: Error? = $state.withValue { state in
+            guard state.continuation != nil else { return nil }
+
+            do {
+                if state.output == nil {
+                    state.output = try AVAudioFile(
+                        forWriting: outputFileURL,
+                        settings: [
+                            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+                            AVFormatIDKey: kAudioFormatMPEG4AAC,
+                            AVNumberOfChannelsKey: pcmBuffer.format.channelCount,
+                            AVSampleRateKey: pcmBuffer.format.sampleRate,
+                        ],
+                        commonFormat: .pcmFormatFloat32,
+                        interleaved: false
+                    )
+                }
+
+                try state.output?.write(from: pcmBuffer)
+                return nil
+            } catch {
+                return error
+            }
+        }
+
+        guard let writeError else { return }
+        complete(throwing: .init(
+            writeError,
+            metadata: .init(sender: self)
+        ))
+    }
+
+    private func handleTerminalBuffer() {
+        let (continuation, didGenerateOutput): (CheckedContinuation<URL, Error>?, Bool) = $state.withValue { state in
+            state.timeout?.cancel()
+            state.timeout = nil
+
+            defer {
+                // Releasing the file reference finalizes the M4A container; the URL must not escape before then.
+                state.continuation = nil
+                state.output = nil
             }
 
-            throw exception
+            return (state.continuation, state.output != nil)
+        }
+
+        guard let continuation else { return releaseFromRetentionRegistry() }
+        guard didGenerateOutput else {
+            try? fileManager.removeItem(at: outputDirectoryURL)
+            return continuation.resume(throwing: Exception(
+                "Failed to generate output.",
+                metadata: .init(sender: self)
+            ))
+        }
+
+        continuation.resume(returning: outputFileURL)
+    }
+
+    private func releaseFromRetentionRegistry() {
+        guard Self.retainedSessions.projectedValue.withValue({
+            $0.removeValue(forKey: id)
+        }) != nil else { return }
+
+        $state.withValue { state in
+            state.gracePeriodTimeout?.cancel()
+            state.gracePeriodTimeout = nil
+            state.output = nil
+        }
+
+        try? fileManager.removeItem(at: outputDirectoryURL)
+    }
+}
+
+private actor SynthesisThrottle {
+    // MARK: - Properties
+
+    static let shared = SynthesisThrottle()
+
+    private var activeCount = 0
+    private var lastTimeoutDate: Date?
+    private var waiters = [CheckedContinuation<Void, Never>]()
+
+    // MARK: - Computed Properties
+
+    private var width: Int {
+        // A timeout indicates a wedge-prone daemon; degrade to serial traffic for a cooldown window.
+        guard let lastTimeoutDate,
+              Date.now.timeIntervalSince(lastTimeoutDate) < 60 else { return 3 }
+        return 1
+    }
+
+    // MARK: - Methods
+
+    func acquire() async {
+        guard activeCount >= width else { return activeCount += 1 }
+        await withCheckedContinuation { waiters.append($0) }
+    }
+
+    func recordTimeout() {
+        lastTimeoutDate = .now
+    }
+
+    func release() {
+        activeCount = max(0, activeCount - 1)
+        while activeCount < width,
+              !waiters.isEmpty {
+            activeCount += 1
+            waiters.removeFirst().resume()
         }
     }
 }

@@ -39,4 +39,5 @@ struct OutboxEntry: Codable {
     var lastAttemptDate: Date?
     var reservedRemoteID: String?
     var state: State
+    var transcription: String?
 }

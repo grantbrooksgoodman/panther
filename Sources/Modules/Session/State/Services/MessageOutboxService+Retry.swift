@@ -82,6 +82,7 @@ extension MessageOutboxService {
             try await sendPayload(
                 entry.payload,
                 presetID: entry.reservedRemoteID,
+                transcription: entry.transcription,
                 toUsers: recipientUsers,
                 inConversation: conversationTuple
             )
@@ -112,6 +113,7 @@ extension MessageOutboxService {
     private func sendPayload(
         _ payload: OutboxEntry.Payload,
         presetID: String?,
+        transcription: String?,
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
     ) async throws {
@@ -130,6 +132,7 @@ extension MessageOutboxService {
             _ = try await clientSession.entity.message.sendAudioMessage(
                 audioFile,
                 presetID: presetID,
+                transcription: transcription,
                 toUsers: users,
                 inConversation: conversation
             )
