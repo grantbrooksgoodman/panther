@@ -35,6 +35,9 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     let participants: [Participant]
     let reactionMetadata: [ReactionMetadata]?
 
+    private static let messageCoalescer = KeyedCoalescer<String, Void>()
+    private static let userCoalescer = KeyedCoalescer<String, Void>()
+
     // MARK: - Computed Properties
 
     var hashFactors: [String] {
@@ -113,6 +116,14 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     /// on this conversation are fetched. When `ids` is
     /// provided, only the specified messages are fetched.
     ///
+    /// Concurrent calls for the same conversation version and
+    /// identifier set coalesce onto a single in-flight fetch.
+    /// If the calling task is cancelled before the shared fetch
+    /// settles, this method returns without effect for the
+    /// caller; the fetch itself always runs to completion, so
+    /// the session store never observes a partially applied
+    /// resolution.
+    ///
     /// After this method returns, the fetched messages are
     /// available through the ``messages`` computed property.
     ///
@@ -121,56 +132,22 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     func resolveMessages(
         ids: Set<String>? = nil
     ) async throws(Exception) {
-        @Dependency(\.networking.messageService) var messageService: MessageService
-        @Dependency(\.clientSession.store) var sessionStore: SessionStore
-
-        if let ids {
-            // Fetched from network; bypasses RemotelyUpdatable.update.
-            try await sessionStore.upsertMessages(Set(
-                ids
-                    .filter { messageIDs.contains($0) }
-                    .parallelMap { try await messageService.getMessage(id: $0) }
-            ))
-
-            return
+        let idsKeyComponent = ids.map { $0.sorted().joined(separator: ",") } ?? "all"
+        let resolveMessages: @Sendable () async throws(Exception) -> Void = {
+            try await fetchAndCommitMessages(ids: ids)
         }
 
-        let filteredMessageIDs = filteringSystemMessages.messageIDs
-        let fetchedMessages = try await messageService.getMessages(
-            ids: filteredMessageIDs
-        )
-
-        if !fetchedMessages.isEmpty {
-            // Fetched from network; bypasses RemotelyUpdatable.update.
-            sessionStore.upsertMessages(Set(fetchedMessages))
-        }
-
-        // Reconcile: remove IDs that could not be fetched so
-        // the messages computed property resolves fully.
-        let fetchedIDs = Set(fetchedMessages.map(\.id))
-        let missingIDs = Set(filteredMessageIDs).subtracting(fetchedIDs)
-
-        if !missingIDs.isEmpty {
-            sessionStore.removeMessages(ids: missingIDs)
-            // Strips unfetchable message IDs so the store stays consistent.
-            sessionStore.upsertConversation(
-                copying(
-                    messageIDs: messageIDs.filter {
-                        !missingIDs.contains($0)
-                    }
-                )
+        do {
+            try await Self.messageCoalescer.submitUnlessCancelled(
+                "\(id.encoded)/\(idsKeyComponent)",
+                resolveMessages
             )
+        } catch {
+            // Cancelled callers abandon the wait silently; other
+            // coalesced callers still receive the shared result.
+            guard !Task.isCancelled else { return }
+            throw error
         }
-
-        Logger.log(
-            .init(
-                "Resolved messages for conversation.",
-                isReportable: false,
-                userInfo: ["ConversationID": id.encoded],
-                metadata: .init(sender: self)
-            ),
-            domain: .conversation
-        )
     }
 
     // MARK: - Resolve Users
@@ -183,59 +160,34 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     /// ``users`` computed property. Pass `forceUpdate` to
     /// bypass the cache and re-fetch regardless.
     ///
+    /// Concurrent calls for the same conversation version
+    /// coalesce onto a single in-flight fetch; forced and
+    /// unforced calls occupy separate lanes so a force
+    /// re-fetch is never absorbed by a cached one. If the
+    /// calling task is cancelled before the shared fetch
+    /// settles, this method returns without effect for the
+    /// caller; the fetch itself always runs to completion.
+    ///
     /// - Parameter forceUpdate: When `true`, disregards the
     ///   cache and fetches all participants from the network.
     func resolveUsers(
         forceUpdate: Bool = false
     ) async throws(Exception) {
-        @Dependency(\.networking) var networking: NetworkServices
-        @Dependency(\.clientSession.store) var sessionStore: SessionStore
-
-        let userInfo = ["ConversationID": id.encoded]
-        if !forceUpdate {
-            guard users == nil ||
-                users!.count != participants.count - 1 else { return }
+        let resolveUsers: @Sendable () async throws(Exception) -> Void = {
+            try await fetchAndCommitUsers(forceUpdate: forceUpdate)
         }
 
-        let userIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
-        guard !userIDs.isBangQualifiedEmpty else {
-            throw Exception(
-                "No participants for this conversation.",
-                metadata: .init(sender: self)
-            ).appending(userInfo: userInfo)
-        }
-
-        let fetchedUsers: [User]
         do {
-            fetchedUsers = try await networking.userService.getUsers(
-                ids: userIDs,
-                bypassSnapshotCache: forceUpdate,
-                cacheStrategy: forceUpdate ? .disregardCache : nil
+            try await Self.userCoalescer.submitUnlessCancelled(
+                "\(id.encoded)/\(forceUpdate)",
+                resolveUsers
             )
         } catch {
-            throw error.appending(userInfo: userInfo)
+            // Cancelled callers abandon the wait silently; other
+            // coalesced callers still receive the shared result.
+            guard !Task.isCancelled else { return }
+            throw error
         }
-
-        guard !fetchedUsers.isEmpty,
-              fetchedUsers.count == userIDs.count else {
-            throw Exception(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            ).appending(userInfo: userInfo)
-        }
-
-        Logger.log(
-            .init(
-                "Resolved users for conversation.",
-                isReportable: false,
-                userInfo: ["ConversationID": id.encoded],
-                metadata: .init(sender: self)
-            ),
-            domain: .conversation
-        )
-
-        // Fetched from network; bypasses RemotelyUpdatable.update.
-        sessionStore.upsertUsers(Set(fetchedUsers))
     }
 
     // MARK: - Update Last Modified Date
@@ -491,6 +443,116 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id.key)
         hasher.combine(id.hash)
+    }
+
+    // MARK: - Auxiliary
+
+    private func fetchAndCommitMessages(
+        ids: Set<String>?
+    ) async throws(Exception) {
+        @Dependency(\.networking.messageService) var messageService: MessageService
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+
+        if let ids {
+            // Fetched from network; bypasses RemotelyUpdatable.update.
+            try await sessionStore.upsertMessages(Set(
+                ids
+                    .filter { messageIDs.contains($0) }
+                    .parallelMap { try await messageService.getMessage(id: $0) }
+            ))
+
+            return
+        }
+
+        let filteredMessageIDs = filteringSystemMessages.messageIDs
+        let fetchedMessages = try await messageService.getMessages(
+            ids: filteredMessageIDs
+        )
+
+        if !fetchedMessages.isEmpty {
+            // Fetched from network; bypasses RemotelyUpdatable.update.
+            sessionStore.upsertMessages(Set(fetchedMessages))
+        }
+
+        // Reconcile: remove IDs that could not be fetched so
+        // the messages computed property resolves fully.
+        let fetchedIDs = Set(fetchedMessages.map(\.id))
+        let missingIDs = Set(filteredMessageIDs).subtracting(fetchedIDs)
+
+        if !missingIDs.isEmpty {
+            sessionStore.removeMessages(ids: missingIDs)
+            // Strips unfetchable message IDs so the store stays consistent.
+            sessionStore.upsertConversation(
+                copying(
+                    messageIDs: messageIDs.filter {
+                        !missingIDs.contains($0)
+                    }
+                )
+            )
+        }
+
+        Logger.log(
+            .init(
+                "Resolved messages for conversation.",
+                isReportable: false,
+                userInfo: ["ConversationID": id.encoded],
+                metadata: .init(sender: self)
+            ),
+            domain: .conversation
+        )
+    }
+
+    private func fetchAndCommitUsers(
+        forceUpdate: Bool
+    ) async throws(Exception) {
+        @Dependency(\.networking) var networking: NetworkServices
+        @Dependency(\.clientSession.store) var sessionStore: SessionStore
+
+        let userInfo = ["ConversationID": id.encoded]
+        if !forceUpdate {
+            guard users == nil ||
+                users!.count != participants.count - 1 else { return }
+        }
+
+        let userIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
+        guard !userIDs.isBangQualifiedEmpty else {
+            throw Exception(
+                "No participants for this conversation.",
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo)
+        }
+
+        let fetchedUsers: [User]
+        do {
+            fetchedUsers = try await networking.userService.getUsers(
+                ids: userIDs,
+                bypassSnapshotCache: forceUpdate,
+                cacheStrategy: forceUpdate ? .disregardCache : nil
+            )
+        } catch {
+            throw error.appending(userInfo: userInfo)
+        }
+
+        guard !fetchedUsers.isEmpty,
+              fetchedUsers.count == userIDs.count else {
+            throw Exception(
+                "Mismatched ratio returned.",
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo)
+        }
+
+        Logger.log(
+            .init(
+                "Resolved users for conversation.",
+                isReportable: false,
+                userInfo: ["ConversationID": id.encoded],
+                metadata: .init(sender: self)
+            ),
+            domain: .conversation
+        )
+
+        // Fetched from network; bypasses RemotelyUpdatable.update.
+        sessionStore.upsertUsers(Set(fetchedUsers))
     }
 }
 
