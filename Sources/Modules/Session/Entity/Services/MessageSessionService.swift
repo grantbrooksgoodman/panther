@@ -102,18 +102,8 @@ struct MessageSessionService {
                             enhance: enhancementConfig
                         )
 
-                        if await networking.messageService.audio.preRecordedOutputExists(
-                            for: translation
-                        ) {
-                            let audioComponent = AudioMessageReference(
-                                translation: translation,
-                                original: inputFile,
-                                translated: inputFile,
-                                translatedDirectoryPath: "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
-                            )
-
-                            return (index, .success((translation, audioComponent)))
-                        } else {
+                        if !translation.languagePair.isIdempotent,
+                           await !networking.messageService.audio.preRecordedOutputExists(for: translation) {
                             let readToFileResult = await Callback.asCallback {
                                 try await services.audio.textToSpeech.readToFile(
                                     text: translation.output.sanitized,
@@ -142,6 +132,15 @@ struct MessageSessionService {
                             case let .failure(exception):
                                 return (index, .failure(exception))
                             }
+                        } else {
+                            let audioComponent = AudioMessageReference(
+                                translation: translation,
+                                original: inputFile,
+                                translated: inputFile,
+                                translatedDirectoryPath: "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
+                            )
+
+                            return (index, .success((translation, audioComponent)))
                         }
                     } catch {
                         return (index, .failure(error))

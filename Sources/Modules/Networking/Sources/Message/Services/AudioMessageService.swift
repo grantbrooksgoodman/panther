@@ -65,95 +65,94 @@ struct AudioMessageService {
 
     // MARK: - Upload Audio Components
 
-    // TODO: Can be parallelized with some rethinking.
     func uploadAudioComponents(
         _ audioComponents: [AudioMessageReference],
         for message: Message
     ) async throws(Exception) {
-        var didMoveInputFile = false
-        var lastUploadedInput: AudioFile?
-
-        func uploadInput(
-            _ audioFile: AudioFile
-        ) async throws(Exception) {
-            let audioFile: AudioFile = .init(
-                audioFile.url,
-                name: message.id,
-                fileExtension: audioFile.fileExtension,
-                contentDuration: audioFile.contentDuration ?? .init()
-            )
-
-            if let lastUploadedInput,
-               lastUploadedInput == audioFile {
-                return
-            }
-
-            guard await !preRecordedInputExists(for: audioFile) else {
-                return lastUploadedInput = audioFile
-            }
-
-            try await upload(
-                audioFile: audioFile,
-                to: NetworkPath.audioMessageInputs.rawValue
-            )
-
-            lastUploadedInput = audioFile
+        enum UploadOperation {
+            case input
+            case output(AudioMessageReference)
         }
 
-        for audioComponent in audioComponents {
-            func moveOutputFile() {
-                // swiftlint:disable:next line_length
-                let outputFilePath = "\(audioComponent.translatedDirectoryPath)/\(audioComponent.translated.name).\(audioComponent.translated.fileExtension.rawValue)"
-                do {
-                    try fileManager.move(
-                        fileAt: audioComponent.translated.url,
-                        toPath: fileManager.documentsDirectoryURL.appending(
-                            path: outputFilePath
-                        )
+        func moveOutputFile(for audioComponent: AudioMessageReference) {
+            guard audioComponent.translated.url != audioComponent.original.url else { return }
+
+            // swiftlint:disable:next line_length
+            let outputFilePath = "\(audioComponent.translatedDirectoryPath)/\(audioComponent.translated.name).\(audioComponent.translated.fileExtension.rawValue)"
+            do {
+                try fileManager.move(
+                    fileAt: audioComponent.translated.url,
+                    toPath: fileManager.documentsDirectoryURL.appending(
+                        path: outputFilePath
                     )
-                } catch {
-                    Logger.log(error)
-                }
-
-                let temporaryDirectoryURL = audioComponent.translated.url.deletingLastPathComponent()
-                guard temporaryDirectoryURL.lastPathComponent.hasPrefix(
-                    AudioService.DirectoryNames.textToSpeechOutputPrefix
-                ) else { return }
-
-                do {
-                    try fileManager.removeItem(at: temporaryDirectoryURL)
-                } catch {
-                    Logger.log(.init(
-                        error,
-                        metadata: .init(sender: self)
-                    ))
-                }
+                )
+            } catch {
+                Logger.log(error)
             }
 
-            try await uploadInput(audioComponent.original)
+            let temporaryDirectoryURL = audioComponent.translated.url.deletingLastPathComponent()
+            guard temporaryDirectoryURL.lastPathComponent.hasPrefix(
+                AudioService.DirectoryNames.textToSpeechOutputPrefix
+            ) else { return }
 
-            if !didMoveInputFile {
-                let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(message.id).\(audioComponent.original.fileExtension.rawValue)"
-                do {
-                    try fileManager.move(
-                        fileAt: audioComponent.original.url,
-                        toPath: fileManager.documentsDirectoryURL.appending(path: inputFilePath)
-                    )
-                    didMoveInputFile = true
-                } catch {
-                    Logger.log(error)
-                }
+            do {
+                try fileManager.removeItem(at: temporaryDirectoryURL)
+            } catch {
+                Logger.log(.init(
+                    error,
+                    metadata: .init(sender: self)
+                ))
+            }
+        }
+
+        func uploadInput() async throws(Exception) {
+            guard let originalFile = audioComponents.first?.original else { return }
+
+            let inputFile: AudioFile = .init(
+                originalFile.url,
+                name: message.id,
+                fileExtension: originalFile.fileExtension,
+                contentDuration: originalFile.contentDuration ?? .init()
+            )
+
+            if await !preRecordedInputExists(for: inputFile) {
+                try await upload(
+                    audioFile: inputFile,
+                    to: NetworkPath.audioMessageInputs.rawValue
+                )
             }
 
-            guard !audioComponent.translation.languagePair.isIdempotent else { continue }
-            defer { moveOutputFile() }
-            guard await !preRecordedOutputExists(for: audioComponent.translation) else { continue }
+            let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(message.id).\(inputFile.fileExtension.rawValue)"
+            do {
+                try fileManager.move(
+                    fileAt: inputFile.url,
+                    toPath: fileManager.documentsDirectoryURL.appending(path: inputFilePath)
+                )
+            } catch {
+                Logger.log(error)
+            }
+        }
+
+        func uploadOutput(for audioComponent: AudioMessageReference) async throws(Exception) {
+            guard !audioComponent.translation.languagePair.isIdempotent else { return }
+            defer { moveOutputFile(for: audioComponent) }
+            guard await !preRecordedOutputExists(for: audioComponent.translation) else { return }
 
             try await upload(
                 audioFile: audioComponent.translated,
                 to: audioComponent.translatedDirectoryPath
             )
         }
+
+        guard !audioComponents.isEmpty else { return }
+        try await ([UploadOperation.input] + audioComponents.map { .output($0) })
+            .forEachConcurrently { operation throws(Exception) in
+                switch operation {
+                case .input: try await uploadInput()
+                case let .output(audioComponent):
+                    try await uploadOutput(for: audioComponent)
+                }
+            }
     }
 
     // MARK: - Auxiliary

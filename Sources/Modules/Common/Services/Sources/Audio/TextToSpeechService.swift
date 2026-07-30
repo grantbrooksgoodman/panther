@@ -149,6 +149,7 @@ struct TextToSpeechService {
                 }
 
                 avSpeechSynthesizer.write(utterance) { buffer in
+                    guard !didComplete else { return }
                     guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
                         guard canComplete else { return }
                         timeout?.cancel()
@@ -178,14 +179,16 @@ struct TextToSpeechService {
                             guard canComplete else { return }
                             timeout?.cancel()
 
-                            guard let output else {
+                            guard let outputFileURL = output?.url else {
                                 return continuation.resume(throwing: Exception(
                                     "Failed to generate output.",
                                     metadata: .init(sender: self)
                                 ))
                             }
 
-                            return continuation.resume(returning: output.url)
+                            // Releasing the file reference finalizes the M4A container; the URL must not escape before then.
+                            output = nil
+                            return continuation.resume(returning: outputFileURL)
                         }
 
                         try output?.write(from: pcmBuffer)
@@ -201,6 +204,7 @@ struct TextToSpeechService {
                 }
             }
         } catch {
+            try? fileManager.removeItem(at: outputDirectoryURL)
             guard let exception = error as? Exception else {
                 throw Exception(
                     error,
