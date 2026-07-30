@@ -7,6 +7,7 @@
 //
 
 /* Native */
+import AVFAudio
 import Foundation
 import Speech
 
@@ -90,6 +91,17 @@ struct TranscriptionService {
         }
     }
 
+    // MARK: - Start Live Session
+
+    func startLiveSession(languageCode: String) -> LiveTranscriptionSession? {
+        guard permissionService.transcribePermissionStatus == .granted,
+              isTranscriptionSupported(for: languageCode),
+              let recognizer = SFSpeechRecognizer(
+                  locale: Locale(identifier: languageCode)
+              ) else { return nil }
+        return .init(recognizer: recognizer)
+    }
+
     // MARK: - Capabilities
 
     func isTranscriptionSupported(for languageCode: String) -> Bool {
@@ -107,6 +119,118 @@ struct TranscriptionService {
         cachedTranscriptionSupportForLanguageCodes[languageCode] = isTranscriptionSupported
         _TranscriptionServiceCache.cachedTranscriptionSupportForLanguageCodes = cachedTranscriptionSupportForLanguageCodes
         return isTranscriptionSupported
+    }
+}
+
+final class LiveTranscriptionSession: @unchecked Sendable {
+    // MARK: - Types
+
+    private enum State {
+        case completed(transcription: String?)
+        case pending
+        case waiting(CheckedContinuation<String?, Never>)
+    }
+
+    // MARK: - Properties
+
+    private let latestTranscription = LockIsolated<String?>(nil)
+    private let recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+    private let recognitionTask = LockIsolated<SFSpeechRecognitionTask?>(nil)
+    private let speechRecognizer: SFSpeechRecognizer
+    private let timeout = LockIsolated<Timeout?>(nil)
+
+    @LockIsolated private var state: State = .pending
+
+    // MARK: - Object Lifecycle
+
+    fileprivate init(recognizer: SFSpeechRecognizer) {
+        speechRecognizer = recognizer
+        recognitionRequest.addsPunctuation = true
+        recognitionRequest.shouldReportPartialResults = true
+
+        recognitionTask.wrappedValue = recognizer.recognitionTask(with: recognitionRequest) { [weak self] result, error in
+            guard let self else { return }
+
+            if let result {
+                latestTranscription.wrappedValue = result.bestTranscription.formattedString
+            }
+
+            guard result?.isFinal == true || error != nil else { return }
+            complete(with: error == nil ? latestTranscription.wrappedValue : nil)
+        }
+    }
+
+    deinit {
+        recognitionTask.wrappedValue?.cancel()
+    }
+
+    // MARK: - Methods
+
+    func append(_ buffer: AVAudioPCMBuffer) {
+        guard case .pending = state else { return }
+        recognitionRequest.append(buffer)
+    }
+
+    func cancel() {
+        recognitionTask.wrappedValue?.cancel()
+        complete(with: nil)
+    }
+
+    func finish() async -> String? {
+        recognitionRequest.endAudio()
+
+        let transcription: String? = await withCheckedContinuation { continuation in
+            let action: (() -> Void)? = $state.withValue {
+                switch $0 {
+                case let .completed(transcription):
+                    return { continuation.resume(returning: transcription) }
+
+                case .pending:
+                    $0 = .waiting(continuation)
+                    return nil
+
+                case .waiting:
+                    return { continuation.resume(returning: nil) }
+                }
+            }
+
+            guard let action else {
+                return timeout.wrappedValue = Timeout(after: .seconds(5)) { [weak self] in
+                    self?.complete(with: nil)
+                }
+            }
+
+            action()
+        }
+
+        guard let transcription,
+              !transcription.trimmingBorderedWhitespace.isEmpty else { return nil }
+
+        return transcription
+    }
+
+    // MARK: - Auxiliary
+
+    private func complete(with transcription: String?) {
+        timeout.wrappedValue?.cancel()
+        timeout.wrappedValue = nil
+
+        let action: (() -> Void)? = $state.withValue {
+            switch $0 {
+            case .completed:
+                return nil
+
+            case .pending:
+                $0 = .completed(transcription: transcription)
+                return nil
+
+            case let .waiting(continuation):
+                $0 = .completed(transcription: transcription)
+                return { continuation.resume(returning: transcription) }
+            }
+        }
+
+        action?()
     }
 }
 

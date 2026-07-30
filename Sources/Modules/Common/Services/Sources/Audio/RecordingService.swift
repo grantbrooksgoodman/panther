@@ -30,12 +30,14 @@ final class RecordingService: NSObject {
 
     private(set) var willStartRecording = false
 
-    private var audioRecorder: AVAudioRecorder?
+    private let outputFile = LockIsolated<AVAudioFile?>(nil)
+
+    private var audioEngine: AVAudioEngine?
 
     // MARK: - Computed Properties
 
     var isRecording: Bool {
-        audioRecorder?.isRecording ?? false
+        audioEngine?.isRunning ?? false
     }
 
     // MARK: - Init
@@ -70,28 +72,68 @@ final class RecordingService: NSObject {
         }
     }
 
-    func startRecording() throws(Exception) {
+    func startRecording(
+        bufferSink: (@Sendable (AVAudioPCMBuffer) -> Void)? = nil
+    ) throws(Exception) {
         willStartRecording = true
 
         try audioService.activateAudioSession()
         let filePath = fileManager.documentsDirectoryURL.appending(path: FileNames.inputM4A)
 
-        let audioSettings = [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 12000,
-            AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
-        ]
+        let audioEngine = AVAudioEngine()
+        let inputFormat = audioEngine.inputNode.outputFormat(forBus: 0)
 
         do {
-            audioRecorder = try AVAudioRecorder(url: filePath, settings: audioSettings)
-            audioRecorder?.delegate = self
-            audioRecorder?.record()
+            outputFile.wrappedValue = try AVAudioFile(
+                forWriting: filePath,
+                settings: [
+                    AVFormatIDKey: kAudioFormatMPEG4AAC,
+                    AVSampleRateKey: inputFormat.sampleRate,
+                    AVNumberOfChannelsKey: inputFormat.channelCount,
+                    AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+                ],
+                commonFormat: .pcmFormatFloat32,
+                interleaved: false
+            )
+
+            audioEngine.inputNode.installTap(
+                onBus: 0,
+                bufferSize: 1024,
+                format: inputFormat
+            ) { @Sendable [weak self, outputFile = outputFile] buffer, _ in
+                do {
+                    try outputFile.wrappedValue?.write(from: buffer)
+                } catch {
+                    guard let self else { return }
+                    Task { @MainActor in
+                        do throws(Exception) {
+                            _ = try self.stopRecording()
+                            Logger.log(.init(
+                                error,
+                                metadata: .init(sender: self)
+                            ))
+                        } catch {
+                            Logger.log(error)
+                        }
+                    }
+
+                    return
+                }
+
+                bufferSink?(buffer)
+            }
+
+            audioEngine.prepare()
+            try audioEngine.start()
+
+            self.audioEngine = audioEngine
         } catch let error as Exception {
-            audioRecorder?.stop()
+            audioEngine.stop()
+            outputFile.wrappedValue = nil
             throw error
         } catch {
-            audioRecorder?.stop()
+            audioEngine.stop()
+            outputFile.wrappedValue = nil
             throw Exception(
                 error,
                 metadata: .init(sender: self)
@@ -105,7 +147,8 @@ final class RecordingService: NSObject {
         willStartRecording = false
         stopObservingInterruptions()
 
-        guard let audioRecorder else {
+        guard let audioEngine,
+              let fileURL = outputFile.wrappedValue?.url else {
             throw Exception(
                 "No audio recorder to stop.",
                 isReportable: false,
@@ -113,10 +156,13 @@ final class RecordingService: NSObject {
             )
         }
 
-        audioRecorder.stop()
-        let filePath = audioRecorder.url
-        self.audioRecorder = nil
-        return filePath
+        audioEngine.inputNode.removeTap(onBus: 0)
+        audioEngine.stop()
+        self.audioEngine = nil
+
+        // Releasing the file reference finalizes the M4A container; the URL must not escape before then.
+        outputFile.wrappedValue = nil
+        return fileURL
     }
 
     // MARK: - Interruptions
@@ -126,7 +172,7 @@ final class RecordingService: NSObject {
             self,
             name: AVAudioSession.interruptionNotification,
             object: avAudioSession
-        ) { notification in
+        ) { @Sendable notification in
             guard let userInfo = notification.userInfo,
                   let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
                   let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
@@ -152,42 +198,5 @@ final class RecordingService: NSObject {
             name: AVAudioSession.interruptionNotification,
             object: avAudioSession
         )
-    }
-}
-
-/* MARK: AVAudioRecorderDelegate Conformance */
-
-extension RecordingService: AVAudioRecorderDelegate {
-    nonisolated func audioRecorderDidFinishRecording(
-        _ recorder: AVAudioRecorder,
-        successfully flag: Bool
-    ) {
-        Task { @MainActor in
-            guard flag else {
-                do throws(Exception) {
-                    _ = try self.stopRecording()
-                } catch {
-                    Logger.log(error)
-                }
-                return
-            }
-        }
-    }
-
-    nonisolated func audioRecorderEncodeErrorDidOccur(
-        _ recorder: AVAudioRecorder,
-        error: Error?
-    ) {
-        Task { @MainActor in
-            do throws(Exception) {
-                _ = try self.stopRecording()
-                Logger.log(.init(
-                    error,
-                    metadata: .init(sender: self)
-                ))
-            } catch {
-                Logger.log(error)
-            }
-        }
     }
 }

@@ -160,6 +160,29 @@ final class ConversationSessionService: @unchecked Sendable {
         messageOffset = Floats.defaultMessageOffset
     }
 
+    // MARK: - Update Displayed Messages
+
+    /// Store-change events land on a later main actor job; callers
+    /// reloading UI in the same job as an upsert refresh here first.
+    func updateDisplayedMessages() {
+        var messages = withMessagesOffset(
+            hydratedMessages.offsetFromCurrentUserAdditionDate(
+                activities: currentConversation?.activities
+            ).sortedByAscendingSentDate
+        )
+
+        if let conversationIDKey = currentConversation?.id.key {
+            messages.append(
+                contentsOf: clientSession
+                    .outbox
+                    .entries(forConversationIDKey: conversationIDKey)
+                    .map(\.asDisplayMessage)
+            )
+        }
+
+        displayedMessages = messages
+    }
+
     // MARK: - Deletion
 
     func deleteConversation(
@@ -337,25 +360,6 @@ final class ConversationSessionService: @unchecked Sendable {
         if currentConversation?.id.key == conversation.id.key {
             setCurrentConversation(nil)
         }
-    }
-
-    private func updateDisplayedMessages() {
-        var messages = withMessagesOffset(
-            hydratedMessages.offsetFromCurrentUserAdditionDate(
-                activities: currentConversation?.activities
-            ).sortedByAscendingSentDate
-        )
-
-        if let conversationIDKey = currentConversation?.id.key {
-            messages.append(
-                contentsOf: clientSession
-                    .outbox
-                    .entries(forConversationIDKey: conversationIDKey)
-                    .map(\.asDisplayMessage)
-            )
-        }
-
-        displayedMessages = messages
     }
 
     private func withMessagesOffset(

@@ -333,6 +333,7 @@ final class ReactionSessionService {
               .id
               .key == conversation.id.key else { return }
 
+        clientSession.entity.conversation.updateDisplayedMessages()
         chatPageViewService.reloadItemsWhenSafe(at: [.init(
             item: 0,
             section: messageData.index

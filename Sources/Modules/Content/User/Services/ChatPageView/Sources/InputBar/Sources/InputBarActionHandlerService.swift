@@ -26,6 +26,7 @@ final class InputBarActionHandlerService {
 
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.commonServices) private var services: CommonServices
 
@@ -34,6 +35,7 @@ final class InputBarActionHandlerService {
     private let viewController: ChatPageViewController
 
     private var isStoppingRecording = false
+    private var liveTranscriptionSession: LiveTranscriptionSession?
 
     // MARK: - Computed Properties
 
@@ -83,6 +85,8 @@ final class InputBarActionHandlerService {
             isStoppingRecording = true
 
             defer { isStoppingRecording = false }
+            liveTranscriptionSession?.cancel()
+            liveTranscriptionSession = nil
             await chatPageViewService.recordingUI?.hideRecordingUI()
             chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(true)
             do {
@@ -104,7 +108,13 @@ final class InputBarActionHandlerService {
             await chatPageViewService.recordingUI?.showRecordingUI()
             chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(false)
             services.haptics.generateFeedback(.medium)
-            try services.audio.recording.startRecording()
+
+            if let languageCode = clientSession.entity.user.currentUser?.languageCode {
+                liveTranscriptionSession = services.audio.transcription.startLiveSession(languageCode: languageCode)
+            }
+
+            let liveTranscriptionSession = liveTranscriptionSession
+            try services.audio.recording.startRecording { liveTranscriptionSession?.append($0) }
 
         case .stopRecording:
             guard !isStoppingRecording,
@@ -117,6 +127,9 @@ final class InputBarActionHandlerService {
 
             do throws(Exception) {
                 let url = try services.audio.recording.stopRecording()
+                let transcription = await liveTranscriptionSession?.finish()
+                liveTranscriptionSession = nil
+
                 guard let inputFile = AudioFile(url) else {
                     throw Exception(
                         "Failed to generate input audio file.",
@@ -124,8 +137,13 @@ final class InputBarActionHandlerService {
                     )
                 }
 
-                try await messageDeliveryService.sendAudioMessage(inputFile)
+                try await messageDeliveryService.sendAudioMessage(
+                    inputFile,
+                    transcription: transcription
+                )
             } catch {
+                liveTranscriptionSession?.cancel()
+                liveTranscriptionSession = nil
                 guard !error.isEqual(toAny: [
                     .noAudioRecorderToStop,
                     .transcribeNoSuchFileOrDirectory,

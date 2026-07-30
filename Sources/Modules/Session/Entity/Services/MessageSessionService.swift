@@ -39,6 +39,7 @@ struct MessageSessionService {
     func sendAudioMessage(
         _ inputFile: AudioFile,
         presetID: String? = nil,
+        transcription: String? = nil,
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
     ) async throws(Exception) -> Conversation {
@@ -49,10 +50,13 @@ struct MessageSessionService {
             )
         }
 
-        let transcription = try await services.audio.transcription.transcribeAudioFile(
-            at: inputFile.url,
-            languageCode: currentUser.languageCode
-        )
+        var transcription = transcription ?? ""
+        if transcription.trimmingBorderedWhitespace.isEmpty {
+            transcription = try await services.audio.transcription.transcribeAudioFile(
+                at: inputFile.url,
+                languageCode: currentUser.languageCode
+            )
+        }
 
         audioMessageTranscriptionSucceeded.send(
             .init(
@@ -278,11 +282,17 @@ struct MessageSessionService {
             userCount: users.count
         )
 
+        let sourceLanguageCode = await resolveSourceLanguageCode(
+            forText: text,
+            currentUserLanguageCode: currentUser.languageCode,
+            recipientLanguageCodes: uniqueLanguageCodes
+        )
+
         let translations = try await uniqueLanguageCodes.parallelMap { languageCode in
             try await networking.hostedTranslation.translate(
                 .init(text),
                 with: .init(
-                    from: currentUser.languageCode,
+                    from: sourceLanguageCode,
                     to: languageCode
                 ),
                 enhance: enhancementConfig
@@ -459,6 +469,37 @@ struct MessageSessionService {
         Task { @MainActor in
             clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: by)
         }
+    }
+
+    /// An input written in another participant's language becomes the
+    /// translation source for every recipient.
+    private func resolveSourceLanguageCode(
+        forText text: String,
+        currentUserLanguageCode: String,
+        recipientLanguageCodes: [String]
+    ) async -> String {
+        let candidateLanguageCodes = recipientLanguageCodes.filter { $0 != currentUserLanguageCode }
+        guard !candidateLanguageCodes.isEmpty,
+              await languageRecognitionService.matchConfidence(
+                  for: text,
+                  inLanguage: currentUserLanguageCode
+              ) < Floats.languageRecognitionServiceMatchConfidenceThreshold else {
+            return currentUserLanguageCode
+        }
+
+        var bestMatch: (languageCode: String, confidence: Float)?
+        for languageCode in candidateLanguageCodes {
+            let confidence = await languageRecognitionService.matchConfidence(
+                for: text,
+                inLanguage: languageCode
+            )
+
+            guard confidence >= Floats.languageRecognitionServiceMatchConfidenceThreshold,
+                  confidence > (bestMatch?.confidence ?? 0) else { continue }
+            bestMatch = (languageCode, confidence)
+        }
+
+        return bestMatch?.languageCode ?? currentUserLanguageCode
     }
 
     private func shouldAnimateDeliveryProgress(in conversation: Conversation?) -> Bool {

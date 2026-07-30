@@ -40,6 +40,7 @@ extension PersistentStorageKey {
 
     enum MessageRetranslationServiceStorageKey: String {
         case retranslatedMessageIDs
+        case retranslationOutputHashes
     }
 
     enum PenPalsServiceStorageKey: String {

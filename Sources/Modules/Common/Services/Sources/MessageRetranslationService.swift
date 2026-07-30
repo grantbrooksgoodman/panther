@@ -35,6 +35,7 @@ struct MessageRetranslationService {
     // MARK: - Properties
 
     @Persistent(.retranslatedMessageIDs) private var retranslatedMessageIDs: [String: Set<TranslationPlatform>]?
+    @Persistent(.retranslationOutputHashes) private var retranslationOutputHashes: [String: Set<String>]?
 
     // MARK: - Retranslate Message in Current Conversation
 
@@ -67,6 +68,13 @@ struct MessageRetranslationService {
 
         coreHUD.showProgress(isModal: true)
         defer { coreHUD.hide() }
+
+        // The current output counts as previously received; a platform
+        // that reproduces any prior result is not a valid retranslation.
+        recordRetranslationOutput(
+            translation.output,
+            forMessageID: message.id
+        )
 
         var attemptedPlatforms: Set<TranslationPlatform> = Set(
             retranslatedMessageIDs?[message.id] ?? []
@@ -105,9 +113,9 @@ struct MessageRetranslationService {
                     platform: platform
                 )
 
-                guard await !isLowQualityTranslationResult(
-                    old: translation,
-                    new: newTranslation,
+                guard await !isInvalidRetranslationResult(
+                    newTranslation,
+                    forMessageID: message.id,
                     targetLanguageCode: targetLanguageCode
                 ) else { continue }
 
@@ -123,6 +131,7 @@ struct MessageRetranslationService {
                     ids: [message.id]
                 )
 
+                clientSession.entity.conversation.updateDisplayedMessages()
                 chatPageViewService.reloadItemsWhenSafe(
                     at: [indexPath],
                     animated: false
@@ -173,16 +182,25 @@ struct MessageRetranslationService {
 
     // MARK: - Auxiliary
 
-    private func isLowQualityTranslationResult(
-        old oldTranslation: Translation,
-        new newTranslation: Translation,
+    private func isInvalidRetranslationResult(
+        _ newTranslation: Translation,
+        forMessageID messageID: String,
         targetLanguageCode: String
     ) async -> Bool {
-        guard oldTranslation.output.normalized != newTranslation.output.normalized else { return true }
+        guard retranslationOutputHashes?[messageID]?.contains(newTranslation.output.normalized.encodedHash) != true else { return true }
         return await languageRecognitionService.matchConfidence(
             for: newTranslation.output,
             inLanguage: targetLanguageCode
         ) < 0.8
+    }
+
+    private func recordRetranslationOutput(
+        _ output: String,
+        forMessageID messageID: String
+    ) {
+        var outputHashes = retranslationOutputHashes ?? [:]
+        outputHashes[messageID, default: []].insert(output.normalized.encodedHash)
+        retranslationOutputHashes = outputHashes
     }
 
     private func showSuccessToast(

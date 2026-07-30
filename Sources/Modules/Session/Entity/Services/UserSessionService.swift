@@ -408,13 +408,17 @@ final class UserSessionService: @unchecked Sendable {
             idKeys: conversationsNeedingFetch.map(\.key)
         )
 
-        // TODO: Audit for deletion.
-        // Reconcile node tokens with user-record tokens.
-        // Atomic fan-out keeps both in sync; this
-        // handles pre-schema-migration data where they diverged.
-        // The user-record token is preferred because it is
-        // what resolveCurrentUserConversations compares
-        // against to decide whether a conversation is stale.
+        // Stamp fetched conversations with the user-record
+        // token when it differs from the node hash. Atomic
+        // fan-out keeps the two equal at rest, but this read
+        // path is not atomic: the user record is snapshotted
+        // before the node fetch, and the fetch may be served
+        // from cache, so the two can transiently disagree.
+        // The user-record token is canonical — it is what
+        // resolveCurrentUserConversations compares against to
+        // decide staleness, and ConversationSyncService
+        // .synchronizeHash applies the same policy on the
+        // sync path.
         let reconciledConversations: [Conversation] = conversations.map { conversation in
             guard let userRecordID = conversationsNeedingFetch.first(
                 where: { $0.key == conversation.id.key }

@@ -86,7 +86,8 @@ final class MessageDeliveryService {
     // MARK: - Send Audio Message
 
     func sendAudioMessage(
-        _ inputFile: AudioFile
+        _ inputFile: AudioFile,
+        transcription: String? = nil
     ) async throws(Exception) {
         guard !users.isEmpty else { return }
 
@@ -160,6 +161,7 @@ final class MessageDeliveryService {
         do {
             let conversation = try await clientSession.entity.message.sendAudioMessage(
                 inputFile,
+                transcription: transcription,
                 toUsers: users,
                 inConversation: conversationContext
             )
@@ -357,8 +359,8 @@ final class MessageDeliveryService {
 
         var messages = conversation.messages ?? []
         let mockTranslation: Translation = .init(
-            input: .init(text?.trimmingTrailingWhitespace ?? ""),
-            output: text?.trimmingTrailingWhitespace ?? "",
+            input: .init(text ?? ""),
+            output: text ?? "",
             languagePair: .init(
                 from: currentUser.languageCode,
                 to: currentUser.languageCode
