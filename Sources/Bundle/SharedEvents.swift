@@ -40,6 +40,7 @@ import AppSubsystem
 extension SharedEvents {
     var audioMessageTranscriptionSucceeded: EventStream<AudioMessageTranscriptionData> { event() }
     var chatInfoPageLoadingStateUpdated: EventStream<Void> { event() }
+    var conversationsPageReappeared: EventStream<Void> { event() }
     var currentConversationActivityChanged: EventStream<Void> { event() }
     var currentConversationMetadataChanged: EventStream<Void> { event() }
     var firstMessageSentInNewChat: EventStream<Void> { event() }

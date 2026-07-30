@@ -29,11 +29,16 @@ struct ConversationsPageReducer: Reducer {
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
 
+    // MARK: - Properties
+
+    @SharedEvent(\.conversationsPageReappeared) private var conversationsPageReappeared
+
     // MARK: - Actions
 
     enum Action {
         case viewAppeared
         case viewDisappeared
+        case viewFirstAppeared
 
         case animatedComposeToolbarButtonAppeared
         case composeToolbarButtonTapped
@@ -70,6 +75,8 @@ struct ConversationsPageReducer: Reducer {
         var searchQuery = ""
         var strings: [TranslationOutputMap] = ConversationsPageViewStrings.defaultOutputMap
         var viewState: StatefulView.ViewState = .loading
+
+        fileprivate var didAppear = false
 
         /* MARK: Computed Properties */
 
@@ -129,7 +136,7 @@ struct ConversationsPageReducer: Reducer {
         action: Action
     ) -> Effect<Action> {
         switch action {
-        case .viewAppeared:
+        case .viewFirstAppeared:
             state.viewState = .loading
 
             viewService.viewAppeared()
@@ -144,6 +151,17 @@ struct ConversationsPageReducer: Reducer {
                     return .resolveFailed(error)
                 }
             }
+
+        case .viewAppeared:
+            guard state.didAppear else {
+                state.didAppear = true
+                return .none
+            }
+
+            // Backstop for cell reloads lost while the list was covered
+            // by a pushed page; cells re-derive their view data upon
+            // reappearance.
+            conversationsPageReappeared.send()
 
         case .animatedComposeToolbarButtonAppeared:
             let currentAnimationAmount = state.animationAmount

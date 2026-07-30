@@ -140,6 +140,9 @@ struct ConversationsPageView: View {
                 .preferredStatusBarStyle(.darkContent)
         }
         .onFirstAppear {
+            viewModel.send(.viewFirstAppeared)
+        }
+        .onAppear {
             viewModel.send(.viewAppeared)
         }
         .onDisappear {

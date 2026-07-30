@@ -31,6 +31,11 @@ struct ConversationCellView: View {
         _viewModel = .init(
             wrappedValue: viewModel
                 .observing(
+                    SharedEvent(\.conversationsPageReappeared)
+                        .wrappedValue
+                        .events
+                ) { _ in .reloadData }
+                .observing(
                     // The replayed current value is kept so that cells
                     // appearing mid-refresh redact immediately.
                     SharedState(\.reloadingConversationIDKeys)

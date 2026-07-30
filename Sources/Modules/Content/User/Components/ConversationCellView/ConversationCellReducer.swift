@@ -26,6 +26,13 @@ struct ConversationCellReducer: Reducer {
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.conversationCellViewService) private var viewService: ConversationCellViewService
 
+    // MARK: - Properties
+
+    /// Scopes reload-task cancellation to this reducer instance; the
+    /// cancellation registry is global, and sibling instances for the
+    /// same conversation must not cancel each other's reloads.
+    private let instanceID = UUID()
+
     // MARK: - Actions
 
     enum Action {
@@ -138,7 +145,9 @@ struct ConversationCellReducer: Reducer {
             guard let cellViewData = ConversationCellViewData(
                 state.conversation,
                 searchQuery: state.searchQuery
-            ) else { return .none }
+            ) else {
+                return reloadDataRetryTask(for: state.conversation)
+            }
 
             state.cellViewData = cellViewData
 
@@ -207,8 +216,11 @@ struct ConversationCellReducer: Reducer {
                 state.conversation,
                 searchQuery: state.searchQuery,
                 useCachedValue: false
-            ), cellViewData != state.cellViewData else { return .none }
+            ) else {
+                return reloadDataRetryTask(for: state.conversation)
+            }
 
+            guard cellViewData != state.cellViewData else { return .none }
             state.cellViewData = cellViewData
 
         case let .reloadingConversationsChanged(conversationIDKeys):
@@ -234,7 +246,7 @@ struct ConversationCellReducer: Reducer {
                 .reloadData
             }
             .cancellable(
-                id: "\(String.fromCurrentEditorContext(sender: self))/\(state.conversation.id.key)/\(TaskID.reloadData.rawValue)",
+                id: reloadDataTaskID,
                 cancelInFlight: true
             )
 
@@ -248,6 +260,14 @@ struct ConversationCellReducer: Reducer {
 }
 
 private extension ConversationCellReducer {
+    // MARK: - Properties
+
+    var reloadDataTaskID: String {
+        "\(String.fromCurrentEditorContext(sender: self))/\(instanceID)/\(TaskID.reloadData.rawValue)"
+    }
+
+    // MARK: - Methods
+
     func isRelevantChange(
         _ change: SessionStoreChange,
         for conversation: Conversation
@@ -267,5 +287,18 @@ private extension ConversationCellReducer {
                 conversation.participants.map(\.userID)
             ).isDisjoint(with: upsertedIDs.union(removedIDs))
         }
+    }
+
+    /// Retries the reload rather than consuming it; participants or
+    /// messages may still be hydrating into the session store.
+    func reloadDataRetryTask(for conversation: Conversation) -> Effect<Action> {
+        guard !conversation.isEmpty else { return .none }
+        return .task(delay: .seconds(1)) {
+            .reloadData
+        }
+        .cancellable(
+            id: reloadDataTaskID,
+            cancelInFlight: true
+        )
     }
 }
