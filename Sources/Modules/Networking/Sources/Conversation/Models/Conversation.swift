@@ -28,6 +28,9 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         reactionMetadata: nil
     )
 
+    private static let messageResolutionCoalescer = KeyedCoalescer<String, Void>()
+    private static let userResolutionCoalescer = KeyedCoalescer<String, Void>()
+
     let activities: [Activity]?
     let id: ConversationID
     let messageIDs: [String]
@@ -113,6 +116,14 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     /// on this conversation are fetched. When `ids` is
     /// provided, only the specified messages are fetched.
     ///
+    /// Concurrent calls for the same conversation version and
+    /// identifier set coalesce onto a single in-flight fetch.
+    /// If the calling task is cancelled before the shared fetch
+    /// settles, this method returns without effect for the
+    /// caller; the fetch itself always runs to completion, so
+    /// the session store never observes a partially applied
+    /// resolution.
+    ///
     /// After this method returns, the fetched messages are
     /// available through the ``messages`` computed property.
     ///
@@ -120,6 +131,24 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     ///   Pass `nil` to fetch all non-system messages.
     func resolveMessages(
         ids: Set<String>? = nil
+    ) async throws(Exception) {
+        let idsKeyComponent = ids.map { $0.sorted().joined(separator: ",") } ?? "all"
+        do {
+            try await Self.messageResolutionCoalescer.submitUnlessCancelled(
+                "\(id.encoded)/\(idsKeyComponent)"
+            ) {
+                try await fetchAndCommitMessages(ids: ids)
+            }
+        } catch {
+            // Cancelled callers abandon the wait silently; other
+            // coalesced callers still receive the shared result.
+            guard !Task.isCancelled else { return }
+            throw error
+        }
+    }
+
+    private func fetchAndCommitMessages(
+        ids: Set<String>?
     ) async throws(Exception) {
         @Dependency(\.networking.messageService) var messageService: MessageService
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
@@ -183,10 +212,35 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     /// ``users`` computed property. Pass `forceUpdate` to
     /// bypass the cache and re-fetch regardless.
     ///
+    /// Concurrent calls for the same conversation version
+    /// coalesce onto a single in-flight fetch; forced and
+    /// unforced calls occupy separate lanes so a force
+    /// re-fetch is never absorbed by a cached one. If the
+    /// calling task is cancelled before the shared fetch
+    /// settles, this method returns without effect for the
+    /// caller; the fetch itself always runs to completion.
+    ///
     /// - Parameter forceUpdate: When `true`, disregards the
     ///   cache and fetches all participants from the network.
     func resolveUsers(
         forceUpdate: Bool = false
+    ) async throws(Exception) {
+        do {
+            try await Self.userResolutionCoalescer.submitUnlessCancelled(
+                "\(id.encoded)/\(forceUpdate)"
+            ) {
+                try await fetchAndCommitUsers(forceUpdate: forceUpdate)
+            }
+        } catch {
+            // Cancelled callers abandon the wait silently; other
+            // coalesced callers still receive the shared result.
+            guard !Task.isCancelled else { return }
+            throw error
+        }
+    }
+
+    private func fetchAndCommitUsers(
+        forceUpdate: Bool
     ) async throws(Exception) {
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
