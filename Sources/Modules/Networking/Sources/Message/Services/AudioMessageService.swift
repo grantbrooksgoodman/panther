@@ -114,6 +114,20 @@ struct AudioMessageService {
                 } catch {
                     Logger.log(error)
                 }
+
+                let temporaryDirectoryURL = audioComponent.translated.url.deletingLastPathComponent()
+                guard temporaryDirectoryURL.lastPathComponent.hasPrefix(
+                    AudioService.DirectoryNames.textToSpeechOutputPrefix
+                ) else { return }
+
+                do {
+                    try fileManager.removeItem(at: temporaryDirectoryURL)
+                } catch {
+                    Logger.log(.init(
+                        error,
+                        metadata: .init(sender: self)
+                    ))
+                }
             }
 
             try await uploadInput(audioComponent.original)

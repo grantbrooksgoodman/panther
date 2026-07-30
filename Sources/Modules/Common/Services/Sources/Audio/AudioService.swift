@@ -16,6 +16,10 @@ import AppSubsystem
 struct AudioService {
     // MARK: - Types
 
+    enum DirectoryNames {
+        static let textToSpeechOutputPrefix = "tts-"
+    }
+
     enum FileNames {
         static let inputM4A = "input.\(MediaFileExtension.audio(.m4a).rawValue)"
         static let outputM4A = "output.\(MediaFileExtension.audio(.m4a).rawValue)"

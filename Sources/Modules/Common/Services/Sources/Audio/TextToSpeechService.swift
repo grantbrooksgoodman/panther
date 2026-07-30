@@ -16,11 +16,11 @@ import AppSubsystem
 struct TextToSpeechService {
     // MARK: - Type Aliases
 
+    private typealias DirectoryNames = AudioService.DirectoryNames
     private typealias FileNames = AudioService.FileNames
 
     // MARK: - Dependencies
 
-    @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.fileManager) private var fileManager: FileManager
 
     // MARK: - Read to File
@@ -102,113 +102,114 @@ struct TextToSpeechService {
         from text: String,
         languageCode: String
     ) async throws(Exception) -> URL {
-        try await TextToSpeechWriteGate
-            .shared
-            .run { () async throws(Exception) -> URL in
-                let fileName = "\(languageCode)-\(FileNames.outputM4A)"
-                let filePath = fileManager.documentsDirectoryURL.appending(path: fileName)
+        let outputDirectoryURL = fileManager.documentsDirectoryURL.appending(
+            path: "\(DirectoryNames.textToSpeechOutputPrefix)\(UUID().uuidString)"
+        )
 
-                if fileManager.fileExists(
-                    atPath: fileManager.pathToFileInDocuments(named: fileName)
-                ) {
+        do {
+            try fileManager.createDirectory(
+                at: outputDirectoryURL,
+                withIntermediateDirectories: true
+            )
+        } catch {
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
+        }
+
+        let filePath = outputDirectoryURL.appending(path: "\(languageCode)-\(FileNames.outputM4A)")
+
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = highestQualityVoice(
+            languageCode,
+            mustIncludeAudioFileSettings: true
+        )
+
+        let avSpeechSynthesizer = AVSpeechSynthesizer()
+        defer { withExtendedLifetime(avSpeechSynthesizer) {} }
+
+        var output: AVAudioFile?
+        var timeout: Timeout?
+
+        var didComplete = false
+        var canComplete: Bool {
+            guard !didComplete else { return false }
+            didComplete = true
+            return true
+        }
+
+        do {
+            return try await withCheckedThrowingContinuation { continuation in
+                timeout = Timeout(after: .seconds(10)) {
+                    guard canComplete else { return }
+                    continuation.resume(throwing: Exception.timedOut(
+                        metadata: .init(sender: self)
+                    ))
+                }
+
+                avSpeechSynthesizer.write(utterance) { buffer in
+                    guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
+                        guard canComplete else { return }
+                        timeout?.cancel()
+
+                        return continuation.resume(throwing: Exception(
+                            "Failed to typecast buffer to AVAudioPCMBuffer.",
+                            metadata: .init(sender: self)
+                        ))
+                    }
+
                     do {
-                        try fileManager.removeItem(at: filePath)
-                    } catch {
-                        throw Exception(
-                            error,
-                            metadata: .init(sender: self)
-                        ).appending(userInfo: ["FileURLString": filePath.absoluteString])
-                    }
-                }
+                        if output == nil {
+                            output = try AVAudioFile(
+                                forWriting: filePath,
+                                settings: [
+                                    AVFormatIDKey: kAudioFormatMPEG4AAC,
+                                    AVSampleRateKey: pcmBuffer.format.sampleRate,
+                                    AVNumberOfChannelsKey: pcmBuffer.format.channelCount,
+                                    AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+                                ],
+                                commonFormat: .pcmFormatFloat32,
+                                interleaved: false
+                            )
+                        }
 
-                let utterance = AVSpeechUtterance(string: text)
-                utterance.voice = highestQualityVoice(
-                    languageCode,
-                    mustIncludeAudioFileSettings: true
-                )
-
-                var output: AVAudioFile?
-                var timeout: Timeout?
-
-                var didComplete = false
-                var canComplete: Bool {
-                    guard !didComplete else { return false }
-                    didComplete = true
-                    return true
-                }
-
-                do {
-                    return try await withCheckedThrowingContinuation { continuation in
-                        timeout = Timeout(after: .seconds(10)) {
+                        if pcmBuffer.frameLength == 0 {
                             guard canComplete else { return }
-                            continuation.resume(throwing: Exception.timedOut(
-                                metadata: .init(sender: self)
-                            ))
-                        }
+                            timeout?.cancel()
 
-                        avSpeechSynthesizer.write(utterance) { buffer in
-                            guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
-                                guard canComplete else { return }
-                                timeout?.cancel()
-
+                            guard let output else {
                                 return continuation.resume(throwing: Exception(
-                                    "Failed to typecast buffer to AVAudioPCMBuffer.",
+                                    "Failed to generate output.",
                                     metadata: .init(sender: self)
                                 ))
                             }
 
-                            do {
-                                if output == nil {
-                                    output = try AVAudioFile(
-                                        forWriting: filePath,
-                                        settings: [
-                                            AVFormatIDKey: kAudioFormatMPEG4AAC,
-                                            AVSampleRateKey: pcmBuffer.format.sampleRate,
-                                            AVNumberOfChannelsKey: pcmBuffer.format.channelCount,
-                                            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
-                                        ],
-                                        commonFormat: .pcmFormatFloat32,
-                                        interleaved: false
-                                    )
-                                }
-
-                                if pcmBuffer.frameLength == 0 {
-                                    guard canComplete else { return }
-                                    timeout?.cancel()
-
-                                    guard let output else {
-                                        return continuation.resume(throwing: Exception(
-                                            "Failed to generate output.",
-                                            metadata: .init(sender: self)
-                                        ))
-                                    }
-
-                                    return continuation.resume(returning: output.url)
-                                }
-
-                                try output?.write(from: pcmBuffer)
-                            } catch {
-                                guard canComplete else { return }
-                                timeout?.cancel()
-
-                                continuation.resume(throwing: Exception(
-                                    error,
-                                    metadata: .init(sender: self)
-                                ))
-                            }
+                            return continuation.resume(returning: output.url)
                         }
-                    }
-                } catch {
-                    guard let exception = error as? Exception else {
-                        throw Exception(
+
+                        try output?.write(from: pcmBuffer)
+                    } catch {
+                        guard canComplete else { return }
+                        timeout?.cancel()
+
+                        continuation.resume(throwing: Exception(
                             error,
                             metadata: .init(sender: self)
-                        )
+                        ))
                     }
-
-                    throw exception
                 }
             }
+        } catch {
+            guard let exception = error as? Exception else {
+                throw Exception(
+                    error,
+                    metadata: .init(sender: self)
+                )
+            }
+
+            throw exception
+        }
     }
 }
 
@@ -242,38 +243,5 @@ private enum _TextToSpeechServiceCache {
     fileprivate static func clearCache() {
         cachedTextToSpeechSupportForLanguageCodes = nil
         cachedVoicesForLanguageCodes = nil
-    }
-}
-
-private actor TextToSpeechWriteGate {
-    // MARK: - Properties
-
-    static let shared = TextToSpeechWriteGate()
-
-    private var isRunning = false
-    private var waiters: [CheckedContinuation<Void, Never>] = []
-
-    // MARK: - Run
-
-    func run<T>(
-        _ work: () async throws(Exception) -> T
-    ) async throws(Exception) -> T {
-        await acquire()
-        defer { release() }
-        return try await work()
-    }
-
-    // MARK: - Auxiliary
-
-    private func acquire() async {
-        guard isRunning else { return isRunning = true }
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            waiters.append(continuation)
-        }
-    }
-
-    private func release() {
-        guard !waiters.isEmpty else { return isRunning = false }
-        waiters.removeFirst().resume()
     }
 }
