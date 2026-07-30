@@ -22,6 +22,7 @@ final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
 
     // MARK: - Dependencies
 
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
 
     // MARK: - Properties
@@ -32,6 +33,14 @@ final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
     private var deliveryProgressTimer: Timer?
 
     // MARK: - Computed Properties
+
+    /// Covers outbox retries, which send without engaging MessageDeliveryService.
+    private var isSendingOutboxEntry: Bool {
+        guard let conversationIDKey = clientSession.entity.conversation.currentConversation?.id.key else { return false }
+        return clientSession.outbox.entries(
+            forConversationIDKey: conversationIDKey
+        ).contains { $0.state == .sending }
+    }
 
     private var progressView: UIProgressView? {
         viewController.view.firstSubview(for: Strings.viewSemanticTag) as? UIProgressView
@@ -126,7 +135,7 @@ final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
 
     @objc
     private func _startAnimatingDeliveryProgress() {
-        guard isSendingMessage else { return }
+        guard isSendingMessage || isSendingOutboxEntry else { return }
         UIView.animate(withDuration: Floats.animationDuration) {
             self.progressView?.alpha = 1
         } completion: { _ in

@@ -66,11 +66,16 @@ extension MessageOutboxService {
         }
 
         await MainActor.run {
-            @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
-            inputBarService?.toggleSendingUI(
+            @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
+            @Dependency(\.clientSession) var clientSession: ClientSession
+            chatPageViewService.inputBar?.toggleSendingUI(
                 on: true,
                 clearInputTextViewText: false
             )
+
+            if clientSession.entity.conversation.currentConversation?.id.key == entry.conversationIDKey {
+                chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
+            }
         }
 
         let conversationTuple = (
@@ -103,8 +108,13 @@ extension MessageOutboxService {
         }
 
         await MainActor.run {
-            @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
-            inputBarService?.toggleSendingUI(on: false)
+            @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
+            @Dependency(\.clientSession) var clientSession: ClientSession
+            chatPageViewService.inputBar?.toggleSendingUI(on: false)
+
+            if clientSession.entity.conversation.currentConversation?.id.key == entry.conversationIDKey {
+                chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
+            }
         }
     }
 
