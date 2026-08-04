@@ -162,11 +162,6 @@ enum Application {
         MessageContentCell.swizzleApply
         UIViewController.swizzlePresent
         UIViewController.swizzleViewWillDisappear
-
-        /* MARK: Production Footgun Mitigation */
-
-        // FIXME: Remove prior to 5.1.0 release.
-        guard Networking.config.environment != .production else { exit(0) }
     }
 }
 

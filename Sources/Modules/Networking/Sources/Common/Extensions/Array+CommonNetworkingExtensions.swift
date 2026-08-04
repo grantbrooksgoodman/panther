@@ -52,21 +52,24 @@ extension [Conversation] {
 }
 
 extension [Message] {
-    /// The unique messages among the array according to their `id` value, where those with populated `readReceipts` fields take priority.
+    /// The unique messages among the array according to their `id` value,
+    /// preserving original order, where those with populated `readReceipts`
+    /// fields take priority.
     var uniquedByID: [Message] {
-        var messages = [Message]()
-        var seenIDs = Set<String>()
+        var indicesForIDs = [String: Int]()
+        var uniqueMessages = [Message]()
 
-        for message in self where message.readReceipts != nil {
-            guard seenIDs.insert(message.id).inserted else { continue }
-            messages.append(message)
+        for message in self {
+            if let index = indicesForIDs[message.id] {
+                guard uniqueMessages[index].readReceipts == nil,
+                      message.readReceipts != nil else { continue }
+                uniqueMessages[index] = message
+            } else {
+                indicesForIDs[message.id] = uniqueMessages.count
+                uniqueMessages.append(message)
+            }
         }
 
-        for message in self where message.readReceipts == nil {
-            guard seenIDs.insert(message.id).inserted else { continue }
-            messages.append(message)
-        }
-
-        return messages
+        return uniqueMessages
     }
 }

@@ -28,7 +28,7 @@ final class ConversationsPageViewService {
     private enum ReloadType: String {
         /* MARK: Cases */
 
-        /// Force update last 1/3 of conversations.
+        /// Force update shuffled 1/3 of conversations.
         case full
 
         /// No force updating.
@@ -413,7 +413,7 @@ final class ConversationsPageViewService {
             var conversationsToReload = [firstConversation]
             if type == .full {
                 if conversations.count > 5 {
-                    conversationsToReload = Array(conversations[
+                    conversationsToReload = Array(conversations.shuffled()[
                         0 ... conversations.count / 3
                     ])
                 } else {
