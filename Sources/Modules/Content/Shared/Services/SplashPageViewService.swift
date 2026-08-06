@@ -238,11 +238,13 @@ final class SplashPageViewService: ObservableObject {
             if (currentUser.conversationIDs ?? []).count > 20,
                clientSession.store.conversations.isEmpty {
                 let database = LockIsolated(networking.database)
-                do {
-                    guard !Task.isCancelled else { return }
-                    try await database.wrappedValue.populateTemporaryCaches()
-                } catch {
-                    Logger.log(error)
+                Task.detached(priority: .utility) {
+                    do throws(Exception) {
+                        guard !Task.isCancelled else { return }
+                        try await database.wrappedValue.populateTemporaryCaches()
+                    } catch {
+                        Logger.log(error)
+                    }
                 }
             }
 
@@ -434,28 +436,12 @@ final class SplashPageViewService: ObservableObject {
                     and: .allDataTypes
                 )
 
-                guard self?.build.milestone != .generalRelease else { return }
-                let logMessage = "Deferred resolution of current user data was successful."
-
                 Logger.log(
-                    logMessage,
+                    "Deferred resolution of current user data was successful.",
                     sender: self ?? SplashPageViewService.self
                 )
-
-                Toast.show(.init(
-                    .capsule(style: .success),
-                    message: logMessage,
-                    perpetuation: .ephemeral(.seconds(5))
-                ))
             } catch {
                 Logger.log(error)
-                guard self?.build.milestone != .generalRelease else { return }
-                Toast.show(.init(
-                    .banner(style: .error),
-                    title: "Deferred Resolution Failed",
-                    message: error.descriptor,
-                    perpetuation: .persistent
-                ))
             }
         }
 

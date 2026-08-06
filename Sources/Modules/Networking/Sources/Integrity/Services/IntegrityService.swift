@@ -49,6 +49,9 @@ final class IntegrityService: @unchecked Sendable {
 
     // MARK: - Properties
 
+    private static let implausibleMalformityCount = 3
+    private static let implausibleMalformityRatio: Float = 0.5
+
     private let _session = LockIsolated<IntegrityServiceSession?>(nil)
 
     @LockIsolated private var didConfirmUnsafeSessionResolution = false
@@ -159,6 +162,52 @@ final class IntegrityService: @unchecked Sendable {
         }
     }
 
+    // MARK: - Validate Repair Safety
+
+    /// Throws when malformity is implausibly widespread –
+    /// a signal of schema drift rather than genuine data
+    /// corruption. Guards against repair cascading into a
+    /// mass deletion of the database.
+    func validateRepairSafety() throws(Exception) {
+        try validateRepairSafety(
+            malformedCount: malformedConversationIDKeys.count,
+            totalCount: session.conversationData.count,
+            nodeDescriptor: "conversation"
+        )
+
+        try validateRepairSafety(
+            malformedCount: malformedMessageIDs.count,
+            totalCount: session.messageData.count,
+            nodeDescriptor: "message"
+        )
+
+        try validateRepairSafety(
+            malformedCount: malformedUserIDs.count,
+            totalCount: session.userData.count,
+            nodeDescriptor: "user"
+        )
+    }
+
+    private func validateRepairSafety(
+        malformedCount: Int,
+        totalCount: Int,
+        nodeDescriptor: String
+    ) throws(Exception) {
+        guard totalCount > 0,
+              malformedCount >= Self.implausibleMalformityCount,
+              Float(malformedCount) / Float(totalCount) >= Self.implausibleMalformityRatio else { return }
+
+        throw Exception(
+            "Implausibly widespread \(nodeDescriptor) malformity; aborting repair to prevent mass deletion.",
+            userInfo: [
+                "MalformedCount": malformedCount,
+                "NodeDescriptor": nodeDescriptor,
+                "TotalCount": totalCount,
+            ],
+            metadata: .init(sender: self)
+        )
+    }
+
     // MARK: - Prune Deleted Users
 
     func pruneDeletedUsers() async throws(Exception) {
@@ -206,6 +255,11 @@ final class IntegrityService: @unchecked Sendable {
             }
 
             tookAction = true
+            Logger.log(
+                "Repairing malformed conversation \"\(conversationIDKey)\".",
+                domain: .dataIntegrity,
+                sender: self
+            )
 
             let conversationMessageIDs: [String] = {
                 guard let dictionary = session.conversationData[conversationIDKey] as? [String: Any],
@@ -298,6 +352,12 @@ final class IntegrityService: @unchecked Sendable {
             }
 
             tookAction = true
+            Logger.log(
+                "Repairing malformed message \"\(messageID)\".",
+                domain: .dataIntegrity,
+                sender: self
+            )
+
             for conversationIDKey in conversationsReferencing(messageID: messageID) {
                 do throws(Exception) {
                     try await resetHash(
@@ -356,6 +416,12 @@ final class IntegrityService: @unchecked Sendable {
 
         for userID in (userIDs ?? malformedUserIDs).filter({ $0 != .bangQualifiedEmpty }) {
             tookAction = true
+            Logger.log(
+                "Repairing malformed user \"\(userID)\".",
+                domain: .dataIntegrity,
+                sender: self
+            )
+
             if userIDs != nil {
                 do {
                     let _: [String: Any] = try await networking.database.getValues(

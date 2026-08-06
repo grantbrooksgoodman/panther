@@ -59,16 +59,17 @@ extension LoggerDomain {
             .conversationStore,
             .conversationSync,
             .dataIntegrity,
+            .dataUsage,
             .general,
             .Networking.auth,
             .Networking.health,
             .Networking.hostedTranslation,
             .localization,
-            .messageOutbox,
             .notifications,
+            .outbox,
             .penPals,
+            .rollbackService,
             .schemaMigration,
-            .dataUsage,
             .translation,
             .userSession,
             .userStore,
@@ -88,9 +89,9 @@ extension LoggerDomain {
     static let conversationSync: LoggerDomain = .init("conversationSync")
     static let dataIntegrity: LoggerDomain = .init("dataIntegrity")
     static let dataUsage: LoggerDomain = .init("dataUsage")
-    static let messageOutbox: LoggerDomain = .init("messageOutbox")
     static let messageStore: LoggerDomain = .init("messageStore")
     static let notifications: LoggerDomain = .init("notifications")
+    static let outbox: LoggerDomain = .init("outbox")
     static let penPals: LoggerDomain = .init("penPals")
     static let schemaMigration: LoggerDomain = .init("schemaMigration")
     static let sessionStore: LoggerDomain = .init("sessionStore")

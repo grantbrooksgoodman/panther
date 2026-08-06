@@ -35,7 +35,7 @@ extension MessageOutboxService {
             remove(id: entryID)
             return Logger.log(
                 "Removed outbox entry \(entryID): conversation no longer exists.",
-                domain: .messageOutbox,
+                domain: .outbox,
                 sender: self
             )
         }
@@ -60,7 +60,7 @@ extension MessageOutboxService {
             markFailed(id: entryID)
             return Logger.log(
                 "Failed to resolve any recipient users for outbox entry \(entryID).",
-                domain: .messageOutbox,
+                domain: .outbox,
                 sender: self
             )
         }
@@ -95,14 +95,14 @@ extension MessageOutboxService {
             remove(id: entryID)
             Logger.log(
                 "Retry succeeded for outbox entry \(entryID).",
-                domain: .messageOutbox,
+                domain: .outbox,
                 sender: self
             )
         } catch {
             markFailed(id: entryID)
             Logger.log(
                 "Retry failed for outbox entry \(entryID).",
-                domain: .messageOutbox,
+                domain: .outbox,
                 sender: self
             )
         }
@@ -185,7 +185,7 @@ extension MessageOutboxService {
 
         Logger.log(
             "Auto-retrying \(failedEntries.count) eligible entries across \(groupedEntries.count) conversations.",
-            domain: .messageOutbox,
+            domain: .outbox,
             sender: self
         )
 
@@ -194,7 +194,7 @@ extension MessageOutboxService {
                 guard entry.attemptCount < OutboxEntry.autoRetryCap else {
                     Logger.log(
                         "Skipping outbox entry \(entry.id): attempt count \(entry.attemptCount) exceeds auto-retry cap.",
-                        domain: .messageOutbox,
+                        domain: .outbox,
                         sender: self
                     )
 

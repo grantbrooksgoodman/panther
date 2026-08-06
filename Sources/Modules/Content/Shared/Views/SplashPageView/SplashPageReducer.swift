@@ -154,10 +154,6 @@ struct SplashPageReducer: Reducer {
 
                     Logger.log(
                         "Loading from cached user; network is poor or initialization stalled.",
-                        with: .toastInPrerelease(
-                            style: .warning,
-                            isPersistent: false
-                        ),
                         sender: self
                     )
 

@@ -28,10 +28,12 @@ extension IntegrityService {
         @Dependency(\.build) var build: Build
         @Dependency(\.commonServices.metadata) var metadataService: MetadataService
         @Dependency(\.networking) var networking: NetworkServices
+        @Dependency(\.rollbackService) var rollbackService: RollbackService
 
         if isFirstRun {
             do {
                 try coreUtilities.eraseTemporaryDirectory()
+                try await rollbackService.captureSnapshot()
                 try await networking.schemaMigrationService.migrateDatabase()
             } catch {
                 Logger.log(error)
@@ -82,6 +84,7 @@ extension IntegrityService {
             throw error
         }
 
+        try validateRepairSafety()
         await reportProgressUpdate()
 
         // Prune Deleted Users & Invalidated Caches
