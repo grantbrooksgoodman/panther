@@ -63,14 +63,12 @@ extension DevModeAction.AppActions {
 
         // MARK: - Actions
 
-        static var clearPreviousLanguageCodesAction: DevModeAction {
-            .init(
-                title: Action.clearPreviousLanguageCodes.confirmationAlertTitle,
-                isDestructive: true
-            ) { performAction(.clearPreviousLanguageCodes) }
-        }
+        static let clearPreviousLanguageCodesAction: DevModeAction = .init(
+            title: Action.clearPreviousLanguageCodes.confirmationAlertTitle,
+            isDestructive: true
+        ) { performAction(.clearPreviousLanguageCodes) }
 
-        static var deleteConversationsAction: DevModeAction {
+        static let deleteConversationsAction: DevModeAction = {
             @Sendable
             func deleteConversations() {
                 Task {
@@ -182,21 +180,17 @@ extension DevModeAction.AppActions {
                 isDestructive: true,
                 perform: deleteConversations
             )
-        }
+        }()
 
-        static var destroyConversationDatabaseAction: DevModeAction {
-            DevModeAction(
-                title: Action.destroyConversationDatabase.confirmationAlertTitle,
-                isDestructive: true
-            ) { performAction(.destroyConversationDatabase) }
-        }
+        static let destroyConversationDatabaseAction: DevModeAction = .init(
+            title: Action.destroyConversationDatabase.confirmationAlertTitle,
+            isDestructive: true
+        ) { performAction(.destroyConversationDatabase) }
 
-        static var resetPushTokensAction: DevModeAction {
-            DevModeAction(
-                title: Action.resetPushTokens.confirmationAlertTitle,
-                isDestructive: true
-            ) { performAction(.resetPushTokens) }
-        }
+        static let resetPushTokensAction: DevModeAction = .init(
+            title: Action.resetPushTokens.confirmationAlertTitle,
+            isDestructive: true
+        ) { performAction(.resetPushTokens) }
 
         // MARK: - Auxiliary
 

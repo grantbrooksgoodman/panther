@@ -101,7 +101,7 @@ enum Application {
         )
 
         AppSubsystem.initialize(
-            appStoreBuildNumber: 35900,
+            appStoreBuildNumber: 37186,
             buildMilestone: buildMilestone,
             codeName: "Panther",
             finalName: "Hello",
@@ -117,7 +117,10 @@ enum Application {
         /* MARK: Networking Setup */
 
         Networking.initialize()
-        Networking.config.registerActivityIndicatorDelegate(NetworkActivityIndicatorService())
+        Networking.config.registerActivityIndicatorDelegate(
+            NetworkActivityIndicatorService()
+        )
+
         Networking.config.setNetworkHealthConfiguration(
             .init(
                 probeConfiguration: Networking.probeConfiguration

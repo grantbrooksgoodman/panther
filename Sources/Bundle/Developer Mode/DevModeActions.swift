@@ -6,8 +6,6 @@
 //  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
-
 /* Native */
 import Foundation
 import UIKit
@@ -47,131 +45,100 @@ extension DevModeAction {
         /// The actions to display in the Developer Mode action sheet.
         var appActions: [DevModeAction] {
             var actions = [
-                Breadcrumbs.manageBreadcrumbsCaptureAction,
-                AppActions.markMessagesUnreadAction,
-                AppActions.setCurrentUserIDAction,
-                AppActions.triggerForcedUpdateModalAction,
-                AppActions.validateDatabaseIntegrityAction,
+                AppActions.DatabaseOptions.databaseOptionsAction,
+                AppActions.UIOptions.uiOptionsAction,
+                AppActions.UserOptions.userOptionsAction,
                 AppActions.dangerZoneAction,
             ]
 
-            if Networking.config.environment != .production {
+            if Networking.config.environment != .production,
+               mainBundle.containsStagingAssets {
                 actions.insert(
-                    AppActions.createNewMessagesAction,
-                    at: 1
+                    AppActions.stagingModeOptionsAction,
+                    at: 2
                 )
-
-                if mainBundle.containsStagingAssets {
-                    actions.insert(
-                        AppActions.stagingModeOptionsAction,
-                        at: 2
-                    )
-                }
             }
 
             return actions
         }
 
-        // MARK: - Top-level Actions
+        // MARK: - Methods
 
-        static var createNewMessagesAction: DevModeAction {
-            @Sendable
-            func createNewMessages() {
-                Task { @MainActor in
-                    @Dependency(\.networking.userService.testing) var userTestingService: UserTestingService
-
-                    let messageCount = await AKTextInputAlert(
-                        title: "Create Random Messages",
-                        message: "Enter the amount of messages to be created.",
-                        attributes: .init(keyboardType: .numberPad)
-                    ).present(translating: [])
-
-                    guard let messageCount,
-                          let integer = Int(messageCount) else { return }
-
-                    do throws(Exception) {
-                        try await userTestingService.createRandomMessages(
-                            count: integer
-                        )
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .errorAlert
-                        )
-
-                        Application.reset(onCompletion: .navigateToSplash)
+        static func presentActionSheet() {
+            Task { @MainActor in
+                let instance = AppActions()
+                var actions = instance.appActions.map { devModeAction in
+                    AKAction(
+                        devModeAction.title,
+                        style: devModeAction.isDestructive ? .destructive : .default
+                    ) {
+                        devModeAction.perform()
                     }
                 }
-            }
 
-            return DevModeAction(
-                title: "Create New Random Messages",
-                perform: createNewMessages
-            )
+                if !instance.appActions.isEmpty {
+                    actions.append(
+                        AKAction(
+                            "Back",
+                            style: .cancel
+                        ) {
+                            DevModeService.presentActionSheet()
+                        }
+                    )
+                }
+
+                await AKActionSheet(
+                    title: "Developer Mode Options",
+                    actions: actions
+                ).present(translating: [])
+            }
         }
 
-        private static let markMessagesUnreadAction: DevModeAction = {
+        // MARK: - Top-level Actions
+
+        private static let dangerZoneAction: DevModeAction = {
             @Sendable
-            func markMessagesUnread() {
-                Task { @MainActor in
-                    @Dependency(\.clientSession.entity.user) var userSession: UserSessionService
-                    @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
+            func dangerZone() {
+                Task {
+                    @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
 
-                    guard await AKConfirmationAlert(
-                        title: "Mark Messages Unread",
-                        message: "All messages will be marked as unread for the current user."
-                    ).present(translating: []) else { return }
+                    var actions: [DevModeAction] = [
+                        DevModeAction.AppActions.DangerZone.destroyConversationDatabaseAction,
+                        DevModeAction.AppActions.DangerZone.resetPushTokensAction,
+                    ]
 
-                    defer { coreUI.removeOverlay() }
-                    coreUI.addOverlay(
-                        alpha: 0.5,
-                        activityIndicator: .largeWhite
-                    )
-
-                    do throws(Exception) {
-                        try await userSession.resolveCurrentUser(
-                            and: [
-                                .conversations,
-                                .messages,
-                            ]
-                        )
-
-                        guard let conversations = userSession
-                            .currentUser?
-                            .conversations else { return }
-
-                        userSession.stopObservingCurrentUserChanges()
-
-                        _ = try await conversations
-                            .compactMap(\.messages)
-                            .flatMap(\.self)
-                            .filter { $0.currentUserReadReceipt != nil }
-                            .parallelMap { @Sendable in
-                                let message = $0
-                                return try await message.update(
-                                    \.readReceipts,
-                                    to: (message.readReceipts ?? [])?.filter {
-                                        $0 != message.currentUserReadReceipt
-                                    }
-                                )
-                            }
-
-                        Application.reset(
-                            preserveCurrentUserID: true,
-                            onCompletion: .navigateToSplash
-                        )
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .toast
+                    if currentUser?.previousLanguageCodes?.isEmpty == false {
+                        actions.insert(
+                            DevModeAction.AppActions.DangerZone.clearPreviousLanguageCodesAction,
+                            at: 0
                         )
                     }
+
+                    if currentUser?.conversations != nil {
+                        actions.insert(
+                            DevModeAction.AppActions.DangerZone.deleteConversationsAction,
+                            at: 1
+                        )
+                    }
+
+                    await AKActionSheet(
+                        title: "Danger Zone",
+                        message: "Exercise caution when using these options.",
+                        actions: actions.map {
+                            AKAction(
+                                $0.title,
+                                style: $0.isDestructive ? .destructive : .default,
+                                effect: $0.perform
+                            )
+                        }
+                    ).present(translating: [])
                 }
             }
 
             return DevModeAction(
-                title: "Mark Messages Unread",
-                perform: markMessagesUnread
+                title: "Danger Zone",
+                isDestructive: true,
+                perform: dangerZone
             )
         }()
 
@@ -235,129 +202,5 @@ extension DevModeAction {
                 perform: stagingModeOptions
             )
         }()
-
-        private static var dangerZoneAction: DevModeAction {
-            @Sendable
-            func dangerZone() {
-                Task {
-                    @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
-
-                    var actions: [DevModeAction] = [
-                        DevModeAction.AppActions.DangerZone.destroyConversationDatabaseAction,
-                        DevModeAction.AppActions.DangerZone.resetPushTokensAction,
-                    ]
-
-                    if currentUser?.previousLanguageCodes?.isEmpty == false {
-                        actions.insert(
-                            DevModeAction.AppActions.DangerZone.clearPreviousLanguageCodesAction,
-                            at: 0
-                        )
-                    }
-
-                    if currentUser?.conversations != nil {
-                        actions.insert(
-                            DevModeAction.AppActions.DangerZone.deleteConversationsAction,
-                            at: 1
-                        )
-                    }
-
-                    await AKActionSheet(
-                        title: "Danger Zone",
-                        message: "Exercise caution when using these options.",
-                        actions: actions.map {
-                            AKAction(
-                                $0.title,
-                                style: $0.isDestructive ? .destructive : .default,
-                                effect: $0.perform
-                            )
-                        }
-                    ).present(translating: [])
-                }
-            }
-
-            return DevModeAction(
-                title: "Danger Zone",
-                isDestructive: true,
-                perform: dangerZone
-            )
-        }
-
-        private static var setCurrentUserIDAction: DevModeAction {
-            @Sendable
-            func setCurrentUserID() {
-                Task { @MainActor in
-                    @Dependency(\.navigation) var navigation: Navigation
-                    @Persistent(.currentUserID) var currentUserID: String?
-
-                    let input = await AKTextInputAlert(
-                        message: "Set Current User ID",
-                        attributes: .init(
-                            capitalizationType: .none,
-                            correctionType: .no
-                        ),
-                        confirmButtonTitle: "Done"
-                    ).present(translating: [])
-
-                    guard let input else { return }
-                    if input != currentUserID {
-                        Application.reset()
-                    }
-
-                    currentUserID = input
-                    navigation.navigate(to: .root(.modal(.splash)))
-                }
-            }
-
-            return DevModeAction(
-                title: "Set Current User ID",
-                perform: setCurrentUserID
-            )
-        }
-
-        private static var triggerForcedUpdateModalAction: DevModeAction {
-            @Sendable
-            func triggerForcedUpdateModal() {
-                @Dependency(\.commonServices.update) var updateService: UpdateService
-                updateService.isForcedUpdateRequiredSubject.send(true)
-            }
-
-            return DevModeAction(
-                title: "Trigger Forced Update Modal",
-                perform: triggerForcedUpdateModal
-            )
-        }
-
-        private static var validateDatabaseIntegrityAction: DevModeAction {
-            @Sendable
-            func validateDatabaseIntegrity() {
-                Task { @MainActor in
-                    @Dependency(\.networking.integrityService) var integrityService: IntegrityService
-
-                    let progressAlert = AKProgressAlert(
-                        title: "Validate Database Integrity",
-                        message: "Please wait..."
-                    )
-
-                    await progressAlert.present(translating: [])
-                    defer { progressAlert.dismiss() }
-
-                    do throws(Exception) {
-                        try await integrityService.repairDatabase { progressAlert.updateProgress($0) }
-                    } catch {
-                        Logger.log(
-                            error,
-                            with: .toast
-                        )
-                    }
-                }
-            }
-
-            return DevModeAction(
-                title: "Validate Database Integrity",
-                perform: validateDatabaseIntegrity
-            )
-        }
     }
 }
-
-// swiftlint:enable type_body_length

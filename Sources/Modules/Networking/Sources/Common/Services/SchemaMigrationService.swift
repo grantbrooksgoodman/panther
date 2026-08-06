@@ -29,6 +29,11 @@ import Networking
 /// detects legacy-format fields, and builds a single
 /// atomic ``DatabaseDelegate/commit(_:)`` payload that
 /// rewrites all affected paths in one operation.
+///
+/// User nodes are also brought fully up to the current
+/// schema – required fields introduced by later versions
+/// (e.g. `deviceID`) are backfilled with their creation
+/// defaults, and retired fields are removed.
 struct SchemaMigrationService: @unchecked Sendable {
     // MARK: - Types
 
@@ -55,9 +60,11 @@ struct SchemaMigrationService: @unchecked Sendable {
     // MARK: - Migrate Database
 
     /// Reads every user and conversation node, converts
-    /// legacy array-format fields to keyed maps, recomputes
-    /// version tokens, and persists `imageHash` where
-    /// absent. All changes are committed atomically.
+    /// legacy array-format fields to keyed maps, backfills
+    /// required user fields introduced by later schema
+    /// versions, recomputes version tokens, and persists
+    /// `imageHash` where absent. All changes are committed
+    /// atomically.
     func migrateDatabase() async throws(Exception) {
         Logger.log(
             "Starting full database schema migration.",
@@ -175,6 +182,20 @@ struct SchemaMigrationService: @unchecked Sendable {
                 didMigrateUser = true
             }
 
+            // Required fields absent from nodes written by
+            // earlier schema versions.
+            if let requiredFieldUpdates = backfillRequiredUserFields(
+                userDictionary,
+                userPath: userPath
+            ) {
+                updates.merge(
+                    requiredFieldUpdates,
+                    uniquingKeysWith: { _, new in new }
+                )
+
+                didMigrateUser = true
+            }
+
             if didMigrateUser {
                 usersMigrated += 1
             }
@@ -268,6 +289,44 @@ struct SchemaMigrationService: @unchecked Sendable {
     }
 
     // MARK: - User Field Migration
+
+    /// Supplies creation defaults for required fields the
+    /// current `User` decoder demands but which nodes
+    /// written by earlier schema versions may lack, and
+    /// removes the retired `lastSignedIn` field.
+    private func backfillRequiredUserFields(
+        _ userDictionary: [String: Any],
+        userPath: String
+    ) -> [String: Any]? {
+        var updates = [String: Any]()
+
+        if !(userDictionary[User.SerializableKey.aiEnhancedTranslationsEnabled.rawValue] is Bool) {
+            updates["\(userPath)/\(User.SerializableKey.aiEnhancedTranslationsEnabled.rawValue)"] = false
+        }
+
+        if !(userDictionary[User.SerializableKey.deviceID.rawValue] is String) {
+            updates["\(userPath)/\(User.SerializableKey.deviceID.rawValue)"] = String.bangQualifiedEmpty
+        }
+
+        if !(userDictionary[User.SerializableKey.isPenPalsParticipant.rawValue] is Bool) {
+            updates["\(userPath)/\(User.SerializableKey.isPenPalsParticipant.rawValue)"] = false
+        }
+
+        if !(userDictionary[User.SerializableKey.messageRecipientConsentRequired.rawValue] is Bool) {
+            updates["\(userPath)/\(User.SerializableKey.messageRecipientConsentRequired.rawValue)"] = false
+        }
+
+        if !(userDictionary[User.SerializableKey.previousLanguageCodes.rawValue] is [String]) {
+            updates["\(userPath)/\(User.SerializableKey.previousLanguageCodes.rawValue)"] = [String].bangQualifiedEmpty
+        }
+
+        let lastSignedInKey = "lastSignedIn"
+        if userDictionary[lastSignedInKey] != nil {
+            updates["\(userPath)/\(lastSignedInKey)"] = NSNull()
+        }
+
+        return updates.isEmpty ? nil : updates
+    }
 
     private func migrateBlockedUserIDs(
         _ userDictionary: [String: Any],

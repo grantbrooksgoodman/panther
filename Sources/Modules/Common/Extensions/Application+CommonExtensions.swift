@@ -69,8 +69,10 @@ extension Application {
         @Dependency(\.userDefaults) var defaults: UserDefaults
         @Dependency(\.navigation) var navigation: Navigation
 
+        clientSession.outbox.removeAll()
         clientSession.store.advanceEpoch()
         clientSession.sync.conversationObserver.stopObserving()
+
         if !preserveCurrentUserID {
             clientSession.entity.user.stopObservingCurrentUserChanges()
         }

@@ -52,7 +52,7 @@ struct MessageOutboxService {
 
                         Logger.log(
                             "Reconciled stale .sending entry \(entry.id) → .failed.",
-                            domain: .messageOutbox,
+                            domain: .outbox,
                             sender: self
                         )
                     }
@@ -63,7 +63,7 @@ struct MessageOutboxService {
 
             Logger.log(
                 "Loaded \(archive.count) outbox entries into memory.",
-                domain: .messageOutbox,
+                domain: .outbox,
                 sender: self
             )
         }
@@ -115,7 +115,7 @@ struct MessageOutboxService {
 
             Logger.log(
                 "Claimed outbox entry \(id) for retry (attempt \(claimedEntry.attemptCount)).",
-                domain: .messageOutbox,
+                domain: .outbox,
                 sender: self
             )
 
@@ -131,7 +131,7 @@ struct MessageOutboxService {
 
         Logger.log(
             "Enqueued outbox entry \(entry.id) for conversation \(entry.conversationIDKey).",
-            domain: .messageOutbox,
+            domain: .outbox,
             sender: self
         )
 
@@ -147,7 +147,7 @@ struct MessageOutboxService {
 
         Logger.log(
             "Marked outbox entry \(id) as failed (attempt \(entry.attemptCount)).",
-            domain: .messageOutbox,
+            domain: .outbox,
             sender: self
         )
 
@@ -163,7 +163,7 @@ struct MessageOutboxService {
 
         Logger.log(
             "Removed outbox entry \(id).",
-            domain: .messageOutbox,
+            domain: .outbox,
             sender: self
         )
 
@@ -184,7 +184,7 @@ struct MessageOutboxService {
 
         Logger.log(
             "Removed all outbox entries (\(removedIDs.count)).",
-            domain: .messageOutbox,
+            domain: .outbox,
             sender: self
         )
 
@@ -208,7 +208,7 @@ struct MessageOutboxService {
 
         Logger.log(
             "Stored payload file \(fileName).",
-            domain: .messageOutbox,
+            domain: .outbox,
             sender: self
         )
 
@@ -247,7 +247,7 @@ struct MessageOutboxService {
         if removedCount > 0 {
             Logger.log(
                 "Garbage-collected \(removedCount) orphaned payload files.",
-                domain: .messageOutbox,
+                domain: .outbox,
                 sender: self
             )
         }
@@ -270,7 +270,7 @@ struct MessageOutboxService {
 
         Logger.log(
             "Removed payload file \(fileName) for entry \(entry.id).",
-            domain: .messageOutbox,
+            domain: .outbox,
             sender: self
         )
     }

@@ -414,7 +414,7 @@ final class UserSessionService: @unchecked Sendable {
         // path is not atomic: the user record is snapshotted
         // before the node fetch, and the fetch may be served
         // from cache, so the two can transiently disagree.
-        // The user-record token is canonical — it is what
+        // The user-record token is canonical – it is what
         // resolveCurrentUserConversations compares against to
         // decide staleness, and ConversationSyncService
         // .synchronizeHash applies the same policy on the

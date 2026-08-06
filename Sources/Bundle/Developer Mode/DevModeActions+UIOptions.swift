@@ -1,9 +1,9 @@
 //
-//  DevModeActions+Breadcrumbs.swift
+//  DevModeActions+UIOptions.swift
 //  Panther
 //
-//  Created by Grant Brooks Goodman on 19/09/2025.
-//  Copyright © 2013-2025 NEOTechnica Corporation. All rights reserved.
+//  Created by Grant Brooks Goodman on 05/08/2026.
+//  Copyright © 2013-2026 NEOTechnica Corporation. All rights reserved.
 //
 
 /* Native */
@@ -16,10 +16,67 @@ import AppSubsystem
 import Networking
 
 extension DevModeAction.AppActions {
+    enum UIOptions {
+        // MARK: - UI Options Action
+
+        static let uiOptionsAction: DevModeAction = {
+            @Sendable
+            func uiOptions() {
+                Task {
+                    var actions = [
+                        Breadcrumbs.manageBreadcrumbsCaptureAction,
+                        triggerForcedUpdateModalAction,
+                    ].map {
+                        AKAction(
+                            $0.title,
+                            style: $0.isDestructive ? .destructive : .default,
+                            effect: $0.perform
+                        )
+                    }
+
+                    actions.append(
+                        AKAction(
+                            "Back",
+                            style: .cancel,
+                            effect: presentActionSheet
+                        )
+                    )
+
+                    await AKActionSheet(
+                        title: "UI Options",
+                        actions: actions
+                    ).present(translating: [])
+                }
+            }
+
+            return DevModeAction(
+                title: "UI Options",
+                perform: uiOptions
+            )
+        }()
+
+        // MARK: - Auxiliary
+
+        private static let triggerForcedUpdateModalAction: DevModeAction = {
+            @Sendable
+            func triggerForcedUpdateModal() {
+                @Dependency(\.commonServices.update) var updateService: UpdateService
+                updateService.isForcedUpdateRequiredSubject.send(true)
+            }
+
+            return DevModeAction(
+                title: "Trigger Forced Update Modal",
+                perform: triggerForcedUpdateModal
+            )
+        }()
+    }
+}
+
+private extension DevModeAction.AppActions {
     enum Breadcrumbs {
         // MARK: - Manage Breadcrumbs Capture Action
 
-        static var manageBreadcrumbsCaptureAction: DevModeAction {
+        static let manageBreadcrumbsCaptureAction: DevModeAction = {
             @Sendable
             func manageBreadcrumbsCapture() {
                 Task { @MainActor in
@@ -58,7 +115,7 @@ extension DevModeAction.AppActions {
                 title: "Manage Breadcrumbs Capture",
                 perform: manageBreadcrumbsCapture
             )
-        }
+        }()
 
         // MARK: - Auxiliary
 

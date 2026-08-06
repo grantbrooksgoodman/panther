@@ -186,7 +186,11 @@ struct ConversationsPageReducer: Reducer {
             }
 
         case .createRandomMessagesToolbarButtonTapped:
-            DevModeAction.AppActions.createNewMessagesAction.perform()
+            DevModeAction
+                .AppActions
+                .UserOptions
+                .createNewMessagesAction
+                .perform()
 
         case .deleteConversationsToolbarButtonTapped:
             viewService.deleteConversationsToolbarButtonTapped()
