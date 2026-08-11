@@ -71,21 +71,19 @@ extension [Message] {
 
 private extension Conversation {
     var latestMessageSentDate: Date? {
-        // Messages sent before the current user's addition date are hidden
-        // from display, so they don't factor into sort order either.
-        if let latestSentDate = withMessagesOffsetFromCurrentUserAdditionDate
-            .filteringSystemMessages
-            .messages?
-            .map(\.sentDate)
-            .max() {
-            return latestSentDate
-        }
-
-        // Session store does not store system messages; conversations containing
-        // only system messages sort by their latest activity date instead.
-        return activities?
-            .filter { $0 != .empty }
-            .map(\.date)
-            .max()
+        [
+            // Messages sent before the current user's addition date are hidden
+            // from display, so they don't factor into sort order.
+            withMessagesOffsetFromCurrentUserAdditionDate
+                .filteringSystemMessages
+                .messages?
+                .map(\.sentDate)
+                .max(),
+            // Session store does not store system messages; their sent dates resolve from activities.
+            activities?
+                .filter { $0 != .empty }
+                .map(\.date)
+                .max(),
+        ].compactMap(\.self).max()
     }
 }

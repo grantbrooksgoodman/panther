@@ -148,15 +148,35 @@ struct ConversationCellViewData: Equatable {
             .filter { $0.hasPrefix("-") }
             .contains { sessionStore.messages[$0] == nil }
 
-        var lastMessage = messages?.last
+        var messageMatchingSearchQuery: Message?
         if let searchQuery,
            !searchQuery.isBlank {
-            lastMessage = messages?.last(where: {
+            messageMatchingSearchQuery = messages?.last(where: {
                 $0.textContains(searchQuery)
-            }) ?? lastMessage
+            })
         }
 
-        if let lastMessage {
+        let lastMessage = messageMatchingSearchQuery ?? messages?.last
+        let latestActivity = conversation
+            .activities?
+            .filter { $0 != .empty }
+            .max(by: { $0.date < $1.date })
+
+        if let latestActivity,
+           messageMatchingSearchQuery == nil,
+           latestActivity.date > (lastMessage?.sentDate ?? .distantPast),
+           lastMessage != nil || !hasUnresolvedMessages {
+            // Activities are the canonical source for system messages, whose
+            // sent dates count equally toward the latest message resolution.
+            if Application.isInStagingMode,
+               calendar.isDateInToday(latestActivity.date) {
+                dateLabelText = stagingModeDateFormatter.string(from: latestActivity.date)
+            } else {
+                dateLabelText = latestActivity.date.formattedShortString
+            }
+
+            subtitleLabelText = latestActivity.description.sanitized
+        } else if let lastMessage {
             if Application.isInStagingMode,
                calendar.isDateInToday(lastMessage.sentDate) {
                 dateLabelText = stagingModeDateFormatter.string(from: lastMessage.sentDate)
@@ -186,15 +206,10 @@ struct ConversationCellViewData: Equatable {
                 subtitleLabelText = resolvedText
             }
         } else if !hasUnresolvedMessages {
-            // The fallbacks apply only to fully hydrated conversations;
+            // The fallback applies only to fully hydrated conversations;
             // provisional builds keep placeholder values instead.
-            if let activity = conversation.activities?.last {
-                dateLabelText = activity.date.formattedShortString
-                subtitleLabelText = activity.description.sanitized
-            } else {
-                dateLabelText = Date(timeIntervalSince1970: 0).formattedShortString
-                subtitleLabelText = Localized(.cannotDisplayMessage).wrappedValue
-            }
+            dateLabelText = Date(timeIntervalSince1970: 0).formattedShortString
+            subtitleLabelText = Localized(.cannotDisplayMessage).wrappedValue
         }
 
         // Set unread indicator status
