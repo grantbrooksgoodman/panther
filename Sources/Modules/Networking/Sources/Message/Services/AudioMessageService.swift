@@ -277,7 +277,8 @@ struct AudioMessageService {
                     "\(audioFile.name).\(audioFile.fileExtension.rawValue)",
                 ].joined(separator: "/"),
                 contentType: audioFile.fileExtension.contentTypeString
-            )
+            ),
+            timeout: .transferTimeout(forItemAt: audioFile.url)
         )
     }
 }

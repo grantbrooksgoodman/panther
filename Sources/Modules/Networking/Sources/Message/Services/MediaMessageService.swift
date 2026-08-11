@@ -121,7 +121,8 @@ struct MediaMessageService {
                     metadata: .init(
                         relativePath,
                         contentType: mediaComponent.fileExtension.contentTypeString
-                    )
+                    ),
+                    timeout: .transferTimeout(forItemAt: mediaComponent.localPathURL)
                 )
             }
 
@@ -141,7 +142,8 @@ struct MediaMessageService {
                     metadata: .init(
                         thumbnailRelativePath,
                         contentType: MediaFileExtension.image(.jpeg).contentTypeString
-                    )
+                    ),
+                    timeout: .transferTimeout(forItemAt: thumbnailPath)
                 )
             }
 

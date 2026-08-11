@@ -65,6 +65,8 @@
 		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
 		A2C250CD2F959330002EEA53 /* SystemInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C250CC2F959330002EEA53 /* SystemInformation.swift */; };
 		A2C27C6F2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */; };
+		A6521EAECAEA4DF3AF0CF1C7 /* Duration+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8D47EEC9004E089F3ADA7A /* Duration+CommonNetworkingExtensions.swift */; };
+		C8361B0A64B84EE0A62397AC /* AppConstants+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C91B88E2775B440788FAFEEB /* AppConstants+CommonNetworkingExtensions.swift */; };
 		A2C7F4B92F55D3A100171C04 /* SchemaMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C7F4B82F55D3A100171C04 /* SchemaMigrationService.swift */; };
 		A2CF5E572F20774E0054830C /* SynchronizationRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */; };
 		A2D4F4492ED134E300642629 /* ContactSelectorPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */; };
@@ -844,6 +846,8 @@
 		A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatNavigator.swift; sourceTree = "<group>"; };
 		A2C250CC2F959330002EEA53 /* SystemInformation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemInformation.swift; sourceTree = "<group>"; };
 		A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
+		5A8D47EEC9004E089F3ADA7A /* Duration+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
+		C91B88E2775B440788FAFEEB /* AppConstants+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		A2C7F4B82F55D3A100171C04 /* SchemaMigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaMigrationService.swift; sourceTree = "<group>"; };
 		A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizationRecord.swift; sourceTree = "<group>"; };
 		A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewStrings.swift; sourceTree = "<group>"; };
@@ -2604,12 +2608,21 @@
 		B9A233762CE30D6100DC3110 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				E726A224D93D43558CB34A38 /* Constants */,
 				B9D0D9182B03019E00078A93 /* Dependencies */,
 				B9D0D91E2B03019E00078A93 /* Extensions */,
 				B9D0D9272B03019E00078A93 /* Models */,
 				A20A6A813006AB2200294D44 /* Services */,
 			);
 			path = Common;
+			sourceTree = "<group>";
+		};
+		E726A224D93D43558CB34A38 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				C91B88E2775B440788FAFEEB /* AppConstants+CommonNetworkingExtensions.swift */,
+			);
+			path = Constants;
 			sourceTree = "<group>";
 		};
 		B9A233772CE30DC800DC3110 /* Sources */ = {
@@ -3075,6 +3088,7 @@
 			children = (
 				B9EFBA152B2694C500624794 /* Array+CommonNetworkingExtensions.swift */,
 				B9D0D92D2B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift */,
+				5A8D47EEC9004E089F3ADA7A /* Duration+CommonNetworkingExtensions.swift */,
 				B91E93932C2B23760099FBA4 /* IntegrityService+CommonNetworkingExtensions.swift */,
 				B9D0D9292B03019E00078A93 /* NetworkServices+CommonNetworkingExtensions.swift */,
 				B9EFB9F52B26763100624794 /* Participant+CommonNetworkingExtensions.swift */,
@@ -4296,6 +4310,8 @@
 				B9DCCAA52B34FC4700532B12 /* PersistentStorageKey+CommonNetworkingExtensions.swift in Sources */,
 				B9E6D7AD2B125E17000BC88D /* ConversationID.swift in Sources */,
 				B9D0D9442B03019E00078A93 /* NetworkServices+CommonNetworkingExtensions.swift in Sources */,
+				A6521EAECAEA4DF3AF0CF1C7 /* Duration+CommonNetworkingExtensions.swift in Sources */,
+				C8361B0A64B84EE0A62397AC /* AppConstants+CommonNetworkingExtensions.swift in Sources */,
 				B9E6D7AF2B125FC0000BC88D /* User.swift in Sources */,
 				B99195932B47E88400BD5BBC /* VerifyNumberPageView.swift in Sources */,
 				B9C0D2582B79687F00119B85 /* NewChatPageReducer.swift in Sources */,
