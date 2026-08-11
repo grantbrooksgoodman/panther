@@ -18,7 +18,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-final class DataUsageService: @unchecked Sendable {
+struct DataUsageService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
@@ -33,22 +33,22 @@ final class DataUsageService: @unchecked Sendable {
 
     private static let coalescer = SingleSlotCoalescer<Int>()
 
+    private let isCalculatingDataUsage = LockIsolated(false)
+    private let lastDataUsageCalculation = LockIsolated(DataUsageCalculation.empty)
     private let warningAlertRatio: Double = 0.6
 
-    @LockIsolated private var isCalculatingDataUsage = false
-    @LockIsolated private var lastDataUsageCalculation: DataUsageCalculation = .empty
     @SharedEvent(\.updatedContactPairArchive) private var updatedContactPairArchive
 
     // MARK: - Computed Properties
 
     var atOrAboveDataUsageLimit: Bool {
-        lastDataUsageCalculation.dataUsageInKilobytes >= Int(
+        lastDataUsageCalculation.wrappedValue.dataUsageInKilobytes >= Int(
             Self.storageLimitInKilobytes
         )
     }
 
     var isApproachingDataUsageLimit: Bool {
-        lastDataUsageCalculation.dataUsageInKilobytes >= Int(
+        lastDataUsageCalculation.wrappedValue.dataUsageInKilobytes >= Int(
             Self.storageLimitInKilobytes * warningAlertRatio
         )
     }
@@ -60,37 +60,32 @@ final class DataUsageService: @unchecked Sendable {
     // MARK: - Current User Data Usage
 
     func getCurrentUserDataUsage() async throws(Exception) -> Int {
-        try await Self.coalescer { [weak self] () async throws(Exception) -> Int in
-            guard let self else {
-                throw Exception(
-                    "Service has been deallocated.",
-                    metadata: .init(sender: Self.self)
-                )
-            }
-
+        try await Self.coalescer { () async throws(Exception) -> Int in
             return try await _getCurrentUserDataUsage()
         }
     }
 
     @MainActor
     private func _getCurrentUserDataUsage() async throws(Exception) -> Int {
-        let isDataUsageCalculationInvalid = $lastDataUsageCalculation.withValue { calculation -> Bool in
-            calculation == DataUsageCalculation.empty || calculation.isExpired
-        }
+        let isDataUsageCalculationInvalid = lastDataUsageCalculation
+            .projectedValue
+            .withValue { calculation -> Bool in
+                calculation == DataUsageCalculation.empty || calculation.isExpired
+            }
 
-        guard !isCalculatingDataUsage,
+        guard !isCalculatingDataUsage.wrappedValue,
               isDataUsageCalculationInvalid else {
             Logger.log( // swiftlint:disable:next line_length
-                "Returning last known data usage calculation (\(lastDataUsageCalculation.dataUsageInKilobytes)kb), from \(abs(lastDataUsageCalculation.date.seconds(from: .now)))s ago.",
+                "Returning last known data usage calculation (\(lastDataUsageCalculation.wrappedValue.dataUsageInKilobytes)kb), from \(abs(lastDataUsageCalculation.wrappedValue.date.seconds(from: .now)))s ago.",
                 domain: .dataUsage,
                 sender: self
             )
 
-            return lastDataUsageCalculation.dataUsageInKilobytes
+            return lastDataUsageCalculation.wrappedValue.dataUsageInKilobytes
         }
 
-        isCalculatingDataUsage = true
-        defer { isCalculatingDataUsage = false }
+        isCalculatingDataUsage.wrappedValue = true
+        defer { isCalculatingDataUsage.wrappedValue = false }
         var dataUsageInKilobytes = 0
 
         // Size of user object
@@ -172,7 +167,12 @@ final class DataUsageService: @unchecked Sendable {
             sender: self
         )
 
-        defer { lastDataUsageCalculation = .init(dataUsage: dataUsageInKilobytes) }
+        defer {
+            lastDataUsageCalculation.wrappedValue = .init(
+                dataUsage: dataUsageInKilobytes
+            )
+        }
+
         guard chatPageState.isPresented else {
             updatedContactPairArchive.send()
             return dataUsageInKilobytes
@@ -181,7 +181,7 @@ final class DataUsageService: @unchecked Sendable {
         chatPageState.addEffectUponIsPresented(
             changedTo: false,
             id: .updateAppearance
-        ) { self.updatedContactPairArchive.send() }
+        ) { updatedContactPairArchive.send() }
 
         return dataUsageInKilobytes
     }
@@ -398,7 +398,7 @@ final class DataUsageService: @unchecked Sendable {
         of items: [String]
     ) async throws(Exception) -> Int {
         try await items.parallelMap { filePath in
-            try await self.networking.storage.sizeInKilobytes(
+            try await networking.storage.sizeInKilobytes(
                 ofItemAt: filePath
             )
         }.reduce(0, +)

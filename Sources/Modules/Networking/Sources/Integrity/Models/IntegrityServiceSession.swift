@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class IntegrityServiceSession: @unchecked Sendable {
+struct IntegrityServiceSession: @unchecked Sendable {
     // MARK: - Types
 
     struct Indices {

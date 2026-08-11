@@ -163,8 +163,8 @@ struct SessionStore {
             }
         }
 
-        persistConversationArchive()
         guard didRemove else { return }
+        persistConversationArchive()
 
         if !orphanedMessageIDs.isEmpty {
             persistMessageArchive()
@@ -197,6 +197,7 @@ struct SessionStore {
             conversation.id.key.isBlank { return }
 
         var didChange = false
+        var shouldPersist = true
         storeState.projectedValue.withValue {
             /* TODO: Audit whether this captures changes effectively.
              May be worthwhile just to compare objects and accept duplicate
@@ -206,6 +207,8 @@ struct SessionStore {
                 didChange = !existingConversation.isTypingStatusEqual(
                     to: conversation
                 ) || existingConversation.encodedHash != conversation.encodedHash
+
+                shouldPersist = existingConversation != conversation
             } else {
                 didChange = true
             }
@@ -213,7 +216,13 @@ struct SessionStore {
             $0.conversations[conversation.id.key] = conversation
         }
 
-        persistConversationArchive()
+        /* Gates on full equality rather than didChange – encodedHash may
+         under-report differences, and persistence must never skip one.
+         */
+        if shouldPersist {
+            persistConversationArchive()
+        }
+
         if didChange {
             Logger.log(
                 .init(
@@ -254,19 +263,19 @@ struct SessionStore {
             }
         }
 
+        guard !changedIDKeys.isEmpty else { return }
         persistConversationArchive()
-        if !changedIDKeys.isEmpty {
-            Logger.log(
-                "Added \(changedIDKeys.count) conversations to persisted archive.",
-                domain: .conversationStore,
-                sender: self
-            )
 
-            emitChange(.conversations(
-                upsertedIDKeys: changedIDKeys,
-                removedIDKeys: []
-            ))
-        }
+        Logger.log(
+            "Added \(changedIDKeys.count) conversations to persisted archive.",
+            domain: .conversationStore,
+            sender: self
+        )
+
+        emitChange(.conversations(
+            upsertedIDKeys: changedIDKeys,
+            removedIDKeys: []
+        ))
     }
 
     // MARK: - Message Methods
@@ -325,19 +334,19 @@ struct SessionStore {
             }
         }
 
+        guard !changedIDs.isEmpty else { return }
         persistMessageArchive()
-        if !changedIDs.isEmpty {
-            Logger.log(
-                "Added \(changedIDs.count) messages to persisted archive.",
-                domain: .messageStore,
-                sender: self
-            )
 
-            emitChange(.messages(
-                upsertedIDs: changedIDs,
-                removedIDs: []
-            ))
-        }
+        Logger.log(
+            "Added \(changedIDs.count) messages to persisted archive.",
+            domain: .messageStore,
+            sender: self
+        )
+
+        emitChange(.messages(
+            upsertedIDs: changedIDs,
+            removedIDs: []
+        ))
     }
 
     // MARK: - User Methods
@@ -392,23 +401,23 @@ struct SessionStore {
             $0.users[user.id] = user
         }
 
+        guard didChange else { return }
         persistUserArchive()
-        if didChange {
-            Logger.log(
-                .init(
-                    "Added user to persisted archive.",
-                    isReportable: false,
-                    userInfo: ["UserID": user.id],
-                    metadata: .init(sender: self)
-                ),
-                domain: .userStore
-            )
 
-            emitChange(.users(
-                upsertedIDs: [user.id],
-                removedIDs: []
-            ))
-        }
+        Logger.log(
+            .init(
+                "Added user to persisted archive.",
+                isReportable: false,
+                userInfo: ["UserID": user.id],
+                metadata: .init(sender: self)
+            ),
+            domain: .userStore
+        )
+
+        emitChange(.users(
+            upsertedIDs: [user.id],
+            removedIDs: []
+        ))
     }
 
     func upsertUsers(_ newUsers: Set<User>) {
@@ -423,19 +432,19 @@ struct SessionStore {
             }
         }
 
+        guard !changedIDs.isEmpty else { return }
         persistUserArchive()
-        if !changedIDs.isEmpty {
-            Logger.log(
-                "Added \(changedIDs.count) users to persisted archive.",
-                domain: .userStore,
-                sender: self
-            )
 
-            emitChange(.users(
-                upsertedIDs: changedIDs,
-                removedIDs: []
-            ))
-        }
+        Logger.log(
+            "Added \(changedIDs.count) users to persisted archive.",
+            domain: .userStore,
+            sender: self
+        )
+
+        emitChange(.users(
+            upsertedIDs: changedIDs,
+            removedIDs: []
+        ))
     }
 
     // MARK: - Epoch

@@ -15,7 +15,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class UserSessionService: @unchecked Sendable {
+struct UserSessionService {
     // MARK: - Types
 
     private enum TaskID: String {
@@ -42,9 +42,9 @@ final class UserSessionService: @unchecked Sendable {
     private static let userCoalescer = SingleSlotCoalescer<Void>()
 
     private let observationTask: LockIsolated<Task<Void, Never>?> = .init(nil)
+    private let updateState = LockIsolated<UpdateState>(.idle)
 
     @Persistent(.currentUserID) private var currentUserID: String?
-    @LockIsolated private var updateState: UpdateState = .idle
 
     // MARK: - Computed Properties
 
@@ -79,7 +79,7 @@ final class UserSessionService: @unchecked Sendable {
 
         if data.contains(.conversations) {
             let resolveConversations: @Sendable () async throws(Exception) -> Void = {
-                try await self.resolveCurrentUserConversations()
+                try await resolveCurrentUserConversations()
             }
 
             try await Self.conversationCoalescer(
@@ -90,7 +90,7 @@ final class UserSessionService: @unchecked Sendable {
 
         if data.contains(.messages) {
             let resolveMessages: @Sendable () async throws(Exception) -> Void = {
-                try await self.resolveMessagesOnCurrentUserConversations()
+                try await resolveMessagesOnCurrentUserConversations()
             }
 
             try await Self.messageCoalescer(
@@ -101,7 +101,7 @@ final class UserSessionService: @unchecked Sendable {
 
         if data.contains(.users) {
             let resolveUsers: @Sendable () async throws(Exception) -> Void = {
-                try await self.resolveUsersOnCurrentUserConversations()
+                try await resolveUsersOnCurrentUserConversations()
             }
 
             try await Self.userCoalescer(
@@ -297,8 +297,8 @@ final class UserSessionService: @unchecked Sendable {
     private func isKnownVersion(
         _ conversationID: ConversationID
     ) -> Bool {
-        clientSession.store.getConversation(id: conversationID) != nil ||
-            SelfWriteRegistry.contains(conversationID) ||
+        SelfWriteRegistry.contains(conversationID) ||
+            clientSession.store.getConversation(id: conversationID) != nil ||
             clientSession.sync.conversationObserver.isActivelyObserving(conversationID.key)
     }
 
@@ -312,11 +312,9 @@ final class UserSessionService: @unchecked Sendable {
             )
         }
 
-        // Fetched from server; bypasses RemotelyUpdatable.update.
-        try await clientSession.store.upsertUser(
-            networking.userService.getUser(
-                id: currentUserID
-            )
+        // getUser(id:) upserts the fetched result to the session store.
+        _ = try await networking.userService.getUser(
+            id: currentUserID
         )
     }
 
@@ -518,18 +516,20 @@ final class UserSessionService: @unchecked Sendable {
     /// and retried after the current update completes.
     private func updateCurrentUser() {
         Task {
-            let didStart: Bool = $updateState.withValue {
-                switch $0 {
-                case .idle:
-                    $0 = .running
-                    return true
-                case .running:
-                    $0 = .runningWithPending
-                    return false
-                case .runningWithPending:
-                    return false
+            let didStart: Bool = updateState
+                .projectedValue
+                .withValue {
+                    switch $0 {
+                    case .idle:
+                        $0 = .running
+                        return true
+                    case .running:
+                        $0 = .runningWithPending
+                        return false
+                    case .runningWithPending:
+                        return false
+                    }
                 }
-            }
 
             guard didStart else {
                 return Logger.log(
@@ -565,18 +565,20 @@ final class UserSessionService: @unchecked Sendable {
                     )
                 }
 
-                let shouldContinue: Bool = $updateState.withValue {
-                    switch $0 {
-                    case .idle:
-                        return false
-                    case .running:
-                        $0 = .idle
-                        return false
-                    case .runningWithPending:
-                        $0 = .running
-                        return true
+                let shouldContinue: Bool = updateState
+                    .projectedValue
+                    .withValue {
+                        switch $0 {
+                        case .idle:
+                            return false
+                        case .running:
+                            $0 = .idle
+                            return false
+                        case .runningWithPending:
+                            $0 = .running
+                            return true
+                        }
                     }
-                }
 
                 guard shouldContinue else { break }
                 Logger.log(

@@ -164,7 +164,8 @@ struct ConversationService {
                 at: [
                     NetworkPath.conversations.rawValue,
                     idKey,
-                ].joined(separator: "/")
+                ].joined(separator: "/"), // TODO: Audit the cache strategy here.
+                cacheStrategy: .disregardCache
             )
         } catch {
             throw error.appending(userInfo: userInfo)

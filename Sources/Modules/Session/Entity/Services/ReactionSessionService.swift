@@ -26,7 +26,7 @@ final class ReactionSessionService {
 
     // MARK: - Properties
 
-    private(set) var isReactingToMessage = false {
+    @LockIsolated private(set) var isReactingToMessage = false {
         didSet { didSetIsReactingToMessage() }
     }
 
@@ -84,7 +84,7 @@ final class ReactionSessionService {
 
         // Notify users of reaction to message
 
-        Task(priority: .utility) { @MainActor in
+        Task.background { @MainActor in
             do throws(Exception) {
                 try await notifyUsers(
                     ofReaction: reaction,

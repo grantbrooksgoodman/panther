@@ -21,19 +21,14 @@ extension [Conversation] {
         var withoutSentDate: [Conversation] = []
 
         for conversation in self {
-            let filteringSystemMessages = conversation.filteringSystemMessages
-            guard let messages = filteringSystemMessages.messages,
-                  !messages.isEmpty,
-                  let latestMessage = messages.max(by: {
-                      $0.sentDate < $1.sentDate
-                  }) else {
+            guard let latestMessageSentDate = conversation.latestMessageSentDate else {
                 withoutSentDate.append(conversation)
                 continue
             }
 
             withSentDate.append((
                 conversation,
-                latestMessage.sentDate
+                latestMessageSentDate
             ))
         }
 
@@ -71,5 +66,26 @@ extension [Message] {
         }
 
         return uniqueMessages
+    }
+}
+
+private extension Conversation {
+    var latestMessageSentDate: Date? {
+        // Messages sent before the current user's addition date are hidden
+        // from display, so they don't factor into sort order either.
+        if let latestSentDate = withMessagesOffsetFromCurrentUserAdditionDate
+            .filteringSystemMessages
+            .messages?
+            .map(\.sentDate)
+            .max() {
+            return latestSentDate
+        }
+
+        // Session store does not store system messages; conversations containing
+        // only system messages sort by their latest activity date instead.
+        return activities?
+            .filter { $0 != .empty }
+            .map(\.date)
+            .max()
     }
 }

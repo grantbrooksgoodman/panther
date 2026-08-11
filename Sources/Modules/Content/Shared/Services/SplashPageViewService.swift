@@ -341,7 +341,7 @@ final class SplashPageViewService: ObservableObject {
                 try await networking.integrityService.repairDatabase()
             } catch {
                 if error.isEqual(to: .updateRequired) {
-                    services.update.isForcedUpdateRequiredSubject.send(true)
+                    SharedState(\.isForcedUpdateRequired).wrappedValue = true
                     return
                 }
 

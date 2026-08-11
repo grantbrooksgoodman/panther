@@ -27,7 +27,6 @@ struct UserTestingService {
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
-    @Dependency(\.commonServices.update) private var updateService: UpdateService
 
     // MARK: - Properties
 
@@ -334,7 +333,7 @@ struct UserTestingService {
         Task { @MainActor in
             alertKitConfig.registerPresentationDelegate(DummyPresentationDelegate.shared)
             core.ui.addOverlay(activityIndicator: nil)
-            updateService.isForcedUpdateRequiredSubject.send(true)
+            SharedState(\.isForcedUpdateRequired).wrappedValue = true
         }
 
         Task.delayed(by: .milliseconds(300)) { @MainActor in

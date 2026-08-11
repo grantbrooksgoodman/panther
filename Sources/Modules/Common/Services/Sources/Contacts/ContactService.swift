@@ -27,7 +27,6 @@ final class ContactService: @unchecked Sendable {
     @Dependency(\.cnContactStore) private var cnContactStore: CNContactStore
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
     @Dependency(\.networking.userService) private var userService: UserService
 
     // MARK: - Properties
@@ -60,8 +59,6 @@ final class ContactService: @unchecked Sendable {
 
             @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
             services.contact.contactPairArchive.addValues(contactPairs)
-            // Fetched from network; bypasses RemotelyUpdatable.update.
-            sessionStore.upsertUsers(Set(users))
 
             let contactPairUserIDs = contactPairs.userIDs
             unknownContactPairArchive = users

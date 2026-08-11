@@ -17,7 +17,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-final class IntegrityService: @unchecked Sendable {
+struct IntegrityService {
     // MARK: - Types
 
     private struct MediaFileReference {
@@ -52,9 +52,8 @@ final class IntegrityService: @unchecked Sendable {
     private static let implausibleMalformityCount = 3
     private static let implausibleMalformityRatio: Float = 0.5
 
+    private let didConfirmUnsafeSessionResolution = LockIsolated(false)
     private let _session = LockIsolated<IntegrityServiceSession?>(nil)
-
-    @LockIsolated private var didConfirmUnsafeSessionResolution = false
 
     // MARK: - Computed Properties
 
@@ -107,7 +106,7 @@ final class IntegrityService: @unchecked Sendable {
                       !error.isEqual(to: .readWriteAccessDisabled),
                       isDeveloperModeEnabled else { return completion(error) }
 
-                guard !didConfirmUnsafeSessionResolution else {
+                guard !didConfirmUnsafeSessionResolution.wrappedValue else {
                     resolveSession(.continueOnFailure) { exception in
                         completion(exception)
                     }
@@ -138,8 +137,8 @@ final class IntegrityService: @unchecked Sendable {
                     style: .destructivePreferred
                 ) {
                     Task {
-                        self.didConfirmUnsafeSessionResolution = true
-                        self.resolveSession(.continueOnFailure) { exception in
+                        didConfirmUnsafeSessionResolution.wrappedValue = true
+                        resolveSession(.continueOnFailure) { exception in
                             completion(exception)
                         }
                     }
@@ -934,7 +933,7 @@ final class IntegrityService: @unchecked Sendable {
             try await Array(orphanedMediaFilePaths).forEachConcurrently(
                 failFast: false
             ) { filePath throws(Exception) in
-                try await self.networking.storage.deleteItem(
+                try await networking.storage.deleteItem(
                     at: "\(NetworkPath.media.rawValue)/\(filePath)"
                 )
             }

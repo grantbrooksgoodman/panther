@@ -7,7 +7,6 @@
 //
 
 /* Native */
-import Combine
 import Foundation
 import UIKit
 
@@ -15,7 +14,7 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
-final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @unchecked Sendable {
+struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
     // MARK: - Types
 
     enum UpdateType {
@@ -33,8 +32,6 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
     // MARK: - Properties
 
     static let shared = UpdateService()
-
-    let isForcedUpdateRequiredSubject = CurrentValueSubject<Bool?, Never>(nil)
 
     @Persistent(.buildNumberWhenLastForcedToUpdate) private var buildNumberWhenLastForcedToUpdate: Int?
     @Persistent(.relaunchesSinceLastPostponedUpdate) private var relaunchesSinceLastPostponedUpdate: Int?
@@ -71,7 +68,7 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
             firstPostponedUpdate = nil
             relaunchesSinceLastPostponedUpdate = 0
             buildNumberWhenLastForcedToUpdate = build.buildNumber
-            isForcedUpdateRequiredSubject.send(true)
+            SharedState(\.isForcedUpdateRequired).wrappedValue = true
 
         case .normal:
             try await presentUpdateCTA()
@@ -140,22 +137,22 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
 
         let updateAction: AKAction = .init("Update", style: .preferred) {
             Task { @MainActor in
-                self.uiApplication.open(appShareLink)
+                uiApplication.open(appShareLink)
             }
 
-            self.firstPostponedUpdate = nil
-            self.relaunchesSinceLastPostponedUpdate = 0
+            firstPostponedUpdate = nil
+            relaunchesSinceLastPostponedUpdate = 0
         }
 
         let cancelAction: AKAction = .init(
             Localized(.cancel).wrappedValue,
             style: .cancel
         ) {
-            if self.firstPostponedUpdate == nil {
-                self.firstPostponedUpdate = .now
+            if firstPostponedUpdate == nil {
+                firstPostponedUpdate = .now
             }
 
-            self.relaunchesSinceLastPostponedUpdate = 0
+            relaunchesSinceLastPostponedUpdate = 0
         }
 
         await AKAlert(

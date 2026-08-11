@@ -62,17 +62,17 @@ final class ConversationSessionService: @unchecked Sendable {
 
     init() {
         Task { @MainActor [weak self] in
-            guard let sessionStoreChanges = self?.sessionStoreDidChange.events else { return }
-            for await change in sessionStoreChanges {
-                guard [.conversations, .messages].contains(change.kind) else { continue }
-                self?.handleStoreChange(change)
+            guard let outboxChanges = self?.messageOutboxDidChange.events else { return }
+            for await _ in outboxChanges {
+                self?.updateDisplayedMessages()
             }
         }
 
         Task { @MainActor [weak self] in
-            guard let outboxChanges = self?.messageOutboxDidChange.events else { return }
-            for await _ in outboxChanges {
-                self?.updateDisplayedMessages()
+            guard let sessionStoreChanges = self?.sessionStoreDidChange.events else { return }
+            for await change in sessionStoreChanges {
+                guard [.conversations, .messages].contains(change.kind) else { continue }
+                self?.handleStoreChange(change)
             }
         }
     }

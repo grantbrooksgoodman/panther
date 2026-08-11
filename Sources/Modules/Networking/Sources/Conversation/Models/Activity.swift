@@ -56,7 +56,7 @@ struct Activity: Codable, EncodedHashable, Equatable {
         case .leftConversation:
             localizedString = Localized(.leftConversation)
                 .wrappedValue
-                .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
+                .replacingOccurrences(of: "⌘", with: "⌘\(displayName(phoneNumberString: userID))⌘")
 
         case let .removedFromConversation(userID: userID):
             var otherUserDisplayName = displayName(for: userID)
@@ -138,11 +138,23 @@ struct Activity: Codable, EncodedHashable, Equatable {
 
     init?(_ action: Action) {
         guard let currentUserID = User.currentUserID else { return nil }
-        self.init(
-            action,
-            date: .now,
-            userID: currentUserID
-        )
+        switch action {
+        case .leftConversation:
+            @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
+            guard let currentUser else { return nil }
+            self.init(
+                action,
+                date: .now,
+                userID: currentUser.phoneNumber.compiledNumberString
+            )
+
+        default:
+            self.init(
+                action,
+                date: .now,
+                userID: currentUserID
+            )
+        }
     }
 
     // MARK: - Auxiliary
@@ -152,6 +164,30 @@ struct Activity: Codable, EncodedHashable, Equatable {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         guard userID != User.currentUserID else { return Localized(.you).wrappedValue }
         return sessionStore.users[userID]?.displayName ?? Localized(.someone).wrappedValue
+    }
+
+    @MainActor
+    private func displayName(phoneNumberString: String) -> String {
+        @Dependency(\.clientSession) var clientSession: ClientSession
+
+        // NIT: Backward compatibility. Remove in a future update.
+        guard phoneNumberString.filter(\.isLetter).isEmpty else {
+            return displayName(for: phoneNumberString)
+        }
+
+        let currentUser = clientSession.entity.user.currentUser
+        guard phoneNumberString != currentUser?
+            .phoneNumber
+            .compiledNumberString else { return Localized(.you).wrappedValue }
+
+        return clientSession
+            .store
+            .users
+            .values
+            .first(where: {
+                $0.phoneNumber.compiledNumberString == phoneNumberString
+            })?
+            .displayName ?? PhoneNumber(phoneNumberString).formattedString()
     }
 }
 

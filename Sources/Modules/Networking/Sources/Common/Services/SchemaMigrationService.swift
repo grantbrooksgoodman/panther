@@ -34,7 +34,7 @@ import Networking
 /// schema – required fields introduced by later versions
 /// (e.g. `deviceID`) are backfilled with their creation
 /// defaults, and retired fields are removed.
-struct SchemaMigrationService: @unchecked Sendable {
+struct SchemaMigrationService {
     // MARK: - Types
 
     private struct MigrationResult {

@@ -60,8 +60,7 @@ extension DevModeAction.AppActions {
         private static let triggerForcedUpdateModalAction: DevModeAction = {
             @Sendable
             func triggerForcedUpdateModal() {
-                @Dependency(\.commonServices.update) var updateService: UpdateService
-                updateService.isForcedUpdateRequiredSubject.send(true)
+                SharedState(\.isForcedUpdateRequired).wrappedValue = true
             }
 
             return DevModeAction(

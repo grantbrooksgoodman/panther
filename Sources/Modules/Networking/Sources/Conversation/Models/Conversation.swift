@@ -506,7 +506,6 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         forceUpdate: Bool
     ) async throws(Exception) {
         @Dependency(\.networking) var networking: NetworkServices
-        @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         let userInfo = ["ConversationID": id.encoded]
         if !forceUpdate {
@@ -550,9 +549,6 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             ),
             domain: .conversation
         )
-
-        // Fetched from network; bypasses RemotelyUpdatable.update.
-        sessionStore.upsertUsers(Set(fetchedUsers))
     }
 }
 

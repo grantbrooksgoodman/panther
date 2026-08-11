@@ -24,6 +24,7 @@ final class UserService: @unchecked Sendable {
 
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.phoneNumber) private var phoneNumberService: PhoneNumberService
+    @Dependency(\.clientSession.store) private var sessionStore: SessionStore
 
     // MARK: - Properties
 
@@ -138,7 +139,7 @@ final class UserService: @unchecked Sendable {
             )
 
             do {
-                return try await User(from: match.data)
+                return try await user(from: match.data)
             } catch {
                 throw error.appending(userInfo: userInfo)
             }
@@ -176,7 +177,7 @@ final class UserService: @unchecked Sendable {
         cachedUserDataSnapshots = cachedValues
 
         do {
-            return try await User(from: data)
+            return try await user(from: data)
         } catch {
             throw error.appending(userInfo: userInfo)
         }
@@ -242,5 +243,20 @@ final class UserService: @unchecked Sendable {
 
     func clearCache() {
         cachedUserDataSnapshots = nil
+    }
+
+    // MARK: - Auxiliary
+
+    private func user(
+        from data: [String: Any]
+    ) async throws(Exception) -> User {
+        let user = try await User(from: data)
+
+        /* Single source of upsert for fetched users – guarantees any user
+         this service returns is resolvable from the session store
+         (e.g. NumberPair.users). Bypasses RemotelyUpdatable.update.
+         */
+        sessionStore.upsertUser(user)
+        return user
     }
 }
