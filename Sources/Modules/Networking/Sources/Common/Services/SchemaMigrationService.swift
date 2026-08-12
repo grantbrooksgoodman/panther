@@ -51,6 +51,7 @@ struct SchemaMigrationService {
 
     // MARK: - Properties
 
+    /// The shared schema migration service.
     static let shared = SchemaMigrationService()
 
     // MARK: - Init

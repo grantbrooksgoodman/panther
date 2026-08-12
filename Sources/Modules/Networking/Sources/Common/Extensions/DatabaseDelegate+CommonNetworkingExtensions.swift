@@ -14,10 +14,18 @@ import AppSubsystem
 import Networking
 
 extension DatabaseDelegate {
+    /// Removes the temporary database cache entries populated by ``populateTemporaryCaches()``.
     func clearTemporaryCaches() {
         CoreDatabaseStore.filter { $0.value.expiryThreshold != .seconds(300) }
     }
 
+    /// Loads the conversations, messages, and users into a short-lived in-memory database
+    /// snapshot.
+    ///
+    /// This method has no effect once the snapshot has been populated during the current app
+    /// session.
+    ///
+    /// - Throws: An `Exception` if reading the database fails.
     func populateTemporaryCaches() async throws(Exception) {
         @Dependency(\.build.milestone) var buildMilestone: Build.Milestone
 
@@ -120,6 +128,16 @@ extension DatabaseDelegate {
         )
     }
 
+    /// Performs the given operation with the given global cache strategy applied, restoring the
+    /// previous strategy afterward.
+    ///
+    /// - Parameters:
+    ///   - strategy: The global cache strategy to apply for the duration of the operation.
+    ///   - body: The operation to perform.
+    ///
+    /// - Returns: The value returned by the operation.
+    ///
+    /// - Throws: Any error thrown by the operation.
     func withGlobalCacheStrategy<T: Sendable>(
         _ strategy: CacheStrategy,
         perform body: @Sendable () async throws -> T

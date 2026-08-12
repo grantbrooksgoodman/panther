@@ -17,6 +17,12 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+/// The service that validates and repairs the hosted database.
+///
+/// ``IntegrityService`` resolves a snapshot of the database into an ``IntegrityServiceSession``,
+/// then runs a series of validation and repair passes over that snapshot to prune, repair, and
+/// reconcile malformed, broken, orphaned, mismatched, and non-existent data. Each pass reports
+/// whether it changed any data, so the repair sequence can re-run until the database validates.
 struct IntegrityService {
     // MARK: - Types
 
@@ -75,6 +81,15 @@ struct IntegrityService {
 
     // MARK: - Resolve Session
 
+    /// Resolves and stores a snapshot of the database for the repair passes to operate on.
+    ///
+    /// This method fetches the conversation, message, translation, and user data from the database
+    /// and stores it as the service's session. Subsequent repair passes operate on this snapshot.
+    ///
+    /// - Throws: An `Exception` if the session cannot be resolved.
+    ///
+    /// - Note: If resolution fails while Developer Mode is enabled, this method may present a
+    ///   confirmation to force resolution by accepting incomplete or malformed data.
     func resolveSession() async throws(Exception) {
         let exception: Exception? = await withCheckedContinuation { continuation in
             resolveSession { exception in
@@ -163,10 +178,14 @@ struct IntegrityService {
 
     // MARK: - Validate Repair Safety
 
-    /// Throws when malformity is implausibly widespread –
-    /// a signal of schema drift rather than genuine data
-    /// corruption. Guards against repair cascading into a
-    /// mass deletion of the database.
+    /// Validates that the extent of malformed data is plausible before repair proceeds.
+    ///
+    /// This method guards against a repair cascading into a mass deletion of the database. When a
+    /// large enough share of conversations, messages, or users appears malformed – a signal of
+    /// schema drift rather than genuine data corruption – it throws instead of allowing repair to
+    /// continue.
+    ///
+    /// - Throws: An `Exception` if the proportion of malformed data is implausibly high.
     func validateRepairSafety() throws(Exception) {
         try validateRepairSafety(
             malformedCount: malformedConversationIDKeys.count,
@@ -209,6 +228,13 @@ struct IntegrityService {
 
     // MARK: - Prune Deleted Users
 
+    /// Prunes the deleted-users list of any entry that refers to a user which still exists.
+    ///
+    /// The deleted-users list records users that have been removed. This method removes from it
+    /// any identifier that still resolves to an existing user, clearing the list entirely if no
+    /// entries remain.
+    ///
+    /// - Throws: An `Exception` if the update fails.
     func pruneDeletedUsers() async throws(Exception) {
         let validUserIDs = Set(session.userData.keys)
         try await networking.database.runTransaction(
@@ -222,6 +248,14 @@ struct IntegrityService {
 
     // MARK: - Prune Invalidated Caches
 
+    /// Prunes the invalidated-caches list of any entry that refers to a user which no longer
+    /// exists.
+    ///
+    /// The invalidated-caches list records users whose cached data must be refreshed. This method
+    /// removes from it any identifier that no longer resolves to an existing user, clearing the
+    /// list entirely if no entries remain.
+    ///
+    /// - Throws: An `Exception` if the update fails.
     func pruneInvalidatedCaches() async throws(Exception) {
         let validUserIDs = Set(session.userData.keys)
         try await networking.database.runTransaction(
@@ -235,6 +269,19 @@ struct IntegrityService {
 
     // MARK: - Malformed Data
 
+    /// Repairs the given malformed conversations, or every malformed conversation if none are
+    /// specified.
+    ///
+    /// For each conversation, this method deletes the conversation node and its messages, and
+    /// removes the conversation's token from every user that references it – committed as a single
+    /// atomic fan-out – then marks those users' caches invalid.
+    ///
+    /// - Parameter idKeys: The identifier keys of the conversations to repair, or `nil` to repair
+    ///   every malformed conversation.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func repairMalformedConversations(_ idKeys: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
@@ -334,6 +381,19 @@ struct IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
+    /// Repairs the given malformed messages, or every malformed message if none are specified.
+    ///
+    /// For each message, this method resets the hash of every conversation that references it and
+    /// removes the message from that conversation's index – or, when the message is the
+    /// conversation's only message, repairs the entire conversation. It then deletes the message
+    /// nodes.
+    ///
+    /// - Parameter messageIDs: The identifier keys of the messages to repair, or `nil` to repair
+    ///   every malformed message.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func repairMalformedMessages(_ messageIDs: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
@@ -409,6 +469,17 @@ struct IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
+    /// Repairs the given malformed users, or every malformed user if none are specified.
+    ///
+    /// For each user, this method repairs every conversation the user references and then deletes
+    /// the user node.
+    ///
+    /// - Parameter userIDs: The identifier keys of the users to repair, or `nil` to repair every
+    ///   malformed user.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func repairMalformedUsers(_ userIDs: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
@@ -473,6 +544,15 @@ struct IntegrityService {
 
     // MARK: - Broken Data
 
+    /// Removes references to conversations that no longer exist from every user's conversation
+    /// list.
+    ///
+    /// This method finds conversation tokens on each user that no longer resolve to an existing
+    /// conversation and deletes them in a single atomic fan-out.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func resolveBrokenConversationChain() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
@@ -512,6 +592,16 @@ struct IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
+    /// Removes references to messages that no longer exist from every conversation's message
+    /// index.
+    ///
+    /// This method finds message-index entries on each conversation that no longer resolve to an
+    /// existing message and deletes them in a single atomic fan-out. When every message a
+    /// conversation references is missing, it repairs the entire conversation instead.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func resolveBrokenMessageChain() async -> (tookAction: Bool, exception: Exception?) {
         var conversationsToRepair = [String]()
         var exceptions = [Exception]()
@@ -561,6 +651,16 @@ struct IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
+    /// Reconciles conversations whose participants disagree with the users that reference them.
+    ///
+    /// For each conversation, this method compares its participants against the users that hold a
+    /// token for it. When at least half of the participants are missing their token, it repairs
+    /// the entire conversation; otherwise, it restores the missing tokens to those users in a
+    /// single atomic fan-out.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func resolveMismatchedParticipants() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var malformedConversationIDKeys = [String]()
@@ -622,6 +722,15 @@ struct IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
+    /// Demotes audio messages whose audio files are missing to text messages.
+    ///
+    /// For each audio message, this method verifies that its input audio file and every translated
+    /// audio file exist in storage. When any is missing, it rewrites the message's content type to
+    /// text in a single atomic fan-out.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func resolveNoAudioComponentMessages() async -> (tookAction: Bool, exception: Exception?) {
         let audioMessages: [(key: String, translationReferenceStrings: [String])] = session
             .messageData
@@ -723,6 +832,15 @@ struct IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
+    /// Repairs media messages whose media files are missing.
+    ///
+    /// For each media message, this method verifies that its media file – and, for videos and
+    /// documents, its thumbnail – exists in storage. Messages whose files are missing are repaired
+    /// as malformed messages.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func resolveNoMediaComponentMessages() async -> (tookAction: Bool, exception: Exception?) {
         var mediaFileReferences = [MediaFileReference]()
         for (messageID, value) in session.messageData {
@@ -802,6 +920,14 @@ struct IntegrityService {
         return await repairMalformedMessages(malformedMessageIDs)
     }
 
+    /// Repairs conversations that list participants who no longer exist.
+    ///
+    /// Any conversation with a participant that does not resolve to an existing user is repaired as
+    /// a malformed conversation.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func resolveNonExistentParticipants() async -> (tookAction: Bool, exception: Exception?) {
         var malformedConversationIDKeys = [String]()
         for (key, value) in session.conversationData {
@@ -819,6 +945,15 @@ struct IntegrityService {
         return (true, repairMalformedConversationsResult.exception)
     }
 
+    /// Repairs messages that reference translations which are missing or undecodable.
+    ///
+    /// For each text or audio message, this method checks that every translation it references
+    /// exists and can be decoded. It deletes any malformed translation nodes and repairs the
+    /// affected messages.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func resolveNonExistentTranslations() async -> (tookAction: Bool, exception: Exception?) {
         var malformedMessageIDs = [String]()
         var malformedTranslationPaths = Set<String>()
@@ -881,6 +1016,14 @@ struct IntegrityService {
         return (true, exceptions.compiledException)
     }
 
+    /// Deletes media files in storage that no message references.
+    ///
+    /// This method lists the media directory and removes every file that no message's content
+    /// references.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func resolveOrphanedMedia() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         let contentTypes = session
@@ -944,6 +1087,13 @@ struct IntegrityService {
         return (true, exceptions.compiledException)
     }
 
+    /// Deletes messages that no conversation references.
+    ///
+    /// This method finds every message that no conversation's index references and deletes it.
+    ///
+    /// - Returns: A tuple whose first element indicates whether the pass changed any data, and
+    ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
+    ///   if none did.
     func resolveOrphanedMessages() async -> (tookAction: Bool, exception: Exception?) {
         var tookAction = false
         var orphanedMessageIDs = [String]()

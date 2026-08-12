@@ -13,6 +13,11 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// The service that creates and retrieves users.
+///
+/// ``UserService`` creates new user records, fetches users by identifier or phone number, and
+/// caches recently-fetched user data in short-lived snapshots. Every user it returns is upserted
+/// into the session store.
 final class UserService: @unchecked Sendable {
     // MARK: - Types
 
@@ -28,18 +33,35 @@ final class UserService: @unchecked Sendable {
 
     // MARK: - Properties
 
+    /// The service that generates random user data for testing during development.
     let testing: UserTestingService
 
     @Cached(CacheKey.userDataSnapshots) private var cachedUserDataSnapshots: [UserDataSnapshot]?
 
     // MARK: - Init
 
+    /// Creates a user service with the given testing service.
+    ///
+    /// - Parameter testing: The service that generates random user data for testing during
+    ///   development.
     init(testing: UserTestingService) {
         self.testing = testing
     }
 
     // MARK: - User Creation
 
+    /// Creates a new user with the given properties and writes it to the database.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier for the new user.
+    ///   - languageCode: The user's language code.
+    ///   - phoneNumber: The user's phone number.
+    ///   - pushTokens: The user's push notification tokens, or `nil` if none.
+    ///
+    /// - Returns: The created user.
+    ///
+    /// - Throws: An `Exception` if an account already exists for the phone number, or if writing
+    ///   the user fails.
     func createUser(
         id: String,
         languageCode: String,
@@ -81,6 +103,12 @@ final class UserService: @unchecked Sendable {
 
     // MARK: - Collision Detection
 
+    /// Returns a Boolean value that indicates whether an account is registered with the given
+    /// phone number.
+    ///
+    /// - Parameter phoneNumber: The phone number to check.
+    ///
+    /// - Returns: `true` if an account exists for the phone number; otherwise, `false`.
     func accountExists(
         for phoneNumber: PhoneNumber
     ) async -> Bool {
@@ -94,6 +122,11 @@ final class UserService: @unchecked Sendable {
 
     // MARK: - Get All Users
 
+    /// Returns every user in the database.
+    ///
+    /// - Returns: Every user.
+    ///
+    /// - Throws: An `Exception` if the users cannot be fetched.
     func getAllUsers() async throws(Exception) -> [User] {
         let userData: [String: Any] = try await networking.database.getValues(
             at: NetworkPath.users.rawValue
@@ -106,6 +139,21 @@ final class UserService: @unchecked Sendable {
 
     // MARK: - Retrieval by ID
 
+    /// Returns the user with the given identifier.
+    ///
+    /// Unless bypassed, an unexpired cached snapshot is returned instead of re-fetching.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier of the user to fetch.
+    ///   - bypassSnapshotCache: A Boolean value that determines whether to ignore the snapshot
+    ///     cache and always fetch.
+    ///   - cacheStrategy: The database cache strategy to apply for the fetch, or `nil` to use the
+    ///     default.
+    ///
+    /// - Returns: The user.
+    ///
+    /// - Throws: An `Exception` if no identifier is provided or the user cannot be fetched or
+    ///   decoded.
     func getUser(
         id: String,
         bypassSnapshotCache: Bool = false,
@@ -183,6 +231,18 @@ final class UserService: @unchecked Sendable {
         }
     }
 
+    /// Returns the users with the given identifiers, fetched concurrently.
+    ///
+    /// - Parameters:
+    ///   - ids: The identifiers of the users to fetch.
+    ///   - bypassSnapshotCache: A Boolean value that determines whether to ignore the snapshot
+    ///     cache and always fetch.
+    ///   - cacheStrategy: The database cache strategy to apply for the fetches, or `nil` to use
+    ///     the default.
+    ///
+    /// - Returns: The users.
+    ///
+    /// - Throws: An `Exception` if no identifiers are provided or any user cannot be fetched.
     func getUsers(
         ids: [String],
         bypassSnapshotCache: Bool = false,
@@ -214,6 +274,14 @@ final class UserService: @unchecked Sendable {
 
     // MARK: - Retrieval by Phone Number
 
+    /// Returns the user registered with the given phone number.
+    ///
+    /// - Parameter phoneNumber: The phone number to match.
+    ///
+    /// - Returns: The matching user.
+    ///
+    /// - Throws: An `Exception` if no user is registered with the phone number, or if the users
+    ///   cannot be fetched.
     func getUser(
         phoneNumber: PhoneNumber
     ) async throws(Exception) -> User {
@@ -241,6 +309,7 @@ final class UserService: @unchecked Sendable {
 
     // MARK: - Clear Cache
 
+    /// Removes every cached user data snapshot.
     func clearCache() {
         cachedUserDataSnapshots = nil
     }

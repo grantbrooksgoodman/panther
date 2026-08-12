@@ -16,6 +16,7 @@ import Networking
 extension ReadReceipt: Serializable {
     // MARK: - Properties
 
+    /// The serialized representation of the read receipt.
     var encoded: String {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return "\(userID) | \(dateFormatter.string(from: readDate))"
@@ -23,6 +24,13 @@ extension ReadReceipt: Serializable {
 
     // MARK: - Init
 
+    /// Creates a read receipt by decoding the given serialized string.
+    ///
+    /// Decoded read receipts are cached in memory.
+    ///
+    /// - Parameter data: The serialized read receipt string.
+    ///
+    /// - Throws: An `Exception` if the string cannot be decoded.
     init(
         from data: String
     ) async throws(Exception) {
@@ -57,6 +65,12 @@ extension ReadReceipt: Serializable {
 
     // MARK: - Methods
 
+    /// Returns a Boolean value that indicates whether a read receipt can be decoded from the given
+    /// string.
+    ///
+    /// - Parameter data: The serialized read receipt string.
+    ///
+    /// - Returns: `true` if a read receipt can be decoded; otherwise, `false`.
     static func canDecode(from data: String) -> Bool {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
@@ -69,7 +83,9 @@ extension ReadReceipt: Serializable {
     }
 }
 
+/// A namespace for managing the in-memory read receipt cache.
 enum ReadReceiptCache {
+    /// Removes every cached read receipt.
     static func clearCache() {
         _ReadReceiptCache.clearCache()
     }

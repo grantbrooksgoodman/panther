@@ -16,12 +16,23 @@ import Networking
 extension User: RemotelyUpdatable {
     // MARK: - Properties
 
+    /// The user's identifier.
     var identifier: String {
         id
     }
 
     // MARK: - Did Write
 
+    /// Applies a completed single-field remote update, upserting the updated user into the session
+    /// store.
+    ///
+    /// - Parameters:
+    ///   - updated: The updated user.
+    ///   - key: The serializable key of the field that was updated.
+    ///
+    /// - Returns: The updated user.
+    ///
+    /// - Throws: An `Exception` if applying the update fails.
     func didWrite(
         _ updated: User,
         forKey key: SerializableKey
@@ -34,6 +45,20 @@ extension User: RemotelyUpdatable {
 
     // MARK: - Will Write
 
+    /// Prepares a single-field remote update before it is written.
+    ///
+    /// For the blocked-user and push-token fields, this method commits an incremental add-and-
+    /// remove update to the field's map rather than replacing it. For date-valued fields, it
+    /// encodes the date to its wire format. Other fields proceed with the default write.
+    ///
+    /// - Parameters:
+    ///   - value: The new value being written.
+    ///   - key: The serializable key of the field being updated.
+    ///   - updated: The user as it will be after the update.
+    ///
+    /// - Returns: The action the update system should take.
+    ///
+    /// - Throws: An `Exception` if committing an incremental update fails.
     func willWrite(
         _ value: Any,
         forKey key: SerializableKey,

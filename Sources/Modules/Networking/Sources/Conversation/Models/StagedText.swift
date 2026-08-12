@@ -9,21 +9,46 @@
 /* Native */
 import Foundation
 
+/// A predefined message text used to stage sample conversations during development.
 enum StagedText {
     // MARK: - Cases
 
+    /// The staged reply describing how to download the app.
     case appStoreDownload
+
+    /// The staged reply describing phone-number verification.
     case appStoreVerify
+
+    /// The staged message inviting a participant to see the view at the beach.
     case beachDayCheckOut
+
+    /// The staged message offering to get a table.
     case beachDayTable
+
+    /// The staged greeting that opens a PenPals conversation.
     case penPalsGreeting
+
+    /// The staged message thanking a participant for organizing.
     case vacationPlanning
+
+    /// The staged greeting used to demonstrate viewing an original message.
     case viewOriginalGreeting
+
+    /// The staged incoming reply used to demonstrate viewing an original message.
     case viewOriginalIncoming
+
+    /// The staged follow-up used to demonstrate viewing an original message.
     case viewOriginalMeantime
 
     // MARK: - Methods
 
+    /// Returns the staged text localized for the given language code.
+    ///
+    /// Falls back to English if the language code has no localized text.
+    ///
+    /// - Parameter languageCode: The language code to localize the text for.
+    ///
+    /// - Returns: The localized staged text.
     func text(
         for languageCode: String
     ) -> String {

@@ -13,6 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// The service that uploads, downloads, and deletes media message content.
 struct MediaMessageService {
     // MARK: - Dependencies
 
@@ -21,6 +22,16 @@ struct MediaMessageService {
 
     // MARK: - Get Media Component
 
+    /// Returns the media file for the given message, using the local copy when available and
+    /// downloading it otherwise.
+    ///
+    /// - Parameters:
+    ///   - messageID: The identifier of the message.
+    ///   - localMediaFilePath: The local file paths for the message's media.
+    ///
+    /// - Returns: The media file.
+    ///
+    /// - Throws: An `Exception` if the media cannot be resolved or downloaded.
     func getMediaComponent(
         messageID: String,
         localMediaFilePath: LocalMediaFilePath
@@ -37,6 +48,14 @@ struct MediaMessageService {
 
     // MARK: - Delete Media Component
 
+    /// Deletes the media content – and its thumbnail – for the given message from remote storage.
+    ///
+    /// The content is preserved when it is still referenced by other messages, or when the
+    /// message is not a media message.
+    ///
+    /// - Parameter messageID: The identifier of the message.
+    ///
+    /// - Throws: An `Exception` if the content type cannot be resolved or deletion fails.
     func deleteMediaComponent(
         for messageID: String
     ) async throws(Exception) {
@@ -101,6 +120,16 @@ struct MediaMessageService {
 
     // MARK: - Upload Media Component
 
+    /// Uploads the given media file and its thumbnail for the given message.
+    ///
+    /// The file and its thumbnail are uploaded concurrently – each skipped if already present in
+    /// remote storage – and the local files are moved into their permanent locations afterward.
+    ///
+    /// - Parameters:
+    ///   - mediaComponent: The media file to upload.
+    ///   - message: The message the media belongs to.
+    ///
+    /// - Throws: An `Exception` if an upload fails.
     func uploadMediaComponent(
         _ mediaComponent: MediaFile,
         for message: Message

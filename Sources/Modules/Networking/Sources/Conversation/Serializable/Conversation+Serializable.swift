@@ -20,6 +20,7 @@ extension Conversation: Serializable {
 
     // MARK: - Types
 
+    /// The serializable keys for encoding and decoding a conversation.
     enum SerializableKey: String {
         case id
         case activities
@@ -32,6 +33,7 @@ extension Conversation: Serializable {
 
     // MARK: - Properties
 
+    /// The serialized representation of the conversation.
     var encoded: [String: Any] {
         let filteredMessageIDs = messageIDs.filter { $0.hasPrefix("-") }
         let reactionMetadata = reactionMetadata?.map(\.encoded) ?? [ReactionMetadata.empty.encoded]
@@ -62,6 +64,11 @@ extension Conversation: Serializable {
 
     // MARK: - Init
 
+    /// Creates a conversation by decoding the given serialized data.
+    ///
+    /// - Parameter data: The serialized conversation data.
+    ///
+    /// - Throws: An `Exception` if the data cannot be decoded.
     init(
         from data: [String: Any]
     ) async throws(Exception) {
@@ -166,6 +173,12 @@ extension Conversation: Serializable {
 
     // MARK: - Methods
 
+    /// Returns a Boolean value that indicates whether a conversation can be decoded from the given
+    /// data.
+    ///
+    /// - Parameter data: The serialized conversation data.
+    ///
+    /// - Returns: `true` if a conversation can be decoded; otherwise, `false`.
     static func canDecode(
         from data: [String: Any]
     ) -> Bool {

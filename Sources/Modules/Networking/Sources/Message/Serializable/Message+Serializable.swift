@@ -21,6 +21,7 @@ extension Message: Serializable {
 
     // MARK: - Types
 
+    /// The serializable keys for encoding and decoding a message.
     enum SerializableKey: String {
         case id
         case fromAccountID = "fromAccount"
@@ -32,6 +33,7 @@ extension Message: Serializable {
 
     // MARK: - Properties
 
+    /// The serialized representation of the message.
     var encoded: [String: Any] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return [
@@ -46,6 +48,14 @@ extension Message: Serializable {
 
     // MARK: - Init
 
+    /// Creates a message by decoding the given serialized data.
+    ///
+    /// Decoding resolves the message's translations and, for audio and media messages, downloads
+    /// its content from remote storage.
+    ///
+    /// - Parameter data: The serialized message data.
+    ///
+    /// - Throws: An `Exception` if the data cannot be decoded.
     init(
         from data: [String: Any]
     ) async throws(Exception) {
@@ -157,6 +167,12 @@ extension Message: Serializable {
 
     // MARK: - Methods
 
+    /// Returns a Boolean value that indicates whether a message can be decoded from the given
+    /// data.
+    ///
+    /// - Parameter data: The serialized message data.
+    ///
+    /// - Returns: `true` if a message can be decoded; otherwise, `false`.
     static func canDecode(
         from data: [String: Any]
     ) -> Bool {

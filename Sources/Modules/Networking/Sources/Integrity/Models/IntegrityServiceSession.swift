@@ -13,20 +13,35 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// A snapshot of the hosted database's conversation, message, translation, and user data, used by
+/// the integrity service's repair passes.
 struct IntegrityServiceSession: @unchecked Sendable {
     // MARK: - Types
 
+    /// A set of lookup indices derived from a database snapshot.
     struct Indices {
         /* MARK: Properties */
 
+        /// The identifiers of the conversations that reference each message, keyed by message
+        /// identifier.
         let conversationsByMessageID: [String: Set<String>]
+
+        /// The identifiers of every conversation in the snapshot.
         let existingConversationIDs: Set<String>
+
+        /// The identifiers of every message in the snapshot.
         let existingMessageIDs: Set<String>
+
+        /// The identifiers of every user in the snapshot.
         let existingUserIDs: Set<String>
+
+        /// The identifiers of the users that reference each conversation, keyed by conversation
+        /// identifier key.
         let usersByConversationIDKey: [String: Set<String>]
 
         /* MARK: Computed Properties */
 
+        /// An empty set of indices.
         static let empty: Indices = .init(
             conversationsByMessageID: [:],
             existingConversationIDs: [],
@@ -54,6 +69,7 @@ struct IntegrityServiceSession: @unchecked Sendable {
 
     // MARK: - Properties
 
+    /// An empty database snapshot.
     static let empty: IntegrityServiceSession = .init(
         conversationData: [:],
         messageData: [:],
@@ -61,10 +77,19 @@ struct IntegrityServiceSession: @unchecked Sendable {
         userData: [:]
     )
 
+    /// The raw conversation data, keyed by conversation identifier key.
     let conversationData: [String: Any]
+
+    /// The lookup indices derived from the snapshot.
     let indices: Indices
+
+    /// The raw message data, keyed by message identifier.
     let messageData: [String: Any]
+
+    /// The raw translation data, keyed by language pair.
     let translationData: [String: [String: Any]]
+
+    /// The raw user data, keyed by user identifier.
     let userData: [String: Any]
 
     // MARK: - Init
@@ -90,7 +115,20 @@ struct IntegrityServiceSession: @unchecked Sendable {
 
     // MARK: - Resolve
 
-    // swiftlint:disable:next function_body_length
+    // swiftlint:disable function_body_length
+    /// Resolves a snapshot of the database into a session.
+    ///
+    /// This method fetches the conversation, message, translation, and user data concurrently.
+    /// Depending on the given failure strategy, a failure to fetch or decode a node either aborts
+    /// resolution or substitutes empty data for that node so resolution can continue.
+    ///
+    /// - Parameter failureStrategy: The strategy that determines whether resolution aborts or
+    ///   continues when a node cannot be fetched or decoded.
+    ///
+    /// - Returns: The resolved database snapshot.
+    ///
+    /// - Throws: An `Exception` if a node cannot be fetched or decoded and the failure strategy
+    ///   does not permit continuing.
     static func resolve(
         _ failureStrategy: BatchFailureStrategy
     ) async throws(Exception) -> IntegrityServiceSession {
@@ -247,7 +285,7 @@ struct IntegrityServiceSession: @unchecked Sendable {
             translationData: translationData,
             userData: userData
         )
-    }
+    } // swiftlint:enable function_body_length
 
     // MARK: - Auxiliary
 

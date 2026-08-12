@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import Foundation
 
@@ -14,6 +16,11 @@ import AppSubsystem
 import Networking
 import Translator
 
+/// The service that creates, retrieves, and deletes messages.
+///
+/// ``MessageService`` builds and writes message nodes, fetches messages by identifier, and
+/// deletes messages along with their audio or media content. It delegates content transfer to its
+/// ``audio`` and ``media`` sub-services.
 struct MessageService {
     // MARK: - Dependencies
 
@@ -23,11 +30,19 @@ struct MessageService {
 
     // MARK: - Properties
 
+    /// The service that uploads, downloads, and deletes audio message content.
     let audio: AudioMessageService
+
+    /// The service that uploads, downloads, and deletes media message content.
     let media: MediaMessageService
 
     // MARK: - Init
 
+    /// Creates a message service with the given audio and media services.
+    ///
+    /// - Parameters:
+    ///   - audio: The service that uploads, downloads, and deletes audio message content.
+    ///   - media: The service that uploads, downloads, and deletes media message content.
     init(
         audio: AudioMessageService,
         media: MediaMessageService
@@ -186,6 +201,14 @@ struct MessageService {
 
     // MARK: - Retrieval by ID
 
+    /// Returns the message with the given identifier.
+    ///
+    /// - Parameter id: The identifier of the message to fetch.
+    ///
+    /// - Returns: The message.
+    ///
+    /// - Throws: An `Exception` if no identifier is provided or the message cannot be fetched or
+    ///   decoded.
     func getMessage(
         id: String
     ) async throws(Exception) -> Message {
@@ -215,6 +238,13 @@ struct MessageService {
         }
     }
 
+    /// Returns the messages with the given identifiers, fetched concurrently.
+    ///
+    /// - Parameter ids: The identifiers of the messages to fetch.
+    ///
+    /// - Returns: The messages.
+    ///
+    /// - Throws: An `Exception` if no identifiers are provided or any message cannot be fetched.
     func getMessages(
         ids: [String]
     ) async throws(Exception) -> [Message] {
@@ -239,6 +269,20 @@ struct MessageService {
     // MARK: - Deletion
 
     // TODO: Rewrite with Message as the argument for greater efficiency.
+    /// Deletes the message with the given identifier, including its audio or media content.
+    ///
+    /// When a conversation is given, the message is also removed from the conversation's message
+    /// index, and – unless suppressed – the conversation's hash and each participant's
+    /// conversation token are updated, all in a single atomic operation.
+    ///
+    /// - Parameters:
+    ///   - messageID: The identifier of the message to delete.
+    ///   - conversation: The conversation the message belongs to, or `nil` to delete only the
+    ///     message node.
+    ///   - updateConversationHash: A Boolean value that determines whether to update the
+    ///     conversation's hash and tokens.
+    ///
+    /// - Throws: An `Exception` if deletion fails.
     func deleteMessage(
         id messageID: String,
         in conversation: Conversation? = nil,
@@ -319,6 +363,17 @@ struct MessageService {
         try await networking.database.commit(updates)
     }
 
+    /// Deletes the messages with the given identifiers concurrently.
+    ///
+    /// - Parameters:
+    ///   - messageIDs: The identifiers of the messages to delete.
+    ///   - conversation: The conversation the messages belong to, or `nil` to delete only the
+    ///     message nodes.
+    ///   - updateConversationHash: A Boolean value that determines whether to update the
+    ///     conversation's hash and tokens.
+    ///   - failureStrategy: The strategy for how the batch responds to a failure.
+    ///
+    /// - Throws: An `Exception` if deletion fails.
     func deleteMessages(
         ids messageIDs: [String],
         in conversation: Conversation? = nil,
@@ -376,3 +431,5 @@ private extension Message {
         )
     }
 }
+
+// swiftlint:enable file_length

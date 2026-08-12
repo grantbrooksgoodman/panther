@@ -13,6 +13,9 @@ import Foundation
 import AppSubsystem
 
 extension Persistent {
+    /// Creates a persistent value bound to the given session store storage key.
+    ///
+    /// - Parameter sessionStoreKey: The key that identifies the stored value.
     convenience init(_ sessionStoreKey: PersistentStorageKey.SessionStoreStorageKey) {
         self.init(.sessionStore(sessionStoreKey))
     }

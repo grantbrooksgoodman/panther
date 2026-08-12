@@ -13,21 +13,31 @@ import Foundation
 import AppSubsystem
 import Translator
 
+/// A recorded change to a conversation, such as a participant joining, leaving, or renaming it.
 struct Activity: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
+    /// An empty activity placeholder.
     static let empty: Activity = .init(
         .leftConversation,
         date: .init(timeIntervalSince1970: 0),
         userID: .bangQualifiedEmpty
     )
 
+    /// The kind of change the activity records.
     let action: Action
+
+    /// The date the change occurred.
     let date: Date
+
+    /// The identifier of the user responsible for the change.
     let userID: String
 
     // MARK: - Computed Properties
 
+    /// A localized description of the activity, suitable for display.
+    ///
+    /// The description is resolved once per activity version and cached in memory.
     @MainActor
     var description: String {
         if let cachedValue = _ActivityDescriptionCache.cachedDescriptionsForEncodedHashes?[encodedHash] {
@@ -93,6 +103,8 @@ struct Activity: Codable, EncodedHashable, Equatable {
         return localizedString
     }
 
+    /// The strings that collectively define this instance's identity for hashing purposes, sorted
+    /// alphabetically.
     var hashFactors: [String] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return [
@@ -102,6 +114,7 @@ struct Activity: Codable, EncodedHashable, Equatable {
         ].sorted()
     }
 
+    /// A system message that represents the activity in a conversation.
     var message: Message {
         .init(
             encodedHash,
@@ -126,6 +139,12 @@ struct Activity: Codable, EncodedHashable, Equatable {
 
     // MARK: - Init
 
+    /// Creates an activity with the given properties.
+    ///
+    /// - Parameters:
+    ///   - action: The kind of change the activity records.
+    ///   - date: The date the change occurred.
+    ///   - userID: The identifier of the user responsible for the change.
     init(
         _ action: Action,
         date: Date,
@@ -136,6 +155,11 @@ struct Activity: Codable, EncodedHashable, Equatable {
         self.userID = userID
     }
 
+    /// Creates an activity for the given action, attributed to the current user and dated now.
+    ///
+    /// Returns `nil` if the current user is unavailable.
+    ///
+    /// - Parameter action: The kind of change the activity records.
     init?(_ action: Action) {
         guard let currentUserID = User.currentUserID else { return nil }
         switch action {
@@ -191,7 +215,9 @@ struct Activity: Codable, EncodedHashable, Equatable {
     }
 }
 
+/// A namespace for managing the in-memory activity description cache.
 enum ActivityDescriptionCache {
+    /// Removes every cached activity description.
     static func clearCache() {
         _ActivityDescriptionCache.clearCache()
     }

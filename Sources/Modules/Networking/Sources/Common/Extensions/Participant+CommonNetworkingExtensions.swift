@@ -13,6 +13,8 @@ import Foundation
 import Networking
 
 extension Participant: Validatable {
+    /// A Boolean value that indicates whether the participant is well-formed, having a non-empty
+    /// user identifier.
     var isWellFormed: Bool {
         !userID.isBangQualifiedEmpty
     }

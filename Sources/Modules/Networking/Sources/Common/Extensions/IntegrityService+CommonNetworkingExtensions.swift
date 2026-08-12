@@ -17,6 +17,28 @@ import AppSubsystem
 import Networking
 
 extension IntegrityService {
+    /// Validates and repairs the hosted database, re-running from the start whenever a repair is
+    /// applied, until the data validates.
+    ///
+    /// On its first run, this method clears the temporary directory, captures a rollback
+    /// snapshot, and migrates the database to the current schema. It then runs a sequence of
+    /// validation and repair passes – pruning deleted users and invalidated caches, and repairing
+    /// malformed, broken, orphaned, mismatched, and non-existent data. Whenever a pass makes a
+    /// change, the method restarts the entire sequence so that later passes operate on the
+    /// repaired data.
+    ///
+    /// - Parameters:
+    ///   - exceptions: The exceptions accumulated across previous runs. Pass `nil` to begin a new
+    ///     repair.
+    ///   - methodsUsedForRepair: The names of the repair passes applied across previous runs. Pass
+    ///     `nil` to begin a new repair.
+    ///   - isFirstRun: A Boolean value that indicates whether this is the first run of the repair
+    ///     sequence.
+    ///   - onProgressUpdate: A closure called with the repair progress, from `0` to `1`, as each
+    ///     pass completes.
+    ///
+    /// - Throws: An `Exception` if the app must be updated before the database can be repaired, or
+    ///   if any repair pass fails.
     func repairDatabase(
         _ exceptions: [Exception]? = nil,
         _ methodsUsedForRepair: [String]? = nil,

@@ -213,7 +213,10 @@ struct MessageRetranslationService {
         forMessageID messageID: String,
         targetLanguageCode: String
     ) async -> Bool {
-        guard retranslationOutputHashes?[messageID]?.contains(newTranslation.output.normalized.encodedHash) != true else { return true }
+        guard retranslationOutputHashes?[messageID]?
+            .contains(
+                newTranslation.output.normalized.encodedHash
+            ) != true else { return true }
         return await languageRecognitionService.matchConfidence(
             for: newTranslation.output,
             inLanguage: targetLanguageCode

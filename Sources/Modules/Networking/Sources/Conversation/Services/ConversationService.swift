@@ -13,6 +13,10 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// The service that creates, retrieves, and removes conversations.
+///
+/// ``ConversationService`` creates conversations, fetches them by identifier, and removes them
+/// from users. It delegates conversation staging to its ``staging`` sub-service.
 struct ConversationService {
     // MARK: - Dependencies
 
@@ -22,16 +26,36 @@ struct ConversationService {
 
     // MARK: - Properties
 
+    /// The service that stages sample conversations during development.
     let staging: ConversationStagingService
 
     // MARK: - Init
 
+    /// Creates a conversation service with the given staging service.
+    ///
+    /// - Parameter staging: The service that stages sample conversations during development.
     init(staging: ConversationStagingService) {
         self.staging = staging
     }
 
     // MARK: - Conversation Creation
 
+    /// Creates a conversation with the given first message and participants, and writes it to the
+    /// database.
+    ///
+    /// The conversation node, the participants' conversation tokens, the first message node, and
+    /// any pending hosted translation archive entries are written in a single atomic fan-out.
+    ///
+    /// - Parameters:
+    ///   - firstMessage: The conversation's first message.
+    ///   - isPenPalsConversation: A Boolean value that indicates whether the conversation is a
+    ///     PenPals conversation.
+    ///   - participants: The conversation's participants.
+    ///
+    /// - Returns: The created conversation.
+    ///
+    /// - Throws: An `Exception` if the participants fail validation, a key cannot be generated, or
+    ///   the write fails.
     func createConversation(
         firstMessage: Message,
         isPenPalsConversation: Bool,
@@ -125,6 +149,14 @@ struct ConversationService {
 
     // MARK: - Retrieval by ID
 
+    /// Returns the conversations with the given identifier keys, fetched concurrently.
+    ///
+    /// - Parameter idKeys: The identifier keys of the conversations to fetch.
+    ///
+    /// - Returns: The conversations.
+    ///
+    /// - Throws: An `Exception` if no identifier keys are provided or any conversation cannot be
+    ///   fetched.
     func getConversations(
         idKeys: [String]
     ) async throws(Exception) -> [Conversation] {
@@ -193,6 +225,16 @@ struct ConversationService {
 
     // MARK: - Deletion
 
+    /// Removes the conversation with the given identifier key from the given users.
+    ///
+    /// This method deletes each user's token for the conversation in a single atomic fan-out.
+    ///
+    /// - Parameters:
+    ///   - userIDs: The identifiers of the users to remove the conversation from.
+    ///   - conversationIDKey: The identifier key of the conversation to remove.
+    ///   - failureStrategy: The strategy that determines how a failure is handled.
+    ///
+    /// - Throws: An `Exception` if the conversation identifier key is empty or the write fails.
     func removeConversationFromUsers(
         userIDs: [String],
         conversationIDKey: String,

@@ -16,12 +16,18 @@ import Networking
 extension MessageRecipientConsentAcknowledgementData: Serializable {
     // MARK: - Properties
 
+    /// The serialized representation of the consent acknowledgement record.
     var encoded: String {
         "\(userID): \(consentAcknowledged ? "!" : false.description)"
     }
 
     // MARK: - Init
 
+    /// Creates a consent acknowledgement record by decoding the given serialized string.
+    ///
+    /// - Parameter data: The serialized consent acknowledgement record string.
+    ///
+    /// - Throws: An `Exception` if the string cannot be decoded.
     init(
         from data: String
     ) async throws(Exception) {
@@ -41,6 +47,12 @@ extension MessageRecipientConsentAcknowledgementData: Serializable {
 
     // MARK: - Methods
 
+    /// Returns a Boolean value that indicates whether a consent acknowledgement record can be
+    /// decoded from the given string.
+    ///
+    /// - Parameter data: The serialized consent acknowledgement record string.
+    ///
+    /// - Returns: `true` if a consent acknowledgement record can be decoded; otherwise, `false`.
     static func canDecode(
         from data: String
     ) -> Bool {

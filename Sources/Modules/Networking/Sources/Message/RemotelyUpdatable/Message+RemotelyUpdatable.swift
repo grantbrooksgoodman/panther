@@ -16,12 +16,23 @@ import Networking
 extension Message: RemotelyUpdatable {
     // MARK: - Properties
 
+    /// The message's identifier.
     var identifier: String {
         id
     }
 
     // MARK: - Did Write
 
+    /// Applies a completed single-field remote update, upserting the updated message into the
+    /// session store.
+    ///
+    /// - Parameters:
+    ///   - updated: The updated message.
+    ///   - key: The serializable key of the field that was updated.
+    ///
+    /// - Returns: The updated message.
+    ///
+    /// - Throws: An `Exception` if applying the update fails.
     func didWrite(
         _ updated: Message,
         forKey key: SerializableKey

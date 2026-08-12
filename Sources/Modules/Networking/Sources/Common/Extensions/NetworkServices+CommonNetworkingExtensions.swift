@@ -25,22 +25,27 @@ extension NetworkServices {
         static let userService = UserService(testing: .init())
     }
 
+    /// The service that manages conversations.
     var conversationService: ConversationService {
         NetworkServiceStore.conversationService
     }
 
+    /// The service that validates and repairs the hosted database.
     var integrityService: IntegrityService {
         NetworkServiceStore.integrityService
     }
 
+    /// The service that manages messages.
     var messageService: MessageService {
         NetworkServiceStore.messageService
     }
 
+    /// The service that migrates the database to the current schema.
     var schemaMigrationService: SchemaMigrationService {
         NetworkServiceStore.schemaMigrationService
     }
 
+    /// The service that manages users.
     var userService: UserService {
         NetworkServiceStore.userService
     }

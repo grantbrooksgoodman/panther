@@ -17,6 +17,7 @@ import AppSubsystem
 import Networking
 import Translator
 
+/// The service that stages sample conversations during development.
 struct ConversationStagingService {
     // MARK: - Dependencies
 
@@ -30,6 +31,7 @@ struct ConversationStagingService {
 
     // MARK: - Computed Properties
 
+    /// The shared conversation staging service.
     static let shared = ConversationStagingService()
 
     private var isOnProperEnvironment: Bool {
@@ -42,6 +44,12 @@ struct ConversationStagingService {
 
     // MARK: - Methods
 
+    /// Stages a set of sample conversations for the current user.
+    ///
+    /// This method deletes the current user's existing conversations and replaces them with
+    /// predefined sample conversations. It is available outside the production environment only.
+    ///
+    /// - Throws: An `Exception` if called in the production environment, or if staging fails.
     @MainActor // swiftlint:disable:next function_body_length
     func stageConversations() async throws(Exception) {
         guard isOnProperEnvironment else {

@@ -13,6 +13,7 @@ import Foundation
 import AppSubsystem
 
 extension PersistentStorageKey {
+    /// The persistent storage keys scoped to the session store.
     enum SessionStoreStorageKey: String {
         case conversationArchive
         case messageArchive

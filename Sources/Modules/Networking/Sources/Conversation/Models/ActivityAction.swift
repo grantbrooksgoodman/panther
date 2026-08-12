@@ -13,19 +13,34 @@ import Foundation
 import AppSubsystem
 
 extension Activity {
+    /// A kind of change to a conversation that an ``Activity`` records.
     enum Action: Codable, Equatable {
         // MARK: - Cases
 
+        /// A user was added to the conversation, identified by the associated user identifier.
         case addedToConversation(userID: String)
+
+        /// The conversation's group photo was changed.
         case changedGroupPhoto
+
+        /// A user left the conversation.
         case leftConversation
+
+        /// A user was removed from the conversation, identified by the associated user identifier.
         case removedFromConversation(userID: String)
+
+        /// The conversation's group photo was removed.
         case removedGroupPhoto
+
+        /// The conversation's name was removed.
         case removedName
+
+        /// The conversation was renamed, carrying the associated new name.
         case renamedConversation(name: String)
 
         // MARK: - Properties
 
+        /// The string representation of the action.
         var rawValue: String {
             switch self {
             case let .addedToConversation(userID: userID): "ADDED:\(userID)"
@@ -40,6 +55,11 @@ extension Activity {
 
         // MARK: - Init
 
+        /// Creates an action from its string representation.
+        ///
+        /// Returns `nil` if the string does not represent a known action.
+        ///
+        /// - Parameter rawValue: The string representation of the action.
         init?(rawValue: String) {
             let components = rawValue.components(separatedBy: ":")
 

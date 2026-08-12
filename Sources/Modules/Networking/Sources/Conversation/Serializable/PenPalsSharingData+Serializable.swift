@@ -16,6 +16,7 @@ import Networking
 extension PenPalsSharingData: Serializable {
     // MARK: - Properties
 
+    /// The serialized representation of the sharing record.
     var encoded: String {
         let sharesDataWithUserIDsString = sharesDataWithUserIDs?.reduce(into: String()) { partialResult, userID in
             if partialResult.isBlank {
@@ -30,6 +31,11 @@ extension PenPalsSharingData: Serializable {
 
     // MARK: - Init
 
+    /// Creates a sharing record by decoding the given serialized string.
+    ///
+    /// - Parameter data: The serialized sharing record string.
+    ///
+    /// - Throws: An `Exception` if the string cannot be decoded.
     init(
         from data: String
     ) async throws(Exception) {
@@ -52,6 +58,12 @@ extension PenPalsSharingData: Serializable {
 
     // MARK: - Methods
 
+    /// Returns a Boolean value that indicates whether a sharing record can be decoded from the
+    /// given string.
+    ///
+    /// - Parameter data: The serialized sharing record string.
+    ///
+    /// - Returns: `true` if a sharing record can be decoded; otherwise, `false`.
     static func canDecode(
         from data: String
     ) -> Bool {

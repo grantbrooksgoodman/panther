@@ -9,14 +9,19 @@
 /* Native */
 import Foundation
 
+/// The rich content of a message – audio or media.
 enum RichMessageContent: Codable, Equatable {
     // MARK: - Cases
 
+    /// Audio content, as one or more audio references.
     case audio([AudioMessageReference])
+
+    /// Media content – an image, video, or document.
     case media(MediaFile)
 
     // MARK: - Properties
 
+    /// The audio components, or `nil` if the content is not audio.
     var audioComponents: [AudioMessageReference]? {
         switch self {
         case let .audio(audioComponents): audioComponents
@@ -24,6 +29,7 @@ enum RichMessageContent: Codable, Equatable {
         }
     }
 
+    /// The document, or `nil` if the content is not a document.
     var documentComponent: MediaFile? {
         switch self {
         case let .media(mediaComponent):
@@ -35,6 +41,7 @@ enum RichMessageContent: Codable, Equatable {
         }
     }
 
+    /// The image, or `nil` if the content is not an image.
     var imageComponent: MediaFile? {
         switch self {
         case let .media(mediaComponent):
@@ -46,6 +53,7 @@ enum RichMessageContent: Codable, Equatable {
         }
     }
 
+    /// The media file, or `nil` if the content is not media.
     var mediaComponent: MediaFile? {
         switch self {
         case let .media(mediaComponent): mediaComponent
@@ -53,6 +61,7 @@ enum RichMessageContent: Codable, Equatable {
         }
     }
 
+    /// The video, or `nil` if the content is not a video.
     var videoComponent: MediaFile? {
         switch self {
         case let .media(mediaComponent):

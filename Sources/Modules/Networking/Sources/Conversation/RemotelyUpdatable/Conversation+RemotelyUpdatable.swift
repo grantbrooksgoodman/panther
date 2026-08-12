@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import Foundation
 
@@ -16,12 +18,20 @@ import Networking
 extension Conversation: RemotelyUpdatable {
     // MARK: - Properties
 
+    /// The conversation's identifier.
     var identifier: String {
         id.key
     }
 
     // MARK: - Serializable Key
 
+    /// Returns the serializable key for the given key path, or `nil` if the key path is not
+    /// remotely updatable.
+    ///
+    /// - Parameter keyPath: The key path to map to a serializable key.
+    ///
+    /// - Returns: The serializable key for the key path, or `nil` if the key path is not remotely
+    ///   updatable.
     static func serializableKey(
         for keyPath: PartialKeyPath<Conversation>
     ) -> SerializableKey? {
@@ -37,6 +47,15 @@ extension Conversation: RemotelyUpdatable {
 
     // MARK: - Modify Key
 
+    /// Returns a copy of the conversation with the given key set to the given value.
+    ///
+    /// Returns `nil` if the value's type does not match the key, or if the key is not modifiable.
+    ///
+    /// - Parameters:
+    ///   - key: The serializable key of the field to modify.
+    ///   - value: The new value for the field.
+    ///
+    /// - Returns: The modified conversation, or `nil` if the modification cannot be applied.
     func modifyKey(
         _ key: SerializableKey,
         withValue value: Any
@@ -87,6 +106,19 @@ extension Conversation: RemotelyUpdatable {
 
     // MARK: - Updates Values
 
+    /// Applies the given key-path updates to the conversation and writes the changed fields to the
+    /// database.
+    ///
+    /// Only the touched fields, the conversation's hash token, and the participants' hash tokens
+    /// are written, in a single atomic fan-out. On success, the updated conversation is upserted
+    /// into the session store.
+    ///
+    /// - Parameter data: The updates to apply, keyed by key path.
+    ///
+    /// - Returns: The updated conversation.
+    ///
+    /// - Throws: An `Exception` if a key path is not remotely updatable, a value's type does not
+    ///   match its key, or the write fails.
     func updateValues(
         with data: [PartialKeyPath<Conversation>: Any]
     ) async throws(Exception) -> Conversation {
@@ -152,6 +184,23 @@ extension Conversation: RemotelyUpdatable {
 
     // MARK: - Will Write
 
+    /// Prepares a single-field remote update before it is written.
+    ///
+    /// When new messages are written, this method commits the message nodes, their conversation
+    /// index entries, an un-delete of every participant, a reset of the current user's typing
+    /// status, the conversation's hash token and last-modified date, the participants' hash
+    /// tokens, and any pending hosted translation archive entries, all in a single atomic fan-out.
+    /// Other fields proceed with the default write.
+    ///
+    /// - Parameters:
+    ///   - value: The new value being written.
+    ///   - key: The serializable key of the field being updated.
+    ///   - updated: The conversation as it will be after the update.
+    ///
+    /// - Returns: The action the update system should take.
+    ///
+    /// - Throws: An `Exception` if the current user participant cannot be resolved or committing
+    ///   the fan-out fails.
     func willWrite(
         _ value: Any,
         forKey key: SerializableKey,
@@ -281,6 +330,21 @@ extension Conversation: RemotelyUpdatable {
 
     // MARK: - Did Update
 
+    /// Applies a completed single-field remote update, upserting the updated conversation into the
+    /// session store.
+    ///
+    /// Unless the field written was ``SerializableKey/messages``, this method also writes the
+    /// conversation's new hash token and the participants' hash tokens in a single atomic fan-out.
+    /// Updates to the messages field write these entries as part of their own fan-out in
+    /// ``willWrite(_:forKey:updating:)``.
+    ///
+    /// - Parameters:
+    ///   - updated: The updated conversation.
+    ///   - key: The serializable key of the field that was updated.
+    ///
+    /// - Returns: The updated conversation.
+    ///
+    /// - Throws: An `Exception` if applying the update fails.
     func didWrite(
         _ updated: Conversation,
         forKey key: SerializableKey
@@ -357,3 +421,5 @@ extension Conversation: RemotelyUpdatable {
         )
     }
 }
+
+// swiftlint:enable file_length

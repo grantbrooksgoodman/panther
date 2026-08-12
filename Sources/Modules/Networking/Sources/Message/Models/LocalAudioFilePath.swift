@@ -14,17 +14,37 @@ import AppSubsystem
 import Networking
 import Translator
 
+/// The local file paths for an audio message's input and translated output audio.
 struct LocalAudioFilePath: Codable, Equatable {
     // MARK: - Properties
 
+    /// The input recording's path, relative to the documents directory.
     let inputFilePathString: String
+
+    /// The absolute URL of the input recording.
     let inputFilePathURL: URL
+
+    /// The path to the directory containing the translated output audio.
     let outputDirectoryPathString: String
+
+    /// The translated output audio's path, relative to the documents directory.
     let outputFilePathString: String
+
+    /// The absolute URL of the translated output audio.
     let outputFilePathURL: URL
 
     // MARK: - Init
 
+    /// Creates an audio file path with the given paths.
+    ///
+    /// - Parameters:
+    ///   - inputFilePathString: The input recording's path, relative to the documents directory.
+    ///   - inputFilePathURL: The absolute URL of the input recording.
+    ///   - outputDirectoryPathString: The path to the directory containing the translated output
+    ///     audio.
+    ///   - outputFilePathString: The translated output audio's path, relative to the documents
+    ///     directory.
+    ///   - outputFilePathURL: The absolute URL of the translated output audio.
     init(
         inputFilePathString: String,
         inputFilePathURL: URL,
@@ -39,6 +59,13 @@ struct LocalAudioFilePath: Codable, Equatable {
         self.outputFilePathURL = outputFilePathURL
     }
 
+    /// Creates an audio file path for the given message and translation.
+    ///
+    /// For an idempotent translation, the output path matches the input path.
+    ///
+    /// - Parameters:
+    ///   - messageID: The identifier of the message.
+    ///   - translation: The translation to derive the output paths from.
     init(
         messageID: String,
         translation: Translation
@@ -68,6 +95,12 @@ struct LocalAudioFilePath: Codable, Equatable {
         )
     }
 
+    /// Creates an audio file path from the given message.
+    ///
+    /// - Parameter message: The message to derive the paths from.
+    ///
+    /// - Returns: An audio file path, or `nil` if the message is not an audio message or has no
+    ///   translation.
     init?(_ message: Message) {
         guard message.contentType.isAudio,
               let translation = message.translation else { return nil }

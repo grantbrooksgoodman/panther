@@ -16,12 +16,18 @@ import Networking
 extension ConversationID: Serializable {
     // MARK: - Properties
 
+    /// The serialized representation of the conversation identifier.
     var encoded: String {
         "\(key) | \(hash)"
     }
 
     // MARK: - Init
 
+    /// Creates a conversation identifier by decoding the given serialized string.
+    ///
+    /// - Parameter data: The serialized conversation identifier string.
+    ///
+    /// - Throws: An `Exception` if the string cannot be decoded.
     init(
         from data: String
     ) async throws(Exception) {
@@ -41,6 +47,12 @@ extension ConversationID: Serializable {
 
     // MARK: - Methods
 
+    /// Returns a Boolean value that indicates whether a conversation identifier can be decoded
+    /// from the given string.
+    ///
+    /// - Parameter data: The serialized conversation identifier string.
+    ///
+    /// - Returns: `true` if a conversation identifier can be decoded; otherwise, `false`.
     static func canDecode(
         from data: String
     ) -> Bool {

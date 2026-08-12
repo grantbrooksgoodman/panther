@@ -20,6 +20,7 @@ extension Activity: Serializable {
 
     // MARK: - Types
 
+    /// The serializable keys for encoding and decoding an activity.
     enum SerializableKey: String {
         case action
         case date
@@ -28,6 +29,7 @@ extension Activity: Serializable {
 
     // MARK: - Properties
 
+    /// The serialized representation of the activity.
     var encoded: [String: Any] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return [
@@ -39,6 +41,11 @@ extension Activity: Serializable {
 
     // MARK: - Init
 
+    /// Creates an activity by decoding the given serialized data.
+    ///
+    /// - Parameter data: The serialized activity data.
+    ///
+    /// - Throws: An `Exception` if the data cannot be decoded.
     init(
         from data: [String: Any]
     ) async throws(Exception) {
@@ -64,6 +71,12 @@ extension Activity: Serializable {
 
     // MARK: - Methods
 
+    /// Returns a Boolean value that indicates whether an activity can be decoded from the given
+    /// data.
+    ///
+    /// - Parameter data: The serialized activity data.
+    ///
+    /// - Returns: `true` if an activity can be decoded; otherwise, `false`.
     static func canDecode(
         from data: [String: Any]
     ) -> Bool {

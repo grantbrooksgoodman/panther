@@ -20,6 +20,7 @@ extension User: Serializable {
 
     // MARK: - Types
 
+    /// The serializable keys for encoding and decoding a user.
     enum SerializableKey: String {
         case id
         case aiEnhancedTranslationsEnabled
@@ -37,6 +38,7 @@ extension User: Serializable {
 
     // MARK: - Properties
 
+    /// The serialized representation of the user.
     var encoded: [String: Any] {
         var encodedBlockedUserIDs: Any = [String: Bool]()
         if let blockedUserIDs, !blockedUserIDs.isEmpty {
@@ -85,6 +87,11 @@ extension User: Serializable {
 
     // MARK: - Init
 
+    /// Creates a user by decoding the given serialized data.
+    ///
+    /// - Parameter data: The serialized user data.
+    ///
+    /// - Throws: An `Exception` if the data cannot be decoded.
     init(
         from data: [String: Any]
     ) async throws(Exception) {
@@ -150,6 +157,11 @@ extension User: Serializable {
 
     // MARK: - Methods
 
+    /// Returns a Boolean value that indicates whether a user can be decoded from the given data.
+    ///
+    /// - Parameter data: The serialized user data.
+    ///
+    /// - Returns: `true` if a user can be decoded; otherwise, `false`.
     static func canDecode(from data: [String: Any]) -> Bool {
         guard data[Keys.id.rawValue] is String,
               data[Keys.aiEnhancedTranslationsEnabled.rawValue] is Bool,

@@ -17,6 +17,13 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+/// A service that generates random messages and conversation data for testing during development.
+///
+/// ``UserTestingService`` populates conversations with random text, media, titles, and photos to
+/// exercise the app with realistic data.
+///
+/// - Warning: The service's operations are disabled in the production environment. Attempting to
+///   run them there triggers an environment-intrusion safeguard that resets the app.
 struct UserTestingService {
     // MARK: - Dependencies
 
@@ -104,6 +111,13 @@ struct UserTestingService {
 
     // MARK: - Create Random Messages
 
+    /// Creates the given number of random messages across the user's conversations, then resets
+    /// the app.
+    ///
+    /// - Parameter count: The number of random messages to create.
+    ///
+    /// - Throws: An `Exception` if message creation fails, or an environment-intrusion exception
+    ///   if run in the production environment.
     @MainActor
     func createRandomMessages(
         count: Int = 1
@@ -174,7 +188,8 @@ struct UserTestingService {
         let originalCurrentUserID = currentUserID
         defer { currentUserID = originalCurrentUserID }
 
-        currentUserID = await (randomBool && randomBool && randomBool) ? randomUserID : currentUserID
+//        currentUserID = await (randomBool && randomBool && randomBool) ? randomUserID : currentUserID
+        currentUserID = currentUserID
 
         try await clientSession.entity.user.resolveCurrentUser()
         try await clientSession.resolveAndSetLanguageCode()

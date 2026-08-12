@@ -20,6 +20,7 @@ extension ConversationMetadata: Serializable {
 
     // MARK: - Types
 
+    /// The serializable keys for encoding and decoding conversation metadata.
     enum SerializableKey: String {
         case imageData
         case imageHash
@@ -33,6 +34,7 @@ extension ConversationMetadata: Serializable {
 
     // MARK: - Properties
 
+    /// The serialized representation of the conversation metadata.
     var encoded: [String: Any] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         var result: [String: Any] = [
@@ -54,6 +56,11 @@ extension ConversationMetadata: Serializable {
 
     // MARK: - Init
 
+    /// Creates conversation metadata by decoding the given serialized data.
+    ///
+    /// - Parameter data: The serialized conversation metadata.
+    ///
+    /// - Throws: An `Exception` if the data cannot be decoded.
     init(
         from data: [String: Any]
     ) async throws(Exception) {
@@ -133,6 +140,12 @@ extension ConversationMetadata: Serializable {
 
     // MARK: - Methods
 
+    /// Returns a Boolean value that indicates whether conversation metadata can be decoded from
+    /// the given data.
+    ///
+    /// - Parameter data: The serialized conversation metadata.
+    ///
+    /// - Returns: `true` if conversation metadata can be decoded; otherwise, `false`.
     static func canDecode(
         from data: [String: Any]
     ) -> Bool {

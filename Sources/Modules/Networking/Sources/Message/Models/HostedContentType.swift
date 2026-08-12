@@ -9,15 +9,23 @@
 /* Native */
 import Foundation
 
+/// The type of a message's hosted content.
 enum HostedContentType: Codable, Equatable {
     // MARK: - Cases
 
+    /// Audio content with the given file extension.
     case audio(AudioFileExtension)
+
+    /// Media content – an image, video, or document – with the given identifier and file
+    /// extension.
     case media(id: String, extension: MediaFileExtension)
+
+    /// Text content.
     case text
 
     // MARK: - Properties
 
+    /// A Boolean value that indicates whether the content is audio.
     var isAudio: Bool {
         switch self {
         case .audio: true
@@ -25,6 +33,7 @@ enum HostedContentType: Codable, Equatable {
         }
     }
 
+    /// A Boolean value that indicates whether the content is media.
     var isMedia: Bool {
         switch self {
         case .media: true
@@ -32,6 +41,7 @@ enum HostedContentType: Codable, Equatable {
         }
     }
 
+    /// The media content's identifier, or `nil` if the content is not media.
     var mediaFileID: String? {
         switch self {
         case let .media(id: id, extension: _): id
@@ -39,12 +49,14 @@ enum HostedContentType: Codable, Equatable {
         }
     }
 
+    /// The media content's file path, or `nil` if the content is not media.
     var mediaFilePath: String? {
         guard let mediaFileExtension,
               let mediaFileID else { return nil }
         return "\(mediaFileID).\(mediaFileExtension.rawValue)"
     }
 
+    /// The content type's wire-format string.
     var rawValue: String {
         switch self {
         case let .audio(fileExtension): fileExtension.contentTypeString
@@ -62,6 +74,11 @@ enum HostedContentType: Codable, Equatable {
 
     // MARK: - Init
 
+    /// Creates a content type from its wire-format string.
+    ///
+    /// - Parameter hostedValue: The wire-format content type string.
+    ///
+    /// - Returns: The content type, or `nil` if the string is not a valid content type.
     init?(hostedValue: String) {
         if hostedValue == HostedContentType.text.rawValue {
             self = .text

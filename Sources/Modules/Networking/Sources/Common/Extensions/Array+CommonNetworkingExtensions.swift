@@ -16,6 +16,8 @@ import Translator
 extension [Conversation] {
     // MARK: - Properties
 
+    /// The conversations sorted by their most recent message's sent date, newest first, with
+    /// conversations having no messages last.
     var sortedByLatestMessageSentDate: [Conversation] {
         var withSentDate: [(Conversation, Date)] = []
         var withoutSentDate: [Conversation] = []

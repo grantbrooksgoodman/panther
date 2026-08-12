@@ -20,6 +20,7 @@ extension ReactionMetadata: Serializable {
 
     // MARK: - Types
 
+    /// The serializable keys for encoding and decoding reaction metadata.
     enum SerializableKey: String {
         case messageID
         case reactions
@@ -27,6 +28,7 @@ extension ReactionMetadata: Serializable {
 
     // MARK: - Properties
 
+    /// The serialized representation of the reaction metadata.
     var encoded: [String: Any] {
         [
             Keys.messageID.rawValue: messageID,
@@ -36,6 +38,11 @@ extension ReactionMetadata: Serializable {
 
     // MARK: - Init
 
+    /// Creates reaction metadata by decoding the given serialized data.
+    ///
+    /// - Parameter data: The serialized reaction metadata.
+    ///
+    /// - Throws: An `Exception` if the data cannot be decoded.
     init(
         from data: [String: Any]
     ) async throws(Exception) {
@@ -61,6 +68,12 @@ extension ReactionMetadata: Serializable {
 
     // MARK: - Methods
 
+    /// Returns a Boolean value that indicates whether reaction metadata can be decoded from the
+    /// given data.
+    ///
+    /// - Parameter data: The serialized reaction metadata.
+    ///
+    /// - Returns: `true` if reaction metadata can be decoded; otherwise, `false`.
     static func canDecode(
         from data: [String: Any]
     ) -> Bool {

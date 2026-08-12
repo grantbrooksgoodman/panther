@@ -14,6 +14,7 @@ import AppSubsystem
 import Networking
 import Translator
 
+/// The service that uploads, downloads, and deletes audio message content.
 struct AudioMessageService {
     // MARK: - Dependencies
 
@@ -22,6 +23,19 @@ struct AudioMessageService {
 
     // MARK: - Get Audio Component
 
+    /// Returns the audio component for the given message, using the local copy when available and
+    /// downloading it otherwise.
+    ///
+    /// - Parameters:
+    ///   - messageID: The identifier of the message.
+    ///   - isFromCurrentUser: A Boolean value that indicates whether the message was sent by the
+    ///     current user.
+    ///   - localAudioFilePath: The local file paths for the message's audio.
+    ///   - translation: The translation associated with the audio.
+    ///
+    /// - Returns: The audio component.
+    ///
+    /// - Throws: An `Exception` if the audio cannot be resolved or downloaded.
     func getAudioComponent(
         messageID: String,
         isFromCurrentUser: Bool,
@@ -45,6 +59,13 @@ struct AudioMessageService {
 
     // MARK: - Delete Input Audio Component
 
+    /// Deletes the input recording for the given message from remote storage.
+    ///
+    /// This method has no effect when no input recording exists.
+    ///
+    /// - Parameter messageID: The identifier of the message.
+    ///
+    /// - Throws: An `Exception` if deletion fails for a reason other than the item not existing.
     func deleteInputAudioComponent(
         for messageID: String
     ) async throws(Exception) {
@@ -65,6 +86,18 @@ struct AudioMessageService {
 
     // MARK: - Upload Audio Components
 
+    /// Uploads the input recording and translated output audio for the given message.
+    ///
+    /// The input and each output are uploaded concurrently, and the local files are moved into
+    /// their permanent locations afterward.
+    ///
+    /// - Parameters:
+    ///   - audioComponents: The audio components to upload.
+    ///   - message: The message the audio belongs to.
+    ///   - inputUploadTask: A task whose completion provides an already-in-progress input upload,
+    ///     or `nil` to upload the input as part of this call.
+    ///
+    /// - Throws: An `Exception` if an upload fails.
     func uploadAudioComponents(
         _ audioComponents: [AudioMessageReference],
         for message: Message,
@@ -185,6 +218,12 @@ struct AudioMessageService {
 
     // MARK: - Auxiliary
 
+    /// Returns a Boolean value that indicates whether a pre-recorded translated output already
+    /// exists in remote storage for the given translation.
+    ///
+    /// - Parameter translation: The translation to check.
+    ///
+    /// - Returns: `true` if a pre-recorded output exists; otherwise, `false`.
     func preRecordedOutputExists(for translation: Translation) async -> Bool {
         let outputDirectoryPath = "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
         let outputFileName = "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"

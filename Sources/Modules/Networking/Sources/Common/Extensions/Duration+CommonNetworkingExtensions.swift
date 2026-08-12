@@ -13,9 +13,14 @@ import Foundation
 import AppSubsystem
 
 extension Duration {
-    /// Scales linearly with file size, assuming a worst-case
-    /// sustained transfer rate of roughly 1 Mbps; falls back to the
-    /// maximum when the file size cannot be determined.
+    /// Returns a transfer timeout scaled to the size of the file at the given URL.
+    ///
+    /// The timeout scales linearly with file size, assuming a worst-case sustained transfer rate
+    /// of roughly 1 Mbps, and falls back to the maximum when the file size cannot be determined.
+    ///
+    /// - Parameter fileURL: The URL of the file to compute a timeout for.
+    ///
+    /// - Returns: The transfer timeout.
     static func transferTimeout(
         forItemAt fileURL: URL
     ) -> Duration {
