@@ -13,6 +13,11 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// The service that manages focusing a message from search.
+///
+/// ``SearchInteractionService`` opens the context menu for a message the user navigated to from
+/// search, so the focused message is highlighted when the chat page appears. The interaction is
+/// triggered at most once per presentation.
 @MainActor
 final class SearchInteractionService {
     // MARK: - Dependencies
@@ -45,6 +50,12 @@ final class SearchInteractionService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameters:
+    ///   - viewController: The chat page's messages view controller.
+    ///   - focusedMessageID: The identifier of the message to focus, or `nil` if no message
+    ///     should be focused.
     init(
         _ viewController: ChatPageViewController,
         focusedMessageID: String?
@@ -55,6 +66,11 @@ final class SearchInteractionService {
 
     // MARK: - Trigger Focused Message Cell Interaction
 
+    /// Opens the context menu for the focused message, if one is pending.
+    ///
+    /// This method has no effect when the chat page is not presented, or when it has already
+    /// triggered the interaction during the current presentation. When the focused message's
+    /// cell is not yet available, the interaction is retried once after a brief delay.
     func triggerFocusedMessageCellInteractionIfNeeded() {
         guard isChatPagePresented,
               !hasTriggeredInteractionOnce else { return }

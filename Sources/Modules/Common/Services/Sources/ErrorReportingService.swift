@@ -15,6 +15,10 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+/// Use ``ErrorReportingService`` to upload error reports to remote storage.
+///
+/// A report consists of the current logger session record, uploaded with metadata describing
+/// the error, build, device, language, current user, and visible view.
 final class ErrorReportingService: AlertKit.ReportDelegate {
     // MARK: - Dependencies
 
@@ -28,6 +32,9 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
 
     // MARK: - Properties
 
+    /// The codes of errors reported during the current app session.
+    ///
+    /// Each error code is reported at most once per session.
     private(set) var reportedErrorCodes = [String]()
 
     // MARK: - Computed Properties
@@ -58,10 +65,31 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
 
     // MARK: - File Report
 
+    /// Files a report for the given error.
+    ///
+    /// The report uploads asynchronously; this method returns immediately. Errors whose codes
+    /// have already been reported during the current app session are skipped. When the upload
+    /// succeeds and automatic error reporting is disabled, a success toast is shown; in
+    /// developer mode, tapping the toast opens the report's storage location and copies its URL
+    /// to the pasteboard.
+    ///
+    /// - Parameter error: The error to report.
     func fileReport(_ error: any AlertKit.Errorable) {
         _fileReport(error)
     }
 
+    /// Files a report for the given error, optionally showing a success toast.
+    ///
+    /// The report uploads asynchronously; this method returns immediately. Errors whose codes
+    /// have already been reported during the current app session are skipped. When the upload
+    /// succeeds, `showsToastOnSuccess` is `true`, and automatic error reporting is disabled, a
+    /// success toast is shown; in developer mode, tapping the toast opens the report's storage
+    /// location and copies its URL to the pasteboard.
+    ///
+    /// - Parameters:
+    ///   - error: The error to report.
+    ///   - showsToastOnSuccess: A Boolean value that indicates whether a success toast may be
+    ///     shown when the upload succeeds.
     func fileReport(
         _ error: any AlertKit.Errorable,
         showsToastOnSuccess: Bool

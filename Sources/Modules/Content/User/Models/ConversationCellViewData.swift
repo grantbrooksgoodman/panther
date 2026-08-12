@@ -13,9 +13,15 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// The display data for a conversation cell.
+///
+/// ``ConversationCellViewData`` derives everything a ``ConversationCellView`` renders – title,
+/// subtitle, date, thumbnail, and unread state – from a conversation. Derived values are
+/// cached in memory per conversation and search query.
 struct ConversationCellViewData: Equatable {
     // MARK: - Properties
 
+    /// An empty placeholder value.
     static let empty: ConversationCellViewData = .init(
         titleLabelText: "",
         subtitleLabelText: "",
@@ -25,16 +31,45 @@ struct ConversationCellViewData: Equatable {
         thumbnailImage: nil
     )
 
+    /// The text the date label displays.
     let dateLabelText: String
+
+    /// A Boolean value that indicates whether the conversation's messages have not yet been
+    /// hydrated into the session store.
     let isAwaitingMessageHydration: Bool
+
+    /// A Boolean value that indicates whether the unread indicator is shown.
     let isShowingUnreadIndicator: Bool
+
+    /// The other user in a one-to-one conversation, or `nil` for group conversations.
     let otherUser: User?
+
+    /// The text the subtitle label displays.
     let subtitleLabelText: String
+
+    /// The image the avatar displays, or `nil` to show a placeholder symbol.
     let thumbnailImage: UIImage?
+
+    /// The text the title label displays.
     let titleLabelText: String
 
     // MARK: - Init
 
+    /// Creates conversation cell view data with the given values.
+    ///
+    /// - Parameters:
+    ///   - titleLabelText: The text the title label displays.
+    ///   - subtitleLabelText: The text the subtitle label displays.
+    ///   - dateLabelText: The text the date label displays.
+    ///   - isShowingUnreadIndicator: A Boolean value that indicates whether the unread
+    ///     indicator is shown.
+    ///   - otherUser: The other user in a one-to-one conversation, or `nil` for group
+    ///     conversations.
+    ///   - thumbnailImage: The image the avatar displays, or `nil` to show a placeholder
+    ///     symbol.
+    ///   - isAwaitingMessageHydration: A Boolean value that indicates whether the
+    ///     conversation's messages have not yet been hydrated into the session store. The
+    ///     default is `false`.
     init(
         titleLabelText: String,
         subtitleLabelText: String,
@@ -53,6 +88,9 @@ struct ConversationCellViewData: Equatable {
         self.isAwaitingMessageHydration = isAwaitingMessageHydration
     }
 
+    /// Creates view data whose only populated value is the given other user.
+    ///
+    /// - Parameter user: The other user in the conversation.
     init(user: User) {
         titleLabelText = ConversationCellViewData.empty.titleLabelText
         subtitleLabelText = ConversationCellViewData.empty.subtitleLabelText
@@ -63,6 +101,25 @@ struct ConversationCellViewData: Equatable {
         isAwaitingMessageHydration = ConversationCellViewData.empty.isAwaitingMessageHydration
     }
 
+    /// Derives view data for the given conversation.
+    ///
+    /// The title comes from the conversation's name, the participants' contact names, or a
+    /// participant's phone number; PenPals conversations use obfuscated PenPals names and the
+    /// PenPals icon until participants share their data. The subtitle and date describe the
+    /// latest message or activity – with an active search query, the most recent matching
+    /// message instead. The unread indicator reflects whether the current user has read the
+    /// latest message from other users.
+    ///
+    /// Fully derived values are cached in memory per conversation and search query; data
+    /// derived while messages are still hydrating is never cached. Returns `nil` if the
+    /// conversation's users cannot be resolved.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation for which to derive view data.
+    ///   - searchQuery: The active search query, or `nil` when none is active. The default is
+    ///     `nil`.
+    ///   - useCachedValue: A Boolean value that indicates whether a cached value may be
+    ///     returned. The default is `true`.
     @MainActor // swiftlint:disable:next cyclomatic_complexity function_body_length
     init?(
         _ conversation: Conversation,
@@ -107,7 +164,7 @@ struct ConversationCellViewData: Equatable {
                 thumbnailImage = image
             }
         } else {
-            titleLabelText = lastUser.phoneNumber.formattedString(useFailsafe: false)
+            titleLabelText = lastUser.phoneNumber.formattedString()
         }
 
         if conversation.metadata.name.isBangQualifiedEmpty {
@@ -247,12 +304,17 @@ struct ConversationCellViewData: Equatable {
     }
 }
 
+/// A namespace for managing the in-memory conversation cell view data cache.
 @MainActor
 enum ConversationCellViewDataCache {
+    /// Removes every cached conversation cell view data value.
     static func clearCache() {
         _ConversationCellViewDataCache.clearCache()
     }
 
+    /// Removes the cached values for the conversation with the given ID key.
+    ///
+    /// - Parameter idKey: The ID key of the conversation whose values to remove.
     static func removeValues(forConversationIDKey idKey: String) {
         _ConversationCellViewDataCache.removeValues(forConversationIDKey: idKey)
     }

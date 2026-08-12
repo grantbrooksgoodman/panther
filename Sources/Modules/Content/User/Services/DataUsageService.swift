@@ -18,6 +18,10 @@ import AppSubsystem
 import Networking
 import Translator
 
+/// The service that measures the current user's data usage against the storage limit.
+///
+/// Use ``DataUsageService`` to calculate how much remote data the current user's account
+/// occupies and to warn the user as they approach the storage limit.
 struct DataUsageService {
     // MARK: - Dependencies
 
@@ -27,6 +31,7 @@ struct DataUsageService {
 
     // MARK: - Properties
 
+    /// The maximum data usage allotted to each user, in kilobytes.
     static let storageLimitInKilobytes: Double = 10240
 
     fileprivate static let shared = DataUsageService()
@@ -41,12 +46,16 @@ struct DataUsageService {
 
     // MARK: - Computed Properties
 
+    /// A Boolean value that indicates whether the most recently calculated data usage meets or
+    /// exceeds the storage limit.
     var atOrAboveDataUsageLimit: Bool {
         lastDataUsageCalculation.wrappedValue.dataUsageInKilobytes >= Int(
             Self.storageLimitInKilobytes
         )
     }
 
+    /// A Boolean value that indicates whether the most recently calculated data usage has
+    /// reached the warning threshold – 60 percent of the storage limit.
     var isApproachingDataUsageLimit: Bool {
         lastDataUsageCalculation.wrappedValue.dataUsageInKilobytes >= Int(
             Self.storageLimitInKilobytes * warningAlertRatio
@@ -59,6 +68,16 @@ struct DataUsageService {
 
     // MARK: - Current User Data Usage
 
+    /// Returns the current user's total data usage, in kilobytes.
+    ///
+    /// The total combines the sizes of the user's record, their visible conversations, and the
+    /// messages, translations, audio files, and media files they have sent. Concurrent calls
+    /// coalesce into a single calculation, and a recent calculation is returned without
+    /// recomputation.
+    ///
+    /// - Returns: The total data usage, in kilobytes.
+    ///
+    /// - Throws: An `Exception` if any component's size cannot be resolved.
     func getCurrentUserDataUsage() async throws(Exception) -> Int {
         try await Self.coalescer { () async throws(Exception) -> Int in
             return try await _getCurrentUserDataUsage()
@@ -188,6 +207,11 @@ struct DataUsageService {
 
     // MARK: - Present Storage Warning Alert
 
+    /// Presents an alert describing the user's storage situation, if warranted.
+    ///
+    /// If usage meets or exceeds the storage limit, the alert explains that space must be
+    /// freed before new messages can be sent; if usage has reached the warning threshold, it
+    /// suggests deleting conversations. Below the warning threshold, no alert is presented.
     func presentStorageWarningAlert() async {
         guard await ((try? (getCurrentUserDataUsage())) ?? 0) >= Int(
             Self.storageLimitInKilobytes * warningAlertRatio
@@ -423,13 +447,16 @@ private extension TranslationReference {
     }
 }
 
+/// The dependency key that resolves ``DataUsageService``.
 enum DataUsageServiceDependency: DependencyKey {
+    /// Returns the shared data usage service instance.
     static func resolve(_: DependencyValues) -> DataUsageService {
         .shared
     }
 }
 
 extension DependencyValues {
+    /// The service that measures the current user's data usage against the storage limit.
     var dataUsageService: DataUsageService {
         get { self[DataUsageServiceDependency.self] }
         set { self[DataUsageServiceDependency.self] = newValue }

@@ -14,6 +14,10 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
+/// A page displaying the system contact detail interface for a contact.
+///
+/// Use ``CNContactView`` to show a Contacts framework contact in a non-editable detail page,
+/// applying the given navigation bar appearance when the page appears.
 struct CNContactView: View {
     // MARK: - Types
 
@@ -29,6 +33,15 @@ struct CNContactView: View {
 
     // MARK: - Init
 
+    /// Creates a contact detail page for the given contact.
+    ///
+    /// - Parameters:
+    ///   - cnContact: The contact to display.
+    ///   - isUnknown: A Boolean value that indicates whether the contact is not saved in the
+    ///     user's contact list, in which case the system's unknown contact interface is used.
+    ///     The default is `false`.
+    ///   - navigationBarAppearance: The navigation bar appearance to apply when the page
+    ///     appears.
     init(
         _ cnContact: CNContact,
         isUnknown: Bool = false,
@@ -41,6 +54,7 @@ struct CNContactView: View {
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         ThemedView {
             _CNContactView(cnContact, isUnknown: isUnknown)

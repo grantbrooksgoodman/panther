@@ -13,24 +13,42 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// A build information string displayed by the build info button.
+///
+/// The build info button cycles through a fixed sequence of strings describing the running
+/// build; use ``next`` to advance to the following entry.
 struct BuildInfoButtonStrings: Equatable {
     // MARK: - Types
 
+    /// A kind of build information string.
     enum BuildInfoButtonStringKey: Equatable {
+        /// The bundle version with its build number and revision.
         case bundleVersionAndBuildNumber
+
+        /// The build SKU.
         case buildSKU
+
+        /// The project ID.
         case projectID
+
+        /// The current user's ID with the network environment.
         case userIDAndNetworkEnvironment
+
+        /// The copyright notice.
         case copyright
     }
 
     // MARK: - Properties
 
+    /// The kind of string this instance represents.
     let key: BuildInfoButtonStringKey
+
+    /// The text the build info button displays.
     let labelText: String
 
     // MARK: - Computed Properties
 
+    /// The strings for the next entry in the display sequence.
     var next: BuildInfoButtonStrings {
         switch key {
         case .bundleVersionAndBuildNumber:
@@ -52,6 +70,9 @@ struct BuildInfoButtonStrings: Equatable {
 
     // MARK: - Init
 
+    /// Creates the strings for the given key.
+    ///
+    /// - Parameter key: The kind of string to create.
     init(_ key: BuildInfoButtonStringKey) {
         @Dependency(\.build) var build: Build
         @Dependency(\.currentCalendar) var calendar: Calendar

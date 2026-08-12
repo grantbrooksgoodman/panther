@@ -16,6 +16,10 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+/// A collection view cell that displays a system message.
+///
+/// Use ``SystemMessageCell`` in the chat page's message list to show centered, bubble-less
+/// text scaled to fit the cell's width.
 final class SystemMessageCell: UICollectionViewCell {
     // MARK: - Constants Accessors
 
@@ -29,11 +33,13 @@ final class SystemMessageCell: UICollectionViewCell {
 
     // MARK: - Init
 
+    /// Creates a system message cell with the given frame.
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.addSubview(label)
     }
 
+    /// Creates a system message cell from the given decoder.
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         contentView.addSubview(label)
@@ -41,6 +47,7 @@ final class SystemMessageCell: UICollectionViewCell {
 
     // MARK: - Methods
 
+    /// Lays out the label to fill the cell and rescales its text to fit.
     override func layoutSubviews() {
         super.layoutSubviews()
 
@@ -53,6 +60,12 @@ final class SystemMessageCell: UICollectionViewCell {
         )
     }
 
+    /// Configures the cell with the given message's system string.
+    ///
+    /// - Parameters:
+    ///   - message: The message whose system string to display.
+    ///   - indexPath: The index path of the cell.
+    ///   - messagesCollectionView: The collection view containing the cell.
     func configure(
         with message: MessageType,
         at indexPath: IndexPath,

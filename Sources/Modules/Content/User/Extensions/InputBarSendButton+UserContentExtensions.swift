@@ -16,6 +16,8 @@ import AppSubsystem
 import InputBarAccessoryView
 
 extension InputBarSendButton {
+    /// A Boolean value that indicates whether the send button is currently configured as a record
+    /// button.
     var isRecordButton: Bool {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         typealias Strings = AppConstants.Strings.ChatPageViewService.InputBar

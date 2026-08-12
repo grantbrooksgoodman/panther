@@ -17,6 +17,11 @@ import SwiftUI
 import AlertKit
 import AppSubsystem
 
+/// The service that handles the settings page's user interactions.
+///
+/// Use ``SettingsPageViewService`` to respond to the settings page's controls – feature
+/// switches, account actions, and support options – most of which confirm through alerts
+/// before taking effect.
 @MainActor
 final class SettingsPageViewService {
     // MARK: - Types
@@ -46,6 +51,7 @@ final class SettingsPageViewService {
 
     // MARK: - Properties
 
+    /// A Boolean value that indicates whether the main settings page is presented.
     var isMainPagePresented = true
 
     @Cached(CacheKey.cnContactForCurrentUser) private var cachedCNContactForCurrentUser: CNContact?
@@ -53,10 +59,17 @@ final class SettingsPageViewService {
 
     // MARK: - Init
 
+    /// Creates a settings page view service.
     nonisolated init() {}
 
     // MARK: - Reducer Action Handlers
 
+    /// Responds to the AI-enhanced translation switch changing.
+    ///
+    /// Turning the switch off revokes the permission, surfacing any error as a toast; turning
+    /// it on presents the AI-enhanced translation feature permission page.
+    ///
+    /// - Parameter on: The switch's new value.
     func aiEnhancedTranslationsSwitchToggled(on: Bool) {
         Task { @MainActor in
             guard on else {
@@ -78,6 +91,7 @@ final class SettingsPageViewService {
         }
     }
 
+    /// Begins the unblock users flow, surfacing any error as a toast.
     func blockedUsersButtonTapped() {
         Task {
             do throws(Exception) {
@@ -91,6 +105,10 @@ final class SettingsPageViewService {
         }
     }
 
+    /// Presents an action sheet for choosing the app's theme.
+    ///
+    /// The applied theme is marked and disabled. Choosing a theme with a different interface
+    /// style refreshes the app's appearance once the sheet dismisses.
     func changeThemeButtonTapped() {
         Task {
             var actions = [AKAction]()
@@ -133,6 +151,11 @@ final class SettingsPageViewService {
         }
     }
 
+    /// Asks the user to confirm clearing all caches, applying it if they accept.
+    ///
+    /// Clearing resets the app – preserving the current user's identifier – and logs an
+    /// analytics event. The app must then restart; in developer mode, an in-place reload is
+    /// offered instead.
     func clearCachesButtonTapped() {
         @MainActor
         func clearCaches() async {
@@ -182,6 +205,10 @@ final class SettingsPageViewService {
         }
     }
 
+    /// Asks the user to confirm account deletion – twice – before deleting their account.
+    ///
+    /// After deletion, the badge number clears, an analytics event logs, and the app resets
+    /// and exits.
     func deleteAccountButtonTapped() {
         Task {
             @MainActor
@@ -239,6 +266,8 @@ final class SettingsPageViewService {
         }
     }
 
+    /// Presents an action sheet for inviting friends, offering to share the invitation to
+    /// another app or to show the invite QR code.
     func inviteFriendsButtonTapped() {
         Task {
             let shareToOtherAppAction: AKAction = .init("Share to Another App") {
@@ -268,6 +297,9 @@ final class SettingsPageViewService {
         }
     }
 
+    /// Opens the App Store's write-review page for the app.
+    ///
+    /// If the app share link has not been resolved, this method does nothing.
     func leaveReviewButtonTapped() {
         guard let appShareLink = services.metadata.appShareLink?.absoluteString,
               let url = URL(string: "\(appShareLink)?action=write-review") else { return }
@@ -276,6 +308,10 @@ final class SettingsPageViewService {
         }
     }
 
+    /// Records whether the current user requires message recipient consent, surfacing any
+    /// error as a toast.
+    ///
+    /// - Parameter on: The switch's new value.
     func messageRecipientConsentSwitchToggled(on: Bool) {
         Task {
             do throws(Exception) {
@@ -291,6 +327,12 @@ final class SettingsPageViewService {
         }
     }
 
+    /// Responds to the PenPals participation switch changing.
+    ///
+    /// Turning the switch off asks for confirmation before revoking participation – canceling
+    /// restores the switch; turning it on presents the PenPals feature permission page.
+    ///
+    /// - Parameter on: The switch's new value.
     func penPalsParticipantSwitchToggled(on: Bool) {
         Task { @MainActor in
             guard on else {
@@ -333,7 +375,11 @@ final class SettingsPageViewService {
         }
     }
 
-    /// `.longPressGestureRecognized`
+    /// Toggles prerelease mode after verification.
+    ///
+    /// On general-release builds, entering the correct passphrase switches the build
+    /// milestone to beta; on prerelease builds, confirmation clears the override. Either
+    /// change exits the app, which must restart for the change to take effect.
     func promptToEnterPrereleaseMode() {
         Task {
             @Persistent(.buildMilestoneString) var buildMilestoneString: String?
@@ -387,6 +433,8 @@ final class SettingsPageViewService {
         }
     }
 
+    /// Presents an action sheet for filing a report, offering to send feedback or report a
+    /// bug.
     func sendFeedbackButtonTapped() {
         Task {
             let reportBugAction: AKAction = .init("Report Bug") {
@@ -413,6 +461,10 @@ final class SettingsPageViewService {
         }
     }
 
+    /// Asks the user to confirm signing out, applying it if they accept.
+    ///
+    /// Signing out clears the badge number, removes the device's push token from the user's
+    /// record, resets the app, logs an analytics event, and returns to onboarding.
     func signOutButtonTapped() {
         Task { @MainActor in
             let signOutAction: AKAction = .init("Sign Out", style: .destructivePreferred) {
@@ -464,7 +516,9 @@ final class SettingsPageViewService {
         }
     }
 
-    /// `.longPressGestureRecognized`
+    /// Copies the given string to the pasteboard, playing heavy haptic feedback.
+    ///
+    /// - Parameter string: The string to copy.
     func setClipboardWithHapticFeedback(_ string: String) {
         uiPasteboard.string = string
         services.haptics.generateFeedback(.heavy)
@@ -472,7 +526,12 @@ final class SettingsPageViewService {
 
     // MARK: - Developer Mode List Items
 
-    /// `.viewAppeared`
+    /// Returns the developer mode list rows for the settings page.
+    ///
+    /// The rows offer toggling developer mode and, in developer mode – for users whose
+    /// language is not English – overriding the app's language code to English.
+    ///
+    /// - Returns: The list row configurations; otherwise, `nil` on general-release builds.
     func developerModeListItems() -> [ListRowView.Configuration]? {
         func overrideLanguageCodeButtonTapped() {
             guard RuntimeStorage.retrieve(.overriddenLanguageCode) == nil else {
@@ -544,7 +603,14 @@ final class SettingsPageViewService {
 
     // MARK: - Fetch CNContact for Current User
 
-    /// `.viewAppeared`
+    /// Returns the device contact matching the current user's phone number.
+    ///
+    /// Results are cached in memory.
+    ///
+    /// - Returns: The matching Contacts framework contact.
+    ///
+    /// - Throws: An `Exception` if the current user has not been set, or if no matching
+    ///   contact can be resolved.
     func fetchCNContactForCurrentUser() async throws(Exception) -> CNContact {
         if let cachedCNContactForCurrentUser {
             return cachedCNContactForCurrentUser
@@ -566,13 +632,18 @@ final class SettingsPageViewService {
 
     // MARK: - Get Current User Data Usage
 
-    /// `.viewAppeared`
+    /// Returns the current user's total data usage, in kilobytes.
+    ///
+    /// - Returns: The total data usage, in kilobytes.
+    ///
+    /// - Throws: An `Exception` if any component's size cannot be resolved.
     func getCurrentUserDataUsage() async throws(Exception) -> Int {
         try await dataUsageService.getCurrentUserDataUsage()
     }
 
     // MARK: - Clear Cache
 
+    /// Removes the cached device contact for the current user.
     func clearCache() {
         cachedCNContactForCurrentUser = nil
     }

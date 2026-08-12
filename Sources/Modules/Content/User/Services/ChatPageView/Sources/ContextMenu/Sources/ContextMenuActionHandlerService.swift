@@ -21,6 +21,13 @@ import Translator
 /* 3rd-party */
 import MessageKit
 
+/// The service that builds context menus and handles their actions.
+///
+/// ``ContextMenuActionHandlerService`` composes the menu shown for a message, tailoring the
+/// available actions to the message's content and state, and performs each action the user
+/// chooses – copying text, saving media, speaking a message aloud, viewing an alternate
+/// translation, and retrying or reporting a translation. It also tracks the message currently
+/// being spoken aloud.
 @MainActor
 final class ContextMenuActionHandlerService {
     // MARK: - Constants Accessors
@@ -41,6 +48,7 @@ final class ContextMenuActionHandlerService {
 
     // MARK: - Properties
 
+    /// The message currently being spoken aloud, or `nil` if no message is being spoken.
     private(set) var speakingMessage: Message?
 
     private let viewController: ChatPageViewController
@@ -49,6 +57,7 @@ final class ContextMenuActionHandlerService {
 
     // MARK: - Computed Properties
 
+    /// The message cell currently being spoken aloud, or `nil` if no message is being spoken.
     var speakingCell: MessageContentCell? {
         viewController.messagesCollectionView.visibleCells.first(where: {
             guard let indexPath = viewController.messagesCollectionView.indexPath(for: $0),
@@ -91,12 +100,27 @@ final class ContextMenuActionHandlerService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Menu for Message
 
+    /// Returns the context menu for the given message.
+    ///
+    /// The available actions depend on the message's content type and state: media messages
+    /// offer to save the file; audio messages offer to view the transcription or audio, copy the
+    /// transcription, and speak it aloud; text messages offer to copy or speak the text, view an
+    /// alternate translation, and retry or report the translation. A reaction details action is
+    /// added for any message that has reactions.
+    ///
+    /// - Parameter message: The message to build the menu for.
+    ///
+    /// - Returns: The context menu for the message, or `nil` if the message is a consent
+    ///   message.
     func menuForMessage(_ message: Message) -> Menu? {
         guard !message.isConsentMessage else { return nil }
         var actions: [MenuElement] = message.reactions == nil ? [] : [
@@ -129,6 +153,7 @@ final class ContextMenuActionHandlerService {
 
     // MARK: - Reset Speaking Message
 
+    /// Clears the message tracked as currently being spoken aloud.
     func resetSpeakingMessage() {
         speakingMessage = nil
     }

@@ -13,6 +13,13 @@ import Foundation
 import AppSubsystem
 
 extension FileManager {
+    /// Copies the file at the given URL to the given path.
+    ///
+    /// - Parameters:
+    ///   - url: The URL of the file to copy.
+    ///   - path: The destination path.
+    ///
+    /// - Throws: An `Exception` if reading or writing the file fails.
     func copy(
         fileAt url: URL,
         toPath path: URL
@@ -27,6 +34,15 @@ extension FileManager {
         }
     }
 
+    /// Creates a file with the given data at the given path, creating intermediate directories as
+    /// needed.
+    ///
+    /// - Parameters:
+    ///   - path: The path at which to create the file. Its final component must include an
+    ///     extension.
+    ///   - data: The data to write.
+    ///
+    /// - Throws: An `Exception` if the path has no extension or writing the file fails.
     func createFile(
         atPath path: URL,
         data: Data
@@ -87,6 +103,13 @@ extension FileManager {
         }
     }
 
+    /// Moves the file at the given URL to the given path.
+    ///
+    /// - Parameters:
+    ///   - url: The URL of the file to move.
+    ///   - path: The destination path.
+    ///
+    /// - Throws: An `Exception` if copying or removing the file fails.
     func move(
         fileAt url: URL,
         toPath path: URL

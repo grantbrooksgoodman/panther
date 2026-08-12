@@ -16,6 +16,11 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
+/// The service that handles the input bar's button actions.
+///
+/// ``InputBarActionHandlerService`` responds to taps on the input bar's attach-media, consent,
+/// and send buttons, and drives the audio recording flow – starting, stopping, and canceling
+/// recording, and sending the resulting audio message along with its live transcription.
 @MainActor
 final class InputBarActionHandlerService {
     // MARK: - Constants Accessors
@@ -45,18 +50,26 @@ final class InputBarActionHandlerService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Did Press Attach Media Button
 
+    /// Handles a tap on the attach-media button by presenting the attach-media action sheet.
     func didPressAttachMediaButton() {
         chatPageViewService.mediaActionHandler?.attachMediaButtonTapped()
     }
 
     // MARK: - Did Press Consent Button
 
+    /// Handles a tap on the consent button by sending a consent message in the current
+    /// conversation.
+    ///
+    /// Any error is surfaced as a toast.
     @objc
     func didPressConsentButton() {
         Task {
@@ -75,6 +88,16 @@ final class InputBarActionHandlerService {
 
     // MARK: - Did Press Record Button
 
+    /// Performs the given record button command.
+    ///
+    /// Starting recording shows the recording interface and begins recording, transcribing the
+    /// audio live. Stopping recording hides the interface, stops recording, and sends the
+    /// resulting audio message with its transcription. Canceling recording hides the interface
+    /// and discards the recording.
+    ///
+    /// - Parameter command: The record button command to perform.
+    ///
+    /// - Throws: An `Exception` if the recording operation fails.
     func didPressRecordButton(
         with command: RecordButtonCommand
     ) async throws(Exception) {
@@ -161,6 +184,13 @@ final class InputBarActionHandlerService {
 
     // MARK: - Did Press Send Button
 
+    /// Sends the given text as a message in the current conversation.
+    ///
+    /// This method has no effect when the current conversation is empty.
+    ///
+    /// - Parameter text: The text to send.
+    ///
+    /// - Throws: An `Exception` if delivery fails.
     @MainActor
     func didPressSendButton(with text: String) async throws(Exception) {
         // - NOTE: Fixes a bug in which rapid typing would cause the send button to mistakenly become enabled.

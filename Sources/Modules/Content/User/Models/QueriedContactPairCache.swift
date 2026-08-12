@@ -12,6 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// A namespace for managing the in-memory queried contact pair cache.
 @MainActor
 enum QueriedContactPairCache {
     // MARK: - Types
@@ -22,11 +23,15 @@ enum QueriedContactPairCache {
 
     // MARK: - Properties
 
+    /// The contact pairs matching each search term.
     @Cached(CacheKey.contactPairsForSearchTerms) static var cachedContactPairsForSearchTerms: [String: [ContactPair]]?
+
+    /// A Boolean value that indicates whether new values may be written to the cache.
     static var canWriteToCache = false
 
     // MARK: - Clear Cache
 
+    /// Removes every cached contact pair.
     static func clearCache() {
         cachedContactPairsForSearchTerms = nil
     }

@@ -15,10 +15,16 @@ import AppSubsystem
 import ComponentKit
 
 extension SquareIconView {
+    /// The appearance of a square icon.
+    ///
+    /// A configuration describes the icon's size, background color, overlay, and shadow.
     struct Configuration: EncodedHashable, Hashable {
         // MARK: - Types
 
+        /// The content overlaid on a square icon.
         enum OverlayConfiguration {
+            /// An image resource, with its foreground color, frame size relative to the icon,
+            /// and font weight.
             case resource(
                 _ resource: ImageResource,
                 foregroundColor: Color = AppConstants.Colors.SquareIconView.overlaySymbolForeground,
@@ -26,6 +32,8 @@ extension SquareIconView {
                 weight: Font.Weight? = nil
             )
 
+            /// A symbol, with its foreground color, frame size relative to the icon, and font
+            /// weight.
             case symbol(
                 name: String,
                 foregroundColor: Color = AppConstants.Colors.SquareIconView.overlaySymbolForeground,
@@ -33,6 +41,7 @@ extension SquareIconView {
                 weight: Font.Weight? = nil
             )
 
+            /// A text string, with its font and foreground color.
             case text(
                 string: String,
                 font: ComponentKit.Font = .system(scale: .custom(AppConstants.CGFloats.SquareIconView.overlayTextFontScale)),
@@ -42,13 +51,22 @@ extension SquareIconView {
 
         // MARK: - Properties
 
+        /// The icon's background color.
         let backgroundColor: Color
+
+        /// A Boolean value that indicates whether the icon casts a shadow.
         let includesShadow: Bool
+
+        /// The content overlaid on the icon.
         let overlay: OverlayConfiguration
+
+        /// The size of the icon.
         let size: CGSize
 
         // MARK: - Computed Properties
 
+        /// The strings that collectively define this instance's identity for hashing
+        /// purposes, sorted alphabetically.
         var hashFactors: [String] {
             [
                 backgroundColor.description,
@@ -66,6 +84,14 @@ extension SquareIconView {
 
         // MARK: - Init
 
+        /// Creates a square icon configuration.
+        ///
+        /// - Parameters:
+        ///   - size: The size of the icon. The default is the standard icon size.
+        ///   - backgroundColor: The icon's background color.
+        ///   - overlay: The content overlaid on the icon.
+        ///   - includesShadow: A Boolean value that indicates whether the icon casts a
+        ///     shadow. The default is `false`.
         init(
             size: CGSize = .init(
                 width: AppConstants.CGFloats.SquareIconView.defaultFrameWidth,
@@ -83,6 +109,7 @@ extension SquareIconView {
 
         // MARK: - Equatable Conformance
 
+        /// Returns a Boolean value that indicates whether two configurations are equal.
         static func == (
             left: Configuration,
             right: Configuration
@@ -92,6 +119,7 @@ extension SquareIconView {
 
         // MARK: - Hashable Conformance
 
+        /// Hashes the configuration by combining its encoded hash.
         func hash(into hasher: inout Hasher) {
             hasher.combine(encodedHash)
         }

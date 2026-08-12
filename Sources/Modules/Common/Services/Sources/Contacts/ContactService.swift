@@ -15,6 +15,11 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// Use ``ContactService`` to match the user's device contacts with registered users.
+///
+/// The service queries the device's contact store for contacts whose phone numbers belong to
+/// registered users, maintains the contact pair archive with the results, and caches the
+/// fetched contacts in memory.
 final class ContactService: @unchecked Sendable {
     // MARK: - Types
 
@@ -31,18 +36,37 @@ final class ContactService: @unchecked Sendable {
 
     // MARK: - Properties
 
+    /// The service that persists and queries the contact pair archive.
     let contactPairArchive: ContactPairArchiveService
 
+    /// The Contacts framework contacts matched during archive syncs.
     @Cached(CacheKey.cnContacts) var cachedCNContacts: [CNContact]?
 
     // MARK: - Init
 
+    /// Creates a contact service with the given archive service.
+    ///
+    /// - Parameter contactPairArchive: The service that persists and queries the contact pair
+    ///   archive.
     init(contactPairArchive: ContactPairArchiveService) {
         self.contactPairArchive = contactPairArchive
     }
 
     // MARK: - Sync Contact Pair Archive
 
+    /// Rebuilds the contact pair archive by matching every registered user against the device's
+    /// contacts.
+    ///
+    /// This method fetches all registered users, queries the device's contact store for
+    /// contacts matching their phone numbers, and replaces the archive's contents with the
+    /// results. Users without a matching device contact are persisted separately to the unknown
+    /// contact pair archive. Related caches are cleared before the archive is repopulated.
+    ///
+    /// If no device contact matches any registered user, this method returns without modifying
+    /// the archive.
+    ///
+    /// - Throws: An `Exception` if contact permission has not been granted, or if fetching
+    ///   users or contacts fails.
     func syncContactPairArchive() async throws(Exception) {
         do {
             let users = try await userService.getAllUsers()
@@ -85,6 +109,7 @@ final class ContactService: @unchecked Sendable {
 
     // MARK: - Clear Cache
 
+    /// Removes every cached Contacts framework contact.
     func clearCache() {
         cachedCNContacts = nil
     }

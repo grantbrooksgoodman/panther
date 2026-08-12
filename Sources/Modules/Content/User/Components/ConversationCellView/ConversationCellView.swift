@@ -14,6 +14,13 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A list cell summarizing a conversation on the conversations page.
+///
+/// Use ``ConversationCellView`` to display a conversation's avatar, title, latest message
+/// preview, and date, with an unread indicator. Tapping the cell opens the chat page, and a
+/// long press previews it; context menu and swipe actions offer deleting the conversation and
+/// blocking or reporting its users. The cell redacts its content – and disables itself –
+/// while messages hydrate or the conversation reloads.
 struct ConversationCellView: View {
     // MARK: - Constants Accessors
 
@@ -27,6 +34,13 @@ struct ConversationCellView: View {
 
     // MARK: - Init
 
+    /// Creates a conversation cell with the given view model.
+    ///
+    /// The cell observes the following for the lifetime of the view model: conversations page
+    /// reappearance and session store changes, which trigger reloads; changes to the shared
+    /// search query; and changes to the set of reloading conversations.
+    ///
+    /// - Parameter viewModel: The view model that drives the cell.
     init(_ viewModel: ViewModel<ConversationCellReducer>) {
         _viewModel = .init(
             wrappedValue: viewModel
@@ -60,6 +74,7 @@ struct ConversationCellView: View {
 
     // MARK: - Body
 
+    /// The content and behavior of the view.
     var body: some View {
         Button {
             viewModel.send(.cellTapped)

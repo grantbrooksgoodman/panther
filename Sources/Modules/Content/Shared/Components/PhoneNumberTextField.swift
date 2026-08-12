@@ -13,6 +13,14 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
+/// A text field that formats an entered phone number as the user types.
+///
+/// Use ``PhoneNumberTextField`` to accept phone number input for a specific region. The field
+/// displays an example number for the given region as its placeholder and reformats the entered
+/// digits into a partially formatted national number whenever the text or region changes.
+///
+/// - Note: Formatting rewrites the bound text asynchronously, so the value observed immediately
+///   after a change may not yet be formatted.
 struct PhoneNumberTextField: View {
     // MARK: - Dependencies
 
@@ -37,6 +45,12 @@ struct PhoneNumberTextField: View {
 
     // MARK: - Init
 
+    /// Creates a phone number text field with the given text and region bindings.
+    ///
+    /// - Parameters:
+    ///   - text: A binding to the phone number string the field displays and edits.
+    ///   - regionCode: A binding to the code of the region used for formatting and the
+    ///     placeholder.
     init(
         _ text: Binding<String>,
         regionCode: Binding<String>
@@ -47,6 +61,7 @@ struct PhoneNumberTextField: View {
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         GenericTextField(
             $text,

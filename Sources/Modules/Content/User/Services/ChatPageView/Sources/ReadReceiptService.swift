@@ -12,6 +12,10 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// The service that manages read receipts.
+///
+/// ``ReadReceiptService`` marks the displayed conversation's incoming messages as read and keeps
+/// the application badge in sync with the resulting unread count.
 @MainActor
 final class ReadReceiptService {
     // MARK: - Dependencies
@@ -25,12 +29,22 @@ final class ReadReceiptService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Update Read Date for Unread Messages
 
+    /// Marks the displayed conversation's unread incoming messages as read, then updates the
+    /// application badge.
+    ///
+    /// This method has no effect when the most recent incoming message has already been read, or
+    /// when there are no unread incoming messages.
+    ///
+    /// - Throws: An `Exception` if updating the read dates or the badge number fails.
     func updateReadDateForUnreadMessages() async throws(Exception) {
         guard let conversation = entitySession.conversation.currentConversation,
               let messages = conversation.messages?.filter({ !$0.isFromCurrentUser }),

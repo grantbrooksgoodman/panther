@@ -14,17 +14,38 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
+/// The interface used to handle taps on attributes detected in text.
+///
+/// ``AttributeDetectionService`` detects dates, links, and phone numbers in a label's attributed
+/// text and notifies its delegate when the user taps one. Register your own conformance with
+/// ``AttributeDetectionService/registerDelegate(_:)`` to customize how selections are handled;
+/// otherwise, ``DefaultAttributeDetectionServiceDelegate`` is used.
 protocol AttributeDetectionServiceDelegate: AnyObject {
+    /// Tells the delegate that the user selected a date in the given text.
+    ///
+    /// - Parameters:
+    ///   - date: The date that was selected.
+    ///   - substring: The portion of the text in which the date was detected.
+    ///   - fullText: The complete text containing the detected date.
     func didSelectDate(
         _ date: Date,
         at substring: String,
         inText fullText: String
     )
 
+    /// Tells the delegate that the user selected a phone number.
+    ///
+    /// - Parameter phoneNumber: The phone number that was selected.
     func didSelectPhoneNumber(
         _ phoneNumber: String
     )
 
+    /// Tells the delegate that the user selected a URL in the given text.
+    ///
+    /// - Parameters:
+    ///   - url: The URL that was selected.
+    ///   - substring: The portion of the text in which the URL was detected.
+    ///   - fullText: The complete text containing the detected URL.
     func didSelectURL(
         _ url: URL,
         at substring: String,
@@ -32,6 +53,11 @@ protocol AttributeDetectionServiceDelegate: AnyObject {
     )
 }
 
+/// The delegate used by ``AttributeDetectionService`` when no custom delegate is registered.
+///
+/// The default delegate presents a confirmation action sheet for date and URL selections – opening
+/// the Calendar app or the system browser if the user confirms – and opens phone number selections
+/// immediately as `tel` links.
 @MainActor
 final class DefaultAttributeDetectionServiceDelegate: @MainActor AttributeDetectionServiceDelegate {
     // MARK: - Dependencies
@@ -40,6 +66,7 @@ final class DefaultAttributeDetectionServiceDelegate: @MainActor AttributeDetect
 
     // MARK: - Properties
 
+    /// The shared default delegate instance.
     static let shared = DefaultAttributeDetectionServiceDelegate()
 
     // MARK: - Init
@@ -48,6 +75,7 @@ final class DefaultAttributeDetectionServiceDelegate: @MainActor AttributeDetect
 
     // MARK: - Did Select Date
 
+    /// Presents an action sheet offering to show the selected date in the Calendar app.
     func didSelectDate(
         _ date: Date,
         at substring: String,
@@ -65,6 +93,7 @@ final class DefaultAttributeDetectionServiceDelegate: @MainActor AttributeDetect
 
     // MARK: - Did Select Phone Number
 
+    /// Opens the selected phone number as a `tel` link.
     func didSelectPhoneNumber(_ phoneNumber: String) {
         guard let url = URL(string: "tel://\(phoneNumber.digits)") else { return }
         openURL(url)
@@ -72,6 +101,7 @@ final class DefaultAttributeDetectionServiceDelegate: @MainActor AttributeDetect
 
     // MARK: - Did Select URL
 
+    /// Presents an action sheet offering to open the selected URL in the system browser.
     func didSelectURL(
         _ url: URL,
         at substring: String,

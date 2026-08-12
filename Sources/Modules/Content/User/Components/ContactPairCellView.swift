@@ -14,6 +14,12 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A row describing a contact pair in a contact list.
+///
+/// Use ``ContactPairCellView`` to display a contact's name with a user info badge, and – when
+/// applicable – a blocked or "my account" annotation. When given an action, the row becomes a
+/// button that is disabled for contact pairs that contain a blocked user, contain the current
+/// user, are already selected, or participate in the current conversation.
 struct ContactPairCellView: View {
     // MARK: - Constants Accessors
 
@@ -49,6 +55,14 @@ struct ContactPairCellView: View {
 
     // MARK: - Init
 
+    /// Creates a contact pair cell.
+    ///
+    /// - Parameters:
+    ///   - contactPair: The contact pair the cell describes.
+    ///   - isInspectable: A Boolean value that indicates whether the cell's name labels
+    ///     include a hidden inspection marker. The default is `false`.
+    ///   - action: The action performed when the user taps the cell. Pass `nil` to make the
+    ///     cell non-interactive. The default is `nil`.
     init(
         contactPair: ContactPair,
         isInspectable: Bool = false,
@@ -61,6 +75,7 @@ struct ContactPairCellView: View {
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         if let action {
             Button {

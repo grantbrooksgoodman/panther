@@ -16,6 +16,10 @@ import AppSubsystem
 extension RecipientBar: UITableViewDataSource {
     // MARK: - Cell for Row at Index Path
 
+    /// Returns a contact pair cell for the given index path.
+    ///
+    /// Cells for contact pairs that contain a blocked user, contain the current user, or are
+    /// already selected are disabled.
     func tableView(
         _ tableView: UITableView,
         cellForRowAt indexPath: IndexPath
@@ -54,6 +58,7 @@ extension RecipientBar: UITableViewDataSource {
 
     // MARK: - Number of Rows in Section
 
+    /// Returns the number of contact pairs in the given section.
     func tableView(
         _ tableView: UITableView,
         numberOfRowsInSection section: Int
@@ -64,6 +69,7 @@ extension RecipientBar: UITableViewDataSource {
 
     // MARK: - Number of Sections
 
+    /// Returns the number of contact sections.
     func numberOfSections(in tableView: UITableView) -> Int {
         @Dependency(\.chatPageViewService.recipientBar?.tableView) var tableViewService: RecipientBarTableViewService?
         return tableViewService?.sections.count ?? 0
@@ -71,6 +77,7 @@ extension RecipientBar: UITableViewDataSource {
 
     // MARK: - Title for Header in Section
 
+    /// Returns the letter heading the given section.
     func tableView(
         _ tableView: UITableView,
         titleForHeaderInSection section: Int

@@ -12,6 +12,12 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// Use ``ContactPairArchiveService`` to persist and query the archive of contact pairs known to
+/// the app.
+///
+/// The archive associates the user's device contacts with the users registered under their
+/// phone numbers. It is cached in memory, persisted across launches, and mirrored to shared
+/// app-group storage so the notification extension can resolve contact names.
 final class ContactPairArchiveService {
     // MARK: - Types
 
@@ -45,12 +51,22 @@ final class ContactPairArchiveService {
 
     // MARK: - Init
 
+    /// Creates a contact pair archive service.
+    ///
+    /// Creating the service mirrors the current archive to shared app-group storage.
     init() {
         persistValuesForNotificationExtension()
     }
 
     // MARK: - Addition
 
+    /// Adds the given contact pairs to the archive.
+    ///
+    /// Pairs already present in the archive are skipped; otherwise, any existing pair for the
+    /// same contact identifier is replaced. Adding values clears the contact image cache and
+    /// notifies observers that the archive changed.
+    ///
+    /// - Parameter contactPairs: The contact pairs to add.
     func addValues(_ contactPairs: [ContactPair]) {
         var values = archive
 
@@ -81,6 +97,9 @@ final class ContactPairArchiveService {
 
     // MARK: - Removal
 
+    /// Removes every contact pair from the archive.
+    ///
+    /// Clearing the archive also clears the contact image cache. Observers are not notified.
     func clearArchive() {
         archive = []
         cachedContactPairsForPhoneNumbers = nil
@@ -89,6 +108,15 @@ final class ContactPairArchiveService {
 
     // MARK: - Retrieval
 
+    /// Returns the archived contact pair for the given phone number.
+    ///
+    /// Lookups match against each pair's compiled number strings and are memoized per phone
+    /// number.
+    ///
+    /// - Parameter phoneNumber: The phone number for which to retrieve a contact pair.
+    ///
+    /// - Returns: The contact pair whose numbers include the given phone number; otherwise,
+    ///   `nil` if no match exists.
     func getValue(phoneNumber: PhoneNumber) -> ContactPair? {
         if let cachedContactPairsForPhoneNumbers,
            let cachedValue = cachedContactPairsForPhoneNumbers[phoneNumber.compiledNumberString] {

@@ -9,8 +9,14 @@
 /* Native */
 import Foundation
 
+/// The context needed to transcribe an audio message.
 struct AudioMessageTranscriptionData {
+    /// The ID key of the conversation containing the message.
     let conversationIDKey: String
+
+    /// The audio file to transcribe.
     let inputFile: AudioFile
+
+    /// A Boolean value that indicates whether the conversation is a PenPals conversation.
     let isPenPalsConversation: Bool
 }

@@ -14,6 +14,10 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A rounded square icon with a configurable overlay.
+///
+/// Use ``SquareIconView`` to display a colored, rounded square containing an image resource,
+/// a symbol, or text, as described by its configuration.
 struct SquareIconView: View {
     // MARK: - Constants Accessors
 
@@ -26,12 +30,16 @@ struct SquareIconView: View {
 
     // MARK: - Init
 
+    /// Creates a square icon with the given configuration.
+    ///
+    /// - Parameter configuration: The configuration that describes the icon.
     init(_ configuration: Configuration) {
         self.configuration = configuration
     }
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         Rectangle()
             .frame(
@@ -112,6 +120,13 @@ struct SquareIconView: View {
 
     // MARK: - UIImage Representation
 
+    /// Returns the icon for the given configuration, rendered as an image.
+    ///
+    /// Rendered images are cached in memory per configuration.
+    ///
+    /// - Parameter configuration: The configuration that describes the icon.
+    ///
+    /// - Returns: The rendered image; otherwise, `nil` if rendering fails.
     static func image(_ configuration: Configuration) -> UIImage? {
         // swiftlint:disable:next identifier_name
         if let cachedSquareIconImagesForConfigurationEncodedHashes = _SquareIconImageCache.cachedSquareIconImagesForConfigurationEncodedHashes,
@@ -127,7 +142,9 @@ struct SquareIconView: View {
     }
 }
 
+/// A namespace for managing the in-memory square icon image cache.
 enum SquareIconImageCache {
+    /// Removes every cached square icon image.
     static func clearCache() {
         _SquareIconImageCache.clearCache()
     }

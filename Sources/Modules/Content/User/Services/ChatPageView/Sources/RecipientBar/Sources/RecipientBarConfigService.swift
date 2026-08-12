@@ -14,12 +14,21 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// The service that reconfigures the recipient bar and its message list as recipients change.
+///
+/// ``RecipientBarConfigService`` repositions the recipient bar's text field and selected-contact
+/// views as recipients are added and removed, resizes the bar to fit them across multiple rows,
+/// and resolves the current conversation from the selected contacts.
 @MainActor
 final class RecipientBarConfigService {
     // MARK: - Types
 
+    /// A way of locating a selected-contact view within the recipient bar.
     enum ContactViewSpacialConfiguration {
+        /// The trailing-most contact view, optionally restricted to the given row.
         case furthestTrailing(onSublevel: Int? = nil)
+
+        /// The trailing-most contact view on the same row as the text field.
         case onSameLevelAsTextField
     }
 
@@ -40,12 +49,20 @@ final class RecipientBarConfigService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - First Contact View
 
+    /// Returns the selected-contact view matching the given spatial configuration.
+    ///
+    /// - Parameter configuration: The way of locating the view within the recipient bar.
+    ///
+    /// - Returns: The matching contact view, or `nil` if none is found.
     func firstContactView(_ configuration: ContactViewSpacialConfiguration) -> UIView? {
         guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView else { return nil }
         typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.ContactSelectionUI
@@ -67,6 +84,12 @@ final class RecipientBarConfigService {
 
     // MARK: - Reconfigure Collection View
 
+    /// Resolves the current conversation from the selected contacts and reloads the message list
+    /// to match.
+    ///
+    /// When the selected contacts match an existing conversation, that conversation becomes
+    /// current; otherwise, an empty or provisional conversation is set up in its place. The
+    /// message list is reloaded when the resolved conversation differs from the previous one.
     func reconfigureCollectionView() {
         var shouldReload = false
 
@@ -140,6 +163,8 @@ final class RecipientBarConfigService {
 
     // MARK: - Reconfigure Last Contact View
 
+    /// Resizes the contact view on the text field's row to fit its label, trimming any trailing
+    /// comma.
     func reconfigureLastContactView() {
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.ContactSelectionUI
         typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.ContactSelectionUI
@@ -167,6 +192,9 @@ final class RecipientBarConfigService {
 
     // MARK: - Reconfigure Recipient Bar
 
+    /// Resizes the recipient bar to accommodate the given number of contact-view rows.
+    ///
+    /// - Parameter sublevel: The number of rows of contact views to accommodate.
     func reconfigureRecipientBar(forSublevel sublevel: Int) {
         guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView,
               let tableView = chatPageViewService.recipientBar?.layout.tableView else { return }
@@ -179,6 +207,11 @@ final class RecipientBarConfigService {
 
     // MARK: - Reconfigure Text Field
 
+    /// Repositions the text field to follow the given view, sizing it to fill the remaining width
+    /// of its row.
+    ///
+    /// - Parameter view: The view the text field should follow, such as the trailing-most
+    ///   contact view.
     func reconfigureTextField(relativeTo view: UIView) {
         guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView,
               let textField = chatPageViewService.recipientBar?.layout.textField,

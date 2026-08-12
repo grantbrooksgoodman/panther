@@ -17,6 +17,7 @@ import AppSubsystem
 import InputBarAccessoryView
 
 extension InputStackView {
+    /// The attach-media button in the stack, if present.
     var attachMediaButton: UIButton? {
         typealias Strings = AppConstants.Strings.ChatPageViewService.InputBar
         return firstSubview(for: Strings.attachMediaButtonSemanticTag) as? UIButton

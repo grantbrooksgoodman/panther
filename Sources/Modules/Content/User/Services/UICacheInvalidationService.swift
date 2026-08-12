@@ -12,6 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// The service that invalidates display caches in response to session store changes.
+///
+/// Use ``UICacheInvalidationService`` to keep derived display data – conversation cell view
+/// data, read receipts, and user display names – consistent with the session store. Changes
+/// are handled after a short delay; rapid successive changes coalesce into a single
+/// invalidation. Group conversation names are also mirrored to shared app-group storage so
+/// the notification extension can resolve them.
 @MainActor
 final class UICacheInvalidationService {
     // MARK: - Dependencies
@@ -36,10 +43,12 @@ final class UICacheInvalidationService {
 
     // MARK: - Methods
 
+    /// Mirrors the current group conversation names to shared app-group storage.
     func refreshNotificationExtensionNameMap() {
         persistValuesForNotificationExtension()
     }
 
+    /// Begins observing session store changes, if not already observing.
     func startObserving() {
         guard sessionStoreChangeTask == nil else { return }
         sessionStoreChangeTask = Task { [weak self] in
@@ -180,7 +189,9 @@ private extension UICacheInvalidationService {
     }
 }
 
+/// The dependency key that resolves ``UICacheInvalidationService``.
 enum UICacheInvalidationServiceDependency: DependencyKey {
+    /// Returns the shared UI cache invalidation service instance.
     static func resolve(_: DependencyValues) -> UICacheInvalidationService {
         // swiftformat:disable all
         @MainActorIsolated var uiCacheInvalidationService = UICacheInvalidationService.shared
@@ -189,6 +200,7 @@ enum UICacheInvalidationServiceDependency: DependencyKey {
 }
 
 extension DependencyValues {
+    /// The service that invalidates display caches in response to session store changes.
     var uiCacheInvalidationService: UICacheInvalidationService {
         get { self[UICacheInvalidationServiceDependency.self] }
         set { self[UICacheInvalidationServiceDependency.self] = newValue }

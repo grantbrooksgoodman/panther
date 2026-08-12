@@ -19,6 +19,12 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+/// The service that handles media attachment actions.
+///
+/// ``MediaActionHandlerService`` presents the attach-media action sheet, then, based on the
+/// user's choice, presents the camera, document, or photo-and-video picker. It processes the
+/// selected item – compressing images and videos and generating thumbnails where needed – and
+/// sends it as a media message.
 @MainActor
 final class MediaActionHandlerService {
     // MARK: - Constants Accessors
@@ -37,16 +43,24 @@ final class MediaActionHandlerService {
 
     private let viewController: ChatPageViewController
 
+    /// A Boolean value that indicates whether a content picker is currently presented.
     private(set) var isPresentingPickerController = false
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Attach Media Button Tapped
 
+    /// Presents the attach-media action sheet.
+    ///
+    /// The sheet offers to take a photo, select a document, or select a photo or video;
+    /// choosing an option presents the corresponding picker.
     func attachMediaButtonTapped() {
         services.haptics.generateFeedback(.medium)
 

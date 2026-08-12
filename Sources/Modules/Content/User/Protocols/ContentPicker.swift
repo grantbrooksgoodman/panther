@@ -13,15 +13,29 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
+/// The interface for views that pick content and report results through handlers.
 protocol ContentPicker<Content> {
+    /// The type of content the picker selects.
     associatedtype Content
 
+    /// The handler that runs when the picker is dismissed, receiving an `Exception` if
+    /// selection failed; otherwise, `nil`.
     var onDismiss: (Exception?) -> Void { get }
+
+    /// The handler that receives the selected content.
     var onSelection: (Content) -> Void { get }
 }
 
 @MainActor
 extension ContentPicker {
+    /// Assigns the given context's coordinator as the presentation controller delegate of the
+    /// presented hierarchy, so dismissal gestures reach the coordinator.
+    ///
+    /// The delegate is assigned to the SwiftUI presentation hosting controllers when present;
+    /// otherwise, to every presented controller.
+    ///
+    /// - Parameter context: The representable context whose coordinator receives the
+    ///   delegate callbacks.
     func setPresentationControllerDelegate<T>(
         _ context: UIViewControllerRepresentableContext<T>
     ) where T.Coordinator: UIAdaptivePresentationControllerDelegate {

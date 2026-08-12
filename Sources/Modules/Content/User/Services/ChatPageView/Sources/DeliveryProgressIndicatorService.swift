@@ -13,6 +13,11 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// The service that manages the message delivery progress bar.
+///
+/// ``DeliveryProgressIndicatorService`` drives the thin progress bar shown while a message is
+/// being sent. It reveals the bar after a short delay, advances it toward – but not past – a
+/// threshold on a timer, and completes and hides it once delivery finishes.
 @MainActor
 final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
     // MARK: - Constants Accessors
@@ -48,6 +53,9 @@ final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
 
     // MARK: - Object Lifecycle
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
@@ -63,6 +71,9 @@ final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
 
     // MARK: - Internal
 
+    /// Advances the progress bar by the given amount, animating the change.
+    ///
+    /// - Parameter by: The amount to add to the current progress.
     func incrementDeliveryProgress(by: Float) {
         guard let progressView else { return }
         UIView.animate(withDuration: Floats.animationDuration) {
@@ -70,11 +81,13 @@ final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
         }
     }
 
+    /// Begins revealing and advancing the progress bar after a short delay.
     func startAnimatingDeliveryProgress() {
         instantiateDeliveryProgressTimer(Floats.hiddenTimerTimeInterval)
         instantiateAppearanceTimer()
     }
 
+    /// Completes the progress bar, then fades it out and resets it.
     func stopAnimatingDeliveryProgress() {
         deliveryProgressTimer?.invalidate()
         deliveryProgressTimer = nil
@@ -90,6 +103,9 @@ final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
         }
     }
 
+    /// Sets the vertical position of the progress bar.
+    ///
+    /// - Parameter yOrigin: The vertical origin to apply to the progress bar.
     func updateYOrigin(_ yOrigin: CGFloat) {
         progressView?.frame.origin.y = yOrigin
     }

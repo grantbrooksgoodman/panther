@@ -14,6 +14,10 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A labeled progress bar showing data usage against a limit.
+///
+/// Use ``DataUsageView`` to display a usage amount as a percentage and formatted size above a
+/// progress bar whose color reflects how close the usage is to the limit.
 struct DataUsageView: View {
     // MARK: - Constants Accessors
 
@@ -64,6 +68,12 @@ struct DataUsageView: View {
 
     // MARK: - Init
 
+    /// Creates a data usage view.
+    ///
+    /// - Parameters:
+    ///   - labelText: The text the label displays before the usage figures.
+    ///   - dataUsageInKilobytes: The amount of data used, in kilobytes.
+    ///   - usageLimitInKilobytes: The limit against which usage is measured, in kilobytes.
     init(
         labelText: String = Strings.defaultLabelText,
         dataUsageInKilobytes: Int,
@@ -76,6 +86,7 @@ struct DataUsageView: View {
 
     // MARK: - Body
 
+    /// The content and behavior of the view.
     var body: some View {
         VStack(
             alignment: .leading,

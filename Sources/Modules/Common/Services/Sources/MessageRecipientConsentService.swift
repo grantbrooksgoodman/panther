@@ -15,6 +15,12 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+/// Use ``MessageRecipientConsentService`` to manage the message recipient consent flow.
+///
+/// Users can require that conversation initiators request consent to message them. In a
+/// conversation that requires it, the initiator sends a consent request message; recipients
+/// acknowledge the request, and once every recipient has acknowledged, the requirement is
+/// lifted for the conversation.
 @MainActor
 final class MessageRecipientConsentService {
     // MARK: - Dependencies
@@ -27,6 +33,15 @@ final class MessageRecipientConsentService {
 
     // MARK: - Send Consent Message in Current Conversation
 
+    /// Sends a consent message in the current conversation.
+    ///
+    /// If the current user is the initiator from whom consent is required, this method sends
+    /// the consent request message directly. Otherwise, it presents an action sheet allowing
+    /// the user to acknowledge the request; acknowledging records the acknowledgement in the
+    /// conversation's metadata and sends the acknowledgement message.
+    ///
+    /// - Throws: An `Exception` if the current conversation or current user cannot be
+    ///   resolved, or if sending fails.
     func sendConsentMessageInCurrentConversation() async throws(Exception) {
         guard let conversation = entitySession.conversation.currentConversation,
               let currentUser = entitySession.user.currentUser else {
@@ -98,6 +113,14 @@ final class MessageRecipientConsentService {
 
     // MARK: - Set Message Recipient Consent Required
 
+    /// Records whether the current user requires message recipient consent.
+    ///
+    /// The choice is persisted to the current user's remote record.
+    ///
+    /// - Parameter messageRecipientConsentRequired: A Boolean value that indicates whether
+    ///   consent is required before other users can message the current user.
+    ///
+    /// - Throws: An `Exception` if the current user has not been set, or if the update fails.
     func setMessageRecipientConsentRequired(
         _ messageRecipientConsentRequired: Bool
     ) async throws(Exception) {

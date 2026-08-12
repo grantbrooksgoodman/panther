@@ -13,10 +13,12 @@ import UIKit
 extension UIFont {
     // MARK: - Properties
 
+    /// A bold version of the font.
     var bolded: UIFont {
         withTraits(traits: .traitBold)
     }
 
+    /// An italic version of the font.
     var italicized: UIFont {
         withTraits(traits: .traitItalic)
     }

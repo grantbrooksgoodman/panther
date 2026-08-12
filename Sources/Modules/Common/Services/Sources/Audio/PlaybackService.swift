@@ -13,6 +13,12 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// Use ``PlaybackService`` to play audio files from disk.
+///
+/// The service plays one file at a time through a shared queue player; starting playback
+/// replaces whatever is currently playing. Register one-shot effects to respond to playback
+/// ending with ``onFinishedPlaying(_:)``, ``onFailedToFinishPlaying(_:)``, and
+/// ``onStopPlaying(_:)``.
 final class PlaybackService {
     // MARK: - Dependencies
 
@@ -23,6 +29,8 @@ final class PlaybackService {
 
     // MARK: - Properties
 
+    /// The player item currently loaded for playback, or `nil` when playback has finished,
+    /// failed, or been stopped.
     private(set) var currentPlayerItem: AVPlayerItem?
 
     private var failedToFinishPlayingEffect: (() -> Void)?
@@ -31,6 +39,7 @@ final class PlaybackService {
 
     // MARK: - Computed Properties
 
+    /// A Boolean value that indicates whether audio is currently queued for playback.
     var isPlaying: Bool {
         !avQueuePlayer.items().isEmpty
     }
@@ -53,6 +62,15 @@ final class PlaybackService {
 
     // MARK: - Playback
 
+    /// Plays the audio file at the given URL.
+    ///
+    /// This method activates the shared audio session and replaces any playback currently in
+    /// progress.
+    ///
+    /// - Parameter url: The URL of the audio file to play.
+    ///
+    /// - Throws: An `Exception` if no file exists at the given URL, or if the audio session
+    ///   cannot be activated.
     func playAudio(url: URL) throws(Exception) {
         guard fileManager.fileExists(atPath: url.path()) ||
             fileManager.fileExists(atPath: url.path(percentEncoded: false)) else {
@@ -74,6 +92,10 @@ final class PlaybackService {
         avQueuePlayer.play()
     }
 
+    /// Stops playback and clears the player queue.
+    ///
+    /// Stopping playback runs the effect registered with ``onStopPlaying(_:)``; it does not run
+    /// the effects registered with ``onFinishedPlaying(_:)`` or ``onFailedToFinishPlaying(_:)``.
     func stopPlaying() {
         avQueuePlayer.removeAllItems()
         didStopPlaying()
@@ -81,17 +103,29 @@ final class PlaybackService {
 
     // MARK: - Side Effects
 
-    /// Sets an effect to be run once, upon the next posting of `AVPlayerItemFailedToPlayToEndTime` notification.
+    /// Registers an effect to run once, the next time playback fails to finish.
+    ///
+    /// The effect is cleared after it runs. Registering a new effect replaces any existing one.
+    ///
+    /// - Parameter effect: The effect to run.
     func onFailedToFinishPlaying(_ effect: @escaping () -> Void) {
         failedToFinishPlayingEffect = effect
     }
 
-    /// Sets an effect to be run once, upon the next posting of `AVPlayerItemDidPlayToEndTime` notification.
+    /// Registers an effect to run once, the next time playback finishes.
+    ///
+    /// The effect is cleared after it runs. Registering a new effect replaces any existing one.
+    ///
+    /// - Parameter effect: The effect to run.
     func onFinishedPlaying(_ effect: @escaping () -> Void) {
         finishedPlayingEffect = effect
     }
 
-    /// Sets an effect to be run once, upon the next call to `stopPlaying()`.
+    /// Registers an effect to run once, upon the next call to ``stopPlaying()``.
+    ///
+    /// The effect is cleared after it runs. Registering a new effect replaces any existing one.
+    ///
+    /// - Parameter effect: The effect to run.
     func onStopPlaying(_ effect: @escaping () -> Void) {
         stopPlayingEffect = effect
     }

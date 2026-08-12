@@ -17,6 +17,12 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+/// The service that drives the conversations page's lifecycle, prompts, and data reloads.
+///
+/// Use ``ConversationsPageViewService`` to respond to the conversations page's lifecycle and
+/// user interactions: it configures the page's appearance, evaluates startup prompts, reloads
+/// conversation data on pull-to-refresh, and keeps the open chat page consistent with session
+/// store changes.
 @MainActor
 final class ConversationsPageViewService {
     // MARK: - Types
@@ -71,6 +77,11 @@ final class ConversationsPageViewService {
 
     // MARK: - View Lifecycle
 
+    /// Responds to the conversations page appearing.
+    ///
+    /// This method applies the page's navigation bar and status bar appearance, starts
+    /// observing current-user changes, and registers the device's push token for the current
+    /// user.
     func viewAppeared() {
         didShowSecondsToLoadToast = false
         NavigationBar.setAppearance(.conversationsPageView)
@@ -91,11 +102,17 @@ final class ConversationsPageViewService {
         }
     }
 
+    /// Responds to the conversations page disappearing, reapplying the app-aware status bar
+    /// style.
     func viewDisappeared() {
         StatusBar.overrideStyle(.appAware)
     }
 
-    /// `.resolveReturned`
+    /// Responds to the conversations page finishing its initial load.
+    ///
+    /// This method clears temporary database caches, evaluates the startup prompt flow after
+    /// a short delay, and registers the connection status effects that check for updates when
+    /// connectivity is restored and show an offline toast when it is lost.
     func viewLoaded() {
         networking.database.clearTemporaryCaches()
 
@@ -107,6 +124,10 @@ final class ConversationsPageViewService {
         enableOfflineModeSideEffects()
     }
 
+    /// Reapplies the page's appearance after a trait collection change.
+    ///
+    /// If the chat page is presented, the update is deferred until it closes; if a sheet is
+    /// presented, the update is skipped.
     func traitCollectionChanged() {
         guard !chatPageState.isPresented else {
             return chatPageState.addEffectUponIsPresented(
@@ -128,6 +149,10 @@ final class ConversationsPageViewService {
 
     // MARK: - Reducer Action Handlers
 
+    /// Performs the developer-mode conversation deletion action.
+    ///
+    /// The current user's conversations are resolved before the action performs; failures
+    /// surface as a toast.
     func deleteConversationsToolbarButtonTapped() {
         Task { @MainActor in
             do throws(Exception) {
@@ -149,9 +174,14 @@ final class ConversationsPageViewService {
         }
     }
 
-    /// Handles chat-page–specific behaviors (read receipts, badge number,
-    /// 1:1 read-receipt re-fetch, navigation title, consent button) in
-    /// response to debounced store changes.
+    /// Keeps the open chat page consistent with a session store change.
+    ///
+    /// If a message is being sent, handling is deferred until the send completes. Otherwise,
+    /// this method re-fetches the last message of one-to-one conversations to pick up read
+    /// receipt changes, marks unread messages as read – updating the app badge – and
+    /// refreshes the chat page's navigation title and consent button as needed.
+    ///
+    /// If the chat page is not presented, this method does nothing.
     func handleChatPageStoreChange() {
         guard chatPageState.isPresented else { return }
         guard !messageDeliveryService.isSendingMessage else {
@@ -239,13 +269,21 @@ final class ConversationsPageViewService {
         }
     }
 
-    /// `.pulledToRefresh`
+    /// Reloads conversation data in response to a pull-to-refresh.
+    ///
+    /// Successive refreshes rotate through three reload depths: a full reload, which force
+    /// updates a shuffled third of the user's conversations; a partial reload, which force
+    /// updates only the most recent conversation; and a minimal reload, which force updates
+    /// none. Every refresh re-resolves the current user's data and periodically syncs the
+    /// contact pair archive.
+    ///
+    /// - Throws: An `Exception` if resolving user data or syncing contacts fails.
     func reloadData() async throws(Exception) {
         defer { reloadingConversationIDKeys = [] }
         try await reloadData(type: currentReloadType)
     }
 
-    /// `.composeToolbarButtonTapped`
+    /// Presents the storage warning alert describing the user's data usage.
     func storageFullButtonTapped() {
         Task {
             await dataUsageService.presentStorageWarningAlert()
@@ -254,6 +292,10 @@ final class ConversationsPageViewService {
 
     // MARK: - Auxiliary
 
+    /// Logs how long the app's content took to load, once per page appearance.
+    ///
+    /// The report includes per-conversation load time and a breakdown of the user's messages
+    /// by content type. On prerelease builds, the report also appears as a toast.
     func showSecondsToLoadToastIfNeeded() {
         guard !didShowSecondsToLoadToast else { return }
         didShowSecondsToLoadToast = true

@@ -15,6 +15,11 @@ import Foundation
 import AlertKit
 import AppSubsystem
 
+/// Use ``MediaPickerService`` to choose a photo or video from the user's photo library.
+///
+/// Call ``present()`` to show the picker, and register a dismissal handler with
+/// ``onDismiss(_:)`` to receive the selected item. Selected videos are copied to the app's
+/// temporary directory before delivery.
 @MainActor
 final class MediaPickerService: PHPickerViewControllerDelegate {
     // MARK: - Dependencies
@@ -29,10 +34,12 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
 
     // MARK: - Init
 
+    /// Creates a media picker service.
     nonisolated init() {}
 
     // MARK: - Present
 
+    /// Presents the system photo library picker.
     func present() {
         let viewController = PHPickerViewController(configuration: .init())
         viewController.delegate = self
@@ -41,12 +48,23 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
 
     // MARK: - On Dismiss
 
+    /// Registers a handler to run when the picker is dismissed.
+    ///
+    /// The handler receives the selected item on success, a failure if processing fails, or
+    /// `nil` if the user cancels. The handler is cleared after it runs. Registering a new
+    /// handler replaces any existing one.
+    ///
+    /// - Parameter perform: The handler to run.
     func onDismiss(_ perform: @escaping (Callback<ContentPickerResult, Exception>?) -> Void) {
         _onDismiss = perform
     }
 
     // MARK: - PHPickerViewControllerDelegate Conformance
 
+    /// Presents a confirmation action sheet for the first selected item, then loads it and
+    /// delivers the result to the dismissal handler.
+    ///
+    /// A modal progress indicator appears if loading takes longer than one second.
     func picker(
         _ picker: PHPickerViewController,
         didFinishPicking results: [PHPickerResult]

@@ -14,6 +14,18 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// The reducer that drives the reaction details page.
+///
+/// This page lists the reactions on a message, grouped by reaction, showing which participants
+/// reacted with each. The message is the one whose context menu the reaction details were opened
+/// from.
+///
+/// The page's behavior contract:
+///
+/// - On appearance, the page dismisses the keyboard.
+/// - The list shows one row per reaction style, each displaying the names of the participants who
+///   reacted with it.
+/// - Tapping done dismisses the page.
 struct ReactionDetailsPageReducer: Reducer {
     // MARK: - Dependencies
 
@@ -22,23 +34,35 @@ struct ReactionDetailsPageReducer: Reducer {
 
     // MARK: - Actions
 
+    /// The actions the reaction details page can process.
     enum Action {
+        /// An action that indicates the view appeared. Dismisses the keyboard.
         case viewAppeared
+
+        /// An action that indicates the view disappeared. Restores the chat page's navigation bar
+        /// appearance when applicable.
         case viewDisappeared
 
+        /// An action that indicates the user tapped the done header item. Dismisses the page.
         case doneHeaderItemTapped
+
+        /// An action that rebuilds the page's content from the latest values.
         case updateViewID
     }
 
     // MARK: - State
 
+    /// The state of the reaction details page.
     struct State: Equatable {
         /* MARK: Properties */
 
+        /// The identity of the page's content. Regenerated to rebuild it from the latest values.
         var viewID = UUID()
 
         /* MARK: Computed Properties */
 
+        /// The list rows describing the message's reactions, one per reaction style, each showing
+        /// the names of the participants who reacted with it.
         @MainActor
         var listItems: [ListRowView.Configuration] {
             @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
@@ -89,6 +113,7 @@ struct ReactionDetailsPageReducer: Reducer {
                 .map(\.1)
         }
 
+        /// The page's navigation title.
         var navigationTitle: String {
             let localizedString = Localized(
                 .reactionDetails
@@ -100,6 +125,13 @@ struct ReactionDetailsPageReducer: Reducer {
 
     // MARK: - Reduce
 
+    /// Updates the page's state in response to the given action, returning any effect to run.
+    ///
+    /// - Parameters:
+    ///   - state: The page's current state, mutated in place.
+    ///   - action: The action to process.
+    ///
+    /// - Returns: An effect for the system to run, or `.none`.
     func reduce(
         into state: inout State,
         action: Action

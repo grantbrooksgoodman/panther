@@ -10,6 +10,7 @@
 import Foundation
 
 extension Activity.Action {
+    /// A Boolean value that indicates whether the action added the current user to a conversation.
     var isCurrentUserAdded: Bool {
         switch self {
         case let .addedToConversation(userID: userID): userID == User.currentUserID

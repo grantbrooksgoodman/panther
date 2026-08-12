@@ -13,6 +13,11 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// Use ``RecordingService`` to record audio from the device microphone.
+///
+/// The service records M4A audio to a fixed file in the app's Documents directory; starting a
+/// new recording overwrites the previous one. When an audio session interruption begins, any
+/// in-progress recording stops automatically.
 @MainActor
 final class RecordingService: NSObject {
     // MARK: - Type Aliases
@@ -28,6 +33,10 @@ final class RecordingService: NSObject {
 
     // MARK: - Properties
 
+    /// A Boolean value that indicates whether a recording is about to begin or is in progress.
+    ///
+    /// This value becomes `true` as soon as ``startRecording(bufferSink:)`` is called and
+    /// remains `true` until the recording stops.
     private(set) var willStartRecording = false
 
     private let outputFile = LockIsolated<AVAudioFile?>(nil)
@@ -36,6 +45,7 @@ final class RecordingService: NSObject {
 
     // MARK: - Computed Properties
 
+    /// A Boolean value that indicates whether a recording is in progress.
     var isRecording: Bool {
         audioEngine?.isRunning ?? false
     }
@@ -53,6 +63,10 @@ final class RecordingService: NSObject {
 
     // MARK: - Recording
 
+    /// Stops the current recording and deletes its output file.
+    ///
+    /// - Throws: An `Exception` if no recording is in progress, or if the output file cannot be
+    ///   deleted.
     func cancelRecording() throws(Exception) {
         let url = try stopRecording()
         guard fileManager.fileExists(atPath: url.path()) ||
@@ -72,6 +86,17 @@ final class RecordingService: NSObject {
         }
     }
 
+    /// Starts recording audio from the device microphone.
+    ///
+    /// This method activates the shared audio session and writes M4A audio to a fixed file in
+    /// the app's Documents directory, overwriting any previous recording. If a write fails
+    /// mid-recording, the recording stops and the failure is logged.
+    ///
+    /// - Parameter bufferSink: A closure that receives each captured audio buffer as it is
+    ///   written, suitable for feeding a ``LiveTranscriptionSession``. The default is `nil`.
+    ///
+    /// - Throws: An `Exception` if the audio session cannot be activated, or if recording fails
+    ///   to start.
     func startRecording(
         bufferSink: (@Sendable (AVAudioPCMBuffer) -> Void)? = nil
     ) throws(Exception) {
@@ -143,6 +168,13 @@ final class RecordingService: NSObject {
         startObservingInterruptions()
     }
 
+    /// Stops the current recording.
+    ///
+    /// The output file is finalized before this method returns.
+    ///
+    /// - Returns: The URL of the finalized recording file.
+    ///
+    /// - Throws: An `Exception` if no recording is in progress.
     func stopRecording() throws(Exception) -> URL {
         willStartRecording = false
         stopObservingInterruptions()

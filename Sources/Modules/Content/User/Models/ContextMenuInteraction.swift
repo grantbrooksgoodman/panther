@@ -12,15 +12,22 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// A namespace controlling whether message context menu interactions may begin.
+@MainActor
 enum ContextMenuInteraction {
     // MARK: - Properties
 
-    @MainActor
+    /// A Boolean value that indicates whether context menu interactions may begin.
     private(set) static var canBegin = true
 
     // MARK: - Methods
 
-    @MainActor
+    /// Sets whether context menu interactions may begin.
+    ///
+    /// Enabling interactions adds the context menu interaction to visible message cells;
+    /// disabling them removes the long-press gesture from visible cells.
+    ///
+    /// - Parameter canBegin: A Boolean value that indicates whether interactions may begin.
     static func setCanBegin(_ canBegin: Bool) {
         @Dependency(\.chatPageViewService.contextMenu?.interaction) var contextMenuInteractionService: ContextMenuInteractionService?
         self.canBegin = canBegin

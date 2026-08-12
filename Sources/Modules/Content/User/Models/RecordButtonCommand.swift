@@ -9,8 +9,14 @@
 /* Native */
 import Foundation
 
+/// A command issued by the record button.
 enum RecordButtonCommand {
+    /// Stops the recording and deletes its output file.
     case cancelRecording
+
+    /// Starts recording audio.
     case startRecording
+
+    /// Stops the recording, keeping its output file.
     case stopRecording
 }

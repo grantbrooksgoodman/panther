@@ -15,6 +15,23 @@ import AppSubsystem
 import Networking
 import Translator
 
+/// The reducer that drives the feature permission page.
+///
+/// This page presents a sequence of feature-permission prompts, one per step. Each step shows a
+/// title, subtitle, and icon, and offers to enable or decline the corresponding feature. The user
+/// pages through the prompts; enabling or declining advances to the next step, and advancing past
+/// the last step dismisses the page.
+///
+/// The page's behavior contract:
+///
+/// - On appearance, the page resolves translations for every step's title and subtitle text,
+///   remaining in the loading state until they resolve. If resolution fails, the page falls back
+///   to the untranslated text.
+/// - Each step displays the current prompt's title, subtitle, icon, and accent color.
+/// - Tapping enable runs the current prompt's enable action; tapping decline runs its decline
+///   action. Both advance to the next step, and advancing past the last step dismisses the page.
+/// - The enable and decline buttons are not interactive on steps whose feature has already been
+///   enabled.
 struct FeaturePermissionPageReducer: Reducer {
     // MARK: - Types
 
@@ -29,26 +46,53 @@ struct FeaturePermissionPageReducer: Reducer {
 
     // MARK: - Actions
 
+    /// The actions the feature permission page can process.
     enum Action {
+        /// An action that indicates the view appeared. Begins resolving translations for the
+        /// steps' text.
         case viewAppeared
 
+        /// An action that indicates the displayed step changed, carrying the new index.
         case currentIndexChanged(Int)
+
+        /// An action that indicates the user tapped the decline button. Runs the current step's
+        /// decline action and advances to the next step.
         case declineButtonTapped
+
+        /// An action that indicates the user tapped the enable button. Runs the current step's
+        /// enable action and advances to the next step.
         case enableButtonTapped
+
+        /// An action that indicates translation resolution failed, carrying the resulting
+        /// `Exception`. Falls back to the untranslated text.
         case getTranslationsFailed(Exception)
+
+        /// An action that indicates translation resolution succeeded, carrying the resolved
+        /// translations.
         case getTranslationsReturned([Translation])
+
+        /// An action that indicates the user tapped the page indicator. Moves forward when in the
+        /// first half of the steps, or backward otherwise.
         case pageIndicatorTapped
     }
 
     // MARK: - State
 
+    /// The state of the feature permission page.
     struct State: Equatable {
         /* MARK: Properties */
 
+        /// The permission prompts to present, one per step.
         let configurations: [FeaturePermissionPageView.Configuration]
 
+        /// The index of the step currently displayed.
         var currentIndex = 0
+
+        /// A Boolean value that indicates whether the enable and decline buttons are interactive.
+        /// Not interactive on steps whose feature has already been enabled.
         var isButtonInteractionEnabled = true
+
+        /// The page's loading state. Remains `loading` until the steps' text is resolved.
         var viewState: StatefulView.ViewState = .loading
 
         fileprivate var previouslyEnabledIndices = [Int]()
@@ -57,15 +101,18 @@ struct FeaturePermissionPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        /// The accent color for the current step.
         @MainActor
         var accentColor: Color {
             currentConfig.accentColor ?? .init(uiColor: .accentOrSystemBlue)
         }
 
+        /// The icon configuration for the current step.
         var iconConfig: SquareIconView.Configuration {
             currentConfig.iconConfig
         }
 
+        /// The subtitle text for the current step, translated when available.
         var subtitleText: String {
             (
                 resolvedSubtitleText.itemAt(currentIndex) ??
@@ -73,6 +120,7 @@ struct FeaturePermissionPageReducer: Reducer {
             ).sanitized
         }
 
+        /// The title text for the current step, translated when available.
         var titleText: String {
             (
                 resolvedTitleText.itemAt(currentIndex) ??
@@ -86,6 +134,9 @@ struct FeaturePermissionPageReducer: Reducer {
 
         /* MARK: Init */
 
+        /// Creates a state for the given permission prompts.
+        ///
+        /// - Parameter configurations: The permission prompts to present. Must not be empty.
         init(_ configurations: [FeaturePermissionPageView.Configuration]) {
             assert(
                 !configurations.isEmpty,
@@ -98,6 +149,13 @@ struct FeaturePermissionPageReducer: Reducer {
 
     // MARK: - Reduce
 
+    /// Updates the page's state in response to the given action, returning any effect to run.
+    ///
+    /// - Parameters:
+    ///   - state: The page's current state, mutated in place.
+    ///   - action: The action to process.
+    ///
+    /// - Returns: An effect for the system to run, or `.none`.
     func reduce(
         into state: inout State,
         action: Action

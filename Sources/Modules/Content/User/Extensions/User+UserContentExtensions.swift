@@ -16,11 +16,17 @@ import AppSubsystem
 extension User {
     // MARK: - Properties
 
+    /// The contact pair matching this user in the contact pair archive, if one exists.
     var contactPair: ContactPair? {
         @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
         return contactPairArchive.getValue(phoneNumber: phoneNumber)
     }
 
+    /// The user's display name.
+    ///
+    /// Resolves to the user's obfuscated PenPals name while their identity is obfuscated, their
+    /// contact's full name when known, or their formatted phone number otherwise. Results are
+    /// cached in memory per user.
     var displayName: String {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
 
@@ -52,12 +58,16 @@ extension User {
         return formattedPhoneNumberString
     }
 
+    /// The identifier of the signed-in user, from the current session or persisted storage, or
+    /// `nil` if no user is signed in.
     static var currentUserID: String? {
         @Persistent(.currentUserID) var persistedValue: String?
         @Dependency(\.clientSession.entity.user.currentUser?.id) var sessionValue: String?
         return sessionValue ?? persistedValue
     }
 
+    /// The color of the user's PenPals icon, derived from their language or region flag, or `nil`
+    /// if one cannot be determined.
     var penPalsIconColor: UIColor? {
         (
             UIImage(
@@ -68,6 +78,7 @@ extension User {
         )?.averageColor
     }
 
+    /// The user's obfuscated PenPals display name, based on the region of their phone number.
     var penPalsName: String {
         @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
         let localizedRegionName = regionDetailService.localizedRegionName(regionCode: phoneNumber.regionCode)
@@ -76,6 +87,11 @@ extension User {
 
     // MARK: - Methods
 
+    /// Removes the device's current push token from the user's push tokens.
+    ///
+    /// This method has no effect when no current push token is available.
+    ///
+    /// - Throws: An `Exception` if updating the user fails.
     func removeCurrentPushToken() async throws(Exception) {
         @Dependency(\.commonServices.pushToken.currentToken) var currentPushToken: String?
 
@@ -92,6 +108,9 @@ extension User {
         )
     }
 
+    /// Updates the user's device identifier to the current device's, if it differs.
+    ///
+    /// - Throws: An `Exception` if updating the user fails.
     func updateDeviceIDIfNeeded() async throws(Exception) {
         if deviceID != DeviceID.current {
             _ = try await update(
@@ -102,11 +121,16 @@ extension User {
     }
 }
 
+/// A namespace for managing the in-memory user display name cache.
 enum UserDisplayNameCache {
+    /// Removes every cached user display name.
     static func clearCache() {
         _UserDisplayNameCache.clearCache()
     }
 
+    /// Removes the cached display names for the given user identifiers.
+    ///
+    /// - Parameter ids: The identifiers of the users whose cached display names to remove.
     static func removeValues(forUserIDs ids: Set<String>) {
         _UserDisplayNameCache.removeValues(forUserIDs: ids)
     }

@@ -14,6 +14,13 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A button that displays the selected region's flag and calling code, and presents a region
+/// picker when tapped.
+///
+/// Use ``RegionMenu`` alongside a phone number field to let the user choose the region their
+/// phone number belongs to. Tapping the button presents a searchable list of regions in a
+/// popover; selecting one writes the region's code to the given binding and dismisses the
+/// picker.
 struct RegionMenu: View {
     // MARK: - Constants Accessors
 
@@ -31,12 +38,16 @@ struct RegionMenu: View {
 
     // MARK: - Init
 
+    /// Creates a region menu with the given selection binding.
+    ///
+    /// - Parameter selectedRegionCode: A binding to the code of the selected region.
     init(_ selectedRegionCode: Binding<String>) {
         _selectedRegionCode = selectedRegionCode
     }
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         Button {
             isPresented.toggle()

@@ -14,6 +14,11 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A row describing a participant in a conversation.
+///
+/// Use ``ChatParticipantView`` to display a participant's avatar, display name, and user info
+/// badge, with an optional PenPals sharing status icon and an optional swipe-to-delete
+/// action.
 struct ChatParticipantView: View {
     // MARK: - Constants Accessors
 
@@ -29,6 +34,14 @@ struct ChatParticipantView: View {
 
     // MARK: - Init
 
+    /// Creates a chat participant row.
+    ///
+    /// - Parameters:
+    ///   - participant: The participant the row describes.
+    ///   - deleteAction: The action a trailing swipe performs. Pass `nil` to omit the swipe
+    ///     action.
+    ///   - userInfoBadgeViewAction: The action performed when the user taps the user info
+    ///     badge. Pass `nil` for no action.
     init(
         _ participant: ChatParticipant,
         deleteAction: (() -> Void)?,
@@ -41,6 +54,7 @@ struct ChatParticipantView: View {
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         HStack {
             AvatarImageView(

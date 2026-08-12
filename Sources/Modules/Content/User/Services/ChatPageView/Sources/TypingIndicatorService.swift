@@ -13,6 +13,15 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// The service that manages the typing indicator.
+///
+/// ``TypingIndicatorService`` keeps the displayed conversation's typing indicator in sync in both
+/// directions: it publishes the current user's typing status to the database as they type, and
+/// shows or hides the indicator as other participants begin or stop typing. Typing status is
+/// published only for two-participant conversations.
+///
+/// - Important: The current user's typing status is written with a debounce, and is deferred
+///   while a message is being sent so it does not interfere with delivery.
 final class TypingIndicatorService: @unchecked Sendable {
     // MARK: - Constants Accessors
 
@@ -64,6 +73,12 @@ final class TypingIndicatorService: @unchecked Sendable {
 
     // MARK: - Object Lifecycle
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// The service begins observing session store changes so it can show or hide the typing
+    /// indicator as other participants' typing status changes.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
         Task.delayed(by: .seconds(1)) { @MainActor in
@@ -88,6 +103,12 @@ final class TypingIndicatorService: @unchecked Sendable {
 
     // MARK: - Reset Typing Indicator Status for Current User
 
+    /// Clears the current user's typing status across every conversation in which it is set.
+    ///
+    /// Call this method to ensure the current user is not left marked as typing, such as at
+    /// launch. The status is cleared for all affected conversations in a single database write.
+    ///
+    /// - Throws: An `Exception` if the current user is not set, or if the database write fails.
     static func resetTypingIndicatorStatusForCurrentUser() async throws(Exception) {
         @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
         @Dependency(\.networking.database) var database: DatabaseDelegate
@@ -125,6 +146,16 @@ final class TypingIndicatorService: @unchecked Sendable {
 
     // MARK: - Text View Did Change
 
+    /// Updates the current user's typing status in response to a change in the message input
+    /// field.
+    ///
+    /// The user is marked as typing when the given text is non-empty, and as not typing when it
+    /// is empty. The update is debounced, and is deferred while a message is being sent. The
+    /// status is published only for two-participant conversations.
+    ///
+    /// - Parameter text: The current contents of the message input field.
+    ///
+    /// - Throws: An `Exception` if publishing the typing status fails.
     @MainActor
     func textViewDidChange(
         to text: String

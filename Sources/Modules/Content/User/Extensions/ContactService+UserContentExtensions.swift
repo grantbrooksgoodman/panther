@@ -16,6 +16,8 @@ import AppSubsystem
 extension ContactService {
     // MARK: - Properties
 
+    /// A Boolean value that indicates whether the contact pair archive contains any contacts
+    /// besides the current user.
     var hasContactsBesidesCurrentUser: Bool {
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
         guard let contactPairArchive,
@@ -25,6 +27,19 @@ extension ContactService {
 
     // MARK: - Methods
 
+    /// Returns the first system contact matching the given phone number.
+    ///
+    /// When no contacts are cached, this method synchronizes the contact pair archive and
+    /// retries once.
+    ///
+    /// - Parameters:
+    ///   - phoneNumber: The phone number to match.
+    ///   - returnForEmptyCachedCNContacts: A Boolean value that determines whether to throw,
+    ///     rather than synchronize and retry, when no contacts are cached.
+    ///
+    /// - Returns: The first system contact matching the phone number.
+    ///
+    /// - Throws: An `Exception` if no matching contact is found or synchronization fails.
     func firstCNContact(
         for phoneNumber: PhoneNumber,
         returnForEmptyCachedCNContacts: Bool = false
@@ -76,6 +91,10 @@ extension ContactService {
         return match
     }
 
+    /// Synchronizes the contact pair archive when it is empty and contact permission has been
+    /// granted.
+    ///
+    /// - Throws: An `Exception` if synchronization fails.
     static func syncIfNeeded() async throws(Exception) {
         @Dependency(\.commonServices) var services: CommonServices
 

@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// The service that generates the invite QR code page's content.
 @MainActor
 struct InviteQRCodePageViewService {
     // MARK: - Dependencies
@@ -22,6 +23,8 @@ struct InviteQRCodePageViewService {
 
     // MARK: - Properties
 
+    /// A QR code image encoding the app's share link, or `nil` if the link has not been
+    /// resolved or generation fails.
     var appShareQRCodeImage: UIImage? {
         guard let appShareLink else { return nil }
         return generateQRCode(from: appShareLink.absoluteString, outputSize: .init(width: 500, height: 500))

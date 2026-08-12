@@ -17,6 +17,11 @@ import Networking
 /* 3rd-party */
 import MessageKit
 
+/// A horizontal strip of emoji reaction buttons for the selected message.
+///
+/// ``ReactionsViewController`` appears alongside a message's context menu. Tapping a reaction
+/// forwards the selection to the context menu interaction service; use ``markSelected(_:)``
+/// and ``deselectAllReactions()`` to reflect the current selection.
 final class ReactionsViewController: UIViewController {
     // MARK: - Constants Accessors
 
@@ -44,6 +49,7 @@ final class ReactionsViewController: UIViewController {
 
     // MARK: - View Did Load
 
+    /// Configures the reaction strip and its preferred content size after the view loads.
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpView()
@@ -53,12 +59,16 @@ final class ReactionsViewController: UIViewController {
 
     // MARK: - Reaction Selection
 
+    /// Restores every reaction button to its unselected background.
     func deselectAllReactions() {
         for subview in stackView.subviews {
             subview.backgroundColor = Colors.reactionButtonBackground
         }
     }
 
+    /// Highlights the button for the given reaction style with its selected background.
+    ///
+    /// - Parameter reactionStyle: The reaction style to mark as selected.
     func markSelected(_ reactionStyle: Reaction.Style) {
         stackView
             .subviews

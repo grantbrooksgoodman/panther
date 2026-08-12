@@ -15,6 +15,8 @@ import AppSubsystem
 extension [ContactPair] {
     // MARK: - Properties
 
+    /// The contact pairs with duplicates removed by phone number, keeping the first occurrence of
+    /// each.
     var uniquedByPhoneNumber: [ContactPair] {
         var contactPairs = [ContactPair]()
         var seenNumbers = Set<String>()
@@ -31,16 +33,27 @@ extension [ContactPair] {
         return contactPairs
     }
 
+    /// The user identifiers across all of the contact pairs.
     var userIDs: [String] {
         flatMap(\.userIDs)
     }
 
+    /// The users across all of the contact pairs.
     var users: [User] {
         flatMap(\.users)
     }
 
     // MARK: - Methods
 
+    /// Returns the contact pairs matching the given search term, excluding those already selected
+    /// as recipients.
+    ///
+    /// Matches against each contact's name and phone numbers. Results are cached in memory per
+    /// search term.
+    ///
+    /// - Parameter searchTerm: The term to filter the contact pairs by.
+    ///
+    /// - Returns: The matching contact pairs, excluding any currently selected as recipients.
     @MainActor
     func queried(by searchTerm: String) -> [ContactPair] {
         @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) var recipientBarContactSelectionUIService: RecipientBarContactSelectionUIService?
@@ -87,6 +100,14 @@ extension [Conversation] {
 
     // MARK: - Methods
 
+    /// Returns the visible conversations matching the given search term.
+    ///
+    /// Matches against each conversation's name, title, and message text. Results are cached in
+    /// memory per search term.
+    ///
+    /// - Parameter searchTerm: The term to filter the conversations by.
+    ///
+    /// - Returns: The matching conversations that are visible to the current user.
     @MainActor
     func queried(by searchTerm: String) -> [Conversation] {
         let searchTerm = searchTerm.lowercasedTrimmingWhitespaceAndNewlines
@@ -134,20 +155,29 @@ extension [Conversation] {
 extension [Message] {
     // MARK: - Properties
 
+    /// The messages with system messages removed.
     var filteringSystemMessages: [Message] {
         filter { !$0.isSystemMessage }
     }
 
+    /// The messages sorted from oldest to newest.
     var sortedByAscendingSentDate: [Message] {
         sorted(by: { $0.sentDate < $1.sentDate })
     }
 
+    /// The messages sorted from newest to oldest.
     var sortedByDescendingSentDate: [Message] {
         sorted(by: { $0.sentDate > $1.sentDate })
     }
 
     // MARK: - Methods
 
+    /// Returns the messages merged with the given activities' system messages, de-duplicated and
+    /// sorted from oldest to newest.
+    ///
+    /// - Parameter activities: The activities whose system messages to merge in.
+    ///
+    /// - Returns: The combined, sorted messages.
     func hydrated(with activities: [Activity]?) -> [Message] {
         guard let activities,
               !activities.allSatisfy({ $0 == .empty }) else { return self }
@@ -156,6 +186,13 @@ extension [Message] {
             .sortedByAscendingSentDate
     }
 
+    /// Returns the messages limited to those sent after the current user joined the conversation,
+    /// always including consent messages.
+    ///
+    /// - Parameter activities: The conversation's activities, used to determine when the current
+    ///   user joined.
+    ///
+    /// - Returns: The filtered messages.
     func offsetFromCurrentUserAdditionDate(
         activities: [Activity]?
     ) -> [Message] {
@@ -168,24 +205,30 @@ extension [Message] {
 }
 
 extension [MessageRecipientConsentAcknowledgementData] {
+    /// The consent acknowledgement record belonging to the current user, if any.
     var firstWithCurrentUserID: MessageRecipientConsentAcknowledgementData? {
         first(where: { $0.userID == User.currentUserID })
     }
 }
 
 extension [Participant] {
+    /// The participant representing the current user, if any.
     var firstWithCurrentUserID: Participant? {
         first(where: { $0.userID == User.currentUserID })
     }
 }
 
 extension [PenPalsSharingData] {
+    /// A Boolean value that indicates whether every other participant shares their PenPals data
+    /// with the current user.
     var allShareWithCurrentUser: Bool {
         guard let firstWithCurrentUserID else { return false }
         return filter { $0.userID != firstWithCurrentUserID.userID }
             .allSatisfy { Set($0.sharesDataWithUserIDs ?? []).contains(firstWithCurrentUserID.userID) }
     }
 
+    /// A Boolean value that indicates whether every participant shares their PenPals data with
+    /// every other participant.
     var allShareWithEachOther: Bool {
         let userIDs = Set(map(\.userID))
         return allSatisfy { datum in
@@ -194,6 +237,7 @@ extension [PenPalsSharingData] {
         }
     }
 
+    /// The current user's PenPals data-sharing record, if any.
     var firstWithCurrentUserID: PenPalsSharingData? {
         first(where: { $0.userID == User.currentUserID })
     }
@@ -220,6 +264,7 @@ extension [String] {
 }
 
 extension [User] {
+    /// The users with duplicates removed by identifier, keeping the first occurrence of each.
     var uniquedByID: [User] {
         var set = Set<String>()
         return filter { set.insert($0.id).inserted }

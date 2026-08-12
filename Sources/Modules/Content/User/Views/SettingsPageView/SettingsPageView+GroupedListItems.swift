@@ -22,6 +22,7 @@ extension SettingsPageView {
 
     // MARK: - Properties
 
+    /// The list row for the AI-enhanced translations switch.
     var aiEnhancedTranslationsListItem: ListRowView.Configuration {
         .init(
             .switch(isToggled: isAIEnhancedTranslationsSwitchToggledBinding),
@@ -38,6 +39,7 @@ extension SettingsPageView {
         )
     }
 
+    /// The list row for the blocked users button.
     var blockedUsersListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.blockedUsersButtonTapped) },
@@ -54,6 +56,7 @@ extension SettingsPageView {
         )
     }
 
+    /// The list row that navigates to the change language page.
     var changeLanguageListItem: ListRowView.Configuration {
         .init(
             .destination(
@@ -81,6 +84,7 @@ extension SettingsPageView {
         )
     }
 
+    /// The list row for the change theme button.
     var changeThemeListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.changeThemeButtonTapped) },
@@ -100,6 +104,7 @@ extension SettingsPageView {
         )
     }
 
+    /// The list row for the clear caches button.
     var clearCachesListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.clearCachesButtonTapped) },
@@ -119,6 +124,7 @@ extension SettingsPageView {
         )
     }
 
+    /// The list row for the delete account button.
     var deleteAccountListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.deleteAccountButtonTapped) },
@@ -134,6 +140,7 @@ extension SettingsPageView {
         )
     }
 
+    /// The list row for the invite friends button.
     var inviteFriendsListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.inviteFriendsButtonTapped) },
@@ -149,6 +156,7 @@ extension SettingsPageView {
         )
     }
 
+    /// The list row for the leave review button.
     var leaveReviewListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.leaveReviewButtonTapped) },
@@ -164,6 +172,7 @@ extension SettingsPageView {
         )
     }
 
+    /// The list row for the message recipient consent switch.
     var messageRecipientConsentListItem: ListRowView.Configuration {
         .init(
             .switch(isToggled: isMessageRecipientConsentSwitchToggledBinding),
@@ -180,6 +189,7 @@ extension SettingsPageView {
         )
     }
 
+    /// The list row for the PenPals participation switch.
     var penPalsListItem: ListRowView.Configuration {
         .init(
             .switch(isToggled: isPenPalsParticipantSwitchToggledBinding),
@@ -191,6 +201,7 @@ extension SettingsPageView {
         )
     }
 
+    /// The list row for the send feedback button.
     var sendFeedbackListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.sendFeedbackButtonTapped) },
@@ -209,6 +220,7 @@ extension SettingsPageView {
         )
     }
 
+    /// The list row for the sign out button.
     var signOutListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.signOutButtonTapped) },

@@ -13,17 +13,33 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// A media file stored in the app's documents directory.
+///
+/// A media file locates its content by ``relativePath``, resolved against the documents
+/// directory, so values remain valid across app launches even though the directory's absolute
+/// location can change. The file's identity derives from its extension and a hash of its content
+/// on disk.
 struct MediaFile: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
+    /// The file's extension.
     let fileExtension: MediaFileExtension
+
+    /// The file's name, without an extension.
     let name: String
+
+    /// The file's path, relative to the documents directory.
     let relativePath: String
 
     private static let contentHashes = LockIsolated([String: String]())
 
     // MARK: - Computed Properties
 
+    /// The strings that collectively define this instance's identity for hashing purposes,
+    /// sorted alphabetically.
+    ///
+    /// Contains the file extension's raw value and a hash of the file's content. If the content
+    /// cannot be read, the content hash is omitted and the failure is logged.
     var hashFactors: [String] {
         var factors = [fileExtension.rawValue]
 
@@ -38,12 +54,14 @@ struct MediaFile: Codable, EncodedHashable, Hashable {
         return factors.sorted()
     }
 
+    /// A Boolean value that indicates whether a thumbnail exists on disk for this file.
     var hasThumbnail: Bool {
         @Dependency(\.fileManager) var fileManager: FileManager
         guard let thumbnailPath = localPathURL.thumbnailPath else { return false }
         return fileManager.fileExists(atPath: thumbnailPath.path())
     }
 
+    /// The absolute URL of the file, resolved against the current documents directory.
     var localPathURL: URL {
         @Dependency(\.fileManager) var fileManager: FileManager
         return fileManager.documentsDirectoryURL.appending(path: relativePath)
@@ -51,6 +69,12 @@ struct MediaFile: Codable, EncodedHashable, Hashable {
 
     // MARK: - Init
 
+    /// Creates a media file with the given relative path, name, and extension.
+    ///
+    /// - Parameters:
+    ///   - relativePath: The file's path, relative to the documents directory.
+    ///   - name: The file's name, without an extension.
+    ///   - fileExtension: The file's extension.
     init(
         _ relativePath: String,
         name: String,
@@ -61,6 +85,13 @@ struct MediaFile: Codable, EncodedHashable, Hashable {
         self.fileExtension = fileExtension
     }
 
+    /// Creates a media file from the given relative path, deriving its name and extension.
+    ///
+    /// - Parameter relativePath: The file's path, relative to the documents directory. The
+    ///   path's final component must consist of a name and a supported extension.
+    ///
+    /// - Returns: A media file, or `nil` if no file exists at the path or its name and extension
+    ///   cannot be derived.
     init?(_ relativePath: String) {
         @Dependency(\.fileManager) var fileManager: FileManager
 
@@ -82,6 +113,7 @@ struct MediaFile: Codable, EncodedHashable, Hashable {
 
     // MARK: - Hashable Conformance
 
+    /// Hashes the file's ``hashFactors``.
     func hash(into hasher: inout Hasher) {
         hasher.combine(hashFactors)
     }

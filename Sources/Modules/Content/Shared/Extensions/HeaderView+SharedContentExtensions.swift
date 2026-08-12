@@ -15,6 +15,14 @@ import AppSubsystem
 
 @MainActor
 extension HeaderView.PeripheralButtonType {
+    /// Creates a header done button styled with a checkmark symbol.
+    ///
+    /// Use this button in place of a textual done button when the app runs with full iOS 26
+    /// compatibility.
+    ///
+    /// - Parameter action: The action to perform when the user taps the button.
+    ///
+    /// - Returns: A header button that displays a checkmark symbol and runs the given action.
     static func v26DoneButton(_ action: @escaping () -> Void) -> HeaderView.PeripheralButtonType {
         .image(
             .init(

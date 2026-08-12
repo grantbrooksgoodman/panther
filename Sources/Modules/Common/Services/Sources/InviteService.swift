@@ -15,6 +15,10 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+/// Use ``InviteService`` to invite the user's contacts to the app.
+///
+/// The service composes invitation messages – translated into a language of the user's choice –
+/// and presents the system share sheet for sending them.
 @MainActor
 struct InviteService {
     // MARK: - Dependencies
@@ -45,6 +49,17 @@ struct InviteService {
 
     // MARK: - Compose Invitation
 
+    /// Composes an app invitation and presents the system share sheet for sending it.
+    ///
+    /// The invitation contains the app's share link and a prompt message translated into the
+    /// given language. If the app share link has not yet been resolved, remote metadata is
+    /// resolved first.
+    ///
+    /// - Parameter languageCode: The language code into which to translate the invitation
+    ///   message. Pass `nil` to target the system language. If the given language code is
+    ///   `en`, the message is not translated.
+    ///
+    /// - Throws: An `Exception` if metadata resolution or translation fails.
     func composeInvitation(languageCode: String?) async throws(Exception) {
         guard let appShareLink = services.metadata.appShareLink else {
             try await services.metadata.resolveValues()
@@ -79,6 +94,13 @@ struct InviteService {
 
     // MARK: - Present Invitation Prompt
 
+    /// Asks the user whether to translate the invitation before composing it.
+    ///
+    /// If the user declines translation, the invitation is composed targeting the system
+    /// language. If the user accepts, all presented sheets are dismissed and the invite
+    /// language picker is presented. Canceling the alert does nothing.
+    ///
+    /// - Throws: An `Exception` if composing the invitation fails.
     func presentInvitationPrompt() async throws(Exception) {
         guard let shouldPresentInviteLanguagePicker = await presentTranslationAlert() else {
             return
@@ -98,6 +120,9 @@ struct InviteService {
 
     // MARK: - Present Invitation Suggestion Prompt
 
+    /// Presents an alert suggesting that the user invite their contacts to the app.
+    ///
+    /// If the user accepts, the invitation prompt is presented.
     func presentInvitationSuggestionPrompt() async {
         let inviteAction: AKAction = .init(
             "Send Invite",
@@ -123,7 +148,14 @@ struct InviteService {
 
     // MARK: - Suggest Invitation If Needed
 
-    /// - Returns: `true` if the necessary conditions to suggest invitation were met.
+    /// Presents the invitation suggestion prompt if the user has no conversations and no
+    /// registered contacts.
+    ///
+    /// The suggestion requires contact permission and is limited to qualifying app launches.
+    /// Before presenting, this method syncs the contact pair archive to confirm that no
+    /// contact besides the current user has an account.
+    ///
+    /// - Returns: `true` if the invitation suggestion was presented; otherwise, `false`.
     func suggestInvitationIfNeeded() async -> Bool {
         guard canSuggestInvitation else { return false }
 

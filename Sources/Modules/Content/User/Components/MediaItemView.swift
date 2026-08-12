@@ -14,19 +14,40 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A row describing a media file in a conversation's media list.
+///
+/// Use ``MediaItemView`` to display a media file's thumbnail, type, sender, and timestamp.
+/// Tapping the row performs the given action; a long press previews the file and offers to
+/// save it – images and videos to the photo library, and other files through the system
+/// document picker.
 struct MediaItemView: View {
     // MARK: - Types
 
+    /// The display metadata for a media item.
     struct Metadata: Hashable {
         /* MARK: Properties */
 
+        /// The media file the item describes.
         let file: MediaFile
+
+        /// The text the media type label displays.
         let mediaTypeLabelText: String
+
+        /// The text the sender label displays.
         let senderLabelText: String
+
+        /// The text the timestamp label displays.
         let timestampLabelText: String
 
         /* MARK: Init */
 
+        /// Creates media item metadata.
+        ///
+        /// - Parameters:
+        ///   - file: The media file the item describes.
+        ///   - mediaTypeLabelText: The text the media type label displays.
+        ///   - senderLabelText: The text the sender label displays.
+        ///   - timestampLabelText: The text the timestamp label displays.
         init(
             _ file: MediaFile,
             mediaTypeLabelText: String,
@@ -58,6 +79,11 @@ struct MediaItemView: View {
 
     // MARK: - Init
 
+    /// Creates a media item row.
+    ///
+    /// - Parameters:
+    ///   - metadata: The display metadata for the item.
+    ///   - action: The action performed when the user taps the row.
     init(
         _ metadata: Metadata,
         action: @escaping () -> Void
@@ -68,6 +94,7 @@ struct MediaItemView: View {
 
     // MARK: - Body
 
+    /// The content and behavior of the view.
     var body: some View {
         Button {
             action()

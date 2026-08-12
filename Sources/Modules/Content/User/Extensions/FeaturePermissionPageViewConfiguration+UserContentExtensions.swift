@@ -13,6 +13,7 @@ import Foundation
 import AppSubsystem
 
 extension FeaturePermissionPageView.Configuration {
+    /// The feature permission prompt for AI-enhanced translations.
     static var aiEnhancedTranslations: FeaturePermissionPageView.Configuration {
         .init(
             titleText: "AI-Enhanced Translations", // swiftlint:disable:next line_length
@@ -40,6 +41,7 @@ extension FeaturePermissionPageView.Configuration {
         )
     }
 
+    /// The feature permission prompt for PenPals.
     static var penPals: FeaturePermissionPageView.Configuration {
         .init(
             titleText: "Introducing ⌘PenPals⌘", // swiftlint:disable:next line_length

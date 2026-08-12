@@ -15,6 +15,11 @@ import AppSubsystem
 import Networking
 import Translator
 
+/// The service that applies the user's language selection from the language change page.
+///
+/// Use ``ChangeLanguagePageViewService`` to confirm and apply a new app language. Applying a
+/// language persists it to the current user's remote record and resets the app, which must
+/// restart for the change to take effect.
 struct ChangeLanguagePageViewService {
     // MARK: - Dependencies
 
@@ -23,6 +28,15 @@ struct ChangeLanguagePageViewService {
 
     // MARK: - Reducer Action Handlers
 
+    /// Asks the user to confirm the language change, applying it if they accept.
+    ///
+    /// Confirmation warns that the app must restart. If the user accepts, the new language is
+    /// written to the current user's remote record in a single atomic update, together with a
+    /// language history that records the outgoing language only when messages were sent or
+    /// received in it. The app then resets – preserving the current user's identifier – and
+    /// exits. Failures surface as a toast.
+    ///
+    /// - Parameter selectedLanguageCode: The language code of the selected language.
     func confirmButtonTapped(_ selectedLanguageCode: String) {
         Task {
             let applyAndExitAction: AKAction = .init(

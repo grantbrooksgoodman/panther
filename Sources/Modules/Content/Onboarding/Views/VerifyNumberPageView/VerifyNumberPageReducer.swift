@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable function_body_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -14,6 +16,32 @@ import UIKit
 import AppSubsystem
 import Networking
 
+/// The reducer that drives the phone number entry page of the onboarding flow.
+///
+/// This page is the first step of phone number verification. The user enters their phone number,
+/// and the reducer checks whether an account is already registered with it before sending a
+/// verification code.
+///
+/// The page's behavior contract:
+///
+/// - On appearance, the page resolves its translated display strings, remaining in the loading
+///   state until resolution completes. If resolution fails, the page falls back to its default
+///   strings and loads anyway. The page restores any phone number and region previously recorded
+///   by ``OnboardingService``, defaulting to the device's region.
+/// - The continue button is enabled only while the entered phone number is a valid length for the
+///   selected region's calling code.
+/// - Changing the selected region refreshes the region menu after a brief delay.
+/// - Tapping continue dismisses the keyboard, then – after a brief delay – disables the page's
+///   buttons, presents a dimmed activity overlay, and begins the account existence check.
+/// - If an account is already registered with the phone number, the reducer offers to sign the
+///   user in instead. If the user accepts, the reducer records the phone number and region with
+///   ``OnboardingService`` and replaces the navigation stack with the sign-in page.
+/// - Otherwise, the reducer sends a verification code to the phone number. When the code is sent,
+///   the reducer records the issued identifier, phone number, and region with
+///   ``OnboardingService`` and pushes the verification code entry page.
+/// - If verification fails, the reducer removes the overlay, re-enables the buttons, and surfaces
+///   the error as a toast. Failures caused by the user – an invalid phone number, an expired
+///   session, or a cancelled web context – are marked non-reportable before logging.
 struct VerifyNumberPageReducer: Reducer {
     // MARK: - Dependencies
 
@@ -27,37 +55,94 @@ struct VerifyNumberPageReducer: Reducer {
 
     // MARK: - Actions
 
+    /// The actions the phone number entry page can process.
     enum Action {
+        /// An action that indicates the view appeared. Restores any previously recorded phone
+        /// number and region, then begins display string resolution.
         case viewAppeared
 
+        /// An action that indicates the user tapped the back button. Pops the current page.
         case backButtonTapped
+
+        /// An action that indicates the user tapped the continue button. Dismisses the keyboard,
+        /// then triggers ``runContinueButtonEffect`` after a brief delay.
         case continueButtonTapped
+
+        /// An action that indicates the user swiped down on the page. Dismisses the keyboard.
         case didSwipeDown
+
+        /// An action that begins checking whether an account exists for the entered phone number.
         case runContinueButtonEffect
+
+        /// An action that regenerates the region menu's identity, causing it to be recreated.
         case updateRegionMenuViewID
 
+        /// An action that indicates the account exists alert was dismissed, carrying a Boolean
+        /// value that indicates whether the user selected the cancel option.
         case accountExistsAlertDismissed(cancelled: Bool)
+
+        /// An action that indicates the account existence check resolved, carrying a Boolean
+        /// value that indicates whether an account is registered with the entered phone number.
         case accountExistsReturned(Bool)
+
+        /// An action that indicates the entered phone number changed, carrying the new value.
         case phoneNumberStringChanged(String)
+
+        /// An action that indicates display string resolution failed, carrying the resulting
+        /// `Exception`.
         case resolveFailed(Exception)
+
+        /// An action that indicates display string resolution succeeded, carrying the resolved
+        /// strings.
         case resolveReturned([TranslationOutputMap])
+
+        /// An action that indicates the selected region changed, carrying the new region code.
+        /// Refreshes the region menu after a brief delay.
         case selectedRegionCodeChanged(String)
+
+        /// An action that indicates phone number verification failed, carrying the resulting
+        /// `Exception`.
         case verifyPhoneNumberFailed(Exception)
+
+        /// An action that indicates a verification code was sent to the entered phone number,
+        /// carrying the identifier issued for the authentication attempt.
         case verifyPhoneNumberReturned(String)
     }
 
     // MARK: - State
 
+    /// The state of the phone number entry page.
     struct State: Equatable {
         /* MARK: Properties */
 
+        /// The strings the page's instruction header displays. Populated once display string
+        /// resolution completes.
         var instructionViewStrings: InstructionViewStrings = .empty
+
+        /// A Boolean value that indicates whether the back button is enabled. Disabled while
+        /// phone number verification is in progress.
         var isBackButtonEnabled = true
+
+        /// A Boolean value that indicates whether the continue button is enabled. Enabled only
+        /// while the entered phone number is a valid length for the selected region's calling
+        /// code and phone number verification is not in progress.
         var isContinueButtonEnabled = false
+
+        /// The phone number the user has entered.
         var phoneNumberString = ""
+
+        /// The identity of the region selection menu. Regenerated shortly after the selected
+        /// region changes, causing the menu to be recreated.
         var regionMenuViewID = UUID()
+
+        /// The code of the region the entered phone number belongs to.
         var selectedRegionCode = ""
+
+        /// The page's translated display strings. Contains the default, untranslated strings
+        /// until resolution completes.
         var strings: [TranslationOutputMap] = VerifyNumberPageViewStrings.defaultOutputMap
+
+        /// The page's loading state. Remains `loading` until display string resolution completes.
         var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
@@ -84,7 +169,13 @@ struct VerifyNumberPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    // swiftlint:disable:next function_body_length
+    /// Updates the page's state in response to the given action, returning any effect to run.
+    ///
+    /// - Parameters:
+    ///   - state: The page's current state, mutated in place.
+    ///   - action: The action to process.
+    ///
+    /// - Returns: An effect for the system to run, or `.none`.
     func reduce(
         into state: inout State,
         action: Action
@@ -248,3 +339,5 @@ private extension [TranslationOutputMap] {
         (first(where: { $0.key == .verifyNumberPageView(key) })?.value ?? key.rawValue).sanitized
     }
 }
+
+// swiftlint:enable function_body_length

@@ -14,6 +14,11 @@ import Speech
 /* Proprietary */
 import AppSubsystem
 
+/// Use ``TranscriptionService`` to transcribe recorded audio to text.
+///
+/// The service transcribes audio files, hosts live transcription sessions for in-progress
+/// recordings, and reports which languages support transcription. Language support lookups are
+/// cached in memory.
 struct TranscriptionService {
     // MARK: - Dependencies
 
@@ -21,6 +26,20 @@ struct TranscriptionService {
 
     // MARK: - Transcribe Audio File
 
+    /// Transcribes the audio file at the given URL.
+    ///
+    /// Transcription includes punctuation. The operation times out if no final result arrives
+    /// within 30 seconds.
+    ///
+    /// - Parameters:
+    ///   - url: The URL of the audio file to transcribe.
+    ///   - languageCode: The language code of the audio content.
+    ///
+    /// - Returns: The transcribed text.
+    ///
+    /// - Throws: An `Exception` if transcription permission has not been granted, if
+    ///   transcription is not supported for the given language code, if recognition fails, or
+    ///   if the operation times out.
     func transcribeAudioFile(
         at url: URL,
         languageCode: String
@@ -111,6 +130,13 @@ struct TranscriptionService {
 
     // MARK: - Start Live Session
 
+    /// Starts a live transcription session for the given language code.
+    ///
+    /// - Parameter languageCode: The language code of the audio content.
+    ///
+    /// - Returns: A new session ready to receive audio buffers; otherwise, `nil` if
+    ///   transcription permission has not been granted or transcription is not supported for
+    ///   the given language code.
     func startLiveSession(languageCode: String) -> LiveTranscriptionSession? {
         guard permissionService.transcribePermissionStatus == .granted,
               isTranscriptionSupported(for: languageCode),
@@ -122,6 +148,16 @@ struct TranscriptionService {
 
     // MARK: - Capabilities
 
+    /// Returns a Boolean value that indicates whether transcription is supported for the given
+    /// language code.
+    ///
+    /// Support is determined by whether any supported recognition locale matches the given
+    /// code. Results are cached in memory per language code.
+    ///
+    /// - Parameter languageCode: The language code for which to check support.
+    ///
+    /// - Returns: `true` if transcription is supported for the given language code; otherwise,
+    ///   `false`.
     func isTranscriptionSupported(for languageCode: String) -> Bool {
         if let cachedValue = _TranscriptionServiceCache.cachedTranscriptionSupportForLanguageCodes?[languageCode] {
             return cachedValue
@@ -140,6 +176,12 @@ struct TranscriptionService {
     }
 }
 
+/// A speech recognition session that transcribes audio as it is captured.
+///
+/// Obtain a session from ``TranscriptionService/startLiveSession(languageCode:)``, then feed it
+/// audio buffers with ``append(_:)`` – typically from the `bufferSink` closure of
+/// ``RecordingService/startRecording(bufferSink:)``. Call ``finish()`` to end the session and
+/// retrieve the transcription, or ``cancel()`` to discard it.
 final class LiveTranscriptionSession: @unchecked Sendable {
     // MARK: - Types
 
@@ -184,16 +226,29 @@ final class LiveTranscriptionSession: @unchecked Sendable {
 
     // MARK: - Methods
 
+    /// Appends an audio buffer to the recognition request.
+    ///
+    /// Buffers appended after ``finish()`` or ``cancel()`` has been called are ignored.
+    ///
+    /// - Parameter buffer: The captured audio buffer to transcribe.
     func append(_ buffer: AVAudioPCMBuffer) {
         guard case .pending = state else { return }
         recognitionRequest.append(buffer)
     }
 
+    /// Cancels the session, discarding any transcription.
     func cancel() {
         recognitionTask.wrappedValue?.cancel()
         complete(with: nil)
     }
 
+    /// Ends audio input and returns the final transcription.
+    ///
+    /// If the final recognition result does not arrive within five seconds, this method returns
+    /// `nil`.
+    ///
+    /// - Returns: The final transcription; otherwise, `nil` if recognition failed, the session
+    ///   was canceled, or the transcription is empty.
     func finish() async -> String? {
         recognitionRequest.endAudio()
 
@@ -252,7 +307,9 @@ final class LiveTranscriptionSession: @unchecked Sendable {
     }
 }
 
+/// A namespace for managing the in-memory transcription language support cache.
 enum TranscriptionServiceCache {
+    /// Removes every cached language support value.
     static func clearCache() {
         _TranscriptionServiceCache.clearCache()
     }

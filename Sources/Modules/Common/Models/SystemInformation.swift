@@ -10,6 +10,10 @@
 import Foundation
 
 // swiftlint:disable line_length
+/// A namespace for low-level hardware and kernel values queried through `sysctl`.
+///
+/// Use ``SystemInformation`` to read details about the device and operating system. Each
+/// property returns a fallback value – `"Unknown"` or zero – when the underlying query fails.
 enum SystemInformation {
     // MARK: - Types
 
@@ -22,18 +26,25 @@ enum SystemInformation {
 
     // MARK: - Properties
 
+    /// The number of CPUs available on the device, or zero if the query fails.
     static var activeCPUs: Int64 {
         (try? informationInteger(withLevels: CTL_HW, HW_AVAILCPU)) ?? .zero
     }
 
+    /// The device's host name, or `"Unknown"` if the query fails.
     static var deviceName: String {
         (try? informationString(withLevels: CTL_KERN, KERN_HOSTNAME)) ?? "Unknown"
     }
 
+    /// The kernel's version string, or `"Unknown"` if the query fails.
     static var kernelVersion: String {
         (try? informationString(withLevels: CTL_KERN, KERN_VERSION)) ?? "Unknown"
     }
 
+    /// The device's hardware model code, as reported by the kernel, or `"Unknown"` if the query
+    /// fails.
+    ///
+    /// - Note: The underlying query differs between device and simulator builds.
     static var modelCode: String {
         #if os(iOS) && !arch(x86_64) && !arch(i386)
         return (try? informationString(withLevels: CTL_HW, HW_MODEL)) ?? "Unknown"
@@ -42,6 +53,10 @@ enum SystemInformation {
         #endif
     }
 
+    /// The device's hardware model name, as reported by the kernel, or `"Unknown"` if the query
+    /// fails.
+    ///
+    /// - Note: The underlying query differs between device and simulator builds.
     static var modelName: String {
         #if os(iOS) && !arch(x86_64) && !arch(i386)
         return (try? informationString(withLevels: CTL_HW, HW_MACHINE)) ?? "Unknown"
@@ -50,18 +65,22 @@ enum SystemInformation {
         #endif
     }
 
+    /// The operating system's release string, or `"Unknown"` if the query fails.
     static var osRelease: String {
         (try? informationString(withLevels: CTL_KERN, KERN_OSRELEASE)) ?? "Unknown"
     }
 
+    /// The operating system's revision number, or zero if the query fails.
     static var osRevision: Int64 {
         (try? informationInteger(withLevels: CTL_KERN, KERN_OSREV)) ?? .zero
     }
 
+    /// The operating system's type string, or `"Unknown"` if the query fails.
     static var osType: String {
         (try? informationString(withLevels: CTL_KERN, KERN_OSTYPE)) ?? "Unknown"
     }
 
+    /// The operating system's build version string, or `"Unknown"` if the query fails.
     static var osVersion: String {
         (try? informationString(withLevels: CTL_KERN, KERN_OSVERSION)) ?? "Unknown"
     }

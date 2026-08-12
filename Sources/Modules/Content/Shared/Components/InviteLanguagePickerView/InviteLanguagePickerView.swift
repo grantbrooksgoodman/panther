@@ -14,6 +14,11 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A sheet that lets the user choose the language for an invitation message.
+///
+/// Use ``InviteLanguagePickerView`` when inviting someone to the app. The sheet displays a
+/// searchable list of the supported languages; selecting one enables the done button, which
+/// confirms the choice and begins composing the invitation in that language.
 struct InviteLanguagePickerView: View {
     // MARK: - Constants Accessors
 
@@ -35,12 +40,16 @@ struct InviteLanguagePickerView: View {
 
     // MARK: - Init
 
+    /// Creates an invite language picker with the given view model.
+    ///
+    /// - Parameter viewModel: The view model that drives the sheet.
     init(_ viewModel: ViewModel<InviteLanguagePickerReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         ZStack {
             Color.clear

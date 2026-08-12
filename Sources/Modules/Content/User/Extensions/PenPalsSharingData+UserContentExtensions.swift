@@ -14,7 +14,8 @@ import UIKit
 import AppSubsystem
 
 extension PenPalsSharingData {
-    /// - Note: Returns `nil` if accessed on the current user.
+    /// A Boolean value that indicates whether this record's user shares their PenPals data with
+    /// the current user, or `nil` when the record belongs to the current user.
     var sharesDataWithCurrentUser: Bool? {
         guard let currentUserID = User.currentUserID,
               userID != currentUserID else { return nil }

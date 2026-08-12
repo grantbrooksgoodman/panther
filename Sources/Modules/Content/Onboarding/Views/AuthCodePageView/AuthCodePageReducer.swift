@@ -14,6 +14,25 @@ import UIKit
 import AppSubsystem
 import Networking
 
+/// The reducer that drives the verification code entry page of the onboarding flow.
+///
+/// This page is the second step of phone number verification. The user enters the six-digit code
+/// sent to their phone number, and the reducer authenticates them using that code together with
+/// the authentication identifier recorded by ``OnboardingService`` when the code was sent.
+///
+/// The page's behavior contract:
+///
+/// - On appearance, the page resolves its translated display strings, remaining in the loading
+///   state until resolution completes. If resolution fails, the page falls back to its default
+///   strings and loads anyway.
+/// - The continue button is enabled only while the entered code is exactly six characters long.
+/// - Tapping continue dismisses the keyboard, then – after a brief delay – disables the page's
+///   buttons, presents a dimmed activity overlay, and begins authentication.
+/// - If authentication succeeds, the reducer records the authenticated user's identifier with
+///   ``OnboardingService/setUserID(_:)`` and pushes the permission page.
+/// - If authentication fails, the reducer removes the overlay, re-enables the buttons, and
+///   surfaces the error as a toast. Failures caused by the user – an incorrect code, an expired
+///   session, or a cancelled web context – are marked non-reportable before logging.
 struct AuthCodePageReducer: Reducer {
     // MARK: - Dependencies
 
@@ -25,34 +44,81 @@ struct AuthCodePageReducer: Reducer {
 
     // MARK: - Actions
 
+    /// The actions the verification code entry page can process.
     enum Action {
+        /// An action that indicates the view appeared. Begins display string resolution.
         case viewAppeared
 
+        /// An action that indicates the user tapped the back button. Pops the current page.
         case backButtonTapped
+
+        /// An action that indicates the user tapped the continue button. Dismisses the keyboard,
+        /// then triggers ``runContinueButtonEffect`` after a brief delay.
         case continueButtonTapped
+
+        /// An action that indicates the user swiped down on the page. Dismisses the keyboard.
         case didSwipeDown
+
+        /// An action that begins authenticating the user with the entered verification code.
         case runContinueButtonEffect
 
+        /// An action that indicates authentication failed, carrying the resulting `Exception`.
         case authenticateUserFailed(Exception)
+
+        /// An action that indicates authentication succeeded, carrying the authenticated user's
+        /// identifier.
         case authenticateUserReturned(String)
+
+        /// An action that indicates display string resolution failed, carrying the resulting
+        /// `Exception`.
         case resolveFailed(Exception)
+
+        /// An action that indicates display string resolution succeeded, carrying the resolved
+        /// strings.
         case resolveReturned([TranslationOutputMap])
+
+        /// An action that indicates the entered verification code changed, carrying the new
+        /// value.
         case verificationCodeChanged(String)
     }
 
     // MARK: - State
 
+    /// The state of the verification code entry page.
     struct State: Equatable {
+        /// The strings the page's instruction header displays. Populated once display string
+        /// resolution completes.
         var instructionViewStrings: InstructionViewStrings = .empty
+
+        /// A Boolean value that indicates whether the back button is enabled. Disabled while
+        /// authentication is in progress.
         var isBackButtonEnabled = true
+
+        /// A Boolean value that indicates whether the continue button is enabled. Enabled only
+        /// while the entered code is exactly six characters long and authentication is not in
+        /// progress.
         var isContinueButtonEnabled = false
+
+        /// The page's translated display strings. Contains the default, untranslated strings
+        /// until resolution completes.
         var strings: [TranslationOutputMap] = AuthCodePageViewStrings.defaultOutputMap
+
+        /// The verification code the user has entered.
         var verificationCode = ""
+
+        /// The page's loading state. Remains `loading` until display string resolution completes.
         var viewState: StatefulView.ViewState = .loading
     }
 
     // MARK: - Reduce
 
+    /// Updates the page's state in response to the given action, returning any effect to run.
+    ///
+    /// - Parameters:
+    ///   - state: The page's current state, mutated in place.
+    ///   - action: The action to process.
+    ///
+    /// - Returns: An effect for the system to run, or `.none`.
     func reduce(
         into state: inout State,
         action: Action

@@ -11,6 +11,8 @@ import Foundation
 import UIKit
 
 extension UINavigationController {
+    /// Lays out the navigation controller's subviews, minimizing the top item's back button
+    /// display mode.
     override open func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         navigationBar.topItem?.backButtonDisplayMode = .minimal

@@ -14,9 +14,16 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A single-line text field with an underline divider and configurable input behavior.
+///
+/// Use ``GenericTextField`` as the base text entry control for the app's pages. The field binds
+/// to the given text, displays placeholder text while empty, and draws a divider beneath its
+/// content. Configure keyboard, autocapitalization, autocorrection, alignment, and colors through
+/// the initializer; every parameter but the text binding and placeholder has a default.
 struct GenericTextField: View {
     // MARK: - Constants Accessors
 
+    /// A convenience alias for the field's layout constants.
     typealias Floats = AppConstants.CGFloats.GenericTextField
 
     // MARK: - Properties
@@ -36,6 +43,24 @@ struct GenericTextField: View {
 
     // MARK: - Init
 
+    /// Creates a text field with the given text binding and configuration.
+    ///
+    /// - Parameters:
+    ///   - text: A binding to the text the field displays and edits.
+    ///   - alignment: The alignment of the field's text.
+    ///   - autocapitalization: The autocapitalization behavior to apply, or `nil` for the system
+    ///     default.
+    ///   - isAutocorrectEnabled: A Boolean value that determines whether autocorrection is
+    ///     enabled.
+    ///   - isThemed: A Boolean value that determines whether the field is wrapped in a themed
+    ///     container.
+    ///   - keyboardType: The keyboard type to display during editing.
+    ///   - placeholderText: The placeholder string to display while the field is empty, and its
+    ///     color. Pass `nil` for the color to use gray.
+    ///   - submitLabel: The label of the keyboard's submit button.
+    ///   - textColor: The color of the field's text.
+    ///   - dividerXOffset: The horizontal offset of the field's divider.
+    ///   - dividerYOffset: The vertical offset of the field's divider.
     init(
         _ text: Binding<String>,
         alignment: TextAlignment = .center,
@@ -64,6 +89,7 @@ struct GenericTextField: View {
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         let textField = TextField(
             "",

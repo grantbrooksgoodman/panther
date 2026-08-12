@@ -18,6 +18,7 @@ import InputBarAccessoryView
 extension ChatPageViewController: @MainActor InputBarAccessoryViewDelegate {
     // MARK: - Did Press Send Button
 
+    /// Sends the entered text when the user taps the send button.
     func inputBar(
         _ inputBar: InputBarAccessoryView,
         didPressSendButtonWith text: String
@@ -39,6 +40,7 @@ extension ChatPageViewController: @MainActor InputBarAccessoryViewDelegate {
 
     // MARK: - Text View Did Change
 
+    /// Updates the current user's typing status as the input text changes.
     func inputBar(
         _ inputBar: InputBarAccessoryView,
         textViewTextDidChangeTo text: String

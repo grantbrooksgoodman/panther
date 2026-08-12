@@ -21,13 +21,21 @@ import MessageKit
 extension Message: @preconcurrency MessageType {
     // MARK: - Types
 
+    /// A message sender, identified for display in the message list.
     struct Sender: SenderType {
+        /// The sender's display name.
         let displayName: String
+
+        /// The sender's unique identifier.
         let senderId: String
     }
 
     // MARK: - Properties
 
+    /// The message's content, as represented for display in the message list.
+    ///
+    /// Maps the message to text, attributed text, audio, photo, or video based on its content
+    /// type and the alternate content it currently displays.
     @MainActor
     var kind: MessageKind {
         @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
@@ -90,10 +98,12 @@ extension Message: @preconcurrency MessageType {
         )
     }
 
+    /// The message's unique identifier.
     var messageId: String {
         id
     }
 
+    /// The message's sender.
     var sender: SenderType {
         Sender(displayName: "", senderId: fromAccountID)
     }
@@ -104,11 +114,14 @@ extension Message: @preconcurrency MessageType {
 extension Message {
     // MARK: - Properties
 
+    /// The identifier of the conversation's message receipt consent request message, if known.
     static var consentRequestMessageID: String? {
         get { _consentRequestMessageIDCache.wrappedValue }
         set { _consentRequestMessageIDCache.wrappedValue = newValue }
     }
 
+    /// The attributed string for a system message, combining its date separator and activity
+    /// text, or `nil` if the message is not a system message.
     @MainActor
     var attributedSystemString: NSAttributedString? {
         typealias Colors = AppConstants.Colors.SystemMessageCell
@@ -152,11 +165,14 @@ extension Message {
         return combinedString
     }
 
+    /// The message bubble's background color, distinguishing sent from received messages.
     @MainActor
     var backgroundColor: UIColor {
         isFromCurrentUser ? .senderBubble : .receiverBubble
     }
 
+    /// A Boolean value that indicates whether this message acknowledges a message receipt consent
+    /// request.
     var isConsentAcknowledgementMessage: Bool {
         guard let translation else { return false }
         return translation.input.value == Localized(
@@ -165,10 +181,13 @@ extension Message {
         ).wrappedValue
     }
 
+    /// A Boolean value that indicates whether this message is a message receipt consent request
+    /// or acknowledgement.
     var isConsentMessage: Bool {
         isConsentAcknowledgementMessage || isConsentRequestMessage
     }
 
+    /// A Boolean value that indicates whether this message requests message receipt consent.
     var isConsentRequestMessage: Bool {
         if let consentRequestMessageID = Message.consentRequestMessageID { return id == consentRequestMessageID }
         @Dependency(\.clientSession.entity.conversation.currentConversation) var currentConversation: Conversation?
@@ -193,24 +212,32 @@ extension Message {
         return isConsentMessage
     }
 
+    /// A Boolean value that indicates whether the message was sent by the current user.
     var isFromCurrentUser: Bool {
         fromAccountID == User.currentUserID
     }
 
+    /// A Boolean value that indicates whether the message is an outbox message whose delivery
+    /// failed.
     var isFailedOutboxMessage: Bool {
         guard isOutboxMessage else { return false }
         @Dependency(\.clientSession.outbox) var outbox: MessageOutboxService
         return outbox.entry(forID: id)?.state == .failed
     }
 
+    /// A Boolean value that indicates whether the message is a mock, representing a message not
+    /// yet sent.
     var isMock: Bool {
         id == CommonConstants.newMessageID
     }
 
+    /// A Boolean value that indicates whether the message is staged in the outbox awaiting
+    /// delivery.
     var isOutboxMessage: Bool {
         id.hasPrefix("outbox-")
     }
 
+    /// A Boolean value that indicates whether this message's audio is currently playing.
     @MainActor
     var isPlayingMessage: Bool {
         @Dependency(\.chatPageViewService.audioMessagePlayback?.playingMessage) var playingMessage: Message?
@@ -220,6 +247,7 @@ extension Message {
         return playingMessage.id == id
     }
 
+    /// A Boolean value that indicates whether this message is currently being spoken aloud.
     @MainActor
     var isSpeakingMessage: Bool {
         @Dependency(\.chatPageViewService.contextMenu?.actionHandler.speakingMessage) var speakingMessage: Message?
@@ -227,11 +255,14 @@ extension Message {
         return speakingMessage.id == id
     }
 
+    /// A Boolean value that indicates whether the message is a system message, such as a
+    /// conversation activity notice.
     var isSystemMessage: Bool {
         fromAccountID == CommonConstants.systemMessageID
     }
 
-    /// - Returns: The provided system message, hydrated with localized strings.
+    /// A copy of this system message hydrated with its localized activity text, or the message
+    /// itself if it is not a system message.
     @MainActor
     var systemLocalized: Message {
         @Dependency(\.clientSession.entity.conversation.currentConversation) var conversation: Conversation?
@@ -264,6 +295,12 @@ extension Message {
 
     // MARK: - Methods
 
+    /// Returns a Boolean value that indicates whether the message's text contains the given
+    /// search term, ignoring case and surrounding whitespace.
+    ///
+    /// - Parameter searchTerm: The term to search for.
+    ///
+    /// - Returns: `true` if the message's text contains the term; otherwise, `false`.
     func textContains(_ searchTerm: String) -> Bool {
         guard let translation else { return false }
         let searchTerm = searchTerm.lowercasedTrimmingWhitespaceAndNewlines

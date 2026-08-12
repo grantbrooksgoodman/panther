@@ -17,6 +17,12 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
+/// The service that manages the input bar's gesture recognizers.
+///
+/// ``InputBarGestureRecognizerService`` installs the recognizers on the send button while it is
+/// configured as a record button: a long press that records for its duration, and taps that show
+/// recording instructions or – when recording is unavailable – request the necessary permissions
+/// or explain why audio messages are unsupported.
 @MainActor
 final class InputBarGestureRecognizerService {
     // MARK: - Constants Accessors
@@ -42,12 +48,22 @@ final class InputBarGestureRecognizerService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Internal
 
+    /// Installs the record button's gesture recognizers for the current state.
+    ///
+    /// When the current user cannot send audio messages, or has not granted the microphone and
+    /// transcription permissions, a tap instead explains the limitation or requests the
+    /// permissions. Otherwise, a long press records and a tap shows recording instructions.
+    ///
+    /// This method has no effect while the send button is not configured as a record button.
     func configureGestureRecognizers() {
         removeInputBarGestureRecognizers()
 
@@ -81,6 +97,7 @@ final class InputBarGestureRecognizerService {
         ))
     }
 
+    /// Removes all of the send button's gesture recognizers.
     func removeInputBarGestureRecognizers() {
         inputBar.sendButton.gestureRecognizers?.removeAll()
     }

@@ -10,6 +10,10 @@
 import Foundation
 import UIKit
 
+/// A text field that reports backspaces made while its text is empty.
+///
+/// Use ``RecipientBarTextField`` in the recipient bar to react when the user backspaces past
+/// the entered text.
 final class RecipientBarTextField: UITextField {
     // MARK: - Properties
 
@@ -17,6 +21,7 @@ final class RecipientBarTextField: UITextField {
 
     // MARK: - Init
 
+    /// Creates a recipient bar text field with the given frame.
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
@@ -28,6 +33,8 @@ final class RecipientBarTextField: UITextField {
 
     // MARK: - Delete Backward
 
+    /// Runs the superfluous backspace handler when the text is empty, then performs the
+    /// standard deletion.
     override func deleteBackward() {
         if (text ?? "").isEmpty { _onSuperfluousBackspace?() }
         super.deleteBackward()
@@ -35,6 +42,11 @@ final class RecipientBarTextField: UITextField {
 
     // MARK: - On Superfluous Backspace
 
+    /// Registers a handler to run when the user backspaces while the text field is empty.
+    ///
+    /// Registering a new handler replaces any existing one.
+    ///
+    /// - Parameter onSuperfluousBackspace: The handler to run.
     func onSuperfluousBackspace(_ onSuperfluousBackspace: @escaping () -> Void) {
         _onSuperfluousBackspace = onSuperfluousBackspace
     }

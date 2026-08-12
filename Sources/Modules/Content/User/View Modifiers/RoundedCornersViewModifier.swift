@@ -40,6 +40,14 @@ private struct RoundedCornersViewModifier: Shape {
 }
 
 extension View {
+    /// Clips the view to a rectangle with the given corners rounded.
+    ///
+    /// - Parameters:
+    ///   - radius: The corner radius. The default is `.infinity`, which rounds the corners as
+    ///     much as possible.
+    ///   - corners: The corners to round. The default is all corners.
+    ///
+    /// - Returns: The clipped view.
     func roundedCorners(
         _ radius: CGFloat = .infinity,
         corners: UIRectCorner = .allCorners

@@ -15,6 +15,14 @@ import AppSubsystem
 
 @MainActor
 extension NSAttributedString {
+    /// Returns an attributed string styled for a message cell.
+    ///
+    /// - Parameters:
+    ///   - text: The text to style.
+    ///   - foregroundColor: The color of the text.
+    ///   - italicized: A Boolean value that determines whether the text is italicized.
+    ///
+    /// - Returns: The styled attributed string.
     static func messageCellString(
         _ text: String,
         foregroundColor: UIColor,

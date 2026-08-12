@@ -15,6 +15,7 @@ import UIKit
 import AppSubsystem
 
 extension PhotoPickerView {
+    /// The object that receives the photo picker's delegate callbacks.
     final class Coordinator: NSObject, PHPickerViewControllerDelegate {
         // MARK: - Properties
 
@@ -22,12 +23,16 @@ extension PhotoPickerView {
 
         // MARK: - Init
 
+        /// Creates a coordinator that forwards callbacks to the given picker.
+        ///
+        /// - Parameter delegate: The picker whose handlers receive the callbacks.
         init(delegate: any ContentPicker<UIImage>) {
             self.delegate = delegate
         }
 
         // MARK: - PHPickerViewControllerDelegate Conformance
 
+        /// Delivers an `Exception` wrapping the given error to the dismissal handler.
         func picker(
             _ picker: PHPickerViewController,
             didCancelWithError error: Error?
@@ -38,6 +43,9 @@ extension PhotoPickerView {
             ))
         }
 
+        /// Loads the first picked image and delivers it to the selection handler, followed by
+        /// `nil` to the dismissal handler. If nothing was picked, the dismissal handler
+        /// receives `nil`; if loading fails, it receives an `Exception` instead.
         func picker(
             _ picker: PHPickerViewController,
             didFinishPicking results: [PHPickerResult]
@@ -68,6 +76,8 @@ extension PhotoPickerView {
 }
 
 extension PhotoPickerView.Coordinator: UIAdaptivePresentationControllerDelegate {
+    /// Delivers `nil` to the dismissal handler when the user dismisses the picker with a
+    /// gesture.
     func presentationControllerDidDismiss(
         _ presentationController: UIPresentationController
     ) {

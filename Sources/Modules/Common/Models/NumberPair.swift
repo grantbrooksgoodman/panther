@@ -13,15 +13,20 @@ import Foundation
 import AppSubsystem
 
 // NIT: Need to either use phone number strings or conform PhoneNumber to not auto-resolve a calling code.
+/// A phone number paired with the registered users it resolves to.
 struct NumberPair: Codable, Hashable {
     // MARK: - Properties
 
+    /// The phone number.
     let phoneNumber: PhoneNumber
+
+    /// The identifiers of the registered users the phone number resolves to.
     let userIDs: [String]
 
     // MARK: - Computed Properties
 
-    /// Resolves users from the session store using this number pair's `userIDs`.
+    /// The users this number pair's ``userIDs`` resolve to in the session store. Users not
+    /// present in the store are omitted.
     var users: [User] {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         return userIDs.compactMap { sessionStore.users[$0] }
@@ -29,6 +34,12 @@ struct NumberPair: Codable, Hashable {
 
     // MARK: - Init
 
+    /// Creates a number pair with the given phone number and user identifiers.
+    ///
+    /// - Parameters:
+    ///   - phoneNumber: The phone number.
+    ///   - userIDs: The identifiers of the registered users the phone number resolves to. Must
+    ///     not be empty.
     init(
         phoneNumber: PhoneNumber,
         userIDs: [String]
@@ -44,6 +55,7 @@ struct NumberPair: Codable, Hashable {
 
     // MARK: - Hashable Conformance
 
+    /// Hashes the pair's phone number and user identifiers.
     func hash(into hasher: inout Hasher) {
         hasher.combine(phoneNumber)
         hasher.combine(userIDs)

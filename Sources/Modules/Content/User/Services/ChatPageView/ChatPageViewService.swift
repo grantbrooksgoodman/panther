@@ -19,6 +19,29 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+/// The service that orchestrates the chat page.
+///
+/// ``ChatPageViewService`` connects the chat page's messages view controller to the app's
+/// services. It creates the view controller through ``ChatPageViewControllerFactory``, wires a
+/// family of sub-services to it – the input bar, context menus, read receipts, media handling,
+/// and more – and responds to the view controller's lifecycle, scroll, and trait events.
+///
+/// The chat page presents in one of three configurations:
+///
+/// - The default configuration displays an existing conversation.
+/// - The new chat configuration adds a recipient bar for choosing whom to message.
+/// - The preview configuration displays a read-only preview with the input bar hidden.
+///
+/// While the page is visible, the service observes session store and message outbox changes,
+/// reloading the message list whenever the displayed conversation's data changes.
+///
+/// - Important: The service ignores lifecycle events that occur while a media preview or picker
+///   is presented over the page; those events reflect the page being covered and uncovered, not
+///   presented and dismissed.
+///
+/// - Note: The sub-service properties are `nil` until
+///   ``instantiateViewController(_:configuration:)`` first runs; each call replaces them with
+///   instances bound to the new view controller.
 @MainActor
 final class ChatPageViewService {
     // MARK: - Constants Accessors
@@ -41,19 +64,47 @@ final class ChatPageViewService {
 
     // MARK: - Properties
 
+    /// The service that manages messages displaying alternate content, such as original text or
+    /// audio transcriptions.
     private(set) var alternateMessage: AlternateMessageService?
+
+    /// The service that manages audio message playback.
     private(set) var audioMessagePlayback: AudioMessagePlaybackService?
+
+    /// The service that manages message context menus.
     private(set) var contextMenu: ContextMenuService?
+
+    /// The service that manages the message delivery progress bar.
     private(set) var deliveryProgressIndicator: DeliveryProgressIndicatorService?
+
+    /// The service that manages the message input bar.
     private(set) var inputBar: InputBarService?
+
+    /// The service that manages the input bar's gesture recognizers.
     private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
+
+    /// The service that handles media attachment actions.
     private(set) var mediaActionHandler: MediaActionHandlerService?
+
+    /// The service that manages media message previews.
     private(set) var mediaMessagePreview: MediaMessagePreviewService?
+
+    /// The service that manages read receipts.
     private(set) var readReceipts: ReadReceiptService?
+
+    /// The service that manages the recipient bar. Created only for the new chat configuration.
     private(set) var recipientBar: RecipientBarService?
+
+    /// The service that manages the audio recording interface.
     private(set) var recordingUI: RecordingUIService?
+
+    /// The service that manages focusing a message from search.
     private(set) var searchInteraction: SearchInteractionService?
+
+    /// The service that manages the page's tap gesture recognizer.
     private(set) var tapGestureRecognizer: TapGestureRecognizerService?
+
+    /// The service that manages the typing indicator.
     private(set) var typingIndicator: TypingIndicatorService?
 
     private var configuration: ChatPageView.Configuration = .default
@@ -75,6 +126,19 @@ final class ChatPageViewService {
 
     // MARK: - Instantiate View Controller
 
+    /// Creates and configures the messages view controller for the given conversation.
+    ///
+    /// This method makes the given conversation current, resets the conversation's message
+    /// offset – advancing it to the focused message when the configuration specifies one – and
+    /// builds a new view controller through ``ChatPageViewControllerFactory``. It then creates
+    /// the sub-services for the new presentation, binding each to the view controller. For the
+    /// new chat configuration, it also creates and installs the recipient bar.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation to display.
+    ///   - configuration: The configuration to present the page in.
+    ///
+    /// - Returns: The configured messages view controller.
     func instantiateViewController(
         _ conversation: Conversation,
         configuration: ChatPageView.Configuration
@@ -121,6 +185,15 @@ final class ChatPageViewService {
 
     // MARK: - View Controller Lifecycle Handlers
 
+    /// Prepares the page as it begins to appear.
+    ///
+    /// This method disables user interaction until ``onViewDidAppear()`` completes, marks the
+    /// chat page presented, and applies the appropriate background and navigation bar
+    /// appearances. In the default configuration, it hides the input bar so it can fade in once
+    /// the page has appeared.
+    ///
+    /// - Note: This method has no effect while a media preview or picker is presented over the
+    ///   page.
     func onViewWillAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
@@ -142,6 +215,24 @@ final class ChatPageViewService {
         startSettingNavigationBarButtonItemAppearance()
     }
 
+    /// Completes the page's appearance.
+    ///
+    /// In the preview configuration, this method hides the input bar and scrolls to the focused
+    /// message – or to the latest message – without further setup. Otherwise, it:
+    ///
+    /// - Starts observing the displayed conversation when it is stored, skipping drafts and
+    ///   mocks.
+    /// - Begins observing session store and message outbox changes for the duration of the
+    ///   presentation.
+    /// - Configures the page's gesture recognizers, context menu interactions, and input bar,
+    ///   reconfiguring the input bar whenever the connection status changes.
+    /// - In the default configuration, logs an analytics event, scrolls to the focused or latest
+    ///   message, and fades the input bar in.
+    /// - Updates read dates for unread messages and clears the user's typing indicator status.
+    /// - Restores user interaction.
+    ///
+    /// - Note: This method has no effect while a media preview or picker is presented over the
+    ///   page.
     func onViewDidAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
         InteractivePopGestureRecognizer.setIsEnabled(true)
@@ -248,6 +339,13 @@ final class ChatPageViewService {
         }
     }
 
+    /// Prepares the page as it begins to disappear.
+    ///
+    /// This method restores the conversations page's navigation bar appearance and stops adding
+    /// context menu interactions to message cells.
+    ///
+    /// - Note: This method has no effect while a media preview or picker is presented over the
+    ///   page.
     func onViewWillDisappear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
@@ -256,6 +354,18 @@ final class ChatPageViewService {
         contextMenu?.interaction.stopAddingContextMenuInteractionToVisibleCells()
     }
 
+    /// Completes the page's disappearance.
+    ///
+    /// This method marks the chat page dismissed, stops conversation, session store, and outbox
+    /// observation, clears the user's typing indicator status, restores any messages displaying
+    /// alternate content, and stops speech synthesis, audio playback, and any in-progress
+    /// recording.
+    ///
+    /// The current conversation pointer is cleared only when the page is truly being dismissed –
+    /// not when it is covered by a sheet or preview.
+    ///
+    /// - Note: This method has no effect while a media preview or picker is presented over the
+    ///   page.
     func onViewDidDisappear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
@@ -312,21 +422,35 @@ final class ChatPageViewService {
 
     // MARK: - UIScrollView
 
+    /// Tells the service that the scroll view stopped decelerating.
+    ///
+    /// When the user was scrolling toward the top of the conversation, this method loads older
+    /// messages into the message list.
+    ///
+    /// - Parameter scrollView: The scroll view that stopped decelerating.
     func onScrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         guard scrollView.panGestureRecognizer.translation(in: scrollView.superview).y > 0 else { return }
         loadMoreMessages(fromScrollToTop: false)
     }
 
+    /// Tells the service that a scrolling animation finished. Triggers the focused message's
+    /// cell interaction when one is pending.
     func onScrollViewDidEndScrollingAnimation() {
         searchInteraction?.triggerFocusedMessageCellInteractionIfNeeded()
     }
 
+    /// Tells the service that the scroll view scrolled to the top. Loads older messages into the
+    /// message list, then scrolls to the topmost message.
     func onScrollViewDidScrollToTop() {
         loadMoreMessages(fromScrollToTop: true)
     }
 
     // MARK: - UITraitCollection
 
+    /// Tells the service that the view controller's trait collection changed. Redraws the page
+    /// when the user interface style changed.
+    ///
+    /// - Parameter previousTraitCollection: The trait collection before the change.
     func onTraitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         guard previousTraitCollection?.userInterfaceStyle != viewController?.traitCollection.userInterfaceStyle else { return }
         redrawForAppearanceChange()
@@ -334,6 +458,11 @@ final class ChatPageViewService {
 
     // MARK: - Auxiliary
 
+    /// Redraws the page for an appearance change, such as a switch between light and dark mode.
+    ///
+    /// This method reconfigures the input bar, lays out the recipient bar, reapplies the
+    /// navigation and status bar appearances, dismisses any presented context menu, and reloads
+    /// the message list with the updated background color.
     func redrawForAppearanceChange() {
         inputBar?.configureInputBar(forceUpdate: true)
         inputBar?.setAttachMediaButtonImage()
@@ -358,6 +487,9 @@ final class ChatPageViewService {
         reloadCollectionView()
     }
 
+    /// Reloads the message list.
+    ///
+    /// Unless exactly one message is displayed, the reload preserves the current scroll offset.
     func reloadCollectionView() {
         guard viewController?.displayedMessages.count == 1 else {
             viewController?.messagesCollectionView.reloadDataAndKeepOffset()
@@ -367,6 +499,17 @@ final class ChatPageViewService {
         viewController?.messagesCollectionView.reloadData()
     }
 
+    /// Reloads the items at the given index paths once it is safe to do so.
+    ///
+    /// If a message reaction or send is in progress, the reload is deferred until the operation
+    /// completes. Before reloading, the method validates that the chat page is still presented,
+    /// that the displayed conversation has not changed, and that the message list's structure
+    /// still matches its structure at the time of the call; if any check fails, the reload is
+    /// skipped.
+    ///
+    /// - Parameters:
+    ///   - indexPaths: The index paths of the items to reload.
+    ///   - isAnimated: A Boolean value that indicates whether the reload is animated.
     func reloadItemsWhenSafe(
         at indexPaths: [IndexPath],
         animated isAnimated: Bool = true
@@ -408,6 +551,11 @@ final class ChatPageViewService {
         }
     }
 
+    /// Sets the navigation title of the page's parent view controller.
+    ///
+    /// This method has no effect when the view controller has no parent.
+    ///
+    /// - Parameter navigationTitle: The title to display.
     func setNavigationTitle(_ navigationTitle: String) {
         guard let parent = viewController?.parent else { return }
         parent.navigationItem.title = navigationTitle

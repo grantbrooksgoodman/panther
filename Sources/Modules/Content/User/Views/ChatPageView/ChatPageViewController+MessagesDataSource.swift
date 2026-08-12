@@ -25,6 +25,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
 
     // MARK: - Properties
 
+    /// The sender representing the current user.
     var currentSender: MessageKit.SenderType {
         // swiftformat:disable acronyms
         Message.Sender(displayName: "", senderId: User.currentUserID ?? "")
@@ -33,6 +34,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
 
     // MARK: - Audio Tint Color
 
+    /// Returns the tint color for the given message's audio cell.
     func audioTintColor(
         for message: MessageType,
         at indexPath: IndexPath,
@@ -45,7 +47,9 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
 
     // MARK: - Cell Bottom Label Attributed Text
 
-    // swiftlint:disable:next function_body_length
+    // swiftlint:disable function_body_length
+    /// Returns the attributed text for the cell's bottom label, such as the message's delivery
+    /// status, read receipt, reactions, or translation details.
     func cellBottomLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
@@ -174,10 +178,12 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
         }
 
         return "\(prefix) \(Localized(.read).wrappedValue) \(readDate.formattedShortString)".attributed(attributedStringConfig)
-    }
+    } // swiftlint:enable function_body_length
 
     // MARK: - Cell Top Label Attributed Text
 
+    /// Returns the attributed text for the cell's top label, showing the message's date
+    /// separator.
     func cellTopLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
@@ -190,6 +196,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
 
     // MARK: - Message Bottom Label Attributed Text
 
+    /// Returns the attributed text for the message's bottom label, showing its sent time.
     func messageBottomLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
@@ -203,6 +210,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
 
     // MARK: - Message for Item
 
+    /// Returns the message to display at the given index path.
     func messageForItem(
         at indexPath: IndexPath,
         in messagesCollectionView: MessageKit.MessagesCollectionView
@@ -214,6 +222,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
 
     // MARK: - Message Timestamp Label Attributed Text
 
+    /// Returns the attributed text for the message's timestamp label, shown when the user swipes.
     func messageTimestampLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
@@ -230,6 +239,8 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
 
     // MARK: - Message Top Label Attributed Text
 
+    /// Returns the attributed text for the message's top label, showing the sender's name in
+    /// group conversations.
     func messageTopLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
@@ -283,6 +294,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
 
     // MARK: - Number of Sections
 
+    /// Returns the number of message sections.
     func numberOfSections(in messagesCollectionView: MessageKit.MessagesCollectionView) -> Int {
         displayedMessages.count
     }

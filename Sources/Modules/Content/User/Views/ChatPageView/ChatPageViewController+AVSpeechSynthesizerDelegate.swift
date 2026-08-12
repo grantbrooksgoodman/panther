@@ -20,6 +20,7 @@ import MessageKit
 extension ChatPageViewController: @preconcurrency AVSpeechSynthesizerDelegate {
     // MARK: - Did Cancel Utterance
 
+    /// Dismisses the context menu and clears the speaking message when speech is canceled.
     func speechSynthesizer(
         _ synthesizer: AVSpeechSynthesizer,
         didCancel utterance: AVSpeechUtterance
@@ -36,6 +37,7 @@ extension ChatPageViewController: @preconcurrency AVSpeechSynthesizerDelegate {
 
     // MARK: - Did Finish Utterance
 
+    /// Dismisses the context menu and clears the speaking message when speech finishes.
     func speechSynthesizer(
         _ synthesizer: AVSpeechSynthesizer,
         didFinish utterance: AVSpeechUtterance
@@ -52,6 +54,7 @@ extension ChatPageViewController: @preconcurrency AVSpeechSynthesizerDelegate {
 
     // MARK: - Will Speak Range of Speech String
 
+    /// Highlights the range of the message currently being spoken.
     func speechSynthesizer(
         _ synthesizer: AVSpeechSynthesizer,
         willSpeakRangeOfSpeechString characterRange: NSRange,

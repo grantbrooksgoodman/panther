@@ -14,6 +14,10 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A row displaying a contact's avatar, title, and optional subtitle.
+///
+/// Use ``ContactDetailView`` to summarize a contact in a list. When a subtitle is provided, a
+/// chevron indicates that the row leads to further detail.
 struct ContactDetailView: View {
     // MARK: - Constants Accessors
 
@@ -29,6 +33,13 @@ struct ContactDetailView: View {
 
     // MARK: - Init
 
+    /// Creates a contact detail row.
+    ///
+    /// - Parameters:
+    ///   - titleLabelText: The text the title label displays.
+    ///   - subtitleLabelText: The text the subtitle label displays. Pass `nil` to omit the
+    ///     subtitle and chevron.
+    ///   - image: The avatar image to display, or `nil` to show a placeholder symbol.
     init(
         titleLabelText: String,
         subtitleLabelText: String?,
@@ -41,6 +52,7 @@ struct ContactDetailView: View {
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         HStack {
             AvatarImageView(image)

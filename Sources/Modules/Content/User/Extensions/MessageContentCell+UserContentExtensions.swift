@@ -42,11 +42,13 @@ extension MessageContentCell {
         )
     }()
 
+    /// The identifier of the message the cell's context menu targets, if any.
     var contextMenuMessageID: String? {
         get { objc_getAssociatedObject(self, &contextMenuMessageIDKey) as? String }
         set { objc_setAssociatedObject(self, &contextMenuMessageIDKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
 
+    /// A Boolean value that indicates whether the cell has a context menu interaction installed.
     var hasContextMenuInteraction: Bool {
         guard let gestureRecognizers = messageContainerView.gestureRecognizers else { return false }
         return gestureRecognizers

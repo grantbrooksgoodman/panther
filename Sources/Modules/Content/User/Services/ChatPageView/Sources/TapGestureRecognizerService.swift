@@ -16,6 +16,11 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+/// The service that manages the page's tap gesture recognizer.
+///
+/// ``TapGestureRecognizerService`` installs a single-tap recognizer on the message list and
+/// routes each tap to the appropriate handler: presenting a failed message's action sheet,
+/// previewing tapped media, or handling a detected attribute – such as a link – in tapped text.
 @MainActor
 final class TapGestureRecognizerService {
     // MARK: - Dependencies
@@ -29,12 +34,19 @@ final class TapGestureRecognizerService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Configure Gesture Recognizer
 
+    /// Installs the single-tap recognizer on the message list.
+    ///
+    /// The recognizer is configured to require the message list's double-tap recognizer to fail
+    /// first, so a double tap does not also register as a single tap.
     func configureGestureRecognizer() {
         let singleTapGesture = UITapGestureRecognizer(
             target: self,
@@ -56,6 +68,13 @@ final class TapGestureRecognizerService {
 
     // MARK: - Handle Tap Gesture
 
+    /// Handles a tap on the message list.
+    ///
+    /// When the tap lands within a message's content, this method presents the failed message
+    /// action sheet for a failed outbox message, previews the tapped media, or handles a
+    /// detected attribute in tapped text. Taps outside message content are ignored.
+    ///
+    /// - Parameter sender: The tap gesture recognizer that recognized the tap.
     @objc
     func handleTapGesture(_ sender: UITapGestureRecognizer) {
         let touchPoint = sender.location(in: viewController.messagesCollectionView)

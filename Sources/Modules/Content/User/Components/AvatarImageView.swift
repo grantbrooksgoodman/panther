@@ -14,6 +14,12 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A circular avatar image with an optional participant count badge.
+///
+/// Use ``AvatarImageView`` to display a contact's or conversation's thumbnail. When no image
+/// is available – or the view is redacted – a placeholder symbol is shown instead. Badge
+/// counts greater than one appear as an overlaid count; pass `-1` to show the group
+/// placeholder symbol without a count.
 struct AvatarImageView: View {
     // MARK: - Constants Accessors
 
@@ -31,6 +37,14 @@ struct AvatarImageView: View {
 
     // MARK: - Init
 
+    /// Creates an avatar image view.
+    ///
+    /// - Parameters:
+    ///   - image: The image to display, or `nil` to show a placeholder symbol.
+    ///   - badgeCount: The number of participants the badge displays. Values greater than one
+    ///     show the badge; pass `-1` to show the group placeholder symbol without a count.
+    ///     The default is `0`.
+    ///   - size: The size of the view. Pass `nil` to use the default size.
     init(
         _ image: UIImage?,
         badgeCount: Int = 0,
@@ -43,6 +57,7 @@ struct AvatarImageView: View {
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         Group {
             if !redactionReasons.isEmpty {

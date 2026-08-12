@@ -12,6 +12,10 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// Use ``ConnectionStatusService`` to run effects when network connectivity changes.
+///
+/// The service observes network reachability for the lifetime of the instance, running its
+/// registered effects when connectivity is lost and when it is restored.
 final class ConnectionStatusService {
     // MARK: - Dependencies
 
@@ -26,6 +30,7 @@ final class ConnectionStatusService {
 
     // MARK: - Init
 
+    /// Creates a connection status service and begins observing network reachability.
     init() {
         isAwaitingConnectionRestoration = !build.isOnline
 
@@ -62,8 +67,16 @@ final class ConnectionStatusService {
 
     // MARK: - Effects
 
-    /// Adds an effect to be run upon a change in connection status.
-    /// - Warning: The provided effect will run perpetually, for each change in connection status. Call `clearAllEffects()` or `removeEffect(_:)` if this is not the desired behavior.
+    /// Registers an effect to run when connection status changes.
+    ///
+    /// Registering a new effect with the same identifier replaces the existing one.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier under which to register the effect.
+    ///   - effect: The effect to run.
+    ///
+    /// - Warning: The effect runs perpetually, upon each change in connection status. Call
+    ///   ``removeEffect(_:)`` or ``clearAllEffects()`` if this is not the desired behavior.
     func addEffectUponConnectionChanged(
         id: ConnectionStatusServiceEffectID,
         _ effect: @escaping () -> Void
@@ -71,10 +84,14 @@ final class ConnectionStatusService {
         $uponConnectionChanged[id] = effect
     }
 
+    /// Removes every registered effect.
     func clearAllEffects() {
         uponConnectionChanged = .init()
     }
 
+    /// Removes the effect registered under the given identifier.
+    ///
+    /// - Parameter id: The identifier of the effect to remove.
     func removeEffect(_ id: ConnectionStatusServiceEffectID) {
         $uponConnectionChanged[id] = nil
     }

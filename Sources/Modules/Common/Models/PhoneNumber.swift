@@ -16,13 +16,36 @@ import AppSubsystem
 /* 3rd-party */
 import PhoneNumberKit
 
+/// A phone number decomposed into its calling code, national number, and region.
+///
+/// ``PhoneNumber`` is the app's canonical phone number representation. Its
+/// ``compiledNumberString`` identifies a number across the app, such as when matching contacts
+/// to registered users.
+///
+/// Create phone numbers from raw strings or system contact values; the initializers derive the
+/// calling code and region using the device's region and number length validation when the
+/// source does not specify them.
+///
+/// - Important: Equality and hashing derive from ``hashFactors``, which include the number's
+///   ``label`` and ``internalFormattedString`` in addition to its digits. Two phone numbers with
+///   the same digits but different labels are not equal.
 final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
+    /// The number's calling code, containing digits only.
     let callingCode: String
+
+    /// The system-provided international format of the number, or `nil`. Used as a formatting
+    /// fallback.
     let internalFormattedString: String?
+
+    /// The label associated with the number, such as Home or Mobile, or `nil`.
     let label: String?
+
+    /// The number's national portion, containing digits only.
     let nationalNumberString: String
+
+    /// The code of the region the number belongs to.
     let regionCode: String
 
     private var formattedString: String?
@@ -30,10 +53,19 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
 
     // MARK: - Computed Properties
 
+    /// The number's compiled number string.
+    ///
+    /// A compiled number string is a phone number's calling code followed by its national
+    /// number, containing digits only.
     var compiledNumberString: String {
         callingCode + nationalNumberString
     }
 
+    /// The strings that collectively define this instance's identity for hashing purposes,
+    /// sorted alphabetically.
+    ///
+    /// Contains the calling code, national number, region code, label, and internal formatted
+    /// string.
     var hashFactors: [String] {
         [
             callingCode,
@@ -46,6 +78,18 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
 
     // MARK: - Init
 
+    /// Creates a phone number with the given components.
+    ///
+    /// The calling code and national number are reduced to their digits, and the label is
+    /// trimmed of surrounding whitespace and newlines.
+    ///
+    /// - Parameters:
+    ///   - callingCode: The number's calling code.
+    ///   - nationalNumberString: The number's national portion.
+    ///   - regionCode: The code of the region the number belongs to.
+    ///   - label: The label associated with the number, if any.
+    ///   - internalFormattedString: The system-provided international format of the number, if
+    ///     any.
     init(
         callingCode: String,
         nationalNumberString: String,
@@ -60,6 +104,14 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         self.internalFormattedString = internalFormattedString
     }
 
+    /// Creates a phone number from the given labeled system contact value.
+    ///
+    /// The initializer derives the calling code by testing the number's possible calling codes
+    /// against the device's, then falling back to the system-provided formatted string and the
+    /// value's country code. The region is derived similarly, preferring the device's region.
+    /// Components that cannot be derived fall back to the device's calling code and region.
+    ///
+    /// - Parameter cnLabeledPhoneNumber: The labeled system contact value to convert.
     convenience init(_ cnLabeledPhoneNumber: CNLabeledValue<CNPhoneNumber>) {
         @Dependency(\.commonServices) var services: CommonServices
 
@@ -126,6 +178,11 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         )
     }
 
+    /// Creates a phone number from the given string, deriving its components.
+    ///
+    /// - Parameters:
+    ///   - string: The phone number string. Non-digit characters are ignored.
+    ///   - label: The label to associate with the number, if any.
     convenience init(
         _ string: String,
         label: String? = nil
@@ -142,9 +199,18 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
 
     // MARK: - Formatted Strings
 
+    /// Returns the number formatted for display, prefixed with its calling code.
+    ///
+    /// The formatted result is cached per region; formatting again for the same region returns
+    /// the cached string.
+    ///
+    /// - Parameters:
+    ///   - regionCode: The code of the region whose formatting conventions to use. Pass `nil`
+    ///     to use the number's region.
+    ///
+    /// - Returns: The formatted number, prefixed with `+` and the calling code.
     func formattedString(
-        regionCode: String? = nil,
-        useFailsafe: Bool = true
+        regionCode: String? = nil
     ) -> String {
         let regionCode = regionCode ?? self.regionCode
 
@@ -168,6 +234,13 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         return formattedString
     }
 
+    /// Returns the national number formatted for the given region's conventions, without a
+    /// calling code prefix.
+    ///
+    /// - Parameter regionCode: The code of the region whose formatting conventions to use. Pass
+    ///   `nil` to use the number's region.
+    ///
+    /// - Returns: The formatted national number.
     func partiallyFormatted(forRegion regionCode: String? = nil) -> String {
         @Dependency(\.commonServices) var services: CommonServices
 
@@ -176,7 +249,11 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         let partialNumberString = nationalNumberString.isEmpty ? compiledNumberString : nationalNumberString
         guard partialNumberString != "" else { return partialNumberString }
 
-        var fullFormatAttempt = formattedString(regionCode: regionCode, includeCallingCode: false, useFailsafe: true)
+        var fullFormatAttempt = formattedString(
+            regionCode: regionCode,
+            includeCallingCode: false
+        )
+
         guard let callingCode = services.regionDetail.callingCode(regionCode: regionCode) else { return fullFormatAttempt }
 
         guard fullFormatAttempt == failsafeFormat(partialNumberString) else {
@@ -217,8 +294,7 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
 
     private func formattedString(
         regionCode: String,
-        includeCallingCode: Bool,
-        useFailsafe: Bool
+        includeCallingCode: Bool
     ) -> String {
         @Dependency(\.phoneNumberKit) var phoneNumberKit: PhoneNumberKit.PhoneNumberUtility
 
@@ -228,7 +304,7 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
             return internalFormattedString
         }
 
-        let fallbackFormatted = useFailsafe ? failsafeFormat(compiledNumberString) : compiledNumberString
+        let fallbackFormatted = failsafeFormat(compiledNumberString)
         let formattedNumber: String?
 
         do {
@@ -243,6 +319,8 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
 
     // MARK: - Equatable Conformance
 
+    /// Returns a Boolean value that indicates whether two phone numbers are equal, comparing
+    /// their ``hashFactors``.
     static func == (
         left: PhoneNumber,
         right: PhoneNumber
@@ -252,6 +330,7 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
 
     // MARK: - Hashable Conformance
 
+    /// Hashes the number's ``hashFactors``.
     func hash(into hasher: inout Hasher) {
         hasher.combine(hashFactors)
     }

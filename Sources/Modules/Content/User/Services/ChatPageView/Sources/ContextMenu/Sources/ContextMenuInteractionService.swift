@@ -19,6 +19,12 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+/// The service that manages context menu gesture interactions.
+///
+/// ``ContextMenuInteractionService`` installs the long-press context menu interaction on each
+/// message cell, replacing the system's default menu gesture, and keeps the interactions applied
+/// to cells as they scroll into view. It also handles the double-tap-to-react gesture and tracks
+/// which message a presented menu targets.
 @MainActor
 final class ContextMenuInteractionService {
     // MARK: - Constants Accessors
@@ -38,10 +44,13 @@ final class ContextMenuInteractionService {
 
     // MARK: - Properties
 
+    /// A Boolean value that indicates whether a context menu is currently presented.
     private(set) var isPresentingContextMenu = false {
         didSet { restoreSpeakingCellAttributes() }
     }
 
+    /// The identifier of the message most recently targeted by a context menu interaction, or
+    /// `nil` before any interaction has begun.
     private(set) var selectedMessageID: String?
 
     private let viewController: ChatPageViewController
@@ -80,6 +89,9 @@ final class ContextMenuInteractionService {
 
     // MARK: - Object Lifecycle
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
@@ -93,6 +105,9 @@ final class ContextMenuInteractionService {
 
     // MARK: - Configure Double Tap Gesture Recognizer
 
+    /// Installs the double-tap recognizer on the message list.
+    ///
+    /// A double tap applies the love reaction to the double-tapped message.
     func configureDoubleTapGestureRecognizer() {
         let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(reactToSelectedMessage(_:)))
         doubleTapGesture.delaysTouchesBegan = true
@@ -102,12 +117,15 @@ final class ContextMenuInteractionService {
 
     // MARK: - Context Menu Interaction Timer
 
+    /// Adds the context menu interaction to the currently visible message cells once.
     func addContextMenuInteractionToVisibleCellsOnce() {
         Task { @MainActor in
             addContextMenuInteractionToVisibleCells()
         }
     }
 
+    /// Begins periodically adding the context menu interaction to visible message cells as they
+    /// scroll into view.
     func startAddingContextMenuInteractionToVisibleCells() {
         contextMenuInteractionTimer = .scheduledTimer(
             timeInterval: Floats.interactionTimerTimeInterval,
@@ -118,6 +136,7 @@ final class ContextMenuInteractionService {
         )
     }
 
+    /// Stops periodically adding the context menu interaction to visible message cells.
     func stopAddingContextMenuInteractionToVisibleCells() {
         contextMenuInteractionTimer?.invalidate()
         contextMenuInteractionTimer = nil
@@ -125,6 +144,7 @@ final class ContextMenuInteractionService {
 
     // MARK: - Remove UIMenu Long Press Gesture for Visible Cells
 
+    /// Removes the system's default long-press menu gesture from the visible message cells.
     func removeUIMenuLongPressGestureForVisibleCells() {
         Task { @MainActor in
             let visibleCells = viewController.messagesCollectionView.visibleCells.compactMap { $0 as? MessageContentCell }
@@ -141,6 +161,15 @@ final class ContextMenuInteractionService {
 
     // MARK: - React to Selected Message
 
+    /// Applies a reaction to a message in response to a tapped reaction button or the double-tap
+    /// gesture.
+    ///
+    /// A tapped reaction button applies its reaction to the message the context menu targets; a
+    /// double tap applies the love reaction to the tapped message. When a reaction is already in
+    /// progress, the reaction is deferred until it completes.
+    ///
+    /// - Parameter sender: The reaction button or gesture recognizer that triggered the
+    ///   reaction.
     @MainActor
     @objc
     func reactToSelectedMessage(_ sender: Any) {
@@ -240,6 +269,8 @@ final class ContextMenuInteractionService {
 
     // MARK: - Keyboard Will Show Observer
 
+    /// Begins observing keyboard appearance to keep the message list's maximum scroll offset
+    /// accurate.
     func addKeyboardWillShowObserver() {
         notificationCenter.addObserver(
             self,
@@ -250,6 +281,7 @@ final class ContextMenuInteractionService {
         }
     }
 
+    /// Stops observing keyboard appearance.
     func removeKeyboardWillShowObserver() {
         notificationCenter.removeObserver(
             self,
@@ -260,6 +292,10 @@ final class ContextMenuInteractionService {
 
     // MARK: - Set Is Presenting Context Menu
 
+    /// Sets whether a context menu is currently presented.
+    ///
+    /// - Parameter isPresentingContextMenu: A Boolean value that indicates whether a context
+    ///   menu is presented.
     func setIsPresentingContextMenu(_ isPresentingContextMenu: Bool) {
         self.isPresentingContextMenu = isPresentingContextMenu
     }

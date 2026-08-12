@@ -13,6 +13,13 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// Use ``DocumentPickerService`` to choose a file with the system document picker.
+///
+/// Call ``present()`` to show the picker, and register a dismissal handler with
+/// ``onDismiss(_:)`` to receive the selected file. Selected files are copied to the app's
+/// temporary directory; images and MP4 videos are delivered as ``ContentPickerResult/image(_:)``
+/// and ``ContentPickerResult/video(_:)`` items, and PDF files as
+/// ``ContentPickerResult/document(_:)`` items.
 final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
     // MARK: - Dependencies
 
@@ -26,10 +33,12 @@ final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - Init
 
+    /// Creates a document picker service.
     override nonisolated init() {}
 
     // MARK: - Present
 
+    /// Presents the system document picker for choosing a JPEG, PNG, MP4, or PDF file.
     func present() {
         let viewController = UIDocumentPickerViewController(forOpeningContentTypes: [
             .jpeg,
@@ -43,12 +52,23 @@ final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - On Dismiss
 
+    /// Registers a handler to run when the picker is dismissed.
+    ///
+    /// The handler receives the selected item on success, a failure if processing fails, or
+    /// `nil` if the user cancels. The handler is cleared after it runs. Registering a new
+    /// handler replaces any existing one.
+    ///
+    /// - Parameter perform: The handler to run.
     func onDismiss(_ perform: @escaping (Callback<ContentPickerResult, Exception>?) -> Void) {
         _onDismiss = perform
     }
 
     // MARK: - UIDocumentPickerDelegate Conformance
 
+    /// Dismisses the picker and processes the first selected file, delivering the result to the
+    /// dismissal handler.
+    ///
+    /// A modal progress indicator appears if processing takes longer than one second.
     func documentPicker(
         _ controller: UIDocumentPickerViewController,
         didPickDocumentsAt urls: [URL]
@@ -64,6 +84,7 @@ final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
         processURL(firstURL)
     }
 
+    /// Dismisses the picker and delivers `nil` to the dismissal handler.
     func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
         controller.dismiss(animated: true)
         dismiss(nil)

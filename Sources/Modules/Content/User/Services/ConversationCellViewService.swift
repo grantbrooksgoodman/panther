@@ -14,6 +14,11 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
+/// The service that handles conversation cell interactions requiring presentation or session
+/// work.
+///
+/// ``ConversationCellReducer`` delegates to this service for blocking, reporting, deletion
+/// confirmation, and user info presentation.
 struct ConversationCellViewService {
     // MARK: - Dependencies
 
@@ -25,6 +30,11 @@ struct ConversationCellViewService {
 
     // MARK: - Methods
 
+    /// Begins the block users flow for the given conversation.
+    ///
+    /// - Parameter conversation: The conversation whose users to block.
+    ///
+    /// - Throws: An `Exception` if the operation fails.
     func blockUsersButtonTapped(
         _ conversation: Conversation
     ) async throws(Exception) {
@@ -33,8 +43,11 @@ struct ConversationCellViewService {
         )
     }
 
-    /// `.deleteConversationButtonTapped`
-    /// - Returns: `true` if the user selected the cancel option.
+    /// Presents the deletion confirmation action sheet for a conversation.
+    ///
+    /// - Parameter title: The conversation title the action sheet displays.
+    ///
+    /// - Returns: `true` if the user canceled the deletion; otherwise, `false`.
     func presentDeletionActionSheet(_ title: String) async -> Bool {
         let cancelled = LockIsolated(true)
         let deleteAction: AKAction = .init(
@@ -57,7 +70,13 @@ struct ConversationCellViewService {
         return cancelled.wrappedValue
     }
 
-    /// `.userInfoBadgeTapped`
+    /// Presents an alert with information about the given user.
+    ///
+    /// The alert shows the user's language and region. In developer mode, an additional action
+    /// switches the current account to the given user, resetting the app and returning to the
+    /// splash page.
+    ///
+    /// - Parameter user: The user the alert describes.
     func presentUserInfoAlert(
         _ user: User
     ) {
@@ -126,6 +145,11 @@ struct ConversationCellViewService {
         }
     }
 
+    /// Begins the report users flow for the given conversation.
+    ///
+    /// - Parameter conversation: The conversation whose users to report.
+    ///
+    /// - Throws: An `Exception` if the operation fails.
     func reportUsersButtonTapped(
         _ conversation: Conversation
     ) async throws(Exception) {

@@ -16,18 +16,24 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+/// The collection view flow layout for the chat page's message list.
+///
+/// ``MessageFlowLayout`` extends the standard message layout with sizing for system message
+/// cells and extra trailing padding for failed outbox messages.
 @MainActor
 final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
     // MARK: - Properties
 
-    /// Extra right padding added to the message container for failed
-    /// outbox messages, reserving space for the "!" indicator button.
+    /// The extra trailing padding added to the message container of failed outbox messages,
+    /// reserving space for the failure indicator button.
     static let failedIndicatorPaddingRight: CGFloat = 28
 
     private lazy var sizeCalculator = SizeCalculator(layout: self)
 
     // MARK: - Methods
 
+    /// Returns the size calculator for the item at the given index path, substituting the
+    /// system message calculator for custom-kind messages.
     override func cellSizeCalculatorForItem(
         at indexPath: IndexPath
     ) -> CellSizeCalculator {
@@ -43,6 +49,8 @@ final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
         return super.cellSizeCalculatorForItem(at: indexPath)
     }
 
+    /// Returns the layout attributes for the elements in the given rectangle, applying
+    /// failed-outbox padding where needed.
     override func layoutAttributesForElements(
         in rect: CGRect
     ) -> [UICollectionViewLayoutAttributes]? {
@@ -54,6 +62,8 @@ final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
         return attributes
     }
 
+    /// Returns the layout attributes for the item at the given index path, applying
+    /// failed-outbox padding where needed.
     override func layoutAttributesForItem(
         at indexPath: IndexPath
     ) -> UICollectionViewLayoutAttributes? {
@@ -62,6 +72,7 @@ final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
         return attributes
     }
 
+    /// Returns the standard message size calculators plus the system message calculator.
     override func messageSizeCalculators() -> [MessageSizeCalculator] {
         var superCalculators = super.messageSizeCalculators()
         superCalculators.append(sizeCalculator)

@@ -19,6 +19,7 @@ import MessageKit
 extension ChatPageViewController: UITextViewDelegate {
     // MARK: - Properties
 
+    /// The text input mode matching the app's current language.
     override var textInputMode: UITextInputMode? {
         .activeInputModes
             .filter { $0.primaryLanguage != nil }
@@ -29,6 +30,8 @@ extension ChatPageViewController: UITextViewDelegate {
 
     // MARK: - Should Begin Editing
 
+    /// Returns whether the text view should begin editing, first committing any pending recipient
+    /// entry.
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
 
@@ -44,6 +47,8 @@ extension ChatPageViewController: UITextViewDelegate {
 
     // MARK: - Did Begin Editing
 
+    /// Responds to the input field beginning editing by updating the recipient bar and the input
+    /// bar's buttons.
     func textViewDidBeginEditing(_ textView: UITextView) {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
 
@@ -60,6 +65,7 @@ extension ChatPageViewController: UITextViewDelegate {
 
     // MARK: - Should Change Text in Range
 
+    /// Returns whether the text should change, preventing edits while recording audio.
     func textView(
         _ textView: UITextView,
         shouldChangeTextIn range: NSRange,
@@ -71,6 +77,7 @@ extension ChatPageViewController: UITextViewDelegate {
 
     // MARK: - Did Change
 
+    /// Reconfigures the input bar as the input text changes.
     func textViewDidChange(_ textView: UITextView) {
         @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
         inputBarService?.configureInputBar()

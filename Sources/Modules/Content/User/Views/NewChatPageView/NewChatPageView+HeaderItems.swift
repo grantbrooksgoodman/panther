@@ -15,6 +15,7 @@ import AppSubsystem
 import ComponentKit
 
 extension NewChatPageView {
+    /// The header's center item, displaying the page's navigation title.
     var headerCenterItem: HeaderView.CenterItemType {
         .text(
             .init(
@@ -24,6 +25,8 @@ extension NewChatPageView {
         )
     }
 
+    /// The header's left item: the PenPals button, which adds a random PenPals participant as a
+    /// recipient.
     var headerLeftItem: HeaderView.PeripheralButtonType {
         typealias Floats = AppConstants.CGFloats.NewChatPageView
         return .image(
@@ -45,6 +48,7 @@ extension NewChatPageView {
         )
     }
 
+    /// The header's right item: the done button, which dismisses the page.
     var headerRightItem: HeaderView.PeripheralButtonType {
         .text(
             .init(

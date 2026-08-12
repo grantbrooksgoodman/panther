@@ -17,12 +17,32 @@ import AppSubsystem
 extension UIViewController {
     // MARK: - Properties
 
+    /// A one-time token that exchanges the implementation of `present(_:animated:completion:)`
+    /// with a version that customizes `SFSafariViewController` presentation.
+    ///
+    /// The exchanged implementation forces a light interface style on presented
+    /// `SFSafariViewController` instances and covers their top and bottom bars with overlay
+    /// views matched to the app's appearance. Presentation of all other view controllers is
+    /// unaffected.
+    ///
+    /// Evaluating this property performs the exchange; subsequent evaluations have no effect.
+    /// ``Application/initialize()`` evaluates it once at launch.
+    ///
+    /// - SeeAlso: ``UIViewController/swizzleViewWillDisappear``
     static let swizzlePresent: Void = {
         guard let original = class_getInstanceMethod(UIViewController.self, #selector(present(_:animated:completion:))),
               let swizzled = class_getInstanceMethod(UIViewController.self, #selector(_present(_:animated:completion:))) else { return }
         method_exchangeImplementations(original, swizzled)
     }()
 
+    /// A one-time token that exchanges the implementation of `viewWillDisappear(_:)` with a
+    /// version that removes the overlay views added during `SFSafariViewController`
+    /// presentation.
+    ///
+    /// Evaluating this property performs the exchange; subsequent evaluations have no effect.
+    /// ``Application/initialize()`` evaluates it once at launch.
+    ///
+    /// - SeeAlso: ``UIViewController/swizzlePresent``
     static let swizzleViewWillDisappear: Void = {
         guard let original = class_getInstanceMethod(UIViewController.self, #selector(viewWillDisappear(_:))),
               let swizzled = class_getInstanceMethod(UIViewController.self, #selector(_viewWillDisappear(_:))) else { return }

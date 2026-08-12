@@ -18,6 +18,23 @@ import AppSubsystem
 import Networking
 import Translator
 
+/// The service that initializes the app's data bundle behind the splash page.
+///
+/// Use ``SplashPageViewService`` to bring the app from launch – or from a completed sign-in or
+/// sign-up – to a presentable state. The splash page's reducer calls
+/// ``initializeBundle(fromRetry:)`` when the page appears, racing it against
+/// ``resolveCachedUserIfPoorNetwork()``; whichever settles first determines how the app loads,
+/// and the other is cancelled. The service reports progress through ``initializationProgress``
+/// and publishes the text the splash page displays.
+///
+/// If initialization fails, the splash page's reducer drives a recovery sequence through this
+/// service: the first failure retries automatically – attempting a database repair through
+/// ``performRetryHandler()`` when the failure warrants one – and subsequent failures present
+/// ``presentErrorAlert(_:)`` so the user can retry manually.
+///
+/// - Important: The service is bound to the main actor. Because initialization races the
+///   cached-user path, both methods check for task cancellation between steps and return early
+///   once cancelled.
 @MainActor
 final class SplashPageViewService: ObservableObject {
     // MARK: - Dependencies
@@ -33,6 +50,10 @@ final class SplashPageViewService: ObservableObject {
 
     // MARK: - Properties
 
+    /// The fraction of bundle initialization that has completed, from `0` to `1`.
+    ///
+    /// Updating this value refreshes ``percentageLabelText``. When the value reaches `1`, it
+    /// resets itself to `0` after a brief delay unless a new initialization has since begun.
     var initializationProgress: CGFloat = 0 {
         didSet {
             percentageLabelText = initializationProgress >= 1 ? "100%" : "\(initializationProgress.roundedString)%"
@@ -45,7 +66,11 @@ final class SplashPageViewService: ObservableObject {
         }
     }
 
+    /// The localized text that describes the current initialization activity, such as loading or
+    /// repairing data.
     @Published private(set) var loadingLabelText = ""
+
+    /// The formatted percentage text corresponding to ``initializationProgress``.
     @Published private(set) var percentageLabelText = ""
 
     private var didAttemptDatabaseRepair = false
@@ -55,14 +80,53 @@ final class SplashPageViewService: ObservableObject {
 
     // MARK: - Computed Properties
 
+    /// A Boolean value that indicates whether the splash page should show the loading label.
+    ///
+    /// `true` once a database repair has been attempted, or once initialization has run long
+    /// enough to exceed the quick-load timeout.
     var shouldShowLoadingLabel: Bool {
         didAttemptDatabaseRepair || didSurpassQuickLoadTimeoutDuration
     }
 
     // MARK: - Methods
 
-    /// `.viewAppeared`,
-    /// `.errorAlertDismissed`
+    /// Initializes the app's data bundle, preparing every service the app requires.
+    ///
+    /// This method performs the app's startup sequence in order:
+    ///
+    /// 1. Configures error reporting, translation, breadcrumb capture, and cache invalidation
+    ///    observation.
+    /// 2. When offline, completes immediately, applying the persisted user's language when one
+    ///    exists.
+    /// 3. Signs the user in anonymously, then resolves the current user, the session language
+    ///    code, and hosted metadata values concurrently.
+    /// 4. Prompts the user to update the app when applicable.
+    /// 5. Checks the remote cache status: when the cache has been invalidated, resets the
+    ///    application – preserving the signed-in user's ID – and restarts initialization as a
+    ///    retry.
+    /// 6. Once the current user resolves, updates their device identifier, synchronizes the
+    ///    contact pair archive, and resolves the user's conversation data – populating temporary
+    ///    caches in the background for accounts with many conversations.
+    /// 7. Schedules post-launch maintenance – push token pruning, typing indicator reset, badge
+    ///    number update, and sharing data updates for known users – without blocking completion.
+    ///
+    /// The splash page's reducer calls this method when the page appears, and again – passing
+    /// `true` – when retrying after a failure. Progress is reported through
+    /// ``initializationProgress``, reaching `1` when initialization completes.
+    ///
+    /// - Parameter fromRetry: A Boolean value that indicates whether this call retries a
+    ///   previous attempt. Passing `true` preserves the existing progress and timeout state.
+    ///
+    /// - Throws: An `Exception` if a required startup step fails. Failing to resolve the current
+    ///   user because no user is signed in is not an error; in that case, progress completes so
+    ///   the user can proceed to onboarding.
+    ///
+    /// - Important: Because initialization races ``resolveCachedUserIfPoorNetwork()``, this
+    ///   method checks for task cancellation between steps and returns early once cancelled.
+    ///
+    /// - Note: The device identifier update must complete before the app's remote database
+    ///   observers start once the splash page dismisses; otherwise, the observer would detect
+    ///   the change and sign the user out.
     func initializeBundle(fromRetry: Bool) async throws(Exception) {
         /* MARK: Service Setup */
 
@@ -331,7 +395,17 @@ final class SplashPageViewService: ObservableObject {
         }
     }
 
-    /// `.errorAlertDismissed`
+    /// Attempts to recover from a failed initialization.
+    ///
+    /// The first call attempts a database repair, updating ``loadingLabelText`` while the repair
+    /// runs. If the repair reveals that a forced update is required, the method sets the shared
+    /// forced-update flag and returns without error. A subsequent call after another failure
+    /// resets the application entirely.
+    ///
+    /// The splash page's reducer calls this method before retrying initialization when recovery
+    /// is warranted.
+    ///
+    /// - Throws: An `Exception` if the database repair fails.
     func performRetryHandler() async throws(Exception) {
         func attemptDatabaseRepair() async throws(Exception) {
             didAttemptDatabaseRepair = true
@@ -357,7 +431,16 @@ final class SplashPageViewService: ObservableObject {
         }
     }
 
-    /// `.initializedBundle`
+    /// Presents an error alert for the given exception, offering to try again.
+    ///
+    /// The alert's error description is translated when the exception carries a specific
+    /// user-facing descriptor; generic and timed-out descriptors are presented without
+    /// translation. When the exception is reportable, the alert includes an option to send an
+    /// error report.
+    ///
+    /// The method suspends until the user dismisses the alert.
+    ///
+    /// - Parameter exception: The exception to present.
     func presentErrorAlert(_ exception: Exception) async {
         let mockGenericException: Exception = .init(metadata: .init(sender: self))
         let mockTimedOutException: Exception = .timedOut(metadata: .init(sender: self))
@@ -379,9 +462,18 @@ final class SplashPageViewService: ObservableObject {
         ).present(translating: translationOptionKeys)
     }
 
-    /// Returns `true` if a complete cached user is available and
-    /// either the network health degrades to poor or the fallback
-    /// deadline elapses before bundle initialization settles.
+    /// Falls back to the cached user when the network is too poor for full initialization.
+    ///
+    /// Call this method concurrently with ``initializeBundle(fromRetry:)``. If a complete cached
+    /// user – one whose conversations all have their messages and users present – is available,
+    /// the method waits for the network health to degrade to poor, or for a fallback deadline to
+    /// elapse on a network that has produced no health evidence. It then reports progress as
+    /// nearly complete, applies the cached user's language, and schedules a deferred resolution
+    /// of the user's data for when the network health recovers.
+    ///
+    /// - Returns: `true` if the app loaded from the cached user; otherwise, `false`, indicating
+    ///   that no complete cached user exists or that initialization settled first, cancelling
+    ///   this method.
     func resolveCachedUserIfPoorNetwork() async -> Bool {
         guard let currentUser = clientSession.entity.user.currentUser,
               let conversations = currentUser.conversations,

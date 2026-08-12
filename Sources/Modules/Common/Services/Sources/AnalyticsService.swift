@@ -16,6 +16,10 @@ import Networking
 /* 3rd-party */
 import FirebaseAnalytics
 
+/// Use ``AnalyticsService`` to report usage events to the analytics backend.
+///
+/// Events are reported with a standard set of metadata describing the build, device, language,
+/// current user, and visible view.
 struct AnalyticsService {
     // MARK: - Dependencies
 
@@ -26,6 +30,7 @@ struct AnalyticsService {
 
     // MARK: - Types
 
+    /// A usage event that can be reported to the analytics backend.
     enum AnalyticsEvent: String {
         /* MARK: Cases */
 
@@ -59,6 +64,7 @@ struct AnalyticsService {
 
         /* MARK: Properties */
 
+        /// The event name in snake case, as reported to the analytics backend.
         var name: String {
             rawValue.snakeCased
         }
@@ -66,6 +72,10 @@ struct AnalyticsService {
 
     // MARK: - Computed Properties
 
+    /// A Boolean value that indicates whether analytics data collection is enabled.
+    ///
+    /// Data collection is enabled on general-release builds in the production environment, or
+    /// when the app is launched with the Firebase Analytics debugging arguments.
     static let shouldEnableDataCollection: Bool = {
         @Dependency(\.build) var build: Build
 
@@ -113,6 +123,20 @@ struct AnalyticsService {
 
     // MARK: - Log Event
 
+    /// Reports the given event to the analytics backend.
+    ///
+    /// The event is reported asynchronously with the standard metadata set; this method returns
+    /// immediately. Parameter values longer than 40 characters are truncated. If
+    /// ``shouldEnableDataCollection`` is `false`, the event is discarded.
+    ///
+    /// When the current user is signed in with a designated test account on a general-release
+    /// build in the production environment, the event is additionally forwarded to the
+    /// notification service.
+    ///
+    /// - Parameters:
+    ///   - event: The event to report.
+    ///   - additionalUserInfo: Additional parameters to attach to the event, overriding
+    ///     standard metadata values with matching keys. The default is `nil`.
     func logEvent(
         _ event: AnalyticsEvent,
         additionalUserInfo: [String: String]? = nil

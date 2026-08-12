@@ -13,6 +13,27 @@ import Foundation
 import AlertKit
 import AppSubsystem
 
+/// The reducer that drives the splash page.
+///
+/// The splash page is presented at launch and after a completed sign-in or sign-up. It initializes
+/// the app's data bundle through ``SplashPageViewService`` and routes the user to the appropriate
+/// destination when initialization settles.
+///
+/// The page's behavior contract:
+///
+/// - On appearance, the page begins bundle initialization, racing
+///   ``SplashPageViewService/initializeBundle(fromRetry:)`` against
+///   ``SplashPageViewService/resolveCachedUserIfPoorNetwork()``; whichever settles first
+///   determines how the app loads, and the other is cancelled.
+/// - Each network activity event nudges the initialization progress forward until it approaches
+///   completion, and the progress bar is shown only while a user is signed in.
+/// - If initialization succeeds, the page presents the user content when a signed-in user
+///   resolved; otherwise, it presents onboarding with an empty navigation stack.
+/// - If initialization fails, the first failure attempts recovery automatically; subsequent
+///   failures present an error alert, and dismissing it retries. In both cases, failures a
+///   database repair cannot address – a timeout or a media file generation failure – retry
+///   initialization directly, while all other failures run
+///   ``SplashPageViewService/performRetryHandler()`` before retrying.
 struct SplashPageReducer: Reducer {
     // MARK: - Dependencies
 
@@ -34,17 +55,31 @@ struct SplashPageReducer: Reducer {
 
     // MARK: - Actions
 
+    /// The actions the splash page can process.
     enum Action {
+        /// An action that indicates the view appeared. Begins bundle initialization.
         case viewAppeared
+
+        /// An action that indicates network activity occurred. Nudges the initialization
+        /// progress forward until it approaches completion.
         case bundleInitializationProgressOccurred
+
+        /// An action that indicates the error alert was dismissed. Retries initialization,
+        /// running the recovery handler first when the failure warrants it.
         case errorAlertDismissed
 
+        /// An action that indicates bundle initialization finished, carrying `nil` if the
+        /// operation succeeded; otherwise, the resulting `Exception`.
         case initializedBundle(Exception?)
+
+        /// An action that indicates the recovery attempt finished, carrying `nil` if the
+        /// operation succeeded; otherwise, the resulting `Exception`. Retries initialization.
         case performRetryHandlerReturned(Exception?)
     }
 
     // MARK: - State
 
+    /// The state of the splash page.
     struct State: Equatable {
         /* MARK: Properties */
 
@@ -53,6 +88,8 @@ struct SplashPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        /// A Boolean value that indicates whether the progress bar is shown. Shown only while a
+        /// user is signed in.
         var shouldShowProgressBar: Bool {
             User.currentUserID != nil
         }
@@ -60,6 +97,13 @@ struct SplashPageReducer: Reducer {
 
     // MARK: - Reduce
 
+    /// Updates the page's state in response to the given action, returning any effect to run.
+    ///
+    /// - Parameters:
+    ///   - state: The page's current state, mutated in place.
+    ///   - action: The action to process.
+    ///
+    /// - Returns: An effect for the system to run, or `.none`.
     func reduce(
         into state: inout State,
         action: Action

@@ -17,6 +17,11 @@ import UserNotifications
 import AppSubsystem
 import Networking
 
+/// Use ``NotificationService`` to send push notifications and respond to notifications
+/// received while the app is in the foreground.
+///
+/// Notifications are delivered directly through the push notification backend, localized to
+/// each recipient's language.
 struct NotificationService {
     // MARK: - Dependencies
 
@@ -29,6 +34,16 @@ struct NotificationService {
 
     // MARK: - Set Badge Number
 
+    /// Sets the app icon's badge number.
+    ///
+    /// Negative values are clamped to zero.
+    ///
+    /// - Parameters:
+    ///   - badgeNumber: The badge number to set.
+    ///   - updateHostedValue: A Boolean value that indicates whether the current user's hosted
+    ///     badge number should also be updated. The default is `true`.
+    ///
+    /// - Throws: An `Exception` if setting the badge count or updating the hosted value fails.
     func setBadgeNumber(
         _ badgeNumber: Int,
         updateHostedValue: Bool = true
@@ -56,6 +71,24 @@ struct NotificationService {
 
     // MARK: - Notify Users of Message
 
+    /// Sends a push notification about the given message – or a reaction to it – to each of
+    /// the given users.
+    ///
+    /// Notification content is localized to each recipient's language, and each recipient's
+    /// hosted badge number is incremented atomically. Recipients who have not registered for
+    /// push notifications are skipped; stale push tokens are erased.
+    ///
+    /// - Parameters:
+    ///   - users: The users to notify.
+    ///   - reaction: The reaction the notification describes; pass `nil` to describe the
+    ///     message itself. The default is `nil`.
+    ///   - message: The message the notification describes.
+    ///   - conversationIDKey: The identifier key of the conversation containing the message.
+    ///   - isPenPalsConversation: A Boolean value that indicates whether the conversation is a
+    ///     PenPals conversation, in which case notification titles use a PenPals display
+    ///     name in place of the sender's phone number.
+    ///
+    /// - Throws: An `Exception` if the current user has not been set, or if delivery fails.
     func notify(
         _ users: [User],
         ofReaction reaction: Reaction? = nil,
@@ -133,6 +166,14 @@ struct NotificationService {
 
     // MARK: - Notify of Prevarication Mode Analytics Event
 
+    /// Sends a push notification describing an analytics event to every registered device in
+    /// the staging environment.
+    ///
+    /// - Parameters:
+    ///   - title: The notification title.
+    ///   - body: The notification body.
+    ///
+    /// - Throws: An `Exception` if fetching user data or delivery fails.
     func notifyOfPrevaricationModeAnalyticsEvent(
         _ title: String,
         body: String
@@ -163,6 +204,20 @@ struct NotificationService {
 
     // MARK: - Respond to In-app Notification
 
+    /// Handles a notification received while the app is in the foreground.
+    ///
+    /// If the notification's conversation is already open, medium haptic feedback plays for
+    /// reactions and the notification is suppressed. Otherwise, a toast presenting the
+    /// notification content is shown; tapping it navigates to the conversation, focusing the
+    /// reacted-to message if applicable.
+    ///
+    /// - Parameter notification: The notification to handle.
+    ///
+    /// - Returns: The presentation options with which the system should display the
+    ///   notification.
+    ///
+    /// - Throws: An `Exception` if the notification is malformed, is not intended for the
+    ///   current user, or references a conversation that is not visible.
     @MainActor
     func respondToInAppNotification(
         _ notification: UNNotification

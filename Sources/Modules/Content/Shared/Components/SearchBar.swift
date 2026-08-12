@@ -14,6 +14,17 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A rounded search field with a leading search symbol and a trailing clear button.
+///
+/// Use ``SearchBar`` to filter a page's content by a search query. The bar binds to the given
+/// query, shows its clear button only while the query is non-empty, and runs an optional handler
+/// with the current query when the user submits.
+///
+/// To combine the bar with the content it filters, use
+/// ``inView(withQuery:keyboardType:placeholderText:onSubmit:content:)``.
+///
+/// - Note: When the app runs with full iOS 26 compatibility, the bar renders with a glass
+///   effect; otherwise, it renders with a filled, rounded background.
 struct SearchBar: View {
     // MARK: - Constants Accessors
 
@@ -32,6 +43,16 @@ struct SearchBar: View {
 
     // MARK: - Init
 
+    /// Creates a search bar with the given query binding and configuration.
+    ///
+    /// - Parameters:
+    ///   - query: A binding to the search query the bar displays and edits.
+    ///   - bottomPadding: The padding applied below the bar.
+    ///   - keyboardType: The keyboard type to display during editing, or `nil` for the system
+    ///     default.
+    ///   - placeholderText: The placeholder string to display while the query is empty. Defaults
+    ///     to the localized search prompt.
+    ///   - onSubmit: The handler to run with the current query when the user submits, if any.
     init(
         _ query: Binding<String>,
         bottomPadding: CGFloat = AppConstants.CGFloats.SearchBar.defaultBottomPadding,
@@ -48,6 +69,7 @@ struct SearchBar: View {
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         HStack {
             HStack {
@@ -97,6 +119,21 @@ struct SearchBar: View {
 
     // MARK: - View Builder
 
+    /// Creates a view that combines a search bar with the given content.
+    ///
+    /// When the app runs with full iOS 26 compatibility, the bar floats at the bottom of the
+    /// content; otherwise, it sits above the content.
+    ///
+    /// - Parameters:
+    ///   - query: A binding to the search query the bar displays and edits.
+    ///   - keyboardType: The keyboard type to display during editing, or `nil` for the system
+    ///     default.
+    ///   - placeholderText: The placeholder string to display while the query is empty. Defaults
+    ///     to the localized search prompt.
+    ///   - onSubmit: The handler to run with the current query when the user submits, if any.
+    ///   - content: The content the search bar filters.
+    ///
+    /// - Returns: A view that lays out the search bar together with the given content.
     @ViewBuilder
     static func inView(
         withQuery query: Binding<String>,

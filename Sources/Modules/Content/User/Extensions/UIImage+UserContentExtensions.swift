@@ -20,6 +20,7 @@ extension UIImage {
 
     // MARK: - Properties
 
+    /// The average color of the image, or `nil` if it cannot be computed.
     var averageColor: UIColor? {
         guard let inputImage = CIImage(image: self) else { return nil }
         let extentVector = CIVector(
@@ -59,6 +60,7 @@ extension UIImage {
         )
     }
 
+    /// A placeholder image indicating missing content.
     static var missing: UIImage {
         let config: UIImage.SymbolConfiguration = .init(
             pointSize: 100,
@@ -84,6 +86,14 @@ extension UIImage {
 
     // MARK: - Methods
 
+    /// Returns the image's JPEG data compressed to approximately the given size.
+    ///
+    /// - Parameters:
+    ///   - kilobytes: The target size, in kilobytes.
+    ///   - toleratedMarginOfError: The fraction by which the result may exceed the target size.
+    ///
+    /// - Returns: The compressed data, or `nil` if the image cannot be compressed to the target
+    ///   size.
     func dataCompressed(
         toKB kilobytes: Int,
         toleratedMarginOfError: CGFloat = 0.2
@@ -100,6 +110,16 @@ extension UIImage {
         return compressedData
     }
 
+    /// Returns an image rendering the given initials centered on a colored background.
+    ///
+    /// - Parameters:
+    ///   - initials: The initials to render.
+    ///   - backgroundColor: The background color.
+    ///   - font: The font for the initials.
+    ///   - textColor: The color of the initials.
+    ///   - size: The size of the image.
+    ///
+    /// - Returns: The rendered image, or `nil` if it cannot be created.
     static func fromInitials(
         _ initials: String,
         backgroundColor: UIColor = .systemGray,

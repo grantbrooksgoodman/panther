@@ -16,12 +16,24 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+/// The service that manages media message previews.
+///
+/// ``MediaMessagePreviewService`` presents a full-screen viewer for a tapped media message,
+/// letting the user page through all of the conversation's media. It also caches decoded images
+/// and thumbnails for reuse.
+///
+/// - Note: While a preview is presented, ``isPreviewingMedia`` is `true`; the chat page uses
+///   this to distinguish being covered by the preview from being dismissed.
 @MainActor
 final class MediaMessagePreviewService {
     // MARK: - Types
 
+    /// The keys identifying the service's media caches.
     enum CacheKey: String, CaseIterable {
+        /// The cache of full-size images.
         case images
+
+        /// The cache of thumbnail images.
         case thumbnails
     }
 
@@ -34,9 +46,13 @@ final class MediaMessagePreviewService {
 
     // MARK: - Properties
 
+    /// The cache of full-size images, keyed by local file URL.
     @Cached(CacheKey.images) var cachedImages: [URL: UIImage]?
+
+    /// The cache of thumbnail images, keyed by local file URL.
     @Cached(CacheKey.thumbnails) var cachedThumbnails: [URL: UIImage]?
 
+    /// A Boolean value that indicates whether a media preview is currently presented.
     private(set) var isPreviewingMedia = false
 
     private let viewController: ChatPageViewController
@@ -51,12 +67,16 @@ final class MediaMessagePreviewService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Configure Gesture Recognizers
 
+    /// Installs the pinch recognizer that opens the media preview on the message list.
     func configureGestureRecognizers() {
         let pinchGestureRecognizer: UIPinchGestureRecognizer = .init(
             target: self,
@@ -67,6 +87,16 @@ final class MediaMessagePreviewService {
 
     // MARK: - Did Tap Image
 
+    /// Presents the media preview for the media in the given cell.
+    ///
+    /// This method dismisses the keyboard and opens a full-screen viewer showing all of the
+    /// conversation's media, starting at the tapped item. When the viewer is dismissed, it
+    /// redraws the page and restores first responder status to whichever input field held it.
+    ///
+    /// This method has no effect when the cell holds no downloaded media, when a preview is
+    /// already presented, or when a context menu is presented.
+    ///
+    /// - Parameter cell: The cell whose media to preview.
     func didTapImage(in cell: MessageCollectionViewCell) {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let message = viewController.displayedMessages.itemAt(indexPath.section),
@@ -110,6 +140,7 @@ final class MediaMessagePreviewService {
 
     // MARK: - Clear Cache
 
+    /// Removes every cached image and thumbnail.
     func clearCache() {
         cachedImages = nil
         cachedThumbnails = nil

@@ -17,6 +17,14 @@ import AppSubsystem
 import MessageKit
 
 extension MessagesCollectionView {
+    /// Scrolls to the message with the given identifier.
+    ///
+    /// This method has no effect when no displayed message has the given identifier.
+    ///
+    /// - Parameters:
+    ///   - messageID: The identifier of the message to scroll to.
+    ///   - scrollPosition: The position at which to align the message.
+    ///   - animated: A Boolean value that determines whether the scroll is animated.
     func scrollTo(
         messageID: String,
         at scrollPosition: UICollectionView.ScrollPosition = .top,

@@ -13,6 +13,11 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// Use ``DocumentExportService`` to export a file with the system document picker.
+///
+/// Call ``presentExportController(forFileAt:)`` to show the picker, and register a dismissal
+/// handler with ``onDismiss(_:)`` to respond when the export completes. The file is exported
+/// from a temporary copy that is removed on dismissal.
 final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
     // MARK: - Dependencies
 
@@ -26,10 +31,20 @@ final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - Init
 
+    /// Creates a document export service.
     override nonisolated init() {}
 
     // MARK: - Present Export Controller
 
+    /// Presents the system document picker for exporting the file at the given URL.
+    ///
+    /// The file is copied to the app's temporary directory under a localized default name
+    /// before presentation; the destination the user chooses receives a copy.
+    ///
+    /// - Parameter url: The URL of the file to export.
+    ///
+    /// - Throws: An `Exception` if the file type cannot be determined, or if the file cannot
+    ///   be copied to the temporary directory.
     func presentExportController(
         forFileAt url: URL
     ) throws(Exception) {
@@ -60,6 +75,12 @@ final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - On Dismiss
 
+    /// Registers a handler to run when the picker is dismissed.
+    ///
+    /// The handler receives `true` if the user canceled the export; otherwise, `false`. The
+    /// handler is cleared after it runs. Registering a new handler replaces any existing one.
+    ///
+    /// - Parameter perform: The handler to run.
     func onDismiss(
         _ perform: @escaping (Bool) -> Void
     ) {
@@ -68,6 +89,7 @@ final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - UIDocumentPickerDelegate Conformance
 
+    /// Dismisses the picker and delivers `false` to the dismissal handler.
     func documentPicker(
         _ controller: UIDocumentPickerViewController,
         didPickDocumentsAt urls: [URL]
@@ -78,6 +100,7 @@ final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
         }
     }
 
+    /// Dismisses the picker and delivers `true` to the dismissal handler.
     func documentPickerWasCancelled(
         _ controller: UIDocumentPickerViewController
     ) {

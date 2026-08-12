@@ -12,6 +12,10 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// Use ``CommonPropertyLists`` to read phone number reference data bundled with the app as
+/// property lists.
+///
+/// Loaded values are cached in memory.
 final class CommonPropertyLists: @unchecked Sendable {
     // MARK: - Types
 
@@ -26,6 +30,7 @@ final class CommonPropertyLists: @unchecked Sendable {
 
     // MARK: - Properties
 
+    /// The shared property lists instance.
     static let shared = CommonPropertyLists()
 
     @Cached(CacheKey.callingCodes) private var cachedCallingCodes: [String: String]?
@@ -33,6 +38,10 @@ final class CommonPropertyLists: @unchecked Sendable {
 
     // MARK: - Computed Properties
 
+    /// A dictionary that maps region codes to their international calling codes.
+    ///
+    /// The dictionary is loaded from the bundled `CallingCodes.plist` resource and cached in
+    /// memory. If the resource cannot be loaded, this property is an empty dictionary.
     var callingCodes: [String: String] {
         if let cachedCallingCodes,
            !cachedCallingCodes.isEmpty {
@@ -49,6 +58,11 @@ final class CommonPropertyLists: @unchecked Sendable {
         return dictionary
     }
 
+    /// A dictionary that maps national phone number lengths, as strings, to the calling codes
+    /// whose numbers have that length.
+    ///
+    /// The dictionary is loaded from the bundled `LookupTables.plist` resource and cached in
+    /// memory. If the resource cannot be loaded, this property is an empty dictionary.
     var lookupTables: [String: [String]] {
         if let cachedLookupTables,
            !cachedLookupTables.isEmpty {
@@ -71,6 +85,7 @@ final class CommonPropertyLists: @unchecked Sendable {
 
     // MARK: - Clear Cache
 
+    /// Removes every cached property list value.
     func clearCache() {
         cachedCallingCodes = nil
         cachedLookupTables = nil

@@ -16,17 +16,34 @@ import Networking
 extension CoreKit.Utilities {
     // MARK: - Types
 
+    /// The set of conversations targeted by ``CoreKit/Utilities/deleteConversations(_:)``.
     enum ConversationDeletionGranularity {
+        /// Every conversation associated with the current user, including ignored conversations.
         case allForCurrentUser
+
+        /// Group conversations that have neither a name nor a photo, excluding PenPals
+        /// conversations.
         case groupChatsWithoutNameOrPhoto
+
+        /// Conversations in which the message recipient consent flow has been engaged.
         case messageRecipientConsentEnabled
+
+        /// Conversations that are not visible to the current user, including ignored
+        /// conversations.
         case notVisibleForCurrentUser
+
+        /// One-to-one conversations containing fewer than five messages.
         case oneToOneAndFewerThanFiveMessages
+
+        /// PenPals conversations.
         case penPals
     }
 
     // MARK: - Methods
 
+    /// Resets the current user's previous language code history to an empty state.
+    ///
+    /// - Throws: An `Exception` if the current user has not been set, or if the update fails.
     func clearPreviousLanguageCodes() async throws(Exception) {
         @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
         guard let currentUser else {
@@ -42,6 +59,20 @@ extension CoreKit.Utilities {
         )
     }
 
+    /// Deletes the current user's conversations matching the given granularity.
+    ///
+    /// This method resolves the current user's conversations and messages, computes the set of
+    /// conversation identifiers matching the granularity, and deletes each one by routing it
+    /// through the network integrity service's malformed-conversation repair procedure. While the
+    /// operation runs, an activity indicator overlay is displayed and all database and storage
+    /// caching is disabled.
+    ///
+    /// - Parameter granularity: The set of conversations to delete.
+    ///
+    /// - Important: This method stops current-user change observation and does not restart it.
+    ///
+    /// - Throws: An `Exception` if the conversation identifiers cannot be resolved, or if
+    ///   deletion fails for any conversation.
     @MainActor
     func deleteConversations(
         _ granularity: ConversationDeletionGranularity
@@ -143,6 +174,17 @@ extension CoreKit.Utilities {
         throw exception
     }
 
+    /// Deletes every conversation and message from the remote database and storage.
+    ///
+    /// This method removes the conversation and message records of all users – not just the
+    /// current user – along with every user's conversation identifier list, then deletes all
+    /// audio message inputs and media items from remote storage. While the operation runs, an
+    /// activity indicator overlay is displayed and all database and storage caching is disabled.
+    ///
+    /// - Warning: This operation is irreversible and affects every user in the current network
+    ///   environment.
+    ///
+    /// - Throws: An `Exception` if any database or storage operation fails.
     @MainActor
     func destroyConversationDatabase() async throws(Exception) {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
@@ -204,6 +246,13 @@ extension CoreKit.Utilities {
         }
     }
 
+    /// Removes the push notification tokens of every user in the remote database.
+    ///
+    /// Token removal occurs concurrently across users.
+    ///
+    /// - Warning: This operation affects every user in the current network environment.
+    ///
+    /// - Throws: An `Exception` if any database operation fails.
     func resetPushTokens() async throws(Exception) {
         @Dependency(\.networking) var networking: NetworkServices
 

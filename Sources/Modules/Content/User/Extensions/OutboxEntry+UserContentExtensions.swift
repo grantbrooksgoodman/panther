@@ -14,6 +14,8 @@ import AppSubsystem
 import Translator
 
 extension OutboxEntry {
+    /// A display message representing this outbox entry, so staged content can appear in the
+    /// message list before its delivery completes.
     var asDisplayMessage: Message {
         @Dependency(\.clientSession) var clientSession: ClientSession
         let languageCode = clientSession.entity.user.currentUser?.languageCode ?? "en"

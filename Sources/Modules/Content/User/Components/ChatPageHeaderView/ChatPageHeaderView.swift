@@ -14,6 +14,11 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// The header displayed at the top of the chat page.
+///
+/// Use ``ChatPageHeaderView`` to show the current conversation's avatar and title with a back
+/// button and a chat info button. The header reloads automatically when the session store
+/// reports a change affecting the current conversation.
 struct ChatPageHeaderView: View {
     // MARK: - Constants Accessors
 
@@ -27,6 +32,12 @@ struct ChatPageHeaderView: View {
 
     // MARK: - Init
 
+    /// Creates a chat page header with the given view model.
+    ///
+    /// The header observes session store changes for the lifetime of the view model, mapping
+    /// each change to ``ChatPageHeaderReducer/Action/sessionStoreDidChange(_:)``.
+    ///
+    /// - Parameter viewModel: The view model that drives the header.
     init(_ viewModel: ViewModel<ChatPageHeaderReducer>) {
         _viewModel = .init(
             wrappedValue: viewModel
@@ -40,6 +51,7 @@ struct ChatPageHeaderView: View {
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         contentView
             .padding(.vertical, Floats.contentViewVerticalPadding)

@@ -16,6 +16,8 @@ import AppSubsystem
 extension RecipientBar: UITableViewDelegate {
     // MARK: - Did Select Row
 
+    /// Selects the contact pair at the given index path and gives the text field focus if it
+    /// does not already have it.
     func tableView(
         _ tableView: UITableView,
         didSelectRowAt indexPath: IndexPath
@@ -29,6 +31,7 @@ extension RecipientBar: UITableViewDelegate {
 
     // MARK: - Scroll View Did Scroll
 
+    /// Dismisses the keyboard when the user scrolls the contact list.
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         @Dependency(\.chatPageViewService.recipientBar?.layout) var layoutService: RecipientBarLayoutService?
         guard let textField = layoutService?.textField,

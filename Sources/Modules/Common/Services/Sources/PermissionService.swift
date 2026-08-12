@@ -18,19 +18,36 @@ import UserNotifications
 import AlertKit
 import AppSubsystem
 
+/// Use ``PermissionService`` to check, request, and prompt for system permissions.
+///
+/// The service covers the contacts, notifications, recording, and transcription permissions.
 struct PermissionService {
     // MARK: - Types
 
+    /// The authorization state of a system permission.
     enum PermissionStatus {
+        /// The permission was denied or is restricted.
         case denied
+
+        /// The permission was granted.
         case granted
+
+        /// The permission has not yet been determined.
         case unknown
     }
 
+    /// A system permission used by the app.
     enum PermissionType {
+        /// Access to the user's contact list.
         case contacts
+
+        /// Permission to display notifications, badges, and sounds.
         case notifications
+
+        /// Access to the microphone.
         case recording
+
+        /// Access to speech recognition.
         case transcription
     }
 
@@ -45,26 +62,39 @@ struct PermissionService {
 
     // MARK: - Computed Properties
 
+    /// The current status of the contacts permission.
     var contactPermissionStatus: PermissionStatus {
         getContactPermissionStatus()
     }
 
+    /// The current status of the notifications permission.
     var notificationPermissionStatus: PermissionStatus {
         get async {
             await getNotificationPermissionStatus()
         }
     }
 
+    /// The current status of the recording permission.
     var recordPermissionStatus: PermissionStatus {
         getRecordPermissionStatus()
     }
 
+    /// The current status of the transcription permission.
     var transcribePermissionStatus: PermissionStatus {
         getTranscribePermissionStatus()
     }
 
     // MARK: - Permissions Requesting
 
+    /// Requests the given permission from the user.
+    ///
+    /// Requesting the recording permission also activates the shared audio session.
+    ///
+    /// - Parameter type: The permission to request.
+    ///
+    /// - Returns: The resulting permission status.
+    ///
+    /// - Throws: An `Exception` if the request fails.
     func requestPermission(for type: PermissionType) async throws(Exception) -> PermissionStatus {
         switch type {
         case .contacts:
@@ -152,7 +182,12 @@ struct PermissionService {
 
     // MARK: - Call to Action Methods
 
-    /// - Returns: A `Bool` describing whether or not the user cancelled the operation.
+    /// Presents an alert prompting the user to grant the given permission in Settings.
+    ///
+    /// - Parameter type: The permission the alert describes.
+    ///
+    /// - Returns: `true` if the user canceled the alert; otherwise, `false` if they chose to
+    ///   open Settings.
     @discardableResult
     func presentCTA(
         for type: PermissionType

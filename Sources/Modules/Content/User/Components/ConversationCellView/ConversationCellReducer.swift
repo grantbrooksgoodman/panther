@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import Foundation
 import SwiftUI
@@ -13,6 +15,20 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
+/// The reducer that drives ``ConversationCellView``.
+///
+/// The cell's behavior contract:
+///
+/// - On first appearance, the cell loads its view data, retrying after a short delay if it is
+///   not yet available.
+/// - Tapping the cell opens the chat page for the conversation; when a search query is active,
+///   the chat focuses the most recent matching message.
+/// - Deleting the conversation requires confirmation through an action sheet; success logs an
+///   analytics event, and failure surfaces as a toast.
+/// - The cell redacts its content while messages hydrate or the conversation reloads.
+/// - When the session store reports a change affecting the conversation, its messages, or its
+///   participants, the cell reloads after a short delay; rapid successive changes coalesce
+///   into a single reload.
 struct ConversationCellReducer: Reducer {
     // MARK: - Types
 
@@ -35,32 +51,78 @@ struct ConversationCellReducer: Reducer {
 
     // MARK: - Actions
 
+    /// The actions the conversation cell can process.
     enum Action {
+        /// An action that indicates the view appeared. Loads the cell's view data, retrying
+        /// after a short delay if it is not yet available.
         case viewAppeared
 
+        /// An action that indicates the user tapped the block users button. Begins the block
+        /// users flow for the conversation, logging any error.
         case blockUsersButtonTapped
+
+        /// An action that indicates the user tapped the cell. Opens the chat page for the
+        /// conversation, focusing the most recent message matching the search query when one
+        /// is active.
         case cellTapped
+
+        /// An action that indicates the user tapped the delete button. Presents the deletion
+        /// confirmation action sheet.
         case deleteConversationButtonTapped
+
+        /// An action that reloads the cell's view data, disregarding any cached value.
         case reloadData
+
+        /// An action that indicates the set of reloading conversations changed, carrying the
+        /// affected conversation ID keys. Updates whether the cell shows redacted content.
         case reloadingConversationsChanged(Set<String>)
+
+        /// An action that indicates the user tapped the report users button. Begins the report
+        /// users flow for the conversation, logging any error.
         case reportUsersButtonTapped
+
+        /// An action that indicates the search query changed, carrying the new value. Reloads
+        /// the cell's view data when the query differs.
         case searchQueryChanged(String)
+
+        /// An action that indicates the session store changed, carrying the change. Reloads
+        /// the cell after a short delay when the change affects the conversation, its
+        /// messages, or its participants.
         case sessionStoreDidChange(SessionStoreChange)
+
+        /// An action that indicates the user tapped the user info badge. Presents an alert
+        /// with information about the other user.
         case userInfoBadgeTapped
 
+        /// An action that indicates conversation deletion finished, carrying an `Exception`
+        /// if it failed. Logs an analytics event on success; otherwise, surfaces the error as
+        /// a toast.
         case deleteConversationReturned(Exception?)
+
+        /// An action that indicates the deletion action sheet was dismissed, carrying whether
+        /// the user canceled. Deletes the conversation unless canceled.
         case deletionActionSheetDismissed(cancelled: Bool)
     }
 
     // MARK: - State
 
+    /// The state of the conversation cell.
     struct State: Equatable {
         /* MARK: Properties */
 
+        /// The localized text the block users button displays.
         @Localized(.blockUser) var blockUsersButtonText: String
+
+        /// The view data used to render the cell's content.
         var cellViewData: ConversationCellViewData = .empty
+
+        /// The localized text the delete button displays.
         @Localized(.delete) var deleteConversationButtonText: String
+
+        /// A Boolean value that indicates whether the conversation is being reloaded.
         var isConversationReloading = false
+
+        /// The localized text the report users button displays.
         @Localized(.reportUser) var reportUsersButtonText: String
 
         fileprivate let conversationIDKey: String
@@ -69,6 +131,8 @@ struct ConversationCellReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        /// The conversation the cell describes, resolved from the session store – an empty
+        /// placeholder if it no longer exists.
         var conversation: Conversation {
             @Dependency(\.clientSession.store) var sessionStore: SessionStore
             return sessionStore.getConversation(
@@ -76,6 +140,7 @@ struct ConversationCellReducer: Reducer {
             ) ?? .empty
         }
 
+        /// The foreground color of the cell's chevron symbol, adjusted for the active theme.
         @MainActor
         var chevronImageForegroundColor: Color {
             guard ThemeService.isDarkModeActive else {
@@ -89,6 +154,8 @@ struct ConversationCellReducer: Reducer {
             )
         }
 
+        /// The text the date label displays, or a redaction placeholder while content is
+        /// redacted.
         var dateLabelText: String {
             guard isShowingRedactedContent,
                   cellViewData.dateLabelText.isBlank else {
@@ -98,14 +165,20 @@ struct ConversationCellReducer: Reducer {
             return AppConstants.Strings.ConversationCellView.redactedDateLabelText
         }
 
+        /// The ID of the most recent message matching the search query, or `nil` if none
+        /// match.
         var focusedMessageID: String? {
             conversation.messages?.last(where: { $0.textContains(searchQuery) })?.id
         }
 
+        /// A Boolean value that indicates whether the cell redacts its content – `true` while
+        /// messages hydrate or the conversation reloads.
         var isShowingRedactedContent: Bool {
             cellViewData.isAwaitingMessageHydration || isConversationReloading
         }
 
+        /// The text the subtitle label displays, or a redaction placeholder while content is
+        /// redacted.
         var subtitleLabelText: String {
             guard isShowingRedactedContent,
                   cellViewData.subtitleLabelText.isBlank else {
@@ -115,6 +188,7 @@ struct ConversationCellReducer: Reducer {
             return AppConstants.Strings.ConversationCellView.redactedSubtitleLabelText
         }
 
+        /// The foreground color of the subtitle label.
         @MainActor
         var subtitleLabelTextForegroundColor: Color {
             .init(
@@ -126,6 +200,11 @@ struct ConversationCellReducer: Reducer {
 
         /* MARK: Init */
 
+        /// Creates the state for the conversation with the given ID key.
+        ///
+        /// - Parameters:
+        ///   - conversationIDKey: The ID key of the conversation the cell describes.
+        ///   - searchQuery: The search query active when the cell was created.
         init(
             _ conversationIDKey: String,
             searchQuery: String
@@ -137,6 +216,13 @@ struct ConversationCellReducer: Reducer {
 
     // MARK: - Reduce
 
+    /// Updates the cell's state in response to the given action, returning any effect to run.
+    ///
+    /// - Parameters:
+    ///   - state: The cell's current state, mutated in place.
+    ///   - action: The action to process.
+    ///
+    /// - Returns: An effect for the system to run, or `.none`.
     func reduce(
         into state: inout State,
         action: Action
@@ -319,3 +405,5 @@ private extension ConversationCellReducer {
         )
     }
 }
+
+// swiftlint:enable file_length

@@ -23,6 +23,7 @@ extension UIView {
 
     // MARK: - Methods
 
+    /// Adds an animated shimmer effect to the view.
     func addShimmerEffect() {
         typealias Colors = AppConstants.Colors.UserContentExtensions.UIView
         typealias Floats = AppConstants.CGFloats.UserContentExtensions.UIView
@@ -67,10 +68,14 @@ extension UIView {
         gradientLayer.add(animation, forKey: Strings.shimmerEffectGradientLayerAnimationKey)
     }
 
+    /// Removes the shimmer effect from the view.
     func removeShimmerEffect() {
         layer.mask = nil
     }
 
+    /// Sets the view's secondary identifier.
+    ///
+    /// - Parameter identifier: The identifier to set.
     func setIdentifier(_ identifier: String) {
         focusGroupIdentifier = identifier
     }

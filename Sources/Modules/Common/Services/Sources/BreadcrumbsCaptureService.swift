@@ -14,12 +14,26 @@ import UIKit
 import AppSubsystem
 import Networking
 
+/// Use ``BreadcrumbsCaptureService`` to periodically capture screenshots of novel view
+/// hierarchies for diagnostic purposes.
+///
+/// While capture is running, the service periodically snapshots the screen when it detects a
+/// view hierarchy it has not yet recorded, uploads the image to remote storage with metadata
+/// describing the build, device, and visible views, and writes a copy to the app's Documents
+/// directory – optionally also saving it to the user's photo library. Recorded view
+/// hierarchies persist across launches; each capture cycle proceeds with approximately
+/// one-in-three probability.
 @MainActor
 final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCaptureDelegate {
     // MARK: - Types
 
+    /// The strategy for identifying view hierarchies during capture.
     enum CaptureGranularity {
+        /// Identifies view hierarchies by every presented view.
         case broad
+
+        /// Identifies view hierarchies by only visible, interactive views not previously
+        /// recorded.
         case narrow
     }
 
@@ -32,9 +46,15 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
 
     // MARK: - Properties
 
+    /// The shared breadcrumbs capture service instance.
     nonisolated static let shared = BreadcrumbsCaptureService()
 
+    /// The granularity with which view hierarchies are identified. The default is
+    /// ``CaptureGranularity/broad``.
     private(set) var captureGranularity: CaptureGranularity = .broad
+
+    /// A Boolean value that indicates whether captured screenshots are also saved to the
+    /// user's photo library. The default is `true`.
     private(set) var savesToPhotos = true
 
     @SharedEvent(\.breadcrumbsDidCapture) private var breadcrumbsDidCapture
@@ -44,11 +64,15 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
 
     // MARK: - Computed Properties
 
+    /// The interval between capture cycles. The default is 10 seconds.
+    ///
+    /// This value persists across launches.
     private(set) var captureFrequency: Duration {
         get { @Persistent(.breadcrumbsCaptureFrequency) var persistedValue: Duration?; return persistedValue ?? .seconds(10) }
         set { @Persistent(.breadcrumbsCaptureFrequency) var persistedValue: Duration?; persistedValue = newValue }
     }
 
+    /// A Boolean value that indicates whether capture is running.
     var isCapturing: Bool {
         captureTask != nil
     }
@@ -99,6 +123,12 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
 
     // MARK: - Capture
 
+    /// Starts the periodic capture loop.
+    ///
+    /// Capture cycles repeat at the interval given by ``captureFrequency`` until
+    /// ``stopCapture()`` is called.
+    ///
+    /// - Throws: An `Exception` if capture is already running.
     func startCapture() throws(Exception) {
         guard !isCapturing else {
             throw Exception(
@@ -116,6 +146,9 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
         }
     }
 
+    /// Stops the periodic capture loop.
+    ///
+    /// - Throws: An `Exception` if capture is not running.
     func stopCapture() throws(Exception) {
         guard isCapturing else {
             throw Exception(
@@ -130,18 +163,28 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
 
     // MARK: - Set Capture Frequency
 
+    /// Sets the interval between capture cycles.
+    ///
+    /// - Parameter captureFrequency: The interval to set.
     func setCaptureFrequency(_ captureFrequency: Duration) {
         self.captureFrequency = captureFrequency
     }
 
     // MARK: - Set Capture Granularity
 
+    /// Sets the granularity with which view hierarchies are identified.
+    ///
+    /// - Parameter captureGranularity: The granularity to set.
     func setCaptureGranularity(_ captureGranularity: CaptureGranularity) {
         self.captureGranularity = captureGranularity
     }
 
     // MARK: - Set Saves to Photos
 
+    /// Sets whether captured screenshots are also saved to the user's photo library.
+    ///
+    /// - Parameter savesToPhotos: A Boolean value that indicates whether to save captured
+    ///   screenshots to the photo library.
     func setSavesToPhotos(_ savesToPhotos: Bool) {
         self.savesToPhotos = savesToPhotos
     }

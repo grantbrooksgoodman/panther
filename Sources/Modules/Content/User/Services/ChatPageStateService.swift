@@ -12,9 +12,12 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// Use ``ChatPageStateService`` to track whether the chat page is presented and to schedule
+/// one-shot effects on presentation changes.
 final class ChatPageStateService {
     // MARK: - Properties
 
+    /// A Boolean value that indicates whether the chat page is presented.
     private(set) var isPresented: Bool {
         didSet { didSetIsPresented() }
     }
@@ -24,19 +27,39 @@ final class ChatPageStateService {
 
     // MARK: - Init
 
+    /// Creates a chat page state service with the given initial presentation state.
+    ///
+    /// - Parameter isPresented: A Boolean value that indicates whether the chat page is
+    ///   presented.
     init(isPresented: Bool) {
         self.isPresented = isPresented
     }
 
     // MARK: - Setters
 
+    /// Sets whether the chat page is presented.
+    ///
+    /// Each assignment runs – and clears – the effects registered for the assigned value,
+    /// whether or not the value changed.
+    ///
+    /// - Parameter isPresented: A Boolean value that indicates whether the chat page is
+    ///   presented.
     func setIsPresented(_ isPresented: Bool) {
         self.isPresented = isPresented
     }
 
     // MARK: - Effect Addition
 
-    /// Adds an effect to be run once, upon a change in value of `isPresented`.
+    /// Registers an effect to run once, the next time ``isPresented`` is set to the given
+    /// value.
+    ///
+    /// The effect is cleared after it runs. Registering a new effect with the same identifier
+    /// and target value replaces the existing one.
+    ///
+    /// - Parameters:
+    ///   - state: The value of ``isPresented`` that triggers the effect.
+    ///   - id: The identifier under which to register the effect.
+    ///   - effect: The effect to run.
     func addEffectUponIsPresented(
         changedTo state: Bool,
         id: ChatPageStateServiceEffectID,

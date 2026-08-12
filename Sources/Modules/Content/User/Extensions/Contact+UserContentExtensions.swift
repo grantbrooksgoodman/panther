@@ -25,6 +25,8 @@ extension Contact {
         return "�"
     }
 
+    /// The contact's section title in an alphabetical list: the first letter of its last name, or
+    /// `#` for names beginning with a phone number.
     var tableViewSectionTitle: String {
         guard absoluteLastName.hasPrefix("+"),
               !absoluteLastName.digits.isBlank else { return .init(absoluteLastName.prefix(1)) }

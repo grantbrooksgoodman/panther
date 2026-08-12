@@ -14,7 +14,11 @@ import UIKit
 import AppSubsystem
 
 extension Date {
-    // swiftlint:disable:next identifier_name
+    // swiftlint:disable identifier_name
+    /// The attributed date string shown as a separator between messages sent on different days.
+    ///
+    /// Formats the date relative to today – as Today, Yesterday, a weekday, or a full date – with
+    /// the time appended.
     var chatPageMessageSeparatorAttributedDateString: NSAttributedString? {
         typealias Floats = AppConstants.CGFloats.UserContentExtensions.Date
 
@@ -92,5 +96,5 @@ extension Date {
 
         let string = "\(overYearString) \(timeString)"
         return attributedForChatPageMessageSeparator(string, separatorIndex: overYearStringSeparatorIndex + 1)
-    }
+    } // swiftlint:enable identifier_name
 }

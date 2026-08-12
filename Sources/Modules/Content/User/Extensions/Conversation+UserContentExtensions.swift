@@ -15,12 +15,19 @@ import AppSubsystem
 extension Conversation {
     // MARK: - Properties
 
+    /// The text shown in the chat page header, or `nil` when the conversation has a name or two
+    /// or fewer participants.
+    ///
+    /// For an unnamed group conversation, this is the number of other participants followed by a
+    /// localized label.
     var chatPageHeaderLabelText: String? {
         guard metadata.name.isBangQualifiedEmpty,
               participants.count > 2 else { return nil }
         return "\(participants.count - 1) \(Localized(.people).wrappedValue)"
     }
 
+    /// A Boolean value that indicates whether the current user has granted the message receipt
+    /// consent this conversation requires. `true` when no consent is required.
     var currentUserGrantedMessageReceiptConsent: Bool {
         guard !currentUserInitiatorRequiresMessageReceiptConsent,
               metadata.requiresConsentFromInitiator != nil else { return true }
@@ -30,19 +37,25 @@ extension Conversation {
             .consentAcknowledged == true
     }
 
-    // swiftlint:disable:next identifier_name
+    // swiftlint:disable identifier_name
+    /// A Boolean value that indicates whether the current user is the initiator whose message
+    /// receipt consent this conversation requires.
     var currentUserInitiatorRequiresMessageReceiptConsent: Bool {
         metadata.requiresConsentFromInitiator == User.currentUserID
-    }
+    } // swiftlint:enable identifier_name
 
+    /// The participant representing the current user, if any.
     var currentUserParticipant: Participant? {
         participants.firstWithCurrentUserID
     }
 
+    /// The current user's PenPals data-sharing record for this conversation, if any.
     var currentUserPenPalsSharingData: PenPalsSharingData? {
         metadata.penPalsSharingData.firstWithCurrentUserID
     }
 
+    /// A Boolean value that indicates whether the current user shares their PenPals data with
+    /// every other participant. `true` when the conversation is not a PenPals conversation.
     var currentUserSharesPenPalsDataWithAllUsers: Bool {
         guard metadata.isPenPalsConversation else { return true }
         return currentUserPenPalsSharingData?
@@ -50,10 +63,13 @@ extension Conversation {
             .containsAllStrings(in: participants.filter { $0 != currentUserParticipant }.map(\.userID)) ?? false
     }
 
+    /// A Boolean value that indicates whether a message receipt consent request has been sent in
+    /// this conversation.
     var didSendConsentMessage: Bool {
         messages?.contains(where: \.isConsentRequestMessage) == true
     }
 
+    /// A copy of the conversation with its system messages removed.
     var filteringSystemMessages: Conversation {
         let messageIDs = messageIDs.filter { $0.hasPrefix("-") }
         return copying(
@@ -61,14 +77,22 @@ extension Conversation {
         )
     }
 
+    /// A Boolean value that indicates whether the conversation is empty – having neither a key
+    /// nor a hash.
     var isEmpty: Bool {
         id.key.isBlank && id.hash.isBlank
     }
 
+    /// A Boolean value that indicates whether the conversation is a mock, representing a new
+    /// conversation not yet created on the server.
     var isMock: Bool {
         id.key == CommonConstants.newConversationID
     }
 
+    /// A Boolean value that indicates whether the conversation is visible to the current user.
+    ///
+    /// A conversation is hidden when the current user has deleted it, or when any participant is
+    /// blocked.
     var isVisibleForCurrentUser: Bool {
         @Dependency(\.clientSession.entity.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
         guard let currentUserParticipant,
@@ -77,6 +101,8 @@ extension Conversation {
         return true
     }
 
+    /// The metadata for the conversation's shared media, one entry per media message, sorted from
+    /// newest to oldest.
     @MainActor
     var mediaItemMetadata: [MediaItemView.Metadata] {
         @Dependency(\.clientSession) var clientSession: ClientSession
@@ -126,7 +152,9 @@ extension Conversation {
         return mediaMetadata
     }
 
-    // swiftlint:disable:next identifier_name
+    // swiftlint:disable identifier_name
+    /// The participants who share their PenPals data with the current user, or all participants
+    /// when the conversation is not a PenPals conversation.
     var participantsSharingPenPalsDataWithCurrentUser: [Participant]? {
         guard metadata.isPenPalsConversation else { return participants }
         return metadata
@@ -137,9 +165,11 @@ extension Conversation {
                     partialResult.append(participant)
                 }
             }
-    }
+    } // swiftlint:enable identifier_name
 
-    // swiftlint:disable:next identifier_name
+    // swiftlint:disable identifier_name
+    /// A copy of the conversation whose messages are limited to those sent after the current user
+    /// joined it, always including consent messages.
     var withMessagesOffsetFromCurrentUserAdditionDate: Conversation {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         guard let currentUserAddedActivity = activities?
@@ -149,8 +179,9 @@ extension Conversation {
             return message.isConsentMessage || message.sentDate >= currentUserAddedActivity.date
         }
         return copying(messageIDs: filteredIDs)
-    }
+    } // swiftlint:enable identifier_name
 
+    /// A copy of the conversation with its messages sorted from oldest to newest.
     var withMessagesSortedByAscendingSentDate: Conversation {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         let sortedIDs = messageIDs.sorted { first, second in
@@ -163,6 +194,11 @@ extension Conversation {
 
     // MARK: - Methods
 
+    /// Creates an empty conversation with the given users as its participants.
+    ///
+    /// - Parameter users: The users to include as participants.
+    ///
+    /// - Returns: An empty conversation containing the given users.
     static func empty(withUsers users: [User]) -> Conversation {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         // Stores users so the conversation's computed properties can resolve them.
@@ -183,6 +219,14 @@ extension Conversation {
         )
     }
 
+    /// Creates a mock conversation with the given users as its participants.
+    ///
+    /// Use a mock conversation to represent a new conversation before it is created on the
+    /// server.
+    ///
+    /// - Parameter users: The users to include as participants.
+    ///
+    /// - Returns: A mock conversation containing the given users.
     static func mock(withUsers users: [User]) -> Conversation {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         // Stores users so the conversation's computed properties can resolve them.
@@ -197,6 +241,15 @@ extension Conversation {
         )
     }
 
+    /// Returns a Boolean value that indicates whether the current user shares their PenPals data
+    /// with the given user.
+    ///
+    /// Always `true` when the conversation is not a PenPals conversation.
+    ///
+    /// - Parameter user: The user to query.
+    ///
+    /// - Returns: `true` if the current user shares their PenPals data with the given user;
+    ///   otherwise, `false`.
     func currentUserSharesPenPalsData(with user: User) -> Bool {
         guard metadata.isPenPalsConversation else { return true }
         return (currentUserPenPalsSharingData?.sharesDataWithUserIDs ?? []).contains(user.id)
@@ -223,11 +276,30 @@ extension Conversation {
         )
     }
 
+    /// Returns a Boolean value that indicates whether the current user and the given user share
+    /// their PenPals data with each other.
+    ///
+    /// Always `true` when the conversation is not a PenPals conversation.
+    ///
+    /// - Parameter user: The user to query.
+    ///
+    /// - Returns: `true` if both users share their PenPals data with each other; otherwise,
+    ///   `false`.
     func mutuallySharedPenPalsDataBetweenCurrentUserAnd(_ user: User) -> Bool {
         guard metadata.isPenPalsConversation else { return true }
         return currentUserSharesPenPalsData(with: user) && userSharesPenPalsDataWithCurrentUser(user)
     }
 
+    /// Returns a Boolean value that indicates whether the given user shares their PenPals data
+    /// with the current user.
+    ///
+    /// Always `true` when the conversation is not a PenPals conversation or the given user is not
+    /// a participant.
+    ///
+    /// - Parameter user: The user to query.
+    ///
+    /// - Returns: `true` if the given user shares their PenPals data with the current user;
+    ///   otherwise, `false`.
     func userSharesPenPalsDataWithCurrentUser(_ user: User) -> Bool {
         guard metadata.isPenPalsConversation,
               participants.map(\.userID).contains(user.id) else { return true }

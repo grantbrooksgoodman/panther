@@ -17,6 +17,12 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+/// The service that manages audio message playback.
+///
+/// ``AudioMessagePlaybackService`` plays a tapped audio message, animating the playing cell's
+/// progress and duration as it plays, and advances to the next audio message when one finishes.
+/// Tapping the playing message stops playback. The service also keeps audio cells' duration
+/// labels up to date as durations become available.
 @MainActor
 final class AudioMessagePlaybackService {
     // MARK: - Constants Accessors
@@ -34,7 +40,10 @@ final class AudioMessagePlaybackService {
 
     // MARK: - Properties
 
+    /// The audio message cell currently playing, or `nil` if no audio is playing.
     private(set) var playingCell: AudioMessageCell?
+
+    /// The audio message currently playing, or `nil` if no audio is playing.
     private(set) var playingMessage: Message?
 
     private let viewController: ChatPageViewController
@@ -44,6 +53,9 @@ final class AudioMessagePlaybackService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
@@ -58,6 +70,13 @@ final class AudioMessagePlaybackService {
 
     // MARK: - Did Tap Play Button
 
+    /// Handles a tap on an audio message's play button, starting or stopping playback.
+    ///
+    /// Tapping a message that is not playing starts its playback; tapping the playing message
+    /// stops it. Any error is surfaced as a toast.
+    ///
+    /// - Parameter sender: The tap gesture recognizer whose view is within the audio message
+    ///   cell.
     @objc
     func didTapPlayButton(_ sender: UITapGestureRecognizer) {
         guard let cell = sender.view?.traversedSuperviews.compactMap({ $0 as? AudioMessageCell }).first else {
@@ -137,12 +156,16 @@ final class AudioMessagePlaybackService {
 
     // MARK: - Set Playing Cell
 
+    /// Sets the cell to treat as the currently playing cell.
+    ///
+    /// - Parameter playingCell: The cell to treat as playing.
     func setPlayingCell(_ playingCell: AudioMessageCell) {
         self.playingCell = playingCell
     }
 
     // MARK: - Stop Playback
 
+    /// Stops audio playback and resets the visible cells' playback state.
     func stopPlayback() {
         Task { @MainActor in
             services.audio.playback.stopPlaying()
@@ -153,6 +176,12 @@ final class AudioMessagePlaybackService {
 
     // MARK: - Update Duration Label If Needed
 
+    /// Updates the given message's cell duration label once the message's audio duration becomes
+    /// available.
+    ///
+    /// This method has no effect when the message has no associated audio file.
+    ///
+    /// - Parameter message: The message whose duration label to update.
     func updateDurationLabelIfNeeded(forMessage message: Message) {
         guard let audioFile = audioFile(for: message) else { return }
         notificationCenter.addObserver(

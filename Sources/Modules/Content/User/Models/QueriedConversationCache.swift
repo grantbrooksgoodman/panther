@@ -12,6 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// A namespace for managing the in-memory queried conversation cache.
 @MainActor
 enum QueriedConversationCache {
     // MARK: - Types
@@ -22,10 +23,12 @@ enum QueriedConversationCache {
 
     // MARK: - Properties
 
+    /// The conversations matching each search term.
     @Cached(CacheKey.conversationsForSearchTerms) static var cachedConversationsForSearchTerms: [String: [Conversation]]?
 
     // MARK: - Clear Cache
 
+    /// Removes every cached conversation.
     static func clearCache() {
         cachedConversationsForSearchTerms = nil
     }

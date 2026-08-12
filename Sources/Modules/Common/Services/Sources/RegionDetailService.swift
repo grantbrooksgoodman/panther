@@ -13,18 +13,39 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// Use ``RegionDetailService`` to look up region details – names, titles, calling codes, and
+/// images – for the regions in the app's phone number reference data.
+///
+/// Lookup results are cached in memory.
 final class RegionDetailService {
     // MARK: - Types
 
+    /// A criterion for querying region details.
+    ///
+    /// Each query method supports a subset of strategies; unsupported strategies return `nil`.
     enum QueryStrategy {
+        /// Queries by international calling code.
         case callingCode(String)
+
+        /// Queries by region code.
         case regionCode(String)
+
+        /// Queries by formatted region title.
         case regionTitle(String)
+
+        /// Queries by free-form search term.
         case searchTerm(String)
     }
 
+    /// The arrangement of a region title's components.
+    ///
+    /// A region title combines a region's name with its calling code – for example,
+    /// `+1 (United States)` or `United States (+1)`.
     enum RegionTitleFormat {
+        /// Places the calling code before the region name.
         case callingCodeFirst
+
+        /// Places the region name before the calling code.
         case regionNameFirst
     }
 
@@ -55,6 +76,7 @@ final class RegionDetailService {
 
     // MARK: - Computed Properties
 
+    /// The region code for the device's current region, or `US` if it cannot be determined.
     var deviceRegionCode: String {
         currentLocale.region?.identifier ?? "US"
     }
@@ -73,12 +95,26 @@ final class RegionDetailService {
 
     // MARK: - Calling Codes
 
+    /// Returns the international calling code for the given region code.
+    ///
+    /// - Parameter regionCode: The region code to look up.
+    ///
+    /// - Returns: The region's calling code; otherwise, `nil` if the region code is unknown.
     func callingCode(regionCode: String) -> String? {
         callingCodes[regionCode.uppercased()]
     }
 
     // MARK: - Images
 
+    /// Returns the image for the region matching the given strategy.
+    ///
+    /// Supported strategies are ``QueryStrategy/regionCode(_:)`` and
+    /// ``QueryStrategy/regionTitle(_:)``.
+    ///
+    /// - Parameter strategy: The criterion by which to find the region.
+    ///
+    /// - Returns: The region's image; otherwise, `nil` if no match exists or the strategy is
+    ///   unsupported.
     func image(by strategy: QueryStrategy) -> UIImage? {
         let keys = Array(callingCodes.keys)
 
@@ -120,6 +156,16 @@ final class RegionDetailService {
 
     // MARK: - Region Codes
 
+    /// Returns the region code matching the given strategy.
+    ///
+    /// Supported strategies are ``QueryStrategy/callingCode(_:)`` and
+    /// ``QueryStrategy/regionTitle(_:)``. When multiple regions share the given calling code, a
+    /// localized "Multiple" placeholder is returned.
+    ///
+    /// - Parameter strategy: The criterion by which to find the region code.
+    ///
+    /// - Returns: The matching region code; otherwise, `nil` if no match exists or the
+    ///   strategy is unsupported.
     func regionCode(by strategy: QueryStrategy) -> String? {
         switch strategy {
         case let .callingCode(callingCode):
@@ -136,6 +182,15 @@ final class RegionDetailService {
         }
     }
 
+    /// Returns every region code matching the given strategy.
+    ///
+    /// Supported strategies are ``QueryStrategy/callingCode(_:)`` and
+    /// ``QueryStrategy/regionTitle(_:)``.
+    ///
+    /// - Parameter strategy: The criterion by which to find the region codes.
+    ///
+    /// - Returns: The matching region codes; otherwise, `nil` if no match exists or the
+    ///   strategy is unsupported.
     func regionCodes(by strategy: QueryStrategy) -> [String]? {
         switch strategy {
         case let .callingCode(callingCode):
@@ -162,6 +217,17 @@ final class RegionDetailService {
 
     // MARK: - Region Titles
 
+    /// Returns the localized display name for the given region code.
+    ///
+    /// - Parameters:
+    ///   - regionCode: The region code whose name to resolve.
+    ///   - languageCode: The language code in which to localize the name. Pass `nil` to use
+    ///     the system language; results localized to the system language are cached in memory.
+    ///     The default is `nil`.
+    ///
+    /// - Returns: The localized region name. If the region code is unknown, it is returned
+    ///   unchanged; if no localized name exists, a localized "Multiple" placeholder is
+    ///   returned.
     func localizedRegionName(
         regionCode: String,
         languageCode: String? = nil
@@ -193,6 +259,19 @@ final class RegionDetailService {
         return regionName
     }
 
+    /// Returns the region titles matching the given strategy.
+    ///
+    /// Supported strategies are ``QueryStrategy/callingCode(_:)``,
+    /// ``QueryStrategy/regionCode(_:)``, and ``QueryStrategy/searchTerm(_:)`` – a blank search
+    /// term matches every region title.
+    ///
+    /// - Parameters:
+    ///   - strategy: The criterion by which to find the region titles.
+    ///   - titleFormat: The arrangement of each title's components. The default is
+    ///     ``RegionTitleFormat/callingCodeFirst``.
+    ///
+    /// - Returns: The matching region titles; otherwise, `nil` if no match exists or the
+    ///   strategy is unsupported.
     func regionTitles(
         by strategy: QueryStrategy,
         titleFormat: RegionTitleFormat = .callingCodeFirst
@@ -305,6 +384,7 @@ final class RegionDetailService {
 
     // MARK: - Clear Cache
 
+    /// Removes every cached lookup result.
     func clearCache() {
         cachedImagesForRegionCodes = nil
         cachedImagesForRegionTitles = nil

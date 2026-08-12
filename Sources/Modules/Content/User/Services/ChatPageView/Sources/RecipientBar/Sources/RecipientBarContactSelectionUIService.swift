@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -13,6 +15,12 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// The service that manages the recipient bar's selected-contact views.
+///
+/// ``RecipientBarContactSelectionUIService`` tracks the selected recipients and the views that
+/// represent them, adding and removing those views – and laying them out across the bar's rows –
+/// as recipients are selected and deselected. It also manages highlighting a recipient for
+/// deletion and the bar's label representation.
 @MainActor // swiftlint:disable:next type_body_length
 final class RecipientBarContactSelectionUIService {
     // MARK: - Constants Accessors
@@ -28,6 +36,7 @@ final class RecipientBarContactSelectionUIService {
 
     // MARK: - Properties
 
+    /// The contact pairs currently selected as recipients.
     private(set) var selectedContactPairs = [ContactPair]()
 
     private let viewController: ChatPageViewController
@@ -45,12 +54,18 @@ final class RecipientBarContactSelectionUIService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Contact Pair Selection
 
+    /// Removes the recipient identified by the given view identifier, along with its view.
+    ///
+    /// - Parameter contactHash: The identifier of the recipient's view.
     func deselectContactPair(withViewID contactHash: String) {
         selectedContactPairs.removeAll(where: { $0.contact.encodedHash == contactHash })
         for contactView in contactViews where contactView.identifier == contactHash {
@@ -63,6 +78,8 @@ final class RecipientBarContactSelectionUIService {
         }
     }
 
+    /// Removes every unregistered recipient, along with its view, and repositions the remaining
+    /// recipients and the text field.
     func deselectMockContactPairs() {
         selectedContactPairs.filter(\.isMock).map(\.contact.encodedHash).forEach { deselectContactPair(withViewID: $0) }
         guard let configService = chatPageViewService.recipientBar?.config,
@@ -83,6 +100,16 @@ final class RecipientBarContactSelectionUIService {
         configService.reconfigureCollectionView()
     }
 
+    /// Adds the given contact pair as a recipient, creating and laying out its view.
+    ///
+    /// This method has no effect when the contact pair contains a blocked user or the current
+    /// user, when it is already selected, or when the maximum number of recipients has been
+    /// reached.
+    ///
+    /// - Parameters:
+    ///   - contactPair: The contact pair to add as a recipient.
+    ///   - performInputBarFix: A Boolean value that determines whether to force the input bar to
+    ///     reappear after adding the recipient.
     func selectContactPair(
         _ contactPair: ContactPair,
         performInputBarFix: Bool = false
@@ -206,6 +233,12 @@ final class RecipientBarContactSelectionUIService {
 
     // MARK: - Label Representation
 
+    /// Shows or hides the recipient bar's label representation.
+    ///
+    /// In its label representation, the selected recipients appear as a single comma-separated
+    /// run of names – tappable to resume editing – rather than as individually selectable views.
+    ///
+    /// - Parameter on: A Boolean value that indicates whether to show the label representation.
     func toggleLabelRepresentation(on: Bool) {
         guard let inputBarService = chatPageViewService.inputBar,
               !inputBarService.isForcingAppearance else { return }
@@ -254,6 +287,12 @@ final class RecipientBarContactSelectionUIService {
 
     // MARK: - View Highlighting
 
+    /// Returns a Boolean value that indicates whether the recipient identified by the given view
+    /// identifier is highlighted.
+    ///
+    /// - Parameter contactHash: The identifier of the recipient's view.
+    ///
+    /// - Returns: `true` if the recipient is highlighted; otherwise, `false`.
     func isHighlighted(viewID contactHash: String) -> Bool {
         guard let contactView = contactViews.first(where: { $0.identifier == contactHash }),
               let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel,
@@ -261,6 +300,11 @@ final class RecipientBarContactSelectionUIService {
         return true
     }
 
+    /// Toggles whether the recipient identified by the given view identifier is highlighted.
+    ///
+    /// Highlighting a recipient also makes the text field the first responder.
+    ///
+    /// - Parameter contactHash: The identifier of the recipient's view.
     func toggleIsHighlighted(viewID contactHash: String) {
         guard let contactView = contactViews.first(where: { $0.identifier == contactHash }),
               let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { return }
@@ -284,6 +328,7 @@ final class RecipientBarContactSelectionUIService {
         }
     }
 
+    /// Removes highlighting from every recipient view.
     func unhighlightAllViews() {
         for contactView in contactViews {
             guard let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { continue }
@@ -367,3 +412,5 @@ final class RecipientBarContactSelectionUIService {
         return contactView
     }
 }
+
+// swiftlint:enable file_length

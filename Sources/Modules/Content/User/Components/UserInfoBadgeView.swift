@@ -14,6 +14,11 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+/// A badge displaying a user's language code and regional flag.
+///
+/// Use ``UserInfoBadgeView`` alongside a user's name to indicate their language and region.
+/// The flag is resolved from the user's region code, falling back to their language code;
+/// when given an action, the badge becomes a button.
 struct UserInfoBadgeView: View {
     // MARK: - Constants Accessors
 
@@ -28,6 +33,12 @@ struct UserInfoBadgeView: View {
 
     // MARK: - Init
 
+    /// Creates a user info badge for the given user.
+    ///
+    /// - Parameters:
+    ///   - user: The user the badge describes.
+    ///   - action: The action performed when the user taps the badge. Pass `nil` for no
+    ///     action. The default is `nil`.
     init(
         _ user: User,
         action: (() -> Void)? = nil
@@ -46,6 +57,7 @@ struct UserInfoBadgeView: View {
 
     // MARK: - View
 
+    /// The content and behavior of the view.
     var body: some View {
         Rectangle()
             .overlay(contentView, alignment: .center)

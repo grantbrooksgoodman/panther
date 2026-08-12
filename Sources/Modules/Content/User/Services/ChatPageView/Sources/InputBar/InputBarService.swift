@@ -18,6 +18,14 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
+/// The service that manages the message input bar.
+///
+/// ``InputBarService`` configures the chat page's input bar and keeps it in sync with the
+/// conversation's state. It switches the send button between its text-send and record
+/// configurations, enables or disables the send, attach-media, and consent buttons, manages the
+/// input field's first-responder status, and presents the sending state while a message is being
+/// delivered. When the conversation requires message-receipt consent, it shows a consent button
+/// in place of the input field.
 @MainActor
 final class InputBarService {
     // MARK: - Types
@@ -47,8 +55,11 @@ final class InputBarService {
 
     // MARK: - Properties
 
+    /// The service that handles the input bar's button actions.
     let actionHandler: InputBarActionHandlerService
 
+    /// A Boolean value that indicates whether the input bar's appearance is currently being
+    /// forced.
     private(set) var isForcingAppearance = false
 
     private let viewController: ChatPageViewController
@@ -57,18 +68,22 @@ final class InputBarService {
 
     // MARK: - Computed Properties
 
+    /// A Boolean value that indicates whether the input field is the first responder.
     var isFirstResponder: Bool {
         inputBar.inputTextView.isFirstResponder
     }
 
+    /// A Boolean value that indicates whether the consent button is currently shown.
     var isShowingConsentButton: Bool {
         (consentButton?.alpha ?? 0) > 0
     }
 
+    /// A Boolean value that indicates whether the attach-media button should be enabled.
     var shouldEnableAttachMediaButton: Bool {
         getShouldEnableAttachMediaButton()
     }
 
+    /// A Boolean value that indicates whether the send button should be enabled.
     var shouldEnableSendButton: Bool {
         getShouldEnableSendButton()
     }
@@ -99,6 +114,9 @@ final class InputBarService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
         actionHandler = .init(viewController)
@@ -106,6 +124,19 @@ final class InputBarService {
 
     // MARK: - Configure Input Bar
 
+    /// Configures the input bar for its current state.
+    ///
+    /// This method switches the send button between its text-send and record configurations –
+    /// updating its image, tint, and enabled state – and enables or disables the attach-media
+    /// button to match. When the current conversation requires message-receipt consent, it shows
+    /// the consent button in place of the input field instead.
+    ///
+    /// - Parameters:
+    ///   - forRecording: Whether to configure the send button for recording. Pass `nil` to
+    ///     derive this from the input field's contents and the conversation's audio-message
+    ///     support.
+    ///   - forceUpdate: A Boolean value that determines whether to reconfigure the send button
+    ///     even when it already matches the requested configuration.
     func configureInputBar(
         forRecording: Bool? = nil,
         forceUpdate: Bool = false
@@ -214,6 +245,10 @@ final class InputBarService {
 
     // MARK: - Become First Responder
 
+    /// Makes the input field the first responder, retrying until it succeeds while the chat page
+    /// remains presented.
+    ///
+    /// This method has no effect while the consent button is shown.
     func becomeFirstResponder() {
         guard !shouldShowConsentButton else { return }
         let startDate = Date.now
@@ -227,6 +262,9 @@ final class InputBarService {
 
     // MARK: - Force Appearance
 
+    /// Forces the input bar to reappear when it has been unexpectedly hidden, restoring
+    /// first-responder status to the recipient bar's text field.
+    ///
     /// - NOTE: Fixes a bug in which the dismissal of the contact selector sheet would cause the input bar to hide.
     func forceAppearance() {
         guard let textField = chatPageViewService.recipientBar?.layout.textField else { return }
@@ -255,6 +293,7 @@ final class InputBarService {
 
     // MARK: - Set Attach Media Button Image
 
+    /// Updates the attach-media button's images for the current interface style.
     func setAttachMediaButtonImage() {
         let attachMediaButtonNormalImage = inputBarConfigService.attachMediaButtonImage(isHighlighted: false)
         let attachMediaButtonHighlightedImage = inputBarConfigService.attachMediaButtonImage(isHighlighted: true)
@@ -265,6 +304,10 @@ final class InputBarService {
 
     // MARK: - Set Attach Media Button Is Enabled
 
+    /// Sets whether the attach-media button is enabled, animating the change.
+    ///
+    /// - Parameter isEnabled: A Boolean value that indicates whether the attach-media button is
+    ///   enabled.
     func setAttachMediaButtonIsEnabled(_ isEnabled: Bool) {
         if !isForcingAppearance {
             guard inputBar.leftStackView.attachMediaButton?.isEnabled != isEnabled else { return }
@@ -283,6 +326,10 @@ final class InputBarService {
 
     // MARK: - Set Consent Button Is Enabled
 
+    /// Sets whether the consent button is enabled.
+    ///
+    /// - Parameter isEnabled: A Boolean value that indicates whether the consent button is
+    ///   enabled.
     func setConsentButtonIsEnabled(_ isEnabled: Bool) {
         guard let consentButton else { return }
         consentButton.isEnabled = isEnabled
@@ -292,6 +339,9 @@ final class InputBarService {
 
     // MARK: - Set Send Button Is Enabled
 
+    /// Sets whether the send button is enabled, animating the change.
+    ///
+    /// - Parameter isEnabled: A Boolean value that indicates whether the send button is enabled.
     func setSendButtonIsEnabled(_ isEnabled: Bool) {
         if !isForcingAppearance {
             guard inputBar.sendButton.isEnabled != isEnabled else { return }
@@ -308,6 +358,15 @@ final class InputBarService {
 
     // MARK: - Toggle Sending UI
 
+    /// Shows or hides the input bar's sending state.
+    ///
+    /// While the sending state is shown, the send button animates and the input field and
+    /// attach-media button are disabled.
+    ///
+    /// - Parameters:
+    ///   - on: A Boolean value that indicates whether to show the sending state.
+    ///   - clearInputTextViewText: A Boolean value that determines whether to clear the input
+    ///     field's text when showing the sending state.
     func toggleSendingUI(
         on: Bool,
         clearInputTextViewText: Bool = true

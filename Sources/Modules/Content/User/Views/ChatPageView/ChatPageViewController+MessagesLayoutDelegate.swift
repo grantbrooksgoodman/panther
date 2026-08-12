@@ -22,6 +22,7 @@ extension ChatPageViewController: @MainActor MessagesLayoutDelegate {
 
     // MARK: - Cell Bottom Label Height
 
+    /// Returns the height of the cell's bottom label, or `0` when it has none.
     func cellBottomLabelHeight(
         for message: MessageType,
         at indexPath: IndexPath,
@@ -57,6 +58,7 @@ extension ChatPageViewController: @MainActor MessagesLayoutDelegate {
 
     // MARK: - Cell Top Label Height
 
+    /// Returns the height of the cell's top label, or `0` when it has none.
     func cellTopLabelHeight(
         for message: MessageType,
         at indexPath: IndexPath,
@@ -74,6 +76,7 @@ extension ChatPageViewController: @MainActor MessagesLayoutDelegate {
 
     // MARK: - Message Top Label Height
 
+    /// Returns the height of the message's top label, or `0` when it has none.
     func messageTopLabelHeight(
         for message: MessageType,
         at indexPath: IndexPath,

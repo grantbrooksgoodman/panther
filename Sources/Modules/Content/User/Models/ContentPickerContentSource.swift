@@ -9,7 +9,11 @@
 /* Native */
 import Foundation
 
+/// The source from which a content picker selects content.
 enum ContentPickerContentSource {
+    /// The device camera.
     case camera
+
+    /// The user's photo library.
     case photoLibrary
 }

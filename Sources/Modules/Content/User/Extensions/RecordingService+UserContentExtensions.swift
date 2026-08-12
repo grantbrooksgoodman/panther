@@ -14,6 +14,8 @@ import AppSubsystem
 
 @MainActor
 extension RecordingService {
+    /// A Boolean value that indicates whether the service is recording or is about to begin
+    /// recording.
     var isInOrWillTransitionToRecordingState: Bool {
         @Dependency(\.chatPageViewService.recordingUI?.isShowingRecordingUI) var isShowingRecordingUI: Bool?
         guard !isRecording,

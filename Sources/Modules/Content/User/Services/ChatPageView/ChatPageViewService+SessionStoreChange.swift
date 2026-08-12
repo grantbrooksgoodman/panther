@@ -21,6 +21,14 @@ extension ChatPageViewService {
 
     // MARK: - Handle Session Store Change
 
+    /// Processes a session store change, reloading the message list when it affects the
+    /// displayed conversation.
+    ///
+    /// A change is relevant when it upserts the displayed conversation, or when it upserts or
+    /// removes any of the conversation's messages. Rapid successive changes are debounced into a
+    /// single reload.
+    ///
+    /// - Parameter change: The session store change to process.
     func handleSessionStoreChange(_ change: SessionStoreChange) {
         @Dependency(\.clientSession.entity.conversation.currentConversation) var currentConversation: Conversation?
 
@@ -44,6 +52,9 @@ extension ChatPageViewService {
 
     // MARK: - Handle Outbox Change
 
+    /// Processes a message outbox change by reloading the message list.
+    ///
+    /// Rapid successive changes are debounced into a single reload.
     func handleOutboxChange() {
         debounceReloadCollectionView()
     }

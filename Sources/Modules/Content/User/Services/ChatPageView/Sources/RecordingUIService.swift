@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -16,6 +18,11 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
+/// The service that manages the audio recording interface.
+///
+/// ``RecordingUIService`` shows and hides the in-input-bar recording interface – a duration
+/// label, a pulsing indicator, and a slide-to-cancel prompt – and animates the elapsed recording
+/// time while a recording is in progress.
 @MainActor // swiftlint:disable:next type_body_length
 final class RecordingUIService {
     // MARK: - Constants Accessors
@@ -31,6 +38,7 @@ final class RecordingUIService {
 
     // MARK: - Properties
 
+    /// A Boolean value that indicates whether the recording interface is currently shown.
     var isShowingRecordingUI = false
 
     private let viewController: ChatPageViewController
@@ -62,6 +70,9 @@ final class RecordingUIService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
@@ -75,6 +86,9 @@ final class RecordingUIService {
 
     // MARK: - Toggle Recording UI
 
+    /// Hides the recording interface and restores the message input bar.
+    ///
+    /// The method suspends until the hide animation completes.
     func hideRecordingUI() async {
         await withCheckedContinuation { continuation in
             Task { @MainActor in
@@ -117,6 +131,10 @@ final class RecordingUIService {
         }
     }
 
+    /// Shows the recording interface in place of the message input field and begins animating the
+    /// elapsed recording time.
+    ///
+    /// The method suspends until the show animation completes.
     func showRecordingUI() async {
         await withCheckedContinuation { continuation in
             Task { @MainActor in
@@ -396,3 +414,5 @@ final class RecordingUIService {
         )
     }
 }
+
+// swiftlint:enable file_length

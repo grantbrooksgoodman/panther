@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import Contacts
 import Foundation
@@ -16,14 +18,28 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+/// The service that handles the chat info page's user interactions.
+///
+/// Use ``ChatInfoPageViewService`` to load the current conversation's participants and to
+/// respond to the chat info page's controls – changing the conversation's name and photo,
+/// removing participants, leaving the conversation, previewing media, and sharing PenPals
+/// data.
 @MainActor // swiftlint:disable:next type_body_length
 final class ChatInfoPageViewService {
     // MARK: - Types
 
+    /// A change the user chose to make to the conversation's metadata.
     enum MetadataChangeType {
+        /// A name change, carrying the metadata with the new name applied.
         case name(ConversationMetadata)
+
+        /// A photo removal, carrying the metadata with the photo cleared.
         case removePhoto(ConversationMetadata)
+
+        /// A request to capture a new photo with the camera.
         case selectPhotoFromCamera
+
+        /// A request to choose a new photo from the photo library.
         case selectPhotoFromLibrary
     }
 
@@ -43,6 +59,7 @@ final class ChatInfoPageViewService {
 
     // MARK: - Properties
 
+    /// A Boolean value that indicates whether a media preview is presented.
     private(set) var isPreviewingMedia = false
 
     @Cached(CacheKey.chatParticipantsForUserIDs) private var cachedChatParticipantsForUserIDs: [String: ChatParticipant]?
@@ -52,6 +69,7 @@ final class ChatInfoPageViewService {
 
     // MARK: - Init
 
+    /// Creates a chat info page view service.
     nonisolated init() {}
 
     // MARK: - Computed Properties
@@ -74,7 +92,19 @@ final class ChatInfoPageViewService {
     // MARK: - Get Chat Participants
 
     // swiftlint:disable function_body_length
-    /// `.viewAppeared`
+    /// Returns the current conversation's participants, prepared for display.
+    ///
+    /// Each participant combines their user record with a matching device contact, when one
+    /// exists. In PenPals conversations, participants who have not shared their data with the
+    /// current user – and are not otherwise known to them – appear under their obfuscated
+    /// PenPals names without contact information. Results outside PenPals conversations are
+    /// cached in memory per user, and uncached participants resolve in parallel.
+    ///
+    /// - Returns: The participants, sorted by display name – names beginning with a letter
+    ///   first.
+    ///
+    /// - Throws: An `Exception` if no current conversation is set, or if participant
+    ///   resolution fails.
     func getChatParticipants() async throws(Exception) -> [ChatParticipant] {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
         guard let conversation = clientSession.entity.conversation.currentConversation else {
@@ -212,6 +242,13 @@ final class ChatInfoPageViewService {
 
     // MARK: - Reducer Action Handlers
 
+    /// Asks the user to confirm leaving the given conversation, applying it if they accept.
+    ///
+    /// Leaving removes the current user from the conversation, dismisses all presented
+    /// sheets, and removes the conversation from the session store. Failures surface as a
+    /// toast.
+    ///
+    /// - Parameter conversation: The conversation to leave.
     func leaveConversationButtonTapped(_ conversation: Conversation?) {
         Task {
             guard let conversation else { return }
@@ -255,6 +292,12 @@ final class ChatInfoPageViewService {
         }
     }
 
+    /// Previews the conversation's media files, starting at the given index.
+    ///
+    /// - Parameters:
+    ///   - metadata: The display metadata of the tapped item.
+    ///   - filePaths: The paths of the files available to preview.
+    ///   - startingIndex: The index of the file to show first.
     func mediaItemViewTapped(
         _ metadata: MediaItemView.Metadata,
         filePaths: [String],
@@ -275,6 +318,15 @@ final class ChatInfoPageViewService {
         }
     }
 
+    /// Asks the user to confirm removing the given participant, applying it if they accept.
+    ///
+    /// Removal dismisses the chat sheet, removes the participant from the conversation,
+    /// reloads the chat, and notifies observers of the activity change. Failures surface as a
+    /// toast.
+    ///
+    /// - Parameters:
+    ///   - chatParticipant: The participant to remove.
+    ///   - conversation: The conversation to remove them from.
     func removeUserButtonTapped(
         _ chatParticipant: ChatParticipant,
         conversation: Conversation?
@@ -313,6 +365,7 @@ final class ChatInfoPageViewService {
         }
     }
 
+    /// Reapplies the segmented control's background color after a trait collection change.
     func traitCollectionChanged() {
         Task.delayed(by: .milliseconds(100)) { @MainActor in
             for uiSegmentBackgroundView in self.uiSegmentBackgroundViews {
@@ -321,9 +374,15 @@ final class ChatInfoPageViewService {
         }
     }
 
-    /// `.changeMetadataActionSheetDismissed(.name)`
-    /// `.changeMetadataActionSheetDismissed(.removePhoto)`
-    /// `.selectedImageChanged`
+    /// Applies new metadata to the given conversation, recording an activity for the change.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation to update.
+    ///   - action: The activity action describing the change.
+    ///   - newMetadata: The metadata to apply.
+    ///
+    /// - Throws: An `Exception` if the activity cannot be synthesized, or if the update
+    ///   fails.
     func updateMetadata(
         _ conversation: Conversation,
         action: Activity.Action,
@@ -344,6 +403,11 @@ final class ChatInfoPageViewService {
         )
     }
 
+    /// Responds to the chat info page appearing.
+    ///
+    /// This method dismisses the keyboard, configures segmented controls to size segments by
+    /// content, and schedules a metadata change notification for when any in-flight message
+    /// send completes.
     func viewAppeared() {
         uiApplication.resignFirstResponders()
         UISegmentedControl.appearance().apportionsSegmentWidthsByContent = true
@@ -353,7 +417,8 @@ final class ChatInfoPageViewService {
         ) { self.currentConversationMetadataChanged.send() }
     }
 
-    /// `.getChatParticipantsReturned(.success)`
+    /// Responds to the chat info page finishing its initial load, correcting the segmented
+    /// control's background color while the sheet remains presented.
     func viewLoaded() {
         Task.delayed(by: .seconds(1)) { @MainActor [weak self] in
             guard let self else { return }
@@ -368,7 +433,10 @@ final class ChatInfoPageViewService {
 
     // MARK: - Clear Cache
 
+    /// Removes every cached chat participant.
     func clearCache() {
         cachedChatParticipantsForUserIDs = nil
     }
 }
+
+// swiftlint:enable file_length

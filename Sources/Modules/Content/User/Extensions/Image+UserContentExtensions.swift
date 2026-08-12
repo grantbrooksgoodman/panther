@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 extension Image {
+    /// A placeholder image indicating missing content.
     static var missing: Image {
         .init(uiImage: .missing)
     }

@@ -14,6 +14,8 @@ import UIKit
 import AppSubsystem
 
 extension ConversationsPageView {
+    /// Reapplies the navigation bar items' glass tint when glass tinting is enabled for a
+    /// non-default theme.
     static func reapplyNavigationBarItemGlassTintIfNeeded() {
         guard !ThemeService.isAppDefaultThemeApplied,
               UIApplication.isGlassTintingEnabled else { return }

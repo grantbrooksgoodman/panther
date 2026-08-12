@@ -16,9 +16,16 @@ import AppSubsystem
 extension ChatInfoPageViewService {
     // MARK: - Present PenPals Sharing Data Confirmation Action Sheet
 
-    /// `.penPalParticipantViewTapped`
-    /// `.penPalsSharingDataSwitchToggledOn`
-    /// - Returns: The target user's ID if the user selected the confirmation option.
+    /// Asks the user to confirm sharing their phone number with the given PenPal.
+    ///
+    /// The action sheet explains that mutual sharing unlocks adding each other as contacts,
+    /// and that the action cannot be undone.
+    ///
+    /// - Parameters:
+    ///   - userID: The ID of the user to share with.
+    ///   - displayName: The name the action sheet displays.
+    ///
+    /// - Returns: The given user ID if the user confirmed; otherwise, `nil`.
     func presentPenPalsSharingDataConfirmationActionSheet(
         _ userID: String,
         displayName: String
@@ -61,7 +68,12 @@ extension ChatInfoPageViewService {
 
     // MARK: - Show PenPals Sharing Status Toast
 
-    /// `.penPalParticipantViewTapped`
+    /// Shows a toast explaining that the current user has already shared their phone number
+    /// with the given user.
+    ///
+    /// - Parameters:
+    ///   - userID: The ID of the user the toast concerns.
+    ///   - displayName: The name the toast displays.
     func showPenPalsSharingStatusToast(
         _ userID: String,
         displayName: String

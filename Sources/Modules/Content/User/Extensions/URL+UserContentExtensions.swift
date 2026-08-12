@@ -10,6 +10,7 @@
 import Foundation
 
 extension URL {
+    /// The URL of the thumbnail image corresponding to this media file URL.
     var thumbnailPath: URL? {
         let components = absoluteString.components(separatedBy: "/")
         guard components.count > 1,

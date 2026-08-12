@@ -10,6 +10,11 @@
 import Foundation
 import SwiftUI
 
+/// A button style that triggers with a high-priority gesture.
+///
+/// Use ``HighPriorityButtonStyle`` for buttons nested inside other tappable areas, so their
+/// taps win over the enclosing gesture. The label dims while pressed, and the action triggers
+/// only for taps with minimal movement.
 struct HighPriorityButtonStyle: PrimitiveButtonStyle {
     private struct ButtonView: View {
         /* MARK: Properties */
@@ -47,6 +52,7 @@ struct HighPriorityButtonStyle: PrimitiveButtonStyle {
 
     // MARK: - Make Body
 
+    /// Creates the view for the button's body.
     func makeBody(configuration: PrimitiveButtonStyle.Configuration) -> some View {
         ButtonView(configuration: configuration, isPressed: false)
     }

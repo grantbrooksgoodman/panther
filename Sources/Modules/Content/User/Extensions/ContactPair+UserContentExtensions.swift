@@ -15,10 +15,13 @@ import AppSubsystem
 extension ContactPair {
     // MARK: - Properties
 
+    /// The compiled number strings of the contact's phone numbers.
     var compiledNumberStrings: [String] {
         contact.phoneNumbers.compiledNumberStrings
     }
 
+    /// A Boolean value that indicates whether the contact pair contains a user the current user
+    /// has blocked.
     var containsBlockedUser: Bool {
         @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
         guard let currentUser else { return false }
@@ -26,10 +29,13 @@ extension ContactPair {
     }
 
     // TODO: Audit this – contains(where:) might be better.
+    /// A Boolean value that indicates whether the contact pair contains only the current user.
     var containsCurrentUser: Bool {
         userIDs.allSatisfy { $0 == User.currentUserID }
     }
 
+    /// A Boolean value that indicates whether the contact pair is a mock, representing an
+    /// unresolved recipient entered manually.
     var isMock: Bool {
         guard contact.id.isBlank,
               contact.lastName.isBlank,
@@ -42,12 +48,15 @@ extension ContactPair {
         return true
     }
 
+    /// A Boolean value that indicates whether the contact pair is currently selected as a
+    /// recipient.
     @MainActor
     var isSelected: Bool {
         @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs) var selectedContactPairs: [ContactPair]?
         return (selectedContactPairs ?? []).contains(self)
     }
 
+    /// The user identifiers across the contact pair's number pairs.
     var userIDs: [String] {
         numberPairs.flatMap(\.userIDs)
     }
@@ -59,6 +68,11 @@ extension ContactPair {
 
     // MARK: - Methods
 
+    /// Creates a mock contact pair with the given name, representing an unresolved recipient.
+    ///
+    /// - Parameter name: The name to display for the recipient.
+    ///
+    /// - Returns: A mock contact pair.
     static func mock(withName name: String) -> ContactPair {
         .init(
             contact: .init(
@@ -77,6 +91,13 @@ extension ContactPair {
         )
     }
 
+    /// Creates a contact pair for the given registered user.
+    ///
+    /// - Parameters:
+    ///   - user: The registered user to represent.
+    ///   - name: The name to display, or `nil` to use the user's formatted phone number.
+    ///
+    /// - Returns: A contact pair representing the given user.
     static func withUser(
         _ user: User,
         name: String? = nil

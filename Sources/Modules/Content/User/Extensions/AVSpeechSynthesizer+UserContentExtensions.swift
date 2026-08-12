@@ -14,6 +14,7 @@ import Foundation
 import AppSubsystem
 
 extension AVSpeechSynthesizer {
+    /// Stops speech synthesis if it is currently speaking.
     func stopSpeakingIfNeeded() {
         guard isSpeaking else { return }
         stopSpeaking(at: .immediate)

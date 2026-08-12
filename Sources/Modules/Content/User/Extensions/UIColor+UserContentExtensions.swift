@@ -15,6 +15,7 @@ import AppSubsystem
 
 @MainActor
 extension UIColor {
+    /// The accent color, or the system blue color in contexts that require it.
     static var accentOrSystemBlue: UIColor {
         if Application.isInPrevaricationMode ||
             (ThemeService.isAppDefaultThemeApplied && UIApplication.isFullyV26Compatible) {

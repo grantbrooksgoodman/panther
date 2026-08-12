@@ -14,11 +14,19 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
+/// Use ``UpdateService`` to prompt the user to install app updates.
+///
+/// The service compares the running build against the hosted App Store build number and
+/// presents either a dismissible update alert or the blocking forced-update modal.
 struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
     // MARK: - Types
 
+    /// The kind of update to prompt for.
     enum UpdateType {
+        /// An update the user must install to continue using the app.
         case forced
+
+        /// An update the user may install or postpone.
         case normal
     }
 
@@ -31,6 +39,7 @@ struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
 
     // MARK: - Properties
 
+    /// The shared update service instance.
     static let shared = UpdateService()
 
     @Persistent(.buildNumberWhenLastForcedToUpdate) private var buildNumberWhenLastForcedToUpdate: Int?
@@ -39,6 +48,8 @@ struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
 
     // MARK: - Computed Properties
 
+    /// The URL the forced-update modal's install button opens, or `nil` if it has not been
+    /// resolved.
     var installButtonRedirectURL: URL? {
         metadataService.appShareLink
     }
@@ -59,6 +70,16 @@ struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
 
     // MARK: - Check for Updates
 
+    /// Checks for an available update and prompts the user to install it if needed.
+    ///
+    /// An update is available when the hosted App Store build number exceeds the running
+    /// build's. Updates are forced when the hosted force-update flag is set, when the app has
+    /// not been updated since a previous forced update, or when a postponed update is at least
+    /// 10 days old; a forced update presents the blocking forced-update modal. Otherwise, an
+    /// alert offers to open the App Store, and canceling postpones the update – once
+    /// postponed, the alert reappears only after at least three subsequent relaunches.
+    ///
+    /// - Throws: An `Exception` if resolving hosted metadata fails.
     func promptToUpdateIfNeeded() async throws(Exception) {
         let updateType = try await checkForUpdates()
         guard let updateType else { return }
@@ -122,6 +143,10 @@ struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
 
     // MARK: - Increment Relaunch Count
 
+    /// Increments the persisted relaunch count if an update has been postponed.
+    ///
+    /// Call this method once per launch; the count determines when a postponed update alert
+    /// reappears.
     func incrementRelaunchCountIfNeeded() {
         guard firstPostponedUpdate != nil else { return }
         relaunchesSinceLastPostponedUpdate = (relaunchesSinceLastPostponedUpdate ?? 0) + 1

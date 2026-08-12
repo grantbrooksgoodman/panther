@@ -16,6 +16,11 @@ import AppSubsystem
 /* 3rd-party */
 import PhoneNumberKit
 
+/// Use ``PhoneNumberService`` to derive calling codes, hashes, and formatting details from
+/// phone number strings.
+///
+/// Derivations rely on the app's bundled phone number reference data; results are cached in
+/// memory.
 final class PhoneNumberService {
     // MARK: - Types
 
@@ -38,6 +43,7 @@ final class PhoneNumberService {
 
     // MARK: - Computed Properties
 
+    /// The calling code for the device's current region, or `1` if it cannot be determined.
     var deviceCallingCode: String {
         guard let regionCode = currentLocale.region?.identifier,
               let callingCode = callingCodes[regionCode] else { return "1" }
@@ -54,6 +60,15 @@ final class PhoneNumberService {
 
     // MARK: - Calling Code Determination
 
+    /// Returns the calling codes that could plausibly apply to the given number string.
+    ///
+    /// A calling code matches if the number begins with it and the remaining digits form a
+    /// valid length for that code; otherwise, candidates are derived from the number's length
+    /// alone. Results are cached in memory per number.
+    ///
+    /// - Parameter number: The phone number string to evaluate, containing digits only.
+    ///
+    /// - Returns: The candidate calling codes; otherwise, `nil` if none could be derived.
     func possibleCallingCodes(for number: String) -> [String]? {
         if let cachedPossibleCallingCodesForNumbers,
            let cachedValue = cachedPossibleCallingCodesForNumbers[number] {
@@ -70,6 +85,14 @@ final class PhoneNumberService {
         return countryCodes
     }
 
+    /// Returns the combined candidate calling codes for the given number strings.
+    ///
+    /// Numbers for which no candidates could be derived are skipped.
+    ///
+    /// - Parameter numbers: The phone number strings to evaluate, containing digits only.
+    ///
+    /// - Returns: The concatenated candidate calling codes for each number; otherwise, `nil`
+    ///   if none could be derived.
     func possibleCallingCodes(for numbers: [String]) -> [String]? {
         var callingCodes = [String]()
 
@@ -106,6 +129,13 @@ final class PhoneNumberService {
 
     // MARK: - Example National Number String
 
+    /// Returns an example national phone number for the given region, formatted for display.
+    ///
+    /// If no example exists for the region, a United States example is returned.
+    ///
+    /// - Parameter regionCode: The region code for which to produce an example.
+    ///
+    /// - Returns: The formatted example number.
     func exampleNationalNumberString(for regionCode: String) -> String {
         let usNumberString = "(555) 555-5555"
         guard regionCode != "US" else { return usNumberString }
@@ -121,6 +151,14 @@ final class PhoneNumberService {
 
     // MARK: - Hash Generation
 
+    /// Returns the encoded hashes under which the given number string may be stored.
+    ///
+    /// The result contains the hash of the full number, plus the hash of the number with each
+    /// plausible calling code prefix removed. Results are cached in memory per number.
+    ///
+    /// - Parameter number: The phone number string to evaluate, containing digits only.
+    ///
+    /// - Returns: The candidate hashes.
     func possibleHashes(for number: String) -> [String]? {
         if let cachedPossibleHashesForNumbers,
            let cachedValue = cachedPossibleHashesForNumbers[number] {
@@ -142,6 +180,14 @@ final class PhoneNumberService {
         return hashes
     }
 
+    /// Returns the combined candidate hashes for the given number strings.
+    ///
+    /// Numbers for which no candidates could be derived are skipped.
+    ///
+    /// - Parameter numbers: The phone number strings to evaluate, containing digits only.
+    ///
+    /// - Returns: The concatenated candidate hashes for each number; otherwise, `nil` if none
+    ///   could be derived.
     func possibleHashes(for numbers: [String]) -> [String]? {
         var hashes = [String]()
 
@@ -155,6 +201,14 @@ final class PhoneNumberService {
 
     // MARK: - Length Validation
 
+    /// Returns a Boolean value that indicates whether a national number of the given length is
+    /// valid for the given calling code.
+    ///
+    /// - Parameters:
+    ///   - length: The number of digits to validate.
+    ///   - callingCode: The calling code against which to validate.
+    ///
+    /// - Returns: `true` if the length is valid for the calling code; otherwise, `false`.
     func numberIsValidLength(
         _ length: Int,
         for callingCode: String

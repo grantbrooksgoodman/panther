@@ -15,6 +15,11 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// The service that builds and lays out the recipient bar's subviews.
+///
+/// ``RecipientBarLayoutService`` creates and positions the recipient bar's subviews – the "To"
+/// label, text field, select-contact button, contact suggestions table, and borders – and
+/// provides access to them. It also removes the bar and toggles its user interaction.
 @MainActor
 final class RecipientBarLayoutService {
     // MARK: - Constants Accessors
@@ -40,26 +45,32 @@ final class RecipientBarLayoutService {
 
     // MARK: - Computed Properties
 
+    /// The recipient bar view, or `nil` if it is not installed.
     var recipientBarView: RecipientBar? {
         viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar
     }
 
+    /// The recipient bar's select-contact button, or `nil` if it is not installed.
     var selectContactButton: UIButton? {
         recipientBarView?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton
     }
 
+    /// The contact suggestions table, or `nil` if it is not installed.
     var tableView: UITableView? {
         viewController.view.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView
     }
 
+    /// The recipient bar's text field, or `nil` if it is not installed.
     var textField: UITextField? {
         recipientBarView?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField
     }
 
+    /// The recipient bar's "To" label, or `nil` if it is not installed.
     var toLabel: UILabel? {
         recipientBarView?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel
     }
 
+    /// The recipient bar's frame at its default height, spanning the screen's width.
     var viewFrame: CGRect {
         .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight))
     }
@@ -70,12 +81,16 @@ final class RecipientBarLayoutService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Layout Subviews
 
+    /// Builds and lays out the recipient bar's subviews, creating any that are not yet installed.
     func layoutSubviews() {
         configureBackgroundColor()
         configureBorders()
@@ -97,6 +112,7 @@ final class RecipientBarLayoutService {
 
     // MARK: - Remove from Superview
 
+    /// Removes the recipient bar from the view hierarchy and resets the message list's insets.
     func removeFromSuperview() {
         Task { @MainActor in
             recipientBarView?.removeFromSuperview()
@@ -108,6 +124,13 @@ final class RecipientBarLayoutService {
 
     // MARK: - Set Is User Interaction Enabled
 
+    /// Enables or disables user interaction with the recipient bar.
+    ///
+    /// When disabling, the method remembers whether the text field was the first responder and
+    /// restores that status when re-enabling.
+    ///
+    /// - Parameter isUserInteractionEnabled: A Boolean value that indicates whether user
+    ///   interaction is enabled.
     func setIsUserInteractionEnabled(_ isUserInteractionEnabled: Bool) {
         Task { @MainActor in
             isNewChatPageDoneToolbarButtonEnabled = isUserInteractionEnabled
@@ -130,6 +153,10 @@ final class RecipientBarLayoutService {
 
     // MARK: - UI Configuration
 
+    /// Applies the recipient bar's top and bottom borders for the current theme.
+    ///
+    /// When the app runs with full iOS 26 compatibility, a glass effect is applied in place of
+    /// the borders.
     func configureBorders() {
         func satisfiesConstraints(_ layer: CALayer) -> Bool {
             guard layer.backgroundColor == UIColor(Colors.darkBorder).cgColor || layer.backgroundColor == UIColor(Colors.lightBorder).cgColor,

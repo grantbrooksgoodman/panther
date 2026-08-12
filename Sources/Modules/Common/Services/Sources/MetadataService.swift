@@ -13,6 +13,11 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// Use ``MetadataService`` to read app configuration values hosted in the remote database.
+///
+/// Call ``resolveValues()`` to fetch the hosted values; each resolved value is then available
+/// through its corresponding property. Values are fetched once and retained for the lifetime
+/// of the process.
 final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
     // MARK: - Types
 
@@ -40,6 +45,7 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
 
     // MARK: - Properties
 
+    /// The shared metadata service instance.
     static let shared = MetadataService()
 
     private let _appShareLink = LockIsolated<URL?>(nil)
@@ -52,40 +58,50 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
 
     // MARK: - Computed Properties
 
+    /// The Gemini API key, or an empty string if it has not been resolved.
     var apiKey: String {
         geminiAPIKey ?? ""
     }
 
+    /// The app's share link, or `nil` if it has not been resolved.
     private(set) var appShareLink: URL? {
         get { _appShareLink.wrappedValue }
         set { _appShareLink.wrappedValue = newValue }
     }
 
+    /// The App Store build number, or `nil` if it has not been resolved.
     private(set) var appStoreBuildNumber: Int? {
         get { _appStoreBuildNumber.wrappedValue }
         set { _appStoreBuildNumber.wrappedValue = newValue }
     }
 
+    /// The Gemini API key, or `nil` if it has not been resolved.
     private(set) var geminiAPIKey: String? {
         get { _geminiAPIKey.wrappedValue }
         set { _geminiAPIKey.wrappedValue = newValue }
     }
 
+    /// A Boolean value that indicates whether prevarication mode may be enabled, or `nil` if it
+    /// has not been resolved.
     private(set) var isPrevaricationModeEnabled: Bool? {
         get { _isPrevaricationModeEnabled.wrappedValue }
         set { _isPrevaricationModeEnabled.wrappedValue = newValue }
     }
 
+    /// The hosted redirection key, or `nil` if it has not been resolved.
     private(set) var redirectionKey: String? {
         get { _redirectionKey.wrappedValue }
         set { _redirectionKey.wrappedValue = newValue }
     }
 
+    /// A Boolean value that indicates whether the app should force an update, or `nil` if it
+    /// has not been resolved.
     private(set) var shouldForceUpdate: Bool? {
         get { _shouldForceUpdate.wrappedValue }
         set { _shouldForceUpdate.wrappedValue = newValue }
     }
 
+    /// The base URL for browsing remote storage, or `nil` if it has not been resolved.
     private(set) var storageReferenceURL: URL? {
         get { _storageReferenceURL.wrappedValue }
         set { _storageReferenceURL.wrappedValue = newValue }
@@ -99,6 +115,12 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
 
     // MARK: - Resolve All Values
 
+    /// Fetches and assigns any hosted values that have not yet been resolved.
+    ///
+    /// If every value has already been resolved, this method returns immediately.
+    ///
+    /// - Throws: An `Exception` if fetching fails, or if a hosted value is missing or of an
+    ///   unexpected type.
     func resolveValues() async throws(Exception) {
         guard appShareLink == nil
             || appStoreBuildNumber == nil

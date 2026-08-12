@@ -15,6 +15,7 @@ import AppSubsystem
 
 @MainActor
 extension NavigationBarAppearance {
+    /// The app's default navigation bar appearance.
     static var appDefault: NavigationBarAppearance {
         if Application.isInPrevaricationMode {
             .custom(.init(
@@ -35,6 +36,7 @@ extension NavigationBarAppearance {
         }
     }
 
+    /// The navigation bar appearance for the chat page.
     static var chatPageView: NavigationBarAppearance {
         guard !Application.isInPrevaricationMode,
               UIApplication.isFullyV26Compatible else { return .appDefault }
@@ -50,6 +52,7 @@ extension NavigationBarAppearance {
         )
     }
 
+    /// The navigation bar appearance for the conversations page.
     static var conversationsPageView: NavigationBarAppearance {
         guard Application.isInPrevaricationMode,
               UIApplication.isFullyV26Compatible else { return .appDefault }
@@ -74,6 +77,7 @@ extension NavigationBarAppearance {
         )
     }
 
+    /// The navigation bar appearance for the new chat page.
     static var newChatPageView: NavigationBarAppearance {
         guard !Application.isInPrevaricationMode,
               UIApplication.isFullyV26Compatible else { return .appDefault }

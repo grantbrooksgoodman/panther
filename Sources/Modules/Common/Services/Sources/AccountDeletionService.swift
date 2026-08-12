@@ -6,6 +6,8 @@
 //  Copyright © 2013-2025 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable function_body_length
+
 /* Native */
 import Foundation
 
@@ -14,6 +16,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+/// Use ``AccountDeletionService`` to permanently delete the current user's account.
 final class AccountDeletionService: @unchecked Sendable {
     // MARK: - Dependencies
 
@@ -33,7 +36,26 @@ final class AccountDeletionService: @unchecked Sendable {
 
     // MARK: - Delete Account
 
-    // swiftlint:disable:next function_body_length
+    /// Permanently deletes the current user's account and its associated data.
+    ///
+    /// While a progress alert is displayed, this method performs the following operations in
+    /// sequence:
+    ///
+    /// 1. Adds the current user to the deleted users registry and resolves their conversations.
+    /// 2. Removes the user from group conversations and deletes their one-to-one conversations.
+    /// 3. Clears the user's conversation identifier list.
+    /// 4. Repairs database integrity.
+    /// 5. Clears the persisted current user identifier and removes the user's record from the
+    ///    remote database.
+    ///
+    /// Individual failures do not halt the operation; their exceptions are accumulated, a
+    /// second integrity repair is attempted, and a single compiled `Exception` is thrown at the
+    /// end.
+    ///
+    /// - Important: This method stops current-user change observation and does not restart it.
+    ///
+    /// - Throws: An `Exception` if the current user ID has not been set, or if any step of the
+    ///   operation fails.
     func deleteAccount() async throws(Exception) {
         var exceptions = [Exception]()
 
@@ -241,3 +263,5 @@ final class AccountDeletionService: @unchecked Sendable {
         }
     }
 }
+
+// swiftlint:enable function_body_length

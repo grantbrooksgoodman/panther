@@ -15,6 +15,11 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+/// The service that handles the contact selector page's user interactions.
+///
+/// Use ``ContactSelectorPageViewService`` to respond to selections on the contact selector
+/// page, which is presented as a sheet either from the chat info page – to add a participant
+/// to the conversation – or from the new chat page – to choose a recipient.
 struct ContactSelectorPageViewService {
     // MARK: - Dependencies
 
@@ -32,6 +37,13 @@ struct ContactSelectorPageViewService {
 
     // MARK: - Reducer Action Handlers
 
+    /// Dismisses the contact selector sheet without a selection.
+    ///
+    /// When entered from the new chat page, the input bar's appearance is restored and the
+    /// contact selection UI's label representation is updated to match the recipient bar's
+    /// focus.
+    ///
+    /// - Parameter entryPoint: The page from which the contact selector was presented.
     @MainActor
     func cancelToolbarButtonTapped(from entryPoint: ContactSelectorPageView.EntryPoint) {
         navigation.navigate(to: .chat(.sheet(.none)))
@@ -55,13 +67,20 @@ struct ContactSelectorPageViewService {
         }
     }
 
-    /// `.searchQuerySubmitted`
+    /// Returns the registered user with the given phone number.
+    ///
+    /// - Parameter phoneNumber: The phone number to look up.
+    ///
+    /// - Returns: The matching user.
+    ///
+    /// - Throws: An `Exception` if no registered user matches, or if the lookup fails.
     func findUser(with phoneNumber: PhoneNumber) async throws(Exception) -> User {
         try await networking.userService.getUser(
             phoneNumber: phoneNumber
         )
     }
 
+    /// Presents the invitation prompt, surfacing any error as a toast.
     func inviteToolbarButtonTapped() {
         Task { @MainActor in
             do throws(Exception) {
@@ -75,7 +94,11 @@ struct ContactSelectorPageViewService {
         }
     }
 
-    /// `.findUserReturned(.failure)`
+    /// Presents an alert offering to invite the given phone number's owner to the app.
+    ///
+    /// If the user accepts, the invitation prompt is presented.
+    ///
+    /// - Parameter phoneNumber: The phone number for which no registered user was found.
     func presentInvitationPrompt(phoneNumber: PhoneNumber) async {
         let inviteAction = AKAction("Send Invite", style: .preferred) { inviteToolbarButtonTapped() }
         await AKAlert(
@@ -88,6 +111,17 @@ struct ContactSelectorPageViewService {
         ])
     }
 
+    /// Responds to the user selecting a contact pair on the contact selector page.
+    ///
+    /// When entered from the chat info page, an action sheet offers to add the selected user
+    /// to the current conversation – users already participating are ignored; adding one
+    /// reloads the chat and notifies observers of the activity change. When entered from the
+    /// new chat page, the sheet is dismissed and the selection is applied to the recipient
+    /// bar.
+    ///
+    /// - Parameters:
+    ///   - selectedContactPair: The contact pair the user selected.
+    ///   - entryPoint: The page from which the contact selector was presented.
     @MainActor
     func selectedContactPairChanged(
         _ selectedContactPair: ContactPair,

@@ -13,6 +13,8 @@ import Foundation
 import AppSubsystem
 
 extension Locale {
+    /// The system's language identifier, such as `en-US`, defaulting to `en-US` when none can be
+    /// determined.
     static var systemLanguageID: String {
         @Dependency(\.mainBundle) var mainBundle: Bundle
         @Dependency(\.currentLocale) var currentLocale: Locale

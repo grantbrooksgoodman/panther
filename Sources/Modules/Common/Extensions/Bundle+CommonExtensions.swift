@@ -10,6 +10,11 @@
 import Foundation
 
 extension Bundle {
+    /// A Boolean value that indicates whether the bundle contains the media assets required for
+    /// staging mode.
+    ///
+    /// Staging mode requires two audio files, two images, and a video to be present in the
+    /// bundle. This property is `false` if any of these resources is missing.
     var containsStagingAssets: Bool {
         let requiredResources = [
             "audio": "m4a",

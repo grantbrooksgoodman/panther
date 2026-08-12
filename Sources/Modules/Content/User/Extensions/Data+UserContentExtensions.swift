@@ -13,6 +13,13 @@ import Foundation
 import AppSubsystem
 
 extension Data {
+    /// Returns the data at the given URL.
+    ///
+    /// - Parameter url: The URL to read.
+    ///
+    /// - Returns: The data at the URL.
+    ///
+    /// - Throws: An `Exception` if the URL cannot be read or contains no data.
     static func fromURL(_ url: URL) throws(Exception) -> Data {
         let userInfo = ["URLPath": url.path()]
 

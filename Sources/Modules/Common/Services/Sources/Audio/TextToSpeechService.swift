@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import AVFAudio
 import Foundation
@@ -13,6 +15,10 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// Use ``TextToSpeechService`` to synthesize speech from text.
+///
+/// The service writes synthesized speech to M4A files on disk and reports which languages
+/// support synthesis. Voice and language support lookups are cached in memory.
 struct TextToSpeechService {
     // MARK: - Type Aliases
 
@@ -25,6 +31,20 @@ struct TextToSpeechService {
 
     // MARK: - Read to File
 
+    /// Synthesizes the given text to an audio file.
+    ///
+    /// Synthesis uses the highest quality voice available for the given language. Requests are
+    /// throttled; concurrent calls may suspend until earlier requests complete.
+    ///
+    /// - Parameters:
+    ///   - text: The text to synthesize.
+    ///   - languageCode: The language code of the voice with which to synthesize the text.
+    ///
+    /// - Returns: The URL of the synthesized M4A file, located in a uniquely named directory
+    ///   within the app's Documents directory.
+    ///
+    /// - Throws: An `Exception` if text to speech is not supported for the given language code,
+    ///   if synthesis fails, or if it does not complete within 10 seconds.
     func readToFile(
         text: String,
         languageCode: String
@@ -45,6 +65,23 @@ struct TextToSpeechService {
 
     // MARK: - Highest Quality Voice
 
+    /// Returns the highest quality voice available for the given language code.
+    ///
+    /// The lookup prefers enhanced- and premium-quality voices whose language matches the given
+    /// code, falling back to the system's default voice for the language. Results are cached in
+    /// memory per language code.
+    ///
+    /// - Parameters:
+    ///   - languageCode: The language code for which to find a voice.
+    ///   - mustIncludeAudioFileSettings: A Boolean value that indicates whether matching voices
+    ///     must also provide audio file settings, which are required to write synthesized speech
+    ///     to a file. The default is `false`.
+    ///
+    /// - Returns: The highest quality voice for the language code; otherwise, `nil` if no voice
+    ///   is available.
+    ///
+    /// - Note: Cached results are keyed by language code only; the `mustIncludeAudioFileSettings`
+    ///   constraint applies only when the language code is not already cached.
     func highestQualityVoice(
         _ languageCode: String,
         mustIncludeAudioFileSettings: Bool = false
@@ -80,6 +117,16 @@ struct TextToSpeechService {
 
     // MARK: - Capabilities
 
+    /// Returns a Boolean value that indicates whether text to speech is supported for the given
+    /// language code.
+    ///
+    /// Support is determined by whether any installed voice matches the given code. Results are
+    /// cached in memory per language code.
+    ///
+    /// - Parameter languageCode: The language code for which to check support.
+    ///
+    /// - Returns: `true` if text to speech is supported for the given language code; otherwise,
+    ///   `false`.
     func isTextToSpeechSupported(for languageCode: String) -> Bool {
         if let cachedValue = _TextToSpeechServiceCache.cachedTextToSpeechSupportForLanguageCodes?[languageCode] {
             return cachedValue
@@ -364,7 +411,9 @@ private actor SynthesisThrottle {
     }
 }
 
+/// A namespace for managing the in-memory text-to-speech voice and language support caches.
 enum TextToSpeechServiceCache {
+    /// Removes every cached voice and language support value.
     static func clearCache() {
         _TextToSpeechServiceCache.clearCache()
     }
@@ -396,3 +445,5 @@ private enum _TextToSpeechServiceCache {
         cachedVoicesForLanguageCodes = nil
     }
 }
+
+// swiftlint:enable file_length

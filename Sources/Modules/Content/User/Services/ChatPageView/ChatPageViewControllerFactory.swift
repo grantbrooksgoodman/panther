@@ -19,6 +19,13 @@ import AppSubsystem
 import InputBarAccessoryView
 import MessageKit
 
+/// The factory that builds and configures the chat page's messages view controller.
+///
+/// Use ``ChatPageViewControllerFactory`` to create a fully configured ``ChatPageViewController``.
+/// The factory assembles the message list and its layout, the delivery progress bar, and the
+/// initial input bar, adapting each to the current conversation, theme, and system version.
+/// ``ChatPageViewService`` builds the chat page through this factory when instantiating the
+/// page.
 @MainActor
 struct ChatPageViewControllerFactory {
     // MARK: - Dependencies
@@ -30,6 +37,14 @@ struct ChatPageViewControllerFactory {
 
     // MARK: - Build View Controller
 
+    /// Builds a fully configured messages view controller.
+    ///
+    /// The returned view controller acts as its message list's data source and delegates, shows
+    /// message timestamps on left swipe, and has its layout, delivery progress bar, background
+    /// color, and input bar configured for the current conversation and theme. The layout omits
+    /// outgoing avatars always, and incoming avatars for two-participant conversations.
+    ///
+    /// - Returns: A configured messages view controller.
     func buildViewController() -> ChatPageViewController {
         let viewController = ChatPageViewController()
         viewController.messagesCollectionView = MessagesCollectionView(
@@ -56,6 +71,14 @@ struct ChatPageViewControllerFactory {
 
     // MARK: - UI Configuration
 
+    /// Installs a recipient bar at the top of the given view controller.
+    ///
+    /// This method insets the message list below the bar and adds a recipient bar driven by the
+    /// given service to the view controller's view.
+    ///
+    /// - Parameters:
+    ///   - viewController: The view controller to install the recipient bar in.
+    ///   - service: The service that drives the recipient bar.
     func configureRecipientBar(
         _ viewController: ChatPageViewController,
         service: RecipientBarService

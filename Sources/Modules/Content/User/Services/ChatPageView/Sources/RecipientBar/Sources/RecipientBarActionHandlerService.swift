@@ -14,6 +14,11 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
+/// The service that handles the recipient bar's user actions.
+///
+/// ``RecipientBarActionHandlerService`` responds to the recipient bar's interactions: tapping the
+/// select-contact button, editing and submitting the text field, and deleting a recipient with a
+/// backspace on an empty field.
 @MainActor
 final class RecipientBarActionHandlerService {
     // MARK: - Constants Accessors
@@ -34,12 +39,20 @@ final class RecipientBarActionHandlerService {
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - On Superfluous Backspace
 
+    /// Handles a backspace on the empty text field by highlighting, then removing, the last
+    /// recipient.
+    ///
+    /// The first backspace highlights the trailing-most recipient; a second backspace removes it
+    /// and repositions the remaining recipients and the text field.
     func onSuperflousBackspace() {
         guard let service = chatPageViewService.recipientBar else { return }
 
@@ -75,6 +88,11 @@ final class RecipientBarActionHandlerService {
 
     // MARK: - Selector Action Handlers
 
+    /// Handles a tap on the select-contact button by presenting the contact selector.
+    ///
+    /// If the contact permission has not been granted, this method requests it and presents a
+    /// call to action when it is denied. If no contacts are available, it synchronizes the
+    /// contact pair archive and, when still empty, prompts the user to send an invitation.
     @objc
     func selectContactButtonTapped() {
         Task { @MainActor in
@@ -148,6 +166,9 @@ final class RecipientBarActionHandlerService {
         }
     }
 
+    /// Handles a change to the text field by filtering the contact suggestions with its contents.
+    ///
+    /// - Parameter textField: The recipient bar's text field.
     @objc
     func textFieldChanged(_ textField: UITextField) {
         chatPageViewService.recipientBar?.tableView.setQuery(textField.text ?? "")
@@ -155,6 +176,16 @@ final class RecipientBarActionHandlerService {
 
     // MARK: - Text Field Should Return
 
+    /// Handles the text field's return by adding the entered text as a recipient.
+    ///
+    /// A phone number resolves to its registered user when one exists; any other text is added as
+    /// an unregistered recipient. When the text is blank, the method instead deselects any
+    /// provisional recipients and returns focus to the message input bar.
+    ///
+    /// - Parameters:
+    ///   - text: The text entered in the text field.
+    ///   - makeInputBarFirstResponder: A Boolean value that determines whether to make the
+    ///     message input bar the first responder when the text is blank.
     func textFieldShouldReturn(
         _ text: String,
         makeInputBarFirstResponder: Bool = true

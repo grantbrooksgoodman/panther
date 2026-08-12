@@ -16,10 +16,12 @@ import AppSubsystem
 import MessageKit
 
 extension AudioFile: AudioItem {
+    /// The duration of the audio, in seconds.
     var duration: Float {
         contentDuration ?? 0
     }
 
+    /// The display size of the audio message.
     var size: CGSize {
         typealias Floats = AppConstants.CGFloats.UserContentExtensions.AudioItem
         return .init(width: Floats.sizeWidth, height: Floats.sizeHeight)

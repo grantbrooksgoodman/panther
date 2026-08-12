@@ -13,6 +13,11 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// Use ``PenPalsService`` to manage the PenPals feature.
+///
+/// PenPals pairs the user with participants who speak other languages. A participant's
+/// identity remains obfuscated in a PenPals conversation until they share their data with the
+/// other participants.
 struct PenPalsService {
     // MARK: - Dependencies
 
@@ -43,12 +48,28 @@ struct PenPalsService {
 
     // MARK: - Is Known to Current User
 
+    /// Returns a Boolean value that indicates whether the given user ID belongs to a user
+    /// known to the current user.
+    ///
+    /// A user is known if they appear in the contact pair archive or in one of the current
+    /// user's visible non–PenPals conversations.
+    ///
+    /// - Parameter userID: The user ID to check.
+    ///
+    /// - Returns: `true` if the user is known to the current user; otherwise, `false`.
     func isKnownToCurrentUser(_ userID: String) -> Bool {
         (contactPairArchiveUserIDs + currentUserConversationUserIDs()).contains(userID)
     }
 
     // MARK: - Is Obfuscated Pen Pal with Current User
 
+    /// Returns a Boolean value that indicates whether the given user is a PenPals participant
+    /// who has not shared their data with the current user.
+    ///
+    /// - Parameter user: The user to check.
+    ///
+    /// - Returns: `true` if the user participates in one of the current user's visible Pen
+    ///   Pals conversations without sharing their data; otherwise, `false`.
     func isObfuscatedPenPalWithCurrentUser(_ user: User) -> Bool {
         guard let currentUser = userSession.currentUser,
               let penPalsConversations = currentUser
@@ -60,7 +81,16 @@ struct PenPalsService {
 
     // MARK: - Update Sharing Data for Known Users
 
-    /// - Note: Will populate the contact pair archive if it is `nil` or empty.
+    /// Shares the current user's PenPals data with conversation participants they already
+    /// know.
+    ///
+    /// For each visible PenPals conversation containing a participant known to the current
+    /// user, this method updates the conversation's sharing data to include every known
+    /// participant, unless all of them are already included.
+    ///
+    /// - Note: Populates the contact pair archive if it is `nil` or empty.
+    ///
+    /// - Throws: An `Exception` if updating a conversation's sharing data fails.
     func updateSharingDataForKnownUsers() async throws(Exception) {
         do {
             try await ContactService.syncIfNeeded()
@@ -125,6 +155,17 @@ struct PenPalsService {
 
     // MARK: - Get Random PenPals Participant
 
+    /// Returns a random PenPals participant suitable for pairing with the current user.
+    ///
+    /// Candidates must speak a language different from the current user's, and must not be
+    /// blocked, known to the current user, present in an existing conversation, or currently
+    /// selected as a recipient.
+    ///
+    /// - Note: Populates the contact pair archive if it is `nil` or empty.
+    ///
+    /// - Returns: A randomly chosen eligible participant.
+    ///
+    /// - Throws: An `Exception` if no eligible participant exists, or if fetching users fails.
     func getRandomPenPalsParticipant() async throws(Exception) -> User {
         do {
             try await ContactService.syncIfNeeded()
@@ -159,6 +200,15 @@ struct PenPalsService {
 
     // MARK: - Set didGrantPenPalsPermission
 
+    /// Records whether the user granted permission to participate in PenPals.
+    ///
+    /// This method updates the shared permission state and persists the choice to the current
+    /// user's remote record.
+    ///
+    /// - Parameter didGrantPenPalsPermission: A Boolean value that indicates whether the user
+    ///   granted permission.
+    ///
+    /// - Throws: An `Exception` if the current user has not been set, or if the update fails.
     func setDidGrantPenPalsPermission(
         _ didGrantPenPalsPermission: Bool
     ) async throws(Exception) {

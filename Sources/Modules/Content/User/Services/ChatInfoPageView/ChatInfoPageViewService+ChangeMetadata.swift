@@ -16,7 +16,14 @@ import AppSubsystem
 extension ChatInfoPageViewService {
     // MARK: - Present Change Metadata Action Sheet
 
-    /// `.changeMetadataButtonTapped`
+    /// Presents an action sheet for changing the conversation's name and photo.
+    ///
+    /// Choosing to change the name presents a text input alert – names containing reserved
+    /// characters are rejected; choosing to change the photo offers the camera or the photo
+    /// library. The remove photo option appears only when the conversation has a photo.
+    ///
+    /// - Returns: The change the user chose; otherwise, `nil` if they canceled or made no
+    ///   change.
     func presentChangeMetadataActionSheet() async -> MetadataChangeType? {
         await withCheckedContinuation { continuation in
             presentChangeMetadataActionSheet { continuation.resume(returning: $0) }

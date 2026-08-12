@@ -25,6 +25,7 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
 
     // MARK: - Background Color
 
+    /// Returns the background color for the given message's bubble.
     func backgroundColor(
         for message: MessageType,
         at indexPath: IndexPath,
@@ -37,6 +38,7 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
 
     // MARK: - Configure Audio Cell
 
+    /// Configures the given audio cell for the message, styling its playback controls.
     func configureAudioCell(
         _ cell: AudioMessageCell,
         message: MessageType
@@ -66,6 +68,8 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
 
     // MARK: - Configure Avatar View
 
+    /// Configures the avatar view for the given message's sender, using their contact image,
+    /// initials, or a PenPals icon.
     func configureAvatarView(
         _ avatarView: AvatarView,
         for message: MessageType,
@@ -140,6 +144,7 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
 
     // MARK: - Detector Attributes
 
+    /// Returns the attributes applied to detected content, such as links, in the message.
     func detectorAttributes(
         for detector: DetectorType,
         and message: MessageType,
@@ -159,6 +164,8 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
 
     // MARK: - Enabled Detectors
 
+    /// Returns the kinds of content to detect in the message, such as dates, phone numbers, and
+    /// links.
     func enabledDetectors(
         for message: MessageType,
         at indexPath: IndexPath,
@@ -169,6 +176,7 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
 
     // MARK: - Message Style
 
+    /// Returns the bubble style for the given message.
     func messageStyle(
         for message: MessageType,
         at indexPath: IndexPath,
@@ -196,8 +204,10 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
     }
 }
 
+/// A namespace for managing the in-memory contact initials image cache.
 @MainActor
 enum ContactInitialsImageCache {
+    /// Removes every cached contact initials image.
     static func clearCache() {
         _ContactInitialsImageCache.clearCache()
     }

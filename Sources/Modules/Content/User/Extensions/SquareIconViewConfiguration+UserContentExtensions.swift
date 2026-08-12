@@ -14,6 +14,13 @@ import SwiftUI
 import AppSubsystem
 
 extension SquareIconView.Configuration {
+    /// Returns the square icon configuration for the AI-enhanced translations feature.
+    ///
+    /// - Parameters:
+    ///   - backgroundColor: The icon's background color.
+    ///   - includesShadow: A Boolean value that determines whether the icon includes a shadow.
+    ///
+    /// - Returns: The icon configuration.
     static func aiEnhancedTranslationsIcon(
         backgroundColor: Color = .init(uiColor: .systemBlue),
         includesShadow: Bool = false
@@ -25,6 +32,13 @@ extension SquareIconView.Configuration {
         )
     }
 
+    /// Returns the square icon configuration for the PenPals feature.
+    ///
+    /// - Parameters:
+    ///   - backgroundColor: The icon's background color.
+    ///   - includesShadow: A Boolean value that determines whether the icon includes a shadow.
+    ///
+    /// - Returns: The icon configuration.
     static func penPalsIcon(
         backgroundColor: Color = .purple,
         includesShadow: Bool = false

@@ -13,12 +13,22 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// The service that manages the recipient bar's contact suggestions table.
+///
+/// ``RecipientBarTableViewService`` resolves the contacts that can be added as recipients –
+/// combining the user's known contacts with the participants of their existing conversations –
+/// and groups them into alphabetical sections. It also filters the suggestions by the text the
+/// user types.
 @MainActor
 final class RecipientBarTableViewService {
     // MARK: - Types
 
+    /// A group of contact pairs sharing a section heading in the suggestions table.
     struct TableViewSection {
+        /// The section's heading letter.
         let letter: String
+
+        /// The contact pairs in the section.
         let contactPairs: [ContactPair]
     }
 
@@ -37,18 +47,24 @@ final class RecipientBarTableViewService {
 
     // MARK: - Computed Properties
 
+    /// The current suggestions, grouped into alphabetical sections and sorted by last name.
     var sections: [TableViewSection] {
         getSections()
     }
 
     // MARK: - Init
 
+    /// Creates the service, binding it to the given chat page view controller.
+    ///
+    /// - Parameter viewController: The chat page's messages view controller.
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Reload Data
 
+    /// Reloads the suggestions table, resolving the available contacts first if they have not yet
+    /// been resolved.
     func reloadData() {
         guard contactPairs != nil else {
             Task {
@@ -64,6 +80,11 @@ final class RecipientBarTableViewService {
 
     // MARK: - Resolve Contact Pairs
 
+    /// Resolves the contacts that can be added as recipients.
+    ///
+    /// The resolved set combines the user's known contacts with the participants of their visible
+    /// conversations, excluding participants whose identity is obfuscated in a PenPals
+    /// conversation, and removes duplicates by phone number.
     func resolveContactPairs() async {
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
         let conversations = conversations
@@ -114,6 +135,12 @@ final class RecipientBarTableViewService {
 
     // MARK: - Set Query
 
+    /// Filters the suggestions by the given query and shows or hides the table accordingly.
+    ///
+    /// A blank query hides the table and restores the message list; a non-blank query shows the
+    /// filtered suggestions in place of the message list.
+    ///
+    /// - Parameter query: The text to filter the suggestions by.
     func setQuery(_ query: String) {
         guard let recipientBarView = service?.layout.recipientBarView,
               let tableView = service?.layout.tableView else { return }

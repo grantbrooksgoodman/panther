@@ -10,6 +10,11 @@
 import Foundation
 import UIKit
 
+/// The bar for choosing recipients when composing a new conversation.
+///
+/// ``RecipientBar`` hosts a text field for entering a recipient's name or phone number and a
+/// table of matching contacts. The bar delegates its behavior to `RecipientBarService`; this
+/// class provides the view itself and its data source and delegate conformances.
 final class RecipientBar: UIView {
     // MARK: - Properties
 
@@ -19,6 +24,11 @@ final class RecipientBar: UIView {
 
     // MARK: - Init
 
+    /// Creates a recipient bar driven by the given service.
+    ///
+    /// The bar's frame is taken from the service's layout.
+    ///
+    /// - Parameter service: The service that drives the bar.
     init(service: RecipientBarService) {
         self.service = service
         super.init(frame: service.layout.viewFrame)
@@ -31,6 +41,8 @@ final class RecipientBar: UIView {
 
     // MARK: - Layout Subviews
 
+    /// Lays out the bar's subviews through the service's layout, running the service's
+    /// one-time layout effect on the first pass.
     override func layoutSubviews() {
         service.layout.layoutSubviews()
 

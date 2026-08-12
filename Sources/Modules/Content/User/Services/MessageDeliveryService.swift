@@ -15,6 +15,14 @@ import Foundation
 import AppSubsystem
 import Translator
 
+/// The service that sends messages from the chat page.
+///
+/// Use ``MessageDeliveryService`` to send text, audio, and media messages to the current
+/// conversation's users – or, when composing a new conversation, to the recipients selected
+/// in the recipient bar. Sends to existing conversations are staged in the outbox, so failed
+/// messages can be retried; sends that create a new conversation optimistically insert a mock
+/// message instead. While a send is in flight, ``isSendingMessage`` is `true` and context
+/// menu interactions are disabled.
 @MainActor
 final class MessageDeliveryService {
     // MARK: - Dependencies
@@ -25,6 +33,7 @@ final class MessageDeliveryService {
 
     // MARK: - Properties
 
+    /// A Boolean value that indicates whether a message send is in flight.
     private(set) var isSendingMessage = false {
         didSet { didSetIsSendingMessage() }
     }
@@ -73,7 +82,16 @@ final class MessageDeliveryService {
 
     // MARK: - Add Effect
 
-    /// Adds an effect to be run once, upon a change in value of `isSendingMessage`.
+    /// Registers an effect to run once, the next time ``isSendingMessage`` is set to the given
+    /// value.
+    ///
+    /// The effect is cleared after it runs. Registering a new effect with the same identifier
+    /// and target value replaces the existing one.
+    ///
+    /// - Parameters:
+    ///   - state: The value of ``isSendingMessage`` that triggers the effect.
+    ///   - id: The identifier under which to register the effect.
+    ///   - effect: The effect to run.
     func addEffectUponIsSendingMessage(
         changedTo state: Bool,
         id: MessageDeliveryServiceEffectID,
@@ -85,6 +103,20 @@ final class MessageDeliveryService {
 
     // MARK: - Send Audio Message
 
+    /// Sends an audio message to the current recipients.
+    ///
+    /// Sends to an existing conversation are staged in the outbox and marked failed if
+    /// delivery fails; when the send creates a new conversation, a mock message is
+    /// optimistically inserted once the message's transcription succeeds, and delivery
+    /// failures are thrown instead. If no recipients are resolved, this method does nothing.
+    ///
+    /// - Parameters:
+    ///   - inputFile: The audio file to send.
+    ///   - transcription: The transcription of the audio, or `nil` if unavailable. The
+    ///     default is `nil`.
+    ///
+    /// - Throws: An `Exception` if delivery fails for a message that was not staged in the
+    ///   outbox.
     func sendAudioMessage(
         _ inputFile: AudioFile,
         transcription: String? = nil
@@ -190,6 +222,17 @@ final class MessageDeliveryService {
 
     // MARK: - Send Media Message
 
+    /// Sends a media message to the current recipients.
+    ///
+    /// Sends to an existing conversation are staged in the outbox and marked failed if
+    /// delivery fails; when the send creates a new conversation, a mock message is
+    /// optimistically inserted, and delivery failures are thrown instead. If no recipients
+    /// are resolved, this method does nothing.
+    ///
+    /// - Parameter mediaFile: The media file to send.
+    ///
+    /// - Throws: An `Exception` if delivery fails for a message that was not staged in the
+    ///   outbox.
     func sendMediaMessage(
         _ mediaFile: MediaFile
     ) async throws(Exception) {
@@ -277,6 +320,17 @@ final class MessageDeliveryService {
 
     // MARK: - Send Text Message
 
+    /// Sends a text message to the current recipients.
+    ///
+    /// Sends to an existing conversation are staged in the outbox and marked failed if
+    /// delivery fails; when the send creates a new conversation, a mock message is
+    /// optimistically inserted, and delivery failures are thrown instead. If the text is
+    /// blank or no recipients are resolved, this method does nothing.
+    ///
+    /// - Parameter text: The text to send.
+    ///
+    /// - Throws: An `Exception` if delivery fails for a message that was not staged in the
+    ///   outbox.
     func sendTextMessage(
         _ text: String
     ) async throws(Exception) {

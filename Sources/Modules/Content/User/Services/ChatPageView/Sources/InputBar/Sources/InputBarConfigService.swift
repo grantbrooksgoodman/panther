@@ -13,6 +13,11 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+/// The service that supplies the input bar's configuration values and button images.
+///
+/// Use ``InputBarConfigService`` to determine whether the send button can act as a record button
+/// for the current conversation, and to obtain the appropriate images for the send and
+/// attach-media buttons in the current state.
 struct InputBarConfigService {
     // MARK: - Constants Accessors
 
@@ -28,6 +33,8 @@ struct InputBarConfigService {
 
     // MARK: - Computed Properties
 
+    /// A Boolean value that indicates whether the send button can be configured as a record
+    /// button for the current conversation.
     var canShowRecordButton: Bool {
         guard let currentUser = entitySession
             .user
@@ -51,6 +58,12 @@ struct InputBarConfigService {
 
     // MARK: - Internal
 
+    /// Returns the attach-media button's image for the current interface style.
+    ///
+    /// - Parameter isHighlighted: A Boolean value that indicates whether to return the
+    ///   highlighted image.
+    ///
+    /// - Returns: The attach-media button's image, or `nil` if it cannot be created.
     @MainActor
     func attachMediaButtonImage(
         isHighlighted: Bool
@@ -73,6 +86,17 @@ struct InputBarConfigService {
         )
     }
 
+    /// Returns the send button's image for the given configuration.
+    ///
+    /// The image reflects the record or send configuration, and shows a distinct glyph when the
+    /// app is offline in a new conversation or the data usage limit has been reached.
+    ///
+    /// - Parameters:
+    ///   - forRecording: A Boolean value that indicates whether to return the record button's
+    ///     image rather than the send button's.
+    ///   - isHighlighted: A Boolean value that indicates whether to return the highlighted image.
+    ///
+    /// - Returns: The send button's image, or `nil` if it cannot be created.
     @MainActor
     func sendButtonImage(
         forRecording: Bool,

@@ -13,6 +13,14 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// An audio file on disk and its content duration.
+///
+/// Use ``AudioFile`` to represent audio content such as voice messages. Creating a file from a
+/// URL loads its duration asynchronously when it is not already cached, and the file posts a
+/// notification whenever the duration is set. Durations are cached in memory by URL; use
+/// ``AudioFileDurationCache/clearCache()`` to release them.
+///
+/// - Note: Unlike ``MediaFile``, an audio file locates its content by absolute URL.
 final class AudioFile: Codable, Equatable, Sendable {
     // MARK: - Constants Accessors
 
@@ -29,14 +37,22 @@ final class AudioFile: Codable, Equatable, Sendable {
 
     // MARK: - Properties
 
+    /// The file's extension.
     let fileExtension: AudioFileExtension
+
+    /// The file's name, without an extension.
     let name: String
+
+    /// The absolute URL of the file.
     let url: URL
 
     private let _contentDuration = LockIsolated<Float?>(nil)
 
     // MARK: - Computed Properties
 
+    /// The duration of the audio content in seconds, or `nil` if it has not been determined.
+    ///
+    /// Setting this value posts a notification carrying the new duration and the file's URL.
     var contentDuration: Float? {
         get { _contentDuration.wrappedValue }
         set { _contentDuration.wrappedValue = newValue; didSetDuration() }
@@ -44,6 +60,13 @@ final class AudioFile: Codable, Equatable, Sendable {
 
     // MARK: - Init
 
+    /// Creates an audio file with the given URL, name, extension, and duration.
+    ///
+    /// - Parameters:
+    ///   - url: The absolute URL of the file.
+    ///   - name: The file's name, without an extension.
+    ///   - fileExtension: The file's extension.
+    ///   - contentDuration: The duration of the audio content in seconds.
     init(
         _ url: URL,
         name: String,
@@ -56,6 +79,17 @@ final class AudioFile: Codable, Equatable, Sendable {
         self.contentDuration = contentDuration
     }
 
+    /// Creates an audio file from the given URL, deriving its name and extension.
+    ///
+    /// If the duration for the URL is cached, the initializer applies it; otherwise, the
+    /// duration loads asynchronously, and the file posts a notification when it becomes
+    /// available.
+    ///
+    /// - Parameter url: The absolute URL of the file. The URL's final component must consist of
+    ///   a name and a supported audio extension.
+    ///
+    /// - Returns: An audio file, or `nil` if no file exists at the URL or its name and extension
+    ///   cannot be derived.
     convenience init?(_ url: URL) {
         @Dependency(\.fileManager) var fileManager: FileManager
 
@@ -88,6 +122,7 @@ final class AudioFile: Codable, Equatable, Sendable {
         }
     }
 
+    /// Creates an audio file by decoding from the given decoder.
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -103,6 +138,7 @@ final class AudioFile: Codable, Equatable, Sendable {
 
     // MARK: - Codable Conformance
 
+    /// Encodes this audio file into the given encoder.
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(contentDuration ?? 0, forKey: .contentDuration)
@@ -113,6 +149,8 @@ final class AudioFile: Codable, Equatable, Sendable {
 
     // MARK: - Equatable Conformance
 
+    /// Returns a Boolean value that indicates whether two audio files are equal, comparing their
+    /// durations, extensions, names, and URLs.
     static func == (
         left: AudioFile,
         right: AudioFile
@@ -166,7 +204,9 @@ final class AudioFile: Codable, Equatable, Sendable {
     }
 }
 
+/// A namespace for managing the in-memory audio duration cache.
 enum AudioFileDurationCache {
+    /// Removes every cached audio duration.
     static func clearCache() {
         _AudioFileDurationCache.clearCache()
     }

@@ -11,6 +11,7 @@ import Foundation
 import UIKit
 
 extension CameraPickerView {
+    /// The object that receives the camera picker's delegate callbacks.
     final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         // MARK: - Properties
 
@@ -18,16 +19,23 @@ extension CameraPickerView {
 
         // MARK: - Init
 
+        /// Creates a coordinator that forwards callbacks to the given picker.
+        ///
+        /// - Parameter delegate: The picker whose handlers receive the callbacks.
         init(delegate: any ContentPicker<UIImage>) {
             self.delegate = delegate
         }
 
         // MARK: - UIImagePickerControllerDelegate Conformance
 
+        /// Delivers `nil` to the dismissal handler.
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             delegate.onDismiss(nil)
         }
 
+        /// Delivers the captured image to the selection handler, followed by `nil` to the
+        /// dismissal handler. If the image cannot be resolved, the dismissal handler receives
+        /// an `Exception` instead.
         func imagePickerController(
             _ picker: UIImagePickerController,
             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
@@ -46,6 +54,8 @@ extension CameraPickerView {
 }
 
 extension CameraPickerView.Coordinator: UIAdaptivePresentationControllerDelegate {
+    /// Delivers `nil` to the dismissal handler when the user dismisses the picker with a
+    /// gesture.
     func presentationControllerDidDismiss(
         _ presentationController: UIPresentationController
     ) {

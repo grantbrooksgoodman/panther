@@ -14,6 +14,7 @@ import SwiftUI
 import AppSubsystem
 
 extension Color {
+    /// A random color, distinct in hue from the most recently generated one.
     static var random: Color {
         lastRandomColor.projectedValue.withValue { lastRandomColor -> Color in
             var hue = Double.random(in: 0 ... 1)

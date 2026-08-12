@@ -13,6 +13,8 @@ import Foundation
 import AppSubsystem
 
 extension UITheme {
+    /// The theme's simplified, color-based name for display in non-English languages, or `nil` if
+    /// it has none.
     var nonEnglishName: String? {
         switch name {
         case "Default":
