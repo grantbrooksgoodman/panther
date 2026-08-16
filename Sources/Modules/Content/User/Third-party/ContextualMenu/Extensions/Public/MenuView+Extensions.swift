@@ -16,6 +16,7 @@ extension MenuView: ContextMenuAnimatable {
             scale: style.disappearedScalingValue,
             anchorPoint: anchorPointAlignment == .leading ? .zero : .init(x: 1, y: 0)
         )
+
         alpha = 0
         UIView.animate(
             withDuration: style.disappearAnimationParameters.duration,

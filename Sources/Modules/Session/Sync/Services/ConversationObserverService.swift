@@ -13,6 +13,11 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// The service that observes a conversation for real-time updates.
+///
+/// ``ConversationObserverService`` maintains a live observation stream for a single conversation,
+/// applying each snapshot to the session store as it arrives. At most one conversation is observed
+/// at a time.
 struct ConversationObserverService {
     // MARK: - Types
 
@@ -33,14 +38,26 @@ struct ConversationObserverService {
 
     // MARK: - Observation
 
-    /// Whether the observation stream for the given conversation
-    /// is live or inside its single retry window. Returns `false`
-    /// once the stream has permanently ended, at which point the
+    /// Returns a Boolean value that indicates whether the given conversation is actively being
+    /// observed.
+    ///
+    /// The observation is considered active while its stream is live or inside its single retry
+    /// window. Once the stream has permanently ended, this returns `false`, at which point the
     /// user-node pipeline resumes responsibility.
+    ///
+    /// - Parameter conversationIDKey: The identifier key of the conversation to check.
+    ///
+    /// - Returns: `true` if the conversation is actively being observed; otherwise, `false`.
     func isActivelyObserving(_ conversationIDKey: String) -> Bool {
         observationState.wrappedValue?.conversationIDKey == conversationIDKey
     }
 
+    /// Starts observing the given conversation for real-time updates.
+    ///
+    /// Any conversation currently being observed is stopped first, so at most one conversation is
+    /// observed at a time.
+    ///
+    /// - Parameter conversationIDKey: The identifier key of the conversation to observe.
     func startObserving(
         conversationIDKey: String
     ) {
@@ -76,6 +93,7 @@ struct ConversationObserverService {
         }
     }
 
+    /// Stops observing the currently observed conversation, if any.
     func stopObserving() {
         observationState.projectedValue.withValue {
             if $0 != nil {

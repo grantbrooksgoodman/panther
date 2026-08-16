@@ -14,6 +14,8 @@ import SwiftUI
 import AppSubsystem
 
 extension Color {
+    // MARK: - Properties
+
     /// A random color, distinct in hue from the most recently generated one.
     static var random: Color {
         lastRandomColor.projectedValue.withValue { lastRandomColor -> Color in
@@ -39,4 +41,14 @@ extension Color {
         saturation: Double,
         brightness: Double
     )?>(nil)
+
+    // MARK: - Methods
+
+    // TODO: Incorporate into AppSubsystem.
+    /// Creates a color object using the specified hexadecimal code.
+    ///
+    /// - Parameter hex: A hexadecimal integer.
+    init(hex: Int) {
+        self.init(UIColor(hex: hex))
+    }
 }

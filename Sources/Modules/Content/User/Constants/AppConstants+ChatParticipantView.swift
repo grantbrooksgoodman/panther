@@ -27,9 +27,9 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum ChatParticipantView {
-        static let deleteButtonTint: Color = .red // swiftlint:disable:next identifier_name
-        static let penPalsSharingStatusIconCompleteForeground: Color = .green // swiftlint:disable:next identifier_name
-        static let penPalsSharingStatusIconIncompleteForeground: Color = .orange
+        static let deleteButtonTint = Color.red // swiftlint:disable:next identifier_name
+        static let penPalsSharingStatusIconCompleteForeground = Color.green // swiftlint:disable:next identifier_name
+        static let penPalsSharingStatusIconIncompleteForeground = Color.orange
     }
 }
 

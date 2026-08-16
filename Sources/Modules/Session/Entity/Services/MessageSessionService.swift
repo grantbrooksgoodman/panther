@@ -16,6 +16,7 @@ import AppSubsystem
 import Networking
 import Translator
 
+/// The service that sends text, audio, and media messages.
 struct MessageSessionService {
     // MARK: - Constants Accessors
 
@@ -35,7 +36,25 @@ struct MessageSessionService {
 
     // MARK: - Send Audio Message
 
-    // swiftlint:disable:next function_body_length
+    // swiftlint:disable function_body_length
+    /// Sends an audio message to the given users in the given conversation.
+    ///
+    /// The recording is transcribed, translated, and synthesized into each recipient's language,
+    /// then delivered. When no conversation is provided, a new conversation is created for the
+    /// message.
+    ///
+    /// - Parameters:
+    ///   - inputFile: The recorded audio to send.
+    ///   - presetID: A preset identifier to use for the message, or `nil` to generate one.
+    ///   - transcription: A precomputed transcription of the recording, or `nil` to transcribe it.
+    ///   - users: The users to send the message to.
+    ///   - conversation: The conversation to send the message in and whether it is a PenPals
+    ///     conversation. Pass a `nil` conversation value to create a new conversation.
+    ///
+    /// - Returns: The conversation the message was sent in.
+    ///
+    /// - Throws: An `Exception` if the current user is unavailable, translation fails, or the
+    ///   message cannot be sent.
     func sendAudioMessage(
         _ inputFile: AudioFile,
         presetID: String? = nil,
@@ -239,10 +258,24 @@ struct MessageSessionService {
         case let .failure(exception):
             throw exception
         }
-    }
+    } // swiftlint:enable function_body_length
 
     // MARK: - Send Media Message
 
+    /// Sends a media message to the given users in the given conversation.
+    ///
+    /// When no conversation is provided, a new conversation is created for the message.
+    ///
+    /// - Parameters:
+    ///   - mediaFile: The media to send.
+    ///   - presetID: A preset identifier to use for the message, or `nil` to generate one.
+    ///   - users: The users to send the message to.
+    ///   - conversation: The conversation to send the message in and whether it is a PenPals
+    ///     conversation. Pass a `nil` conversation value to create a new conversation.
+    ///
+    /// - Returns: The conversation the message was sent in.
+    ///
+    /// - Throws: An `Exception` if the current user is unavailable or the message cannot be sent.
     func sendMediaMessage(
         _ mediaFile: MediaFile,
         presetID: String? = nil,
@@ -268,6 +301,22 @@ struct MessageSessionService {
 
     // MARK: - Send Text Message
 
+    /// Sends a text message to the given users in the given conversation.
+    ///
+    /// The text is translated into each recipient's language and delivered. When no conversation is
+    /// provided, a new conversation is created for the message.
+    ///
+    /// - Parameters:
+    ///   - text: The text to send.
+    ///   - presetID: A preset identifier to use for the message, or `nil` to generate one.
+    ///   - users: The users to send the message to.
+    ///   - conversation: The conversation to send the message in and whether it is a PenPals
+    ///     conversation. Pass a `nil` conversation value to create a new conversation.
+    ///
+    /// - Returns: The conversation the message was sent in.
+    ///
+    /// - Throws: An `Exception` if the current user is unavailable, translation fails, or the
+    ///   message cannot be sent.
     func sendTextMessage(
         _ text: String,
         presetID: String? = nil,

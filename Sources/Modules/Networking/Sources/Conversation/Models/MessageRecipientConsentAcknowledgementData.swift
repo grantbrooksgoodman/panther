@@ -6,13 +6,13 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable type_name
+
 /* Native */
 import Foundation
 
 /* Proprietary */
 import AppSubsystem
-
-// swiftlint:disable type_name
 
 /// A record of whether a conversation participant has acknowledged the message-receipt consent
 /// that the conversation requires.
@@ -72,4 +72,6 @@ struct MessageRecipientConsentAcknowledgementData: Codable, Equatable {
             partialResult.append(.init(userID: userID, consentAcknowledged: initialConsentAcknowledgedValue))
         }
     }
-} // swiftlint:enable type_name
+}
+
+// swiftlint:enable type_name

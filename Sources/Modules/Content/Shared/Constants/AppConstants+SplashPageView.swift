@@ -41,8 +41,8 @@ extension AppConstants.Colors {
     enum SplashPageView {
         /* MARK: Properties */
 
-        static let imageDarkForeground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
-        static let progressBarActivityIndicatorTint: Color = .init(uiColor: .systemGray)
+        static let imageDarkForeground = Color(hex: 0xF8F8F8)
+        static let progressBarActivityIndicatorTint = Color(.systemGray)
 
         /* MARK: Computed Properties */
 

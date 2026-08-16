@@ -34,7 +34,7 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum AuthCodePageView {
-        static let instructionLabelForeground: Color = .gray
+        static let instructionLabelForeground = Color.gray
     }
 }
 

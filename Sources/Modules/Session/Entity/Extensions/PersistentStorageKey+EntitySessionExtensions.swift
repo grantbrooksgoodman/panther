@@ -13,6 +13,7 @@ import Foundation
 import AppSubsystem
 
 extension PersistentStorageKey {
+    /// The persistent storage keys scoped to the user session service.
     enum UserSessionServiceStorageKey: String {
         case currentUserID
     }

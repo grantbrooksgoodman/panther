@@ -15,6 +15,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// The service that manages the current user and resolves their session data.
 struct UserSessionService {
     // MARK: - Types
 
@@ -48,6 +49,7 @@ struct UserSessionService {
 
     // MARK: - Computed Properties
 
+    /// The current user, or `nil` if none is set.
     var currentUser: User? {
         guard let currentUserID else { return nil }
         return clientSession.store.users[currentUserID]
@@ -113,6 +115,10 @@ struct UserSessionService {
 
     // MARK: - Current User Observation
 
+    /// Starts observing the current user's record for real-time changes.
+    ///
+    /// Relevant changes to the user's blocked users or conversations trigger a refresh. A change to
+    /// the user's device identifier signs the user out to preserve a single active session.
     func startObservingCurrentUserChanges() {
         guard let currentUserID = currentUser?.id else { return }
         observationTask.projectedValue.withValue {
@@ -157,6 +163,7 @@ struct UserSessionService {
         }
     }
 
+    /// Stops observing the current user's record.
     func stopObservingCurrentUserChanges() {
         observationTask.projectedValue.withValue {
             if $0 != nil {
@@ -280,8 +287,7 @@ struct UserSessionService {
             User.SerializableKey.deviceID.rawValue
         ] as? String
 
-        if let updatedDeviceID,
-           networking.health.health.tier != .poor {
+        if let updatedDeviceID {
             return currentDeviceID != updatedDeviceID
         }
 
@@ -331,8 +337,6 @@ struct UserSessionService {
     /// This method resolves conversation objects only; it does
     /// not fetch their associated messages or users.
     private func resolveCurrentUserConversations() async throws(Exception) {
-        @Dependency(\.networking.conversationService) var conversationService: ConversationService
-
         guard !Task.isCancelled,
               let user = currentUser,
               user.id == User.currentUserID,
@@ -402,9 +406,10 @@ struct UserSessionService {
         }
 
         guard !Task.isCancelled else { return }
-        let conversations = try await conversationService.getConversations(
-            idKeys: conversationsNeedingFetch.map(\.key)
-        )
+        let conversations = try await networking
+            .conversationService.getConversations(
+                idKeys: conversationsNeedingFetch.map(\.key)
+            )
 
         // Stamp fetched conversations with the user-record
         // token when it differs from the node hash. Atomic

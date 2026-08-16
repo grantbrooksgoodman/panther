@@ -29,9 +29,9 @@ extension AppConstants.Colors {
     enum ContactSelectorPageView {
         /* MARK: Properties */
 
-        static let noResultsLabelAlternateForeground: Color = .init(uiColor: .systemBlue)
-        static let noResultsLabelForeground: Color = .init(uiColor: .secondaryLabel)
-        static let tintedGlassToolbarButtonForeground: Color = .white
+        static let noResultsLabelAlternateForeground = Color(.systemBlue)
+        static let noResultsLabelForeground = Color(.secondaryLabel)
+        static let tintedGlassToolbarButtonForeground = Color.white
 
         /* MARK: Computed Properties */
 

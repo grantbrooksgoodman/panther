@@ -36,7 +36,7 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum SquareIconView {
-        static let overlaySymbolForeground: Color = .white
-        static let shadow: Color = .black
+        static let overlaySymbolForeground = Color.white
+        static let shadow = Color.black
     }
 }

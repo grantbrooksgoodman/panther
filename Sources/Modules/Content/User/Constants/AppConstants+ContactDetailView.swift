@@ -29,8 +29,8 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum ContactDetailView {
-        static let darkBackground: Color = .init(uiColor: UIColor(hex: 0x2A2A2C))
-        static let lightBackground: Color = .white
+        static let darkBackground = Color(hex: 0x2A2A2C)
+        static let lightBackground = Color.white
     }
 }
 

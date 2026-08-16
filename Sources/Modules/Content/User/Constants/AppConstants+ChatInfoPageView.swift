@@ -56,10 +56,10 @@ extension AppConstants.Colors {
     enum ChatInfoPageView {
         /* MARK: Properties */
 
-        static let addContactButtonCircleDarkForeground: Color = .init(uiColor: .init(hex: 0x3A3A3C))
-        static let addContactButtonCircleLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
+        static let addContactButtonCircleDarkForeground = Color(hex: 0x3A3A3C)
+        static let addContactButtonCircleLightForeground = Color(hex: 0xE5E5EA)
 
-        static let leaveConversationListRowViewForeground: Color = .red
+        static let leaveConversationListRowViewForeground = Color.red
 
         /* MARK: Computed Properties */
 

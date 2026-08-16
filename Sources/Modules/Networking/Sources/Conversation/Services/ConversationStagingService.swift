@@ -843,7 +843,7 @@ struct ConversationStagingService {
         // Set conversation name and photo.
         guard let conversationImageData = await SquareIconView.image(
             .init(
-                backgroundColor: Color(.init(hex: 0x30AAF2)),
+                backgroundColor: Color(hex: 0x30AAF2),
                 overlay: .text(
                     string: "☀️",
                     font: .system(scale: .custom(90))

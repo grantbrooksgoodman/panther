@@ -40,11 +40,11 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum AvatarImageView {
-        static let badgeViewDarkForeground: Color = .init(uiColor: .init(hex: 0x27252A))
-        static let badgeViewLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
+        static let badgeViewDarkForeground = Color(hex: 0x27252A)
+        static let badgeViewLightForeground = Color(hex: 0xE5E5EA)
 
-        static let badgeViewLabelShadow: Color = .init(uiColor: .black)
-        static let imageForeground: Color = .gray
+        static let badgeViewLabelShadow = Color(.black)
+        static let imageForeground = Color.gray
     }
 }
 

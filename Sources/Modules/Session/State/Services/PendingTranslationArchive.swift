@@ -26,6 +26,11 @@ enum PendingTranslationArchive {
 
     // MARK: - Methods
 
+    /// Removes and returns the archive entry recorded for the given hosting key, if any.
+    ///
+    /// - Parameter hostingKey: The hosting key whose entry to drain.
+    ///
+    /// - Returns: The archive entry for the hosting key, or `nil` if none is recorded.
     static func drain(
         for hostingKey: String
     ) -> (key: String, value: Any)? {
@@ -34,6 +39,11 @@ enum PendingTranslationArchive {
         }
     }
 
+    /// Records the given archive entry for the given hosting key, replacing any existing entry.
+    ///
+    /// - Parameters:
+    ///   - entry: The archive entry to record.
+    ///   - hostingKey: The hosting key to record the entry for.
     static func record(
         _ entry: (key: String, value: Any),
         for hostingKey: String

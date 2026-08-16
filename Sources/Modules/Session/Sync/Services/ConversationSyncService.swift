@@ -15,6 +15,11 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// The service that synchronizes a conversation with its server state.
+///
+/// ``ConversationSyncService`` reconciles a local conversation against the latest data on the
+/// server – fetching new messages and updating activities, participants, metadata, and reactions –
+/// and commits the reconciled conversation to the session store.
 final class ConversationSyncService: @unchecked Sendable {
     // MARK: - Dependencies
 
@@ -37,6 +42,18 @@ final class ConversationSyncService: @unchecked Sendable {
 
     // MARK: - Synchronize Conversation
 
+    /// Synchronizes the given conversation with its server state and returns the reconciled
+    /// conversation.
+    ///
+    /// Concurrent calls for the same conversation coalesce onto a single synchronization. A
+    /// conversation whose recent synchronization failed is temporarily ignored, on an exponential
+    /// backoff, and returned unchanged until its cooldown elapses.
+    ///
+    /// - Parameter conversation: The conversation to synchronize.
+    ///
+    /// - Returns: The reconciled conversation.
+    ///
+    /// - Throws: An `Exception` if synchronization fails.
     func synchronizeConversation(
         _ conversation: Conversation
     ) async throws(Exception) -> Conversation {

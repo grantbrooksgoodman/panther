@@ -21,6 +21,7 @@ extension ContextMenuViewController: ContextMenuAnimatable {
             toValue: style.preview.shadow.opacity,
             duration: style.appearAnimationParameters.duration
         )
+
         menuView?.appearAnimation()
 
         if let animatableAccessoryView {
@@ -59,6 +60,7 @@ extension ContextMenuViewController: ContextMenuAnimatable {
             toValue: 0,
             duration: style.appearAnimationParameters.duration
         )
+
         menuView?.disappearAnimation()
         animatableAccessoryView?.disappearAnimation()
 
@@ -105,8 +107,9 @@ extension ContextMenuViewController {
     struct FixedAndAnimatableConstraints {
         /* MARK: Properties */
 
-        let animatable: [NSLayoutConstraint]
         static let empty: FixedAndAnimatableConstraints = .init(fixed: [], animatable: [])
+
+        let animatable: [NSLayoutConstraint]
         let fixed: [NSLayoutConstraint]
 
         /* MARK: Init */

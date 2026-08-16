@@ -32,8 +32,8 @@ extension AppConstants.Colors {
     enum DataUsageView {
         /* MARK: Properties */
 
-        static let highUsage: Color = .init(uiColor: .systemRed)
-        static let lowUsage: Color = .init(uiColor: .systemBlue)
+        static let highUsage = Color(.systemRed)
+        static let lowUsage = Color(.systemBlue)
 
         /* MARK: Computed Properties */
 

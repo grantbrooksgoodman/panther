@@ -13,6 +13,8 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// The service that adds and removes conversation participants, recording each change as an
+/// activity.
 struct ActivitySessionService {
     // MARK: - Dependencies
 
@@ -20,6 +22,14 @@ struct ActivitySessionService {
 
     // MARK: - Add User to Conversation
 
+    /// Adds the user with the given identifier to the given conversation, recording the change as
+    /// an activity.
+    ///
+    /// - Parameters:
+    ///   - userID: The identifier of the user to add.
+    ///   - conversation: The conversation to add the user to.
+    ///
+    /// - Throws: An `Exception` if the activity cannot be synthesized or the write fails.
     func addToConversation(
         _ userID: String,
         conversation: Conversation
@@ -83,6 +93,16 @@ struct ActivitySessionService {
 
     // MARK: - Remove User from Conversation
 
+    /// Removes the user with the given identifier from the given conversation, recording the change
+    /// as an activity.
+    ///
+    /// - Parameters:
+    ///   - userID: The identifier of the user to remove.
+    ///   - conversation: The conversation to remove the user from.
+    ///   - removeFromUser: A Boolean value that determines whether to also remove the conversation
+    ///     from the user's record.
+    ///
+    /// - Throws: An `Exception` if the activity cannot be synthesized or the write fails.
     func removeFromConversation(
         _ userID: String,
         conversation: Conversation,

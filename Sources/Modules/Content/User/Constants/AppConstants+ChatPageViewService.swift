@@ -149,28 +149,28 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum ChatPageViewService { // swiftlint:disable:next identifier_name
-        static let messagesCollectionViewPrimaryDarkBackground: Color = .black // swiftlint:disable:next identifier_name
-        static let messagesCollectionViewSecondaryDarkBackground: Color = .init(uiColor: .init(hex: 0x1C1C1E))
+        static let messagesCollectionViewPrimaryDarkBackground = Color.black // swiftlint:disable:next identifier_name
+        static let messagesCollectionViewSecondaryDarkBackground = Color(hex: 0x1C1C1E)
 
         enum AudioMessagePlayback {
-            static let cellCurrentUserProgressViewTint: Color = .init(uiColor: .white)
+            static let cellCurrentUserProgressViewTint = Color(.white)
         }
 
         enum DeliveryProgressIndicator {
-            static let prevaricationModeProgressTint: Color = .init(uiColor: .init(hex: 0x4B6584))
-            static let progressBarTint: Color = .init(uiColor: .systemBlue)
+            static let prevaricationModeProgressTint = Color(hex: 0x4B6584)
+            static let progressBarTint = Color(.systemBlue)
         }
 
         enum InputBar {
             /* MARK: Properties */
 
-            static let inputTextViewAlternateTint: Color = .init(uiColor: .clear)
-            static let inputTextViewLayerBorder: Color = .init(uiColor: .systemGray)
+            static let inputTextViewAlternateTint = Color(.clear)
+            static let inputTextViewLayerBorder = Color(.systemGray)
 
-            static let prevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
+            static let prevaricationModeBackground = Color(hex: 0xF8F8F8)
 
-            static let sendButtonRecordTint: Color = .init(uiColor: .red)
-            static let sendButtonTextTint: Color = .init(uiColor: .systemBlue)
+            static let sendButtonRecordTint = Color(.red)
+            static let sendButtonTextTint = Color(.systemBlue)
 
             /* MARK: Computed Properties */
 
@@ -181,9 +181,9 @@ extension AppConstants.Colors {
         }
 
         enum RecordingUI {
-            static let cancelLabelTextColor: Color = .init(uiColor: .gray)
-            static let durationLabelTextColor: Color = .init(uiColor: .gray)
-            static let recordingViewLayerBorderColor: Color = .init(uiColor: .systemGray)
+            static let cancelLabelTextColor = Color(.gray)
+            static let durationLabelTextColor = Color(.gray)
+            static let recordingViewLayerBorderColor = Color(.systemGray)
         }
     }
 }

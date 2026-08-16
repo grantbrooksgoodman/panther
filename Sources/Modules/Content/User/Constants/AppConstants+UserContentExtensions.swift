@@ -6,14 +6,14 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable identifier_name
+
 /* Native */
 import Foundation
 import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
-
-// swiftlint:disable identifier_name
 
 // MARK: - CGFloat
 
@@ -69,14 +69,14 @@ extension AppConstants.Colors {
         }
 
         enum Message {
-            static let kindAttributedTextCurrentUserForeground: Color = .init(uiColor: .white)
-            static let kindAttributedTextDarkForeground: Color = .init(uiColor: .white)
-            static let kindAttributedTextLightForeground: Color = .init(uiColor: .black)
+            static let kindAttributedTextCurrentUserForeground = Color(.white)
+            static let kindAttributedTextDarkForeground = Color(.white)
+            static let kindAttributedTextLightForeground = Color(.black)
         }
 
         enum UIView {
-            static let shimmerEffectDark: Color = .init(uiColor: .black)
-            static let shimmerEffectLight: Color = .init(uiColor: .init(red: 0, green: 0, blue: 0, alpha: 0.1))
+            static let shimmerEffectDark = Color(.black)
+            static let shimmerEffectLight = Color(.init(red: 0, green: 0, blue: 0, alpha: 0.1))
         }
     }
 }

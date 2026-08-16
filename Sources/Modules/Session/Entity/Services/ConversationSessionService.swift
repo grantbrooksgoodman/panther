@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 
@@ -13,7 +15,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
+/// The service that manages the current conversation and its displayed messages.
 final class ConversationSessionService: @unchecked Sendable {
     // MARK: - Constants Accessors
 
@@ -35,6 +37,8 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Properties
 
+    /// The messages currently displayed for the current conversation, including any outbox
+    /// entries.
     @LockIsolated private(set) var displayedMessages = [Message]()
 
     @LockIsolated private var currentConversationReference = CurrentConversationReference.none
@@ -44,6 +48,7 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Computed Properties
 
+    /// The current conversation, or `nil` if none is set.
     var currentConversation: Conversation? {
         switch currentConversationReference {
         case let .draft(conversation): conversation
@@ -79,6 +84,15 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Add Messages
 
+    /// Appends the given messages to the given conversation and writes the result.
+    ///
+    /// - Parameters:
+    ///   - messages: The messages to append.
+    ///   - conversation: The conversation to append the messages to.
+    ///
+    /// - Returns: The updated conversation.
+    ///
+    /// - Throws: An `Exception` if no messages are provided or the write fails.
     func addMessages(
         _ messages: [Message],
         to conversation: Conversation
@@ -104,6 +118,12 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Set Current Conversation
 
+    /// Sets the current conversation, or clears it when `nil`.
+    ///
+    /// Draft conversations, which are empty or mock, are held locally. Stored conversations are
+    /// upserted into the session store and observed for real-time updates.
+    ///
+    /// - Parameter conversation: The conversation to set as current, or `nil` to clear it.
     func setCurrentConversation(_ conversation: Conversation?) {
         guard let conversation else { return clearPointer() }
         let previousReference = currentConversationReference
@@ -132,12 +152,17 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Message Offset
 
+    /// Increases the number of displayed messages by a fixed increment.
     func incrementMessageOffset() {
         guard currentConversation != nil else { return }
         messageOffset += Floats.messageOffsetIncrement
         updateDisplayedMessages()
     }
 
+    /// Increases the number of displayed messages until the message with the given identifier is
+    /// displayed.
+    ///
+    /// - Parameter messageID: The identifier of the message to reveal.
     func incrementMessageOffset(to messageID: String) {
         guard let currentConversation,
               currentConversation.messageIDs.contains(messageID),
@@ -156,14 +181,17 @@ final class ConversationSessionService: @unchecked Sendable {
         }
     }
 
+    /// Resets the number of displayed messages to the default.
     func resetMessageOffset() {
         messageOffset = Floats.defaultMessageOffset
     }
 
     // MARK: - Update Displayed Messages
 
-    /// Store-change events land on a later main actor job; callers
-    /// reloading UI in the same job as an upsert refresh here first.
+    /// Recomputes the current conversation's displayed messages, including any outbox entries.
+    ///
+    /// Store-change events land on a later main actor job; a caller reloading UI in the same job as
+    /// an upsert can call this first to refresh immediately.
     func updateDisplayedMessages() {
         var messages = withMessagesOffset(
             hydratedMessages.offsetFromCurrentUserAdditionDate(
@@ -185,6 +213,18 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Deletion
 
+    /// Deletes or hides the given conversation.
+    ///
+    /// When the deletion is not forced and the other participants have not all deleted the
+    /// conversation, it is hidden for the current user instead of deleted for everyone. Otherwise,
+    /// the conversation, its messages, and its participants' references to it are removed.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation to delete.
+    ///   - forced: A Boolean value that determines whether to delete the conversation outright
+    ///     rather than hide it.
+    ///
+    /// - Throws: An `Exception` if the current user identifier has not been set or the write fails.
     func deleteConversation(
         _ conversation: Conversation,
         forced: Bool = false
@@ -372,3 +412,5 @@ final class ConversationSessionService: @unchecked Sendable {
         )
     }
 }
+
+// swiftlint:enable file_length type_body_length

@@ -117,22 +117,37 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
 
         var localizedLabel: String?
         if let label = cnLabeledPhoneNumber.label {
-            localizedLabel = CNLabeledValue<NSString>.localizedString(forLabel: label)
+            localizedLabel = CNLabeledValue<NSString>.localizedString(
+                forLabel: label
+            )
         }
 
-        let countryCode = cnLabeledPhoneNumber.value.value(forKey: "countryCode") as? String
-        let internalFormattedString = cnLabeledPhoneNumber.value.value(forKey: "formattedInternationalStringValue") as? String
+        let countryCode = cnLabeledPhoneNumber
+            .value
+            .value(
+                forKey: "countryCode"
+            ) as? String
+
+        let internalFormattedString = cnLabeledPhoneNumber
+            .value
+            .value(
+                forKey: "formattedInternationalStringValue"
+            ) as? String
+
         var numberValue = cnLabeledPhoneNumber.value.stringValue.digits
 
         var callingCode: String?
         var regionCode: String?
 
-        if let possibleCallingCodes = services.phoneNumber.possibleCallingCodes(for: numberValue),
-           possibleCallingCodes.contains(services.phoneNumber.deviceCallingCode) || possibleCallingCodes.count == 1,
-           let derivedCallingCode = possibleCallingCodes.first(where: {
-               $0 == services.phoneNumber.deviceCallingCode
-           }) ?? possibleCallingCodes.first,
-           !derivedCallingCode.isBlank {
+        if let possibleCallingCodes = services
+            .phoneNumber
+            .possibleCallingCodes(for: numberValue),
+            possibleCallingCodes.contains(services.phoneNumber.deviceCallingCode) ||
+            possibleCallingCodes.count == 1,
+            let derivedCallingCode = possibleCallingCodes.first(where: {
+                $0 == services.phoneNumber.deviceCallingCode
+            }) ?? possibleCallingCodes.first,
+            !derivedCallingCode.isBlank {
             callingCode = derivedCallingCode
         } else if let internalFormattedString,
                   let callingCodeFromInternalFormattedString = internalFormattedString.components(separatedBy: " ").first?.digits,
@@ -140,7 +155,9 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
                   callingCodeFromInternalFormattedString.count < 4 {
             callingCode = callingCodeFromInternalFormattedString
         } else if let countryCode,
-                  let callingCodeFromCountryCode = services.regionDetail.callingCode(regionCode: countryCode),
+                  let callingCodeFromCountryCode = services
+                  .regionDetail
+                  .callingCode(regionCode: countryCode),
                   !callingCodeFromCountryCode.isBlank {
             callingCode = callingCodeFromCountryCode
         }
@@ -150,19 +167,30 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
             numberValue = numberValue.dropPrefix(resolvedCallingCode.count)
         }
 
-        if !services.phoneNumber.numberIsValidLength(numberValue.count, for: resolvedCallingCode) {
-            resolvedCallingCode = services.phoneNumber.possibleCallingCodes(for: numberValue)?.first ?? resolvedCallingCode
-            if resolvedCallingCode.isBlank { resolvedCallingCode = services.phoneNumber.deviceCallingCode }
+        if !services.phoneNumber.numberIsValidLength(
+            numberValue.count,
+            for: resolvedCallingCode
+        ) {
+            resolvedCallingCode = services.phoneNumber.possibleCallingCodes(
+                for: numberValue
+            )?.first ?? resolvedCallingCode
+            if resolvedCallingCode.isBlank {
+                resolvedCallingCode = services.phoneNumber.deviceCallingCode
+            }
         }
 
-        if let possibleRegionCodes = services.regionDetail.regionCodes(by: .callingCode(resolvedCallingCode)),
-           possibleRegionCodes.contains(services.regionDetail.deviceRegionCode) {
+        if let possibleRegionCodes = services
+            .regionDetail
+            .regionCodes(by: .callingCode(resolvedCallingCode)),
+            possibleRegionCodes.contains(services.regionDetail.deviceRegionCode) {
             regionCode = services.regionDetail.deviceRegionCode
         } else if resolvedCallingCode == "1" {
             regionCode = "US"
-        } else if let derivedRegionCode = services.regionDetail.regionCode(by: .callingCode(resolvedCallingCode)),
-                  derivedRegionCode != Localized(.multiple).wrappedValue,
-                  !derivedRegionCode.isBlank {
+        } else if let derivedRegionCode = services
+            .regionDetail
+            .regionCode(by: .callingCode(resolvedCallingCode)),
+            derivedRegionCode != Localized(.multiple).wrappedValue,
+            !derivedRegionCode.isBlank {
             regionCode = derivedRegionCode
         } else if let countryCode,
                   !countryCode.isBlank {
@@ -187,14 +215,20 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         _ string: String,
         label: String? = nil
     ) {
-        self.init(.init(stringValue: string.digits), label: label)
+        self.init(
+            .init(stringValue: string.digits),
+            label: label
+        )
     }
 
     private convenience init(
         _ cnPhoneNumber: CNPhoneNumber,
         label: String?
     ) {
-        self.init(.init(label: label, value: cnPhoneNumber))
+        self.init(.init(
+            label: label,
+            value: cnPhoneNumber
+        ))
     }
 
     // MARK: - Formatted Strings
@@ -241,24 +275,32 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
     ///   `nil` to use the number's region.
     ///
     /// - Returns: The formatted national number.
-    func partiallyFormatted(forRegion regionCode: String? = nil) -> String {
+    func partiallyFormatted(
+        forRegion regionCode: String? = nil
+    ) -> String {
         @Dependency(\.commonServices) var services: CommonServices
 
         let regionCode = regionCode ?? self.regionCode
 
         let partialNumberString = nationalNumberString.isEmpty ? compiledNumberString : nationalNumberString
-        guard partialNumberString != "" else { return partialNumberString }
+        guard !partialNumberString.isEmpty else { return partialNumberString }
 
         var fullFormatAttempt = formattedString(
             regionCode: regionCode,
             includeCallingCode: false
         )
 
-        guard let callingCode = services.regionDetail.callingCode(regionCode: regionCode) else { return fullFormatAttempt }
+        guard let callingCode = services
+            .regionDetail
+            .callingCode(regionCode: regionCode) else { return fullFormatAttempt }
 
         guard fullFormatAttempt == failsafeFormat(partialNumberString) else {
             guard fullFormatAttempt.hasPrefix("+\(callingCode)") else {
-                let partialFormatter = PartialFormatter(defaultRegion: regionCode.uppercased(), withPrefix: false)
+                let partialFormatter = PartialFormatter(
+                    defaultRegion: regionCode.uppercased(),
+                    withPrefix: false
+                )
+
                 return partialFormatter.formatPartial(partialNumberString)
             }
 
@@ -266,7 +308,11 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
             return fullFormatAttempt.trimmingBorderedWhitespace
         }
 
-        let partialFormatter = PartialFormatter(defaultRegion: regionCode.uppercased(), withPrefix: false)
+        let partialFormatter = PartialFormatter(
+            defaultRegion: regionCode.uppercased(),
+            withPrefix: false
+        )
+
         return partialFormatter.formatPartial(partialNumberString)
     }
 
@@ -308,8 +354,15 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         let formattedNumber: String?
 
         do {
-            let parsed = try phoneNumberKit.parse(nationalNumberString, withRegion: regionCode)
-            formattedNumber = phoneNumberKit.format(parsed, toType: includeCallingCode ? .international : .national)
+            let parsed = try phoneNumberKit.parse(
+                nationalNumberString,
+                withRegion: regionCode
+            )
+
+            formattedNumber = phoneNumberKit.format(
+                parsed,
+                toType: includeCallingCode ? .international : .national
+            )
         } catch {
             return internalFormattedString ?? fallbackFormatted
         }

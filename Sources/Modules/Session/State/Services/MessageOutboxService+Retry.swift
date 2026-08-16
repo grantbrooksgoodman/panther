@@ -16,7 +16,13 @@ import Networking
 extension MessageOutboxService {
     // MARK: - Retry Methods
 
-    /// Retries the outbox entry with the given ID.
+    /// Retries delivery of the outbox entry with the given identifier.
+    ///
+    /// This method claims the entry, resolves its conversation and recipients, and attempts to send
+    /// its payload. The entry is removed on success or when its conversation no longer exists, and
+    /// marked failed if delivery fails.
+    ///
+    /// - Parameter entryID: The identifier of the outbox entry to retry.
     func retry(entryID: String) async {
         @Dependency(\.clientSession) var clientSession: ClientSession
         @Dependency(\.networking) var networking: NetworkServices
@@ -171,8 +177,10 @@ extension MessageOutboxService {
         }
     }
 
-    /// Retries all eligible failed entries, serialized per conversation in FIFO order.
-    /// Entries exceeding the auto-retry cap are skipped.
+    /// Retries every failed outbox entry that has not exceeded the auto-retry cap.
+    ///
+    /// Entries are retried in creation order, serialized per conversation. Entries whose attempt
+    /// count has reached ``OutboxEntry/autoRetryCap`` are skipped.
     func retryAllEligible() async {
         let failedEntries = entries.wrappedValue.values
             .filter { $0.state == .failed }

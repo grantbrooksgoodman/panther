@@ -60,10 +60,10 @@ extension AppConstants.Colors {
     enum FeaturePermissionPageView {
         /* MARK: Properties */
 
-        static let enableButtonLabelOverlayTextForeground: Color = .white
-        static let enableButtonLabelShadow: Color = .black
+        static let enableButtonLabelOverlayTextForeground = Color.white
+        static let enableButtonLabelShadow = Color.black
 
-        static let lightBackground: Color = .white
+        static let lightBackground = Color.white
 
         /* MARK: Computed Properties */
 

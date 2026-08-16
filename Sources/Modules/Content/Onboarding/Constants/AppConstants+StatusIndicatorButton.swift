@@ -29,14 +29,14 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum StatusIndicatorButton {
-        static let deniedStatusImageSecondaryForeground: Color = .red
-        static let grantedStatusImageSecondaryForeground: Color = .green // swiftlint:disable:next identifier_name
-        static let undeterminedStatusImageSecondaryForeground: Color = .orange
+        static let deniedStatusImageSecondaryForeground = Color.red
+        static let grantedStatusImageSecondaryForeground = Color.green // swiftlint:disable:next identifier_name
+        static let undeterminedStatusImageSecondaryForeground = Color.orange
 
-        static let determinedStatusLabelForeground: Color = .gray
-        static let undeterminedStatusLabelForeground: Color = .white
+        static let determinedStatusLabelForeground = Color.gray
+        static let undeterminedStatusLabelForeground = Color.white
 
-        static let foreground: Color = .blue
+        static let foreground = Color.blue
     }
 }
 

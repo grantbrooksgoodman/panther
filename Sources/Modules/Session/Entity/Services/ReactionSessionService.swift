@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable type_body_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -14,7 +16,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
+/// The service that applies and removes message reactions.
 final class ReactionSessionService {
     // MARK: - Dependencies
 
@@ -26,6 +28,7 @@ final class ReactionSessionService {
 
     // MARK: - Properties
 
+    /// A Boolean value that indicates whether a reaction is currently being applied to a message.
     @LockIsolated private(set) var isReactingToMessage = false {
         didSet { didSetIsReactingToMessage() }
     }
@@ -35,7 +38,16 @@ final class ReactionSessionService {
 
     // MARK: - Add Effect
 
-    /// Adds an effect to be run once, upon a change in value of `isReactingToMessage`.
+    /// Registers an effect to run once, the next time ``isReactingToMessage`` is set to the given
+    /// value.
+    ///
+    /// The effect is cleared after it runs. Registering a new effect with the same identifier
+    /// and target value replaces the existing one.
+    ///
+    /// - Parameters:
+    ///   - state: The value of ``isReactingToMessage`` that triggers the effect.
+    ///   - id: The identifier under which to register the effect.
+    ///   - effect: The effect to run.
     func addEffectUponIsReactingToMessage(
         changedTo state: Bool,
         id: ReactionSessionServiceEffectID,
@@ -47,6 +59,17 @@ final class ReactionSessionService {
 
     // MARK: - React to Message
 
+    /// Applies the given reaction to the given message, or removes it if the same reaction is
+    /// already applied.
+    ///
+    /// Reactions to mock or outbox messages are ignored. The message's sender is notified of the
+    /// reaction.
+    ///
+    /// - Parameters:
+    ///   - reaction: The reaction to apply.
+    ///   - message: The message to react to.
+    ///
+    /// - Throws: An `Exception` if the required values cannot be resolved or the write fails.
     @MainActor
     func react(
         _ reaction: Reaction,
@@ -354,3 +377,5 @@ final class ReactionSessionService {
             .updateDurationLabelIfNeeded(forMessage: messageData.message)
     }
 }
+
+// swiftlint:enable type_body_length

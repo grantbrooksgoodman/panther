@@ -53,20 +53,20 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum SettingsPageView { // swiftlint:disable identifier_name
-        static let aiEnhanceTranslationsButtonImageBackground: Color = .init(uiColor: .systemBlue)
-        static let blockedUsersButtonImageBackground: Color = .init(uiColor: .systemGray)
-        static let changeLanguageButtonImageBackground: Color = .pink
-        static let changeLanguageButtonImageForeground: Color = .white
-        static let changeThemeButtonImageBackground: Color = .green
-        static let clearCachesButtonImageBackground: Color = .mint
-        static let deleteAccountButtonImageBackground: Color = .orange
-        static let inviteFriendsButtonImageBackground: Color = .blue
-        static let leaveReviewButtonImageBackground: Color = .yellow
-        static let messageRecipientConsentButtonImageBackground: Color = .green
-        static let overrideLanguageCodeButtonImageBackground: Color = .mint
-        static let sendFeedbackButtonImageBackground: Color = .indigo
-        static let signOutButtonImageBackground: Color = .red
-        static let toggleDeveloperModeButtonImageBackground: Color = .yellow
+        static let aiEnhanceTranslationsButtonImageBackground = Color(.systemBlue)
+        static let blockedUsersButtonImageBackground = Color(.systemGray)
+        static let changeLanguageButtonImageBackground = Color.pink
+        static let changeLanguageButtonImageForeground = Color.white
+        static let changeThemeButtonImageBackground = Color.green
+        static let clearCachesButtonImageBackground = Color.mint
+        static let deleteAccountButtonImageBackground = Color.orange
+        static let inviteFriendsButtonImageBackground = Color.blue
+        static let leaveReviewButtonImageBackground = Color.yellow
+        static let messageRecipientConsentButtonImageBackground = Color.green
+        static let overrideLanguageCodeButtonImageBackground = Color.mint
+        static let sendFeedbackButtonImageBackground = Color.indigo
+        static let signOutButtonImageBackground = Color.red
+        static let toggleDeveloperModeButtonImageBackground = Color.yellow
         // swiftlint:enable identifier_name
     }
 }

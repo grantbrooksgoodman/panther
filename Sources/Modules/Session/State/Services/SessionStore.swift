@@ -15,6 +15,10 @@ import Foundation
 import AppSubsystem
 import Networking
 
+/// The in-memory store of the session's conversations, messages, and users.
+///
+/// ``SessionStore`` holds the session's resolved conversations, messages, and users, persists them
+/// to disk, and publishes a ``SessionStoreChange`` whenever its contents change.
 struct SessionStore {
     // MARK: - Types
 
@@ -32,6 +36,7 @@ struct SessionStore {
 
     // MARK: - Properties
 
+    /// The shared session store.
     static let shared = SessionStore()
 
     private let archiveState = LockIsolated(ArchiveState())
@@ -45,14 +50,17 @@ struct SessionStore {
 
     // MARK: - Computed Properties
 
+    /// The conversations in the store, keyed by identifier key.
     var conversations: [String: Conversation] {
         storeState.wrappedValue.conversations
     }
 
+    /// The messages in the store, keyed by identifier.
     var messages: [String: Message] {
         storeState.wrappedValue.messages
     }
 
+    /// The users in the store, keyed by identifier.
     var users: [String: User] {
         storeState.wrappedValue.users
     }
@@ -112,6 +120,7 @@ struct SessionStore {
 
     // MARK: - Conversation Methods
 
+    /// Removes every conversation from the store.
     func clearConversationArchive() {
         var removedIDKeys = Set<String>()
         storeState.projectedValue.withValue {
@@ -128,16 +137,33 @@ struct SessionStore {
         }
     }
 
+    /// Returns the conversation with the given identifier, or `nil` if no conversation with a
+    /// matching key and hash is in the store.
+    ///
+    /// - Parameter id: The identifier of the conversation to return.
+    ///
+    /// - Returns: The conversation, or `nil` if it is not in the store.
     func getConversation(id: ConversationID) -> Conversation? {
         guard let conversation = storeState.wrappedValue.conversations[id.key],
               conversation.id == id else { return nil }
         return conversation
     }
 
+    /// Returns the conversation with the given identifier key, or `nil` if it is not in the store.
+    ///
+    /// - Parameter idKey: The identifier key of the conversation to return.
+    ///
+    /// - Returns: The conversation, or `nil` if it is not in the store.
     func getConversation(idKey: String) -> Conversation? {
         storeState.wrappedValue.conversations[idKey]
     }
 
+    /// Removes the conversation with the given identifier key from the store.
+    ///
+    /// Any of the conversation's messages that no longer belong to another conversation are removed
+    /// as well.
+    ///
+    /// - Parameter idKey: The identifier key of the conversation to remove.
     func removeConversation(idKey: String) {
         var didRemove = false
         var orphanedMessageIDs = Set<String>()
@@ -190,6 +216,12 @@ struct SessionStore {
         ))
     }
 
+    /// Inserts or updates the given conversation in the store.
+    ///
+    /// Empty, mock, or unidentified conversations are ignored. Observers are notified only when the
+    /// conversation represents a change.
+    ///
+    /// - Parameter conversation: The conversation to insert or update.
     func upsertConversation(_ conversation: Conversation) {
         if conversation.isEmpty ||
             conversation.isMock ||
@@ -244,6 +276,11 @@ struct SessionStore {
         }
     }
 
+    /// Inserts or updates the given conversations in the store.
+    ///
+    /// Empty, mock, or unidentified conversations are ignored.
+    ///
+    /// - Parameter newConversations: The conversations to insert or update.
     func upsertConversations(_ newConversations: Set<Conversation>) {
         let newConversations = newConversations.filter {
             !$0.isEmpty &&
@@ -280,6 +317,7 @@ struct SessionStore {
 
     // MARK: - Message Methods
 
+    /// Removes every message from the store.
     func clearMessageArchive() {
         var clearedIDs = Set<String>()
         storeState.projectedValue.withValue {
@@ -296,6 +334,9 @@ struct SessionStore {
         }
     }
 
+    /// Removes the messages with the given identifiers from the store.
+    ///
+    /// - Parameter ids: The identifiers of the messages to remove.
     func removeMessages(ids: Set<String>) {
         var removedIDs = Set<String>()
         storeState.projectedValue.withValue {
@@ -320,6 +361,11 @@ struct SessionStore {
         ))
     }
 
+    /// Inserts or updates the given messages in the store.
+    ///
+    /// System messages are ignored.
+    ///
+    /// - Parameter newMessages: The messages to insert or update.
     func upsertMessages(_ newMessages: Set<Message>) {
         let messages = Set(Array(newMessages).filteringSystemMessages)
 
@@ -351,6 +397,7 @@ struct SessionStore {
 
     // MARK: - User Methods
 
+    /// Removes every user from the store.
     func clearUserArchive() {
         var clearedIDs = Set<String>()
         storeState.projectedValue.withValue {
@@ -368,6 +415,9 @@ struct SessionStore {
     }
 
     // NIT: Unused.
+    /// Removes the user with the given identifier from the store.
+    ///
+    /// - Parameter id: The identifier of the user to remove.
     func removeUser(id: String) {
         var didRemove = false
         storeState.projectedValue.withValue {
@@ -394,6 +444,9 @@ struct SessionStore {
         ))
     }
 
+    /// Inserts or updates the given user in the store.
+    ///
+    /// - Parameter user: The user to insert or update.
     func upsertUser(_ user: User) {
         var didChange = false
         storeState.projectedValue.withValue {
@@ -420,6 +473,9 @@ struct SessionStore {
         ))
     }
 
+    /// Inserts or updates the given users in the store.
+    ///
+    /// - Parameter newUsers: The users to insert or update.
     func upsertUsers(_ newUsers: Set<User>) {
         var changedIDs = Set<String>()
         storeState.projectedValue.withValue {

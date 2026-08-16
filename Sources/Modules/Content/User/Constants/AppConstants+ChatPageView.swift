@@ -6,14 +6,14 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable identifier_name
+
 /* Native */
 import Foundation
 import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
-
-// swiftlint:disable identifier_name
 
 // MARK: - CGFloat
 
@@ -74,37 +74,37 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum ChatPageView {
-        static let messagesCollectionViewPrevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF3EDE6))
+        static let messagesCollectionViewPrevaricationModeBackground = Color(hex: 0xF3EDE6)
 
         enum AVSpeechSynthesizerDelegate {
-            static let willSpeakRangeOfSpeechStringHighlight: Color = .init(uiColor: .red)
-            static let willSpeakRangeOfSpeechStringNotWhite: Color = .init(uiColor: .black)
-            static let willSpeakRangeOfSpeechStringWhite: Color = .init(uiColor: .white)
+            static let willSpeakRangeOfSpeechStringHighlight = Color(.red)
+            static let willSpeakRangeOfSpeechStringNotWhite = Color(.black)
+            static let willSpeakRangeOfSpeechStringWhite = Color(.white)
         }
 
         enum MessagesDataSource {
-            static let cellBottomLabelAttributedTextBoldAttributesForeground: Color = .init(uiColor: .gray)
-            static let cellBottomLabelAttributedTextStandardAttributesForeground: Color = .init(uiColor: .lightGray)
+            static let cellBottomLabelAttributedTextBoldAttributesForeground = Color(.gray)
+            static let cellBottomLabelAttributedTextStandardAttributesForeground = Color(.lightGray)
 
-            static let currentUserAudioTintColor: Color = .init(uiColor: .white)
+            static let currentUserAudioTintColor = Color(.white)
 
-            static let messageTimestampLabelAttributedTextAttributesForeground: Color = .init(uiColor: .lightGray)
-            static let messageTopLabelAttributedTextAttributesForeground: Color = .init(uiColor: .systemGray)
+            static let messageTimestampLabelAttributedTextAttributesForeground = Color(.lightGray)
+            static let messageTopLabelAttributedTextAttributesForeground = Color(.systemGray)
         }
 
         enum MessagesDisplayDelegate {
-            static let audioCellProgressViewCurrentUserAccent: Color = .init(uiColor: .white)
+            static let audioCellProgressViewCurrentUserAccent = Color(.white)
 
-            static let detectorAttributesAlternateForeground: Color = .init(uiColor: .black)
-            static let detectorAttributesPrimaryForeground: Color = .init(uiColor: .white)
+            static let detectorAttributesAlternateForeground = Color(.black)
+            static let detectorAttributesPrimaryForeground = Color(.white)
 
-            static let genericAvatarViewBackground: Color = .init(uiColor: .clear)
-            static let genericAvatarViewTint: Color = .init(uiColor: .gray)
+            static let genericAvatarViewBackground = Color(.clear)
+            static let genericAvatarViewTint = Color(.gray)
 
-            static let messageStyleCustomLayerShadowColor: Color = .init(uiColor: .black)
+            static let messageStyleCustomLayerShadowColor = Color(.black)
 
-            static let penPalsAvatarViewBackground: Color = .init(uiColor: .clear)
-            static let penPalsAvatarViewTint: Color = .init(uiColor: .purple)
+            static let penPalsAvatarViewBackground = Color(.clear)
+            static let penPalsAvatarViewTint = Color(.purple)
         }
     }
 }

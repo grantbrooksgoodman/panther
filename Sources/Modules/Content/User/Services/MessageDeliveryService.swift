@@ -349,7 +349,7 @@ final class MessageDeliveryService {
                 fromAccountID: currentUser.id,
                 id: "outbox-\(UUID().uuidString)",
                 isPenPalsConversation: isPenPalsConversation,
-                payload: .text(text),
+                payload: .text(text.trimmingTrailingWhitespace),
                 recipientUserIDs: users.map(\.id),
                 attemptCount: 1,
                 lastAttemptDate: .now,
@@ -363,7 +363,7 @@ final class MessageDeliveryService {
             addMockMessageToCurrentConversation(
                 audioFile: nil,
                 mediaFile: nil,
-                text: text,
+                text: text.trimmingTrailingWhitespace,
                 isPenPalsConversation: isPenPalsConversation
             )
         }

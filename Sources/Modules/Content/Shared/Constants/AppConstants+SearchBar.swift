@@ -37,11 +37,11 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum SearchBar {
-        static let clearButtonImageForeground: Color = .secondary
-        static let searchImageForeground: Color = .secondary
+        static let clearButtonImageForeground = Color.secondary
+        static let searchImageForeground = Color.secondary
 
-        static let innerHStackDarkBackground: Color = .init(uiColor: .init(hex: 0x3B3A3F))
-        static let innerHStackLightBackground: Color = .init(uiColor: .init(hex: 0xE7E7E9))
+        static let innerHStackDarkBackground = Color(hex: 0x3B3A3F)
+        static let innerHStackLightBackground = Color(hex: 0xE7E7E9)
     }
 }
 

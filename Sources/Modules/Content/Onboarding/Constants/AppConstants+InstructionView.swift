@@ -35,6 +35,6 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum InstructionView {
-        static let subtitleLabelForeground: Color = .gray
+        static let subtitleLabelForeground = Color.gray
     }
 }

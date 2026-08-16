@@ -50,9 +50,9 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum ChatPageHeaderView {
-        static let avatarImageViewBackground: Color = .init(uiColor: .systemBackground) // swiftlint:disable:next identifier_name
-        static let avatarViewNameLabelChevronSymbolForeground: Color = .init(uiColor: .systemGray2)
-        static let backgroundViewGradientColor: Color = .black
+        static let avatarImageViewBackground = Color(.systemBackground) // swiftlint:disable:next identifier_name
+        static let avatarViewNameLabelChevronSymbolForeground = Color(.systemGray2)
+        static let backgroundViewGradientColor = Color.black
     }
 }
 

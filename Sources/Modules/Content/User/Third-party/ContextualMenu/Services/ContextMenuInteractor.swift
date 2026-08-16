@@ -32,19 +32,17 @@ final class ContextMenuInteractor {
         valueOptions: .strongMemory
     )
 
-    var contextMenuViewController: ContextMenuViewController?
-    weak var viewOriginalWindow: UIWindow?
-
-    private var interactionOrigin: CGPoint?
-    private var isShowing = false
-
-    // MARK: - Computed Properties
-
     let window: UIWindow = {
         let window = UIWindow()
         window.backgroundColor = .clear
         return window
     }()
+
+    var contextMenuViewController: ContextMenuViewController?
+    weak var viewOriginalWindow: UIWindow?
+
+    private var interactionOrigin: CGPoint?
+    private var isShowing = false
 
     // MARK: - Dismiss Context Menu
 
@@ -77,14 +75,17 @@ final class ContextMenuInteractor {
         view.isUserInteractionEnabled = true
         view.addGestureRecognizer(gesture)
 
-        interactions.setObject(.init(
-            gesture: gesture,
-            targetedPreviewProvider: targetedPreviewProvider,
-            menuConfigurationProvider: menuConfigurationProvider,
-            style: style,
-            onInteractionBegan: onInteractionBegan,
-            onInteractionEnded: onInteractionEnded
-        ), forKey: view)
+        interactions.setObject(
+            .init(
+                gesture: gesture,
+                targetedPreviewProvider: targetedPreviewProvider,
+                menuConfigurationProvider: menuConfigurationProvider,
+                style: style,
+                onInteractionBegan: onInteractionBegan,
+                onInteractionEnded: onInteractionEnded
+            ),
+            forKey: view
+        )
     }
 
     @objc
@@ -237,6 +238,7 @@ final class ContextMenuInteractor {
             baseFrameInScreen: targetedPreview.view.convert(targetedPreview.view.bounds, to: nil),
             delegate: self
         )
+
         contextMenuViewController = contextMenuController
         contextMenuController.view.frame = window.bounds
 

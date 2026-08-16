@@ -33,7 +33,7 @@ extension AppConstants.Colors {
     enum NewChatPageView {
         /* MARK: Properties */
 
-        static let tintedGlassToolbarButtonForeground: Color = .white
+        static let tintedGlassToolbarButtonForeground = Color.white
 
         /* MARK: Computed Properties */
 

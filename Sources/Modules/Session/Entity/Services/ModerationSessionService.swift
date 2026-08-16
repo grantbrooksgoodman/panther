@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable type_body_length
+
 /* Native */
 import Foundation
 
@@ -14,7 +16,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
+/// The service that blocks, unblocks, and reports users.
 struct ModerationSessionService {
     // MARK: - Dependencies
 
@@ -29,6 +31,11 @@ struct ModerationSessionService {
 
     // MARK: - Content Moderation
 
+    /// Prompts the user to block one or more participants in the given conversation.
+    ///
+    /// - Parameter conversation: The conversation whose participants may be blocked.
+    ///
+    /// - Throws: An `Exception` if blocking fails.
     func blockUsers(
         inConversation conversation: Conversation
     ) async throws(Exception) {
@@ -38,6 +45,11 @@ struct ModerationSessionService {
         )
     }
 
+    /// Prompts the user to report one or more participants in the given conversation.
+    ///
+    /// - Parameter conversation: The conversation whose participants may be reported.
+    ///
+    /// - Throws: An `Exception` if reporting fails.
     func reportUsers(
         inConversation conversation: Conversation
     ) async throws(Exception) {
@@ -47,6 +59,9 @@ struct ModerationSessionService {
         )
     }
 
+    /// Prompts the user to unblock one or more of their blocked users.
+    ///
+    /// - Throws: An `Exception` if the blocked users cannot be resolved or unblocking fails.
     func unblockUsers() async throws(Exception) {
         try await moderate(
             .unblock,
@@ -322,3 +337,5 @@ struct ModerationSessionService {
         traitCollectionChanged.send()
     }
 }
+
+// swiftlint:enable type_body_length

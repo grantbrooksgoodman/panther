@@ -44,7 +44,7 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum SignInPageView {
-        static let imageDarkForeground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
+        static let imageDarkForeground = Color(hex: 0xF8F8F8)
     }
 }
 

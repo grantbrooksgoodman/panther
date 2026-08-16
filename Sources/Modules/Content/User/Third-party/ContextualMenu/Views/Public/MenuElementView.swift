@@ -48,6 +48,7 @@ final class MenuElementView: UIView {
                 style: style
             )
         )
+
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

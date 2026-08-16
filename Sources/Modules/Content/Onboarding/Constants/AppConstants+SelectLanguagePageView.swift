@@ -33,6 +33,6 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum SelectLanguagePageView {
-        static let instructionLabelForeground: Color = .gray
+        static let instructionLabelForeground = Color.gray
     }
 }

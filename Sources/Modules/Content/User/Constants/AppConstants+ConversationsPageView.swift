@@ -33,11 +33,11 @@ extension AppConstants.Colors {
         /* MARK: Properties */
 
         // swiftlint:disable identifier_name
-        static let createRandomMessagesToolbarButtonForeground: Color = .purple
-        static let deleteConversationsToolbarButtonForeground: Color = .red
+        static let createRandomMessagesToolbarButtonForeground = Color.purple
+        static let deleteConversationsToolbarButtonForeground = Color.red
         // swiftlint:enable identifier_name
 
-        static let storageFullToolbarButtonForeground: Color = .red
+        static let storageFullToolbarButtonForeground = Color.red
 
         /* MARK: Computed Properties */
 

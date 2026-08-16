@@ -19,8 +19,8 @@ extension AppConstants.Colors {
     enum InviteLanguagePickerView {
         /* MARK: Properties */
 
-        static let noResultsLabelForeground: Color = .init(uiColor: .secondaryLabel)
-        static let selectedCellImageForeground: Color = .green
+        static let noResultsLabelForeground = Color(.secondaryLabel)
+        static let selectedCellImageForeground = Color.green
 
         /* MARK: Computed Properties */
 

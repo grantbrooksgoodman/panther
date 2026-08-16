@@ -43,6 +43,7 @@ final class ContextMenuViewController: UIViewController {
             target: self,
             action: #selector(onTouchUpInsideBackground)
         )
+
         visualEffectView.addGestureRecognizer(tapGestureRecognizer)
         return visualEffectView
     }()
@@ -131,7 +132,8 @@ final class ContextMenuViewController: UIViewController {
         return FixedAndAnimatableConstraints(
             fixed: [
                 accessoryView.bottomAnchor.constraint(
-                    equalTo: previewTransformedBoundingView.topAnchor, constant: -style.preview.topMargin
+                    equalTo: previewTransformedBoundingView.topAnchor,
+                    constant: -style.preview.topMargin
                 ).priority(.required - 1),
                 alignment == .leading ?
                     accessoryView.leadingAnchor.constraint(equalTo: previewTransformedBoundingView.leadingAnchor).priority(.defaultHigh)
@@ -172,7 +174,8 @@ final class ContextMenuViewController: UIViewController {
         return FixedAndAnimatableConstraints(
             fixed: [
                 menuView.topAnchor.constraint(
-                    equalTo: previewTransformedBoundingView.bottomAnchor, constant: style.preview.bottomMargin
+                    equalTo: previewTransformedBoundingView.bottomAnchor,
+                    constant: style.preview.bottomMargin
                 ),
                 alignment == .leading ?
                     menuView.leadingAnchor.constraint(equalTo: previewTransformedBoundingView.leadingAnchor).priority(.defaultHigh)
@@ -200,7 +203,8 @@ final class ContextMenuViewController: UIViewController {
         return FixedAndAnimatableConstraints(
             fixed: [
                 previewRendering.leadingAnchor.constraint(
-                    equalTo: view.leadingAnchor, constant: baseFrameInScreen.minX
+                    equalTo: view.leadingAnchor,
+                    constant: baseFrameInScreen.minX
                 ).priority(.defaultHigh),
                 previewRendering.topAnchor.constraint(
                     equalTo: view.topAnchor,

@@ -27,8 +27,8 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum MediaItemView {
-        static let senderLabelForeground: Color = .init(uiColor: .systemGray)
-        static let timestampLabelForeground: Color = .init(uiColor: .systemGray)
+        static let senderLabelForeground = Color(.systemGray)
+        static let timestampLabelForeground = Color(.systemGray)
     }
 }
 

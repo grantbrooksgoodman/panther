@@ -118,26 +118,26 @@ extension AppConstants.CGFloats.ChatPageViewService {
 extension AppConstants.Colors.ChatPageViewService {
     enum RecipientBarService {
         enum ContactSelectionUI {
-            static let accent: Color = .init(uiColor: .systemBlue)
+            static let accent = Color(.systemBlue)
 
-            static let contactViewDarkSelection: Color = .init(uiColor: .init(hex: 0x2A2A2C))
-            static let contactViewHighlightedText: Color = .init(uiColor: .white)
-            static let contactViewLightSelection: Color = .init(uiColor: .init(hex: 0xECF0F1))
-            static let contactViewRedText: Color = .init(uiColor: .systemGreen)
+            static let contactViewDarkSelection = Color(hex: 0x2A2A2C)
+            static let contactViewHighlightedText = Color(.white)
+            static let contactViewLightSelection = Color(hex: 0xECF0F1)
+            static let contactViewRedText = Color(.systemGreen)
 
-            static let labelRepresentationColor: Color = .init(uiColor: .clear)
+            static let labelRepresentationColor = Color(.clear)
         }
 
         enum Layout {
-            static let darkBorder: Color = .init(uiColor: .init(hex: 0x3C3C_434A))
-            static let lightBorder: Color = .init(uiColor: .init(hex: 0xDCDCDD))
+            static let darkBorder = Color(hex: 0x3C3C_434A)
+            static let lightBorder = Color(hex: 0xDCDCDD)
 
             @MainActor
-            static let lightBackground: Color = .init(
+            static let lightBackground = Color(
                 uiColor: Application.isInPrevaricationMode ? .init(hex: 0xF8F8F8) : .white
             )
 
-            static let toLabelText: Color = .init(uiColor: .gray)
+            static let toLabelText = Color(.gray)
         }
     }
 }

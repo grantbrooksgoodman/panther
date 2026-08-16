@@ -255,11 +255,9 @@ final class ConversationsPageViewService {
             }
 
             guard matchesCurrentConversation(currentConversation.id.key) else { return }
-
             if chatPageViewService.recipientBar?.layout.recipientBarView == nil,
                let navigationTitle = ConversationCellViewData(
-                   currentConversation,
-                   useCachedValue: true
+                   currentConversation
                )?.titleLabelText {
                 chatPageViewService.setNavigationTitle(navigationTitle)
             }

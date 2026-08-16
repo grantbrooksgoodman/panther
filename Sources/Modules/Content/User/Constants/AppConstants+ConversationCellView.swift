@@ -57,10 +57,10 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum ConversationCellView {
-        static let blockUsersButtonImageTint: Color = .init(uiColor: .systemGray)
-        static let deleteConversationButtonImageTint: Color = .red
-        static let reportUsersButtonImageTint: Color = .orange
-        static let unreadIndicatorViewForeground: Color = .blue
+        static let blockUsersButtonImageTint = Color(.systemGray)
+        static let deleteConversationButtonImageTint = Color.red
+        static let reportUsersButtonImageTint = Color.orange
+        static let unreadIndicatorViewForeground = Color.blue
     }
 }
 

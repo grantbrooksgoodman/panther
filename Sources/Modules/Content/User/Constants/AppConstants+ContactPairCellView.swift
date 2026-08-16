@@ -25,6 +25,6 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum ContactPairCellView {
-        static let prevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF3EDE6))
+        static let prevaricationModeBackground = Color(hex: 0xF3EDE6)
     }
 }

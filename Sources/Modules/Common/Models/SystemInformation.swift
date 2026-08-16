@@ -6,10 +6,11 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable line_length
+
 /* Native */
 import Foundation
 
-// swiftlint:disable line_length
 /// A namespace for low-level hardware and kernel values queried through `sysctl`.
 ///
 /// Use ``SystemInformation`` to read details about the device and operating system. Each

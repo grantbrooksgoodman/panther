@@ -48,12 +48,12 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum RegionMenu {
-        static let buttonLabelDarkForeground: Color = .init(uiColor: .init(hex: 0x2A2A2C))
-        static let buttonLabelLightForeground: Color = .white
-        static let buttonLabelTextForeground: Color = .init(uiColor: .systemBlue)
+        static let buttonLabelDarkForeground = Color(hex: 0x2A2A2C)
+        static let buttonLabelLightForeground = Color.white
+        static let buttonLabelTextForeground = Color(.systemBlue)
 
-        static let noResultsLabelTextForeground: Color = .init(uiColor: .secondaryLabel)
-        static let selectedCellImageForeground: Color = .green
+        static let noResultsLabelTextForeground = Color(.secondaryLabel)
+        static let selectedCellImageForeground = Color.green
     }
 }
 

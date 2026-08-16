@@ -28,7 +28,7 @@ extension AppConstants.Colors {
     enum InviteQRCodePageView {
         /* MARK: Properties */
 
-        static let tintedGlassToolbarButtonForeground: Color = .white
+        static let tintedGlassToolbarButtonForeground = Color.white
 
         /* MARK: Computed Properties */
 

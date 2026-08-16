@@ -39,8 +39,8 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum UserInfoBadgeView {
-        static let bodyDarkForeground: Color = .init(uiColor: .init(hex: 0x27252A))
-        static let bodyLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
-        static let labelViewTextShadow: Color = .black
+        static let bodyDarkForeground = Color(hex: 0x27252A)
+        static let bodyLightForeground = Color(hex: 0xE5E5EA)
+        static let labelViewTextShadow = Color.black
     }
 }

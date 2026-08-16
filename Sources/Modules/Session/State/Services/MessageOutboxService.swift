@@ -12,6 +12,10 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// The service that queues messages for delivery and retries failed sends.
+///
+/// ``MessageOutboxService`` holds pending and failed message entries, persists them to disk, and
+/// stores their payload files. It publishes a change whenever its contents change.
 struct MessageOutboxService {
     // MARK: - Dependencies
 
@@ -19,8 +23,10 @@ struct MessageOutboxService {
 
     // MARK: - Properties
 
+    /// The shared message outbox service.
     static let shared = MessageOutboxService()
 
+    /// The outbox entries, keyed by identifier.
     let entries = LockIsolated<[String: OutboxEntry]>([:])
 
     @SharedEvent(\.messageOutboxDidChange) private var messageOutboxDidChange
@@ -28,6 +34,7 @@ struct MessageOutboxService {
 
     // MARK: - Computed Properties
 
+    /// The outbox entries, sorted by creation date.
     var allEntries: [OutboxEntry] {
         entries
             .wrappedValue
@@ -73,21 +80,40 @@ struct MessageOutboxService {
 
     // MARK: - Query Methods
 
+    /// Returns the outbox entries for the conversation with the given identifier key, sorted by
+    /// creation date.
+    ///
+    /// - Parameter conversationIDKey: The identifier key of the conversation whose entries to
+    ///   return.
+    ///
+    /// - Returns: The conversation's outbox entries.
     func entries(forConversationIDKey conversationIDKey: String) -> [OutboxEntry] {
         entries.wrappedValue.values
             .filter { $0.conversationIDKey == conversationIDKey }
             .sorted { $0.createdDate < $1.createdDate }
     }
 
+    /// Returns the outbox entry with the given identifier, or `nil` if none exists.
+    ///
+    /// - Parameter id: The identifier of the entry to return.
+    ///
+    /// - Returns: The outbox entry, or `nil` if none exists.
     func entry(forID id: String) -> OutboxEntry? {
         entries.wrappedValue[id]
     }
 
     // MARK: - Mutation Methods
 
-    /// Atomically claims the entry for retry, transitioning it to `.sending`.
-    /// Returns the claimed entry (with a reserved remote ID) or `nil`
-    /// if the entry is missing or already claimed by another caller.
+    /// Atomically claims the entry with the given identifier for retry, transitioning it to
+    /// `sending`.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier of the entry to claim.
+    ///   - candidateRemoteID: The remote identifier to reserve for the entry's message if one is
+    ///     not already reserved.
+    ///
+    /// - Returns: The claimed entry, or `nil` if the entry is missing or already claimed by
+    ///   another caller.
     func claimForRetry(
         id: String,
         candidateRemoteID: String
@@ -125,6 +151,9 @@ struct MessageOutboxService {
         return claimedEntry
     }
 
+    /// Adds the given entry to the outbox.
+    ///
+    /// - Parameter entry: The entry to add.
     func enqueue(_ entry: OutboxEntry) {
         entries.projectedValue.withValue { $0[entry.id] = entry }
         persistArchive()
@@ -138,6 +167,9 @@ struct MessageOutboxService {
         messageOutboxDidChange.send()
     }
 
+    /// Marks the outbox entry with the given identifier as failed.
+    ///
+    /// - Parameter id: The identifier of the entry to mark as failed.
     func markFailed(id: String) {
         guard var entry = entries.wrappedValue[id] else { return }
 
@@ -154,6 +186,9 @@ struct MessageOutboxService {
         messageOutboxDidChange.send()
     }
 
+    /// Removes the outbox entry with the given identifier, deleting its payload file.
+    ///
+    /// - Parameter id: The identifier of the entry to remove.
     func remove(id: String) {
         guard let entry = entries.wrappedValue[id] else { return }
 
@@ -170,6 +205,7 @@ struct MessageOutboxService {
         messageOutboxDidChange.send()
     }
 
+    /// Removes every outbox entry, deleting their payload files.
     func removeAll() {
         let currentEntries = entries.wrappedValue
         guard !currentEntries.isEmpty else { return }
@@ -193,8 +229,14 @@ struct MessageOutboxService {
 
     // MARK: - Payload Directory Methods
 
-    /// Copies the file at the given URL into the outbox payload
-    /// directory and returns the destination file name.
+    /// Copies the file at the given URL into the outbox payload directory and returns the
+    /// destination file name.
+    ///
+    /// - Parameter sourceURL: The URL of the file to copy.
+    ///
+    /// - Returns: The name of the copied file in the payload directory.
+    ///
+    /// - Throws: An error if the file cannot be copied.
     func storePayloadFile(from sourceURL: URL) throws -> String {
         let directory = payloadDirectoryURL
         try fileManager.createDirectory(
@@ -215,6 +257,11 @@ struct MessageOutboxService {
         return fileName
     }
 
+    /// Returns the URL of the payload file with the given name.
+    ///
+    /// - Parameter fileName: The name of the payload file.
+    ///
+    /// - Returns: The URL of the payload file.
     func payloadFileURL(forFileName fileName: String) -> URL {
         payloadDirectoryURL.appending(path: fileName)
     }

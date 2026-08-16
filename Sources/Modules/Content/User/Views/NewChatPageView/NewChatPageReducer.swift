@@ -94,7 +94,7 @@ struct NewChatPageReducer: Reducer {
         var navigationTitle = ""
 
         /// The background color of the PenPals button, animated while the button is shown.
-        var penPalsToolbarButtonBackgroundColor: Color = .purple
+        var penPalsToolbarButtonBackgroundColor = Color.purple
 
         /// A Boolean value that indicates whether the PenPals button is shown. Shown when the
         /// current user is a PenPals participant.

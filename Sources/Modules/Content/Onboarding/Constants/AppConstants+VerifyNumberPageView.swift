@@ -38,6 +38,6 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum VerifyNumberPageView {
-        static let instructionLabelForeground: Color = .gray
+        static let instructionLabelForeground = Color.gray
     }
 }

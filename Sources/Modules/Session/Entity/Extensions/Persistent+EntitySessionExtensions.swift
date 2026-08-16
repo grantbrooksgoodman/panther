@@ -13,6 +13,9 @@ import Foundation
 import AppSubsystem
 
 extension Persistent {
+    /// Creates a persistent value bound to the given user session service storage key.
+    ///
+    /// - Parameter userSessionServiceKey: The key that identifies the stored value.
     convenience init(
         _ userSessionServiceKey: PersistentStorageKey.UserSessionServiceStorageKey
     ) {

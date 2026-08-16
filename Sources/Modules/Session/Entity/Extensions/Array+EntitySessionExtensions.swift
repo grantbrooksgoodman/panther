@@ -13,6 +13,13 @@ import Foundation
 import AppSubsystem
 
 extension [ReactionMetadata] {
+    /// Returns the reaction metadata with the current user's reactions to the given message
+    /// removed.
+    ///
+    /// - Parameter messageID: The identifier of the message whose current-user reactions to
+    ///   remove.
+    ///
+    /// - Returns: The filtered reaction metadata.
     func filteringCurrentUserReactions(to messageID: String) -> [ReactionMetadata] {
         func satisfiesConstraints(_ metadata: ReactionMetadata) -> Bool {
             guard metadata.messageID == messageID,
