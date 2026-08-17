@@ -10,9 +10,6 @@
 import Foundation
 import UIKit
 
-/* Proprietary */
-import AppSubsystem
-
 /// A namespace for the current device's persistent identifier.
 enum DeviceID {
     // MARK: - Properties
@@ -26,11 +23,12 @@ enum DeviceID {
     /// The identifier is generated on first access – from the device's vendor identifier, or a
     /// new UUID when unavailable – and persisted to the keychain so it survives reinstalls.
     static var current: String {
-        if let existingID = read() { return existingID }
-        @MainActorIsolated var vendorID = UIDevice.current.identifierForVendor
-        let newID = (vendorID ?? UUID()).uuidString
-        save(newID)
-        return newID
+        get async {
+            if let existingID = read() { return existingID }
+            let newID = await (MainActor.run { UIDevice.current.identifierForVendor } ?? UUID()).uuidString
+            save(newID)
+            return newID
+        }
     }
 
     // MARK: - Methods

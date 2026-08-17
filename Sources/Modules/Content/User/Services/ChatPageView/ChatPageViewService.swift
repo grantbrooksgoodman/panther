@@ -394,6 +394,16 @@ final class ChatPageViewService {
             // or preview.
             if !chatPageState.isPresented,
                configuration != .preview {
+                // Flush any read receipts still pending from a session store
+                // change that arrived within the debounce window before the
+                // page was popped, which would otherwise be dropped when
+                // `handleChatPageStoreChange` bails on the cleared pointer.
+                do throws(Exception) {
+                    try await readReceipts?.updateReadDateForUnreadMessages()
+                } catch {
+                    Logger.log(error)
+                }
+
                 clientSession.entity.conversation.setCurrentConversation(nil)
             }
 

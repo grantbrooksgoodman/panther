@@ -140,7 +140,7 @@ struct UserSessionService {
                         if blockedUserIDsDidChange(dictionary) ||
                             conversationsDidChange(dictionary) {
                             updateCurrentUser()
-                        } else if deviceIDDidChange(dictionary) {
+                        } else if await deviceIDDidChange(dictionary) {
                             signOutToPreserveSingleActiveUser()
                         } else {
                             Logger.log(
@@ -281,8 +281,8 @@ struct UserSessionService {
         return true
     }
 
-    private func deviceIDDidChange(_ dictionary: [String: Any]) -> Bool {
-        let currentDeviceID = DeviceID.current
+    private func deviceIDDidChange(_ dictionary: [String: Any]) async -> Bool {
+        let currentDeviceID = await DeviceID.current
         let updatedDeviceID = dictionary[
             User.SerializableKey.deviceID.rawValue
         ] as? String

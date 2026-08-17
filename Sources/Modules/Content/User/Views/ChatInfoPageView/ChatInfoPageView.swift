@@ -100,8 +100,7 @@ struct ChatInfoPageView: View {
                     .sheet(item: sheetBinding) { sheetView(for: $0) }
                     .if(!UIApplication.isFullyV26Compatible) { contentView in
                         NavigationWindow(
-                            displayMode: .inline,
-                            toolbarItems: [doneToolbarButton]
+                            displayMode: .inline
                         ) {
                             contentView
                         }
@@ -308,26 +307,6 @@ struct ChatInfoPageView: View {
             .id(viewModel.chatInfoCellViewID)
         }
         .foregroundStyle(Color.titleText)
-    }
-
-    // MARK: - Done Toolbar Button
-
-    private var doneToolbarButton: NavigationWindow.Toolbar.Item {
-        .init(placement: .topBarTrailing) {
-            if UIApplication.isFullyV26Compatible {
-                Components.v26DoneButton {
-                    viewModel.send(.doneToolbarButtonTapped)
-                }
-            } else {
-                Components.button(
-                    viewModel.doneButtonText,
-                    font: .systemSemibold,
-                    foregroundColor: .navigationBarButton
-                ) {
-                    viewModel.send(.doneToolbarButtonTapped)
-                }
-            }
-        }
     }
 
     // MARK: - Header Right Item

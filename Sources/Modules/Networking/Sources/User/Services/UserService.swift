@@ -76,7 +76,7 @@ final class UserService: @unchecked Sendable {
             )
         }
 
-        let mockUser: User = .init(
+        let mockUser: User = await .init(
             id,
             aiEnhancedTranslationsEnabled: false,
             blockedUserIDs: nil,

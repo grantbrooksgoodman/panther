@@ -171,14 +171,23 @@ struct MessageOutboxService {
     ///
     /// - Parameter id: The identifier of the entry to mark as failed.
     func markFailed(id: String) {
-        guard var entry = entries.wrappedValue[id] else { return }
+        // Mutate in place under the lock; a stale copy written
+        // back later could resurrect a concurrently removed entry.
+        let failedEntry: OutboxEntry? = entries
+            .projectedValue
+            .withValue { entries -> OutboxEntry? in
+                guard var entry = entries[id] else { return nil }
 
-        entry.state = .failed
-        entries.projectedValue.withValue { $0[id] = entry }
+                entry.state = .failed
+                entries[id] = entry
+                return entry
+            }
+
+        guard let failedEntry else { return }
         persistArchive()
 
         Logger.log(
-            "Marked outbox entry \(id) as failed (attempt \(entry.attemptCount)).",
+            "Marked outbox entry \(id) as failed (attempt \(failedEntry.attemptCount)).",
             domain: .outbox,
             sender: self
         )
@@ -186,14 +195,18 @@ struct MessageOutboxService {
         messageOutboxDidChange.send()
     }
 
-    /// Removes the outbox entry with the given identifier, deleting its payload file.
+    /// Removes the outbox entry with the given identifier, deleting its payload files.
     ///
     /// - Parameter id: The identifier of the entry to remove.
     func remove(id: String) {
-        guard let entry = entries.wrappedValue[id] else { return }
+        // Take ownership under the lock before touching the
+        // filesystem, so no concurrent operation can observe
+        // or reclaim the entry mid-removal.
+        guard let removedEntry = entries
+            .projectedValue
+            .withValue({ $0.removeValue(forKey: id) }) else { return }
 
-        removePayloadFile(for: entry)
-        entries.projectedValue.withValue { $0[id] = nil }
+        removePayloadFile(for: removedEntry)
         persistArchive()
 
         Logger.log(
@@ -207,19 +220,27 @@ struct MessageOutboxService {
 
     /// Removes every outbox entry, deleting their payload files.
     func removeAll() {
-        let currentEntries = entries.wrappedValue
-        guard !currentEntries.isEmpty else { return }
+        // Take ownership under the lock before touching the
+        // filesystem, so no concurrent operation can observe
+        // or reclaim the entries mid-removal.
+        let removedEntries = entries
+            .projectedValue
+            .withValue { entries -> [String: OutboxEntry] in
+                let currentEntries = entries
+                entries = [:]
+                return currentEntries
+            }
 
-        let removedIDs = Set(currentEntries.keys)
-        for entry in currentEntries.values {
+        guard !removedEntries.isEmpty else { return }
+
+        for entry in removedEntries.values {
             removePayloadFile(for: entry)
         }
 
-        entries.projectedValue.withValue { $0 = [:] }
         persistArchive()
 
         Logger.log(
-            "Removed all outbox entries (\(removedIDs.count)).",
+            "Removed all outbox entries (\(removedEntries.count)).",
             domain: .outbox,
             sender: self
         )
@@ -232,11 +253,14 @@ struct MessageOutboxService {
     /// Copies the file at the given URL into the outbox payload directory and returns the
     /// destination file name.
     ///
+    /// When a thumbnail image exists alongside the source file, it is copied into the payload
+    /// directory as well, so retried sends upload it with the primary file.
+    ///
     /// - Parameter sourceURL: The URL of the file to copy.
     ///
     /// - Returns: The name of the copied file in the payload directory.
     ///
-    /// - Throws: An error if the file cannot be copied.
+    /// - Throws: An error if the file or its thumbnail cannot be copied.
     func storePayloadFile(from sourceURL: URL) throws -> String {
         let directory = payloadDirectoryURL
         try fileManager.createDirectory(
@@ -247,6 +271,15 @@ struct MessageOutboxService {
         let fileName = "\(UUID().uuidString)_\(sourceURL.lastPathComponent)"
         let destinationURL = directory.appending(path: fileName)
         try fileManager.copyItem(at: sourceURL, to: destinationURL)
+
+        if let sourceThumbnailURL = sourceURL.thumbnailPath,
+           let destinationThumbnailURL = destinationURL.thumbnailPath,
+           fileManager.fileExists(atPath: sourceThumbnailURL.path()) {
+            try fileManager.copyItem(
+                at: sourceThumbnailURL,
+                to: destinationThumbnailURL
+            )
+        }
 
         Logger.log(
             "Stored payload file \(fileName).",
@@ -276,11 +309,25 @@ struct MessageOutboxService {
         ) else { return }
 
         let referencedFileNames = Set(
-            entries.wrappedValue.values.compactMap { entry -> String? in
+            entries.wrappedValue.values.flatMap { entry -> [String] in
                 switch entry.payload {
-                case let .audio(inputFileName): return inputFileName
-                case let .media(fileName, _): return fileName
-                case .text: return nil
+                case let .audio(inputFileName):
+                    return [inputFileName]
+
+                case let .media(fileName, _):
+                    // Media payloads may carry a thumbnail sibling;
+                    // reference it so collection preserves both.
+                    guard let thumbnailFileName = payloadFileURL(
+                        forFileName: fileName
+                    ).thumbnailPath?.lastPathComponent else { return [fileName] }
+
+                    return [
+                        fileName,
+                        thumbnailFileName,
+                    ]
+
+                case .text:
+                    return []
                 }
             }
         )
@@ -314,6 +361,10 @@ struct MessageOutboxService {
         guard let fileName else { return }
         let fileURL = payloadDirectoryURL.appending(path: fileName)
         try? fileManager.removeItem(at: fileURL)
+
+        if let thumbnailURL = fileURL.thumbnailPath {
+            try? fileManager.removeItem(at: thumbnailURL)
+        }
 
         Logger.log(
             "Removed payload file \(fileName) for entry \(entry.id).",

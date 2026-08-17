@@ -112,12 +112,12 @@ extension User {
     ///
     /// - Throws: An `Exception` if updating the user fails.
     func updateDeviceIDIfNeeded() async throws(Exception) {
-        if deviceID != DeviceID.current {
-            _ = try await update(
-                \.deviceID,
-                to: DeviceID.current
-            )
-        }
+        let currentDeviceID = await DeviceID.current
+        guard deviceID != currentDeviceID else { return }
+        _ = try await update(
+            \.deviceID,
+            to: currentDeviceID
+        )
     }
 }
 

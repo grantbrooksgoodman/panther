@@ -157,7 +157,10 @@ final class ConversationsPageViewService {
         Task { @MainActor in
             do throws(Exception) {
                 try await clientSession.entity.user.resolveCurrentUser(
-                    and: [.conversations]
+                    and: [
+                        .conversations,
+                        .messages,
+                    ]
                 )
 
                 DevModeAction

@@ -92,9 +92,6 @@ struct ChatInfoPageReducer: Reducer {
         /// An action that indicates the user tapped the done header item. Dismisses the page.
         case doneHeaderItemTapped
 
-        /// An action that indicates the user tapped the done toolbar button. Dismisses the page.
-        case doneToolbarButtonTapped
-
         /// An action that indicates resolving the participant list failed, carrying the resulting
         /// `Exception`.
         case getChatParticipantsFailed(Exception)
@@ -184,9 +181,6 @@ struct ChatInfoPageReducer: Reducer {
 
         /// The conversation's participants.
         var chatParticipants = [ChatParticipant]()
-
-        /// The localized text the done button displays.
-        @Localized(.done) var doneButtonText: String
 
         /// A Boolean value that indicates whether the change-metadata button is enabled. Disabled
         /// while a metadata change is in progress, and while the conversation is awaiting the
@@ -486,8 +480,7 @@ struct ChatInfoPageReducer: Reducer {
         case .currentConversationMetadataChanged:
             state.viewID = UUID()
 
-        case .doneHeaderItemTapped,
-             .doneToolbarButtonTapped:
+        case .doneHeaderItemTapped:
             RootSheets.dismiss()
             guard state.inputBarWasFirstResponder else { return .none }
             chatPageViewService.inputBar?.becomeFirstResponder()

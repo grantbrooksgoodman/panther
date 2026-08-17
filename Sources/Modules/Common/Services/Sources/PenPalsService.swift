@@ -157,9 +157,9 @@ struct PenPalsService {
 
     /// Returns a random PenPals participant suitable for pairing with the current user.
     ///
-    /// Candidates must speak a language different from the current user's, and must not be
-    /// blocked, known to the current user, present in an existing conversation, or currently
-    /// selected as a recipient.
+    /// Candidates must speak a language different from the current user's, and must not have
+    /// blocked or been blocked by the current user, be known to the current user, be present in
+    /// an existing conversation, or be currently selected as a recipient.
     ///
     /// - Note: Populates the contact pair archive if it is `nil` or empty.
     ///
@@ -184,6 +184,10 @@ struct PenPalsService {
             .filter(\.isPenPalsParticipant)
             .filter({ $0.languageCode != userSession.currentUser?.languageCode })
             .filter({ !(userSession.currentUser?.blockedUserIDs?.contains($0.id) ?? false) })
+            .filter({ candidate in
+                guard let currentUserID = userSession.currentUser?.id else { return true }
+                return !(candidate.blockedUserIDs ?? []).contains(currentUserID)
+            })
             .filter({ !contactPairArchiveUserIDs.contains($0.id) })
             .filter({ !currentUserConversationUserIDs(excludePenPalsConversations: false).contains($0.id) })
             .filter({ !selectContactPairUserIDs.contains($0.id) })

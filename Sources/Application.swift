@@ -153,6 +153,17 @@ enum Application {
             Networking.config.setEnvironment(.production)
         }
 
+        /* MARK: Dependency Prewarm */
+
+        // Resolve select main-actor-isolated dependencies eagerly,
+        // on the main actor, so their first resolution can never race
+        // onto a background thread. See `MainActorIsolated`.
+        @Dependency(\.commonServices) var commonServices: CommonServices
+        @Dependency(\.uiCacheInvalidationService) var uiCacheInvalidationService: UICacheInvalidationService
+
+        _ = commonServices
+        _ = uiCacheInvalidationService
+
         /* MARK: Theme Setup */
 
         Task.delayed(by: .seconds(1)) { @MainActor in
