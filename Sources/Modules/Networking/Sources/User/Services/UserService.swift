@@ -36,7 +36,8 @@ final class UserService: @unchecked Sendable {
     /// The service that generates random user data for testing during development.
     let testing: UserTestingService
 
-    private static let coalescer = KeyedCoalescer<String, User>()
+    private static let keyedCoalescer = KeyedCoalescer<String, User>()
+    private static let singleSlotCoalescer = SingleSlotCoalescer<[User]>()
 
     @Cached(CacheKey.userDataSnapshots) private var cachedUserDataSnapshots: [UserDataSnapshot]?
 
@@ -126,10 +127,25 @@ final class UserService: @unchecked Sendable {
 
     /// Returns every user in the database.
     ///
+    /// Concurrent calls coalesce onto a single in-flight fetch.
+    ///
     /// - Returns: Every user.
     ///
     /// - Throws: An `Exception` if the users cannot be fetched.
     func getAllUsers() async throws(Exception) -> [User] {
+        try await Self.singleSlotCoalescer { [weak self] () async throws(Exception) -> [User] in
+            guard let self else {
+                throw Exception(
+                    "Service has been deallocated.",
+                    metadata: .init(sender: Self.self)
+                )
+            }
+
+            return try await fetchAllUsers()
+        }
+    }
+
+    private func fetchAllUsers() async throws(Exception) -> [User] {
         let userData: [String: Any] = try await networking.database.getValues(
             at: NetworkPath.users.rawValue
         )
@@ -172,7 +188,7 @@ final class UserService: @unchecked Sendable {
 
         // Coalesce concurrent fetches of the same user so participants
         // shared across conversations resolve – and upsert – only once.
-        return try await Self.coalescer(
+        return try await Self.keyedCoalescer(
             "\(id)|\(bypassSnapshotCache)|\(String(describing: cacheStrategy))"
         ) { [weak self] () async throws(Exception) -> User in
             guard let self else {

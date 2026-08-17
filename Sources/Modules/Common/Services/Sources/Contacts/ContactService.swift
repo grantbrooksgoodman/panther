@@ -42,6 +42,8 @@ final class ContactService: @unchecked Sendable {
     /// The Contacts framework contacts matched during archive syncs.
     @Cached(CacheKey.cnContacts) var cachedCNContacts: [CNContact]?
 
+    private static let coalescer = SingleSlotCoalescer<Void>()
+
     // MARK: - Init
 
     /// Creates a contact service with the given archive service.
@@ -65,9 +67,24 @@ final class ContactService: @unchecked Sendable {
     /// If no device contact matches any registered user, this method returns without modifying
     /// the archive.
     ///
+    /// Concurrent calls coalesce onto a single in-flight sync.
+    ///
     /// - Throws: An `Exception` if contact permission has not been granted, or if fetching
     ///   users or contacts fails.
     func syncContactPairArchive() async throws(Exception) {
+        try await Self.coalescer { [weak self] () async throws(Exception) in
+            guard let self else {
+                throw Exception(
+                    "Service has been deallocated.",
+                    metadata: .init(sender: Self.self)
+                )
+            }
+
+            try await _syncContactPairArchive()
+        }
+    }
+
+    private func _syncContactPairArchive() async throws(Exception) {
         do {
             let users = try await userService.getAllUsers()
             let contactPairs = try await fetchContactPairs(

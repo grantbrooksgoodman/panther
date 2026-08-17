@@ -169,7 +169,7 @@ struct ConversationsPageReducer: Reducer {
         ///
         /// Memoized against ``conversationsChangeToken`` and the search query, so its expensive resolution runs once per change rather than on every view body evaluation.
         @MainActor
-        var conversations: [Conversation] {
+        var conversations: [Conversation] { // TODO: Audit the elegance of this.
             if ConversationsListMemo.token == conversationsChangeToken,
                ConversationsListMemo.searchQuery == searchQuery,
                let value = ConversationsListMemo.value {
