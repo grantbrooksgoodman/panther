@@ -65,8 +65,6 @@
 		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
 		A2C250CD2F959330002EEA53 /* SystemInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C250CC2F959330002EEA53 /* SystemInformation.swift */; };
 		A2C27C6F2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */; };
-		A6521EAECAEA4DF3AF0CF1C7 /* Duration+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8D47EEC9004E089F3ADA7A /* Duration+CommonNetworkingExtensions.swift */; };
-		C8361B0A64B84EE0A62397AC /* AppConstants+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C91B88E2775B440788FAFEEB /* AppConstants+CommonNetworkingExtensions.swift */; };
 		A2C7F4B92F55D3A100171C04 /* SchemaMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C7F4B82F55D3A100171C04 /* SchemaMigrationService.swift */; };
 		A2CF5E572F20774E0054830C /* SynchronizationRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */; };
 		A2D4F4492ED134E300642629 /* ContactSelectorPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */; };
@@ -92,6 +90,7 @@
 		A2EDDB8A2F370DB7006B1D10 /* Selection.caf in Resources */ = {isa = PBXBuildFile; fileRef = A2EDDB892F370DB7006B1D10 /* Selection.caf */; };
 		A2EF5B2D2FCF4E7E00900A66 /* Bundle+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2EF5B2C2FCF4E7E00900A66 /* Bundle+CommonExtensions.swift */; };
 		A2FE37622EA7354000931829 /* MessageRetranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2FE37612EA7354000931829 /* MessageRetranslationService.swift */; };
+		A6521EAECAEA4DF3AF0CF1C7 /* Duration+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8D47EEC9004E089F3ADA7A /* Duration+CommonNetworkingExtensions.swift */; };
 		B9002AD72DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9002AD62DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift */; };
 		B90071D02B7B348200BE8654 /* RecipientBarActionHandlerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */; };
 		B90071D22B7B41F300BE8654 /* RecipientBarTableViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071D12B7B41F300BE8654 /* RecipientBarTableViewService.swift */; };
@@ -762,6 +761,7 @@
 		C1AABB022F66000100000002 /* SelfWriteRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AABB012F66000100000001 /* SelfWriteRecord.swift */; };
 		C1AABB042F66000100000004 /* SelfWriteRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AABB032F66000100000003 /* SelfWriteRegistry.swift */; };
 		C1AABB062F66000100000006 /* PendingTranslationArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AABB052F66000100000005 /* PendingTranslationArchive.swift */; };
+		C8361B0A64B84EE0A62397AC /* AppConstants+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C91B88E2775B440788FAFEEB /* AppConstants+CommonNetworkingExtensions.swift */; };
 		FC0174F277EC2B91EC5821FA /* SessionStore+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A614D5D4A6F3B22606AB10D0 /* SessionStore+UserContentExtensions.swift */; };
 /* End PBXBuildFile section */
 
@@ -795,6 +795,7 @@
 		32B8D4F6D87373A21AC2D9B0 /* UICacheInvalidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICacheInvalidationService.swift; sourceTree = "<group>"; };
 		46D796340D4837FEB17610C1 /* MessageOutboxService+Retry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageOutboxService+Retry.swift"; sourceTree = "<group>"; };
 		520CADEF63996EC3E433927D /* SessionStoreChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreChange.swift; sourceTree = "<group>"; };
+		5A8D47EEC9004E089F3ADA7A /* Duration+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		8AF3FCA5F163DEEAAC9F1FF2 /* OutboxEntry+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OutboxEntry+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A2000000000000000000E502 /* SharedStates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedStates.swift; sourceTree = "<group>"; };
 		A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageHeaderReducer.swift; sourceTree = "<group>"; };
@@ -846,8 +847,6 @@
 		A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatNavigator.swift; sourceTree = "<group>"; };
 		A2C250CC2F959330002EEA53 /* SystemInformation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemInformation.swift; sourceTree = "<group>"; };
 		A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
-		5A8D47EEC9004E089F3ADA7A /* Duration+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
-		C91B88E2775B440788FAFEEB /* AppConstants+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		A2C7F4B82F55D3A100171C04 /* SchemaMigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaMigrationService.swift; sourceTree = "<group>"; };
 		A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizationRecord.swift; sourceTree = "<group>"; };
 		A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewStrings.swift; sourceTree = "<group>"; };
@@ -1618,6 +1617,7 @@
 		C1AABB012F66000100000001 /* SelfWriteRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfWriteRecord.swift; sourceTree = "<group>"; };
 		C1AABB032F66000100000003 /* SelfWriteRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfWriteRegistry.swift; sourceTree = "<group>"; };
 		C1AABB052F66000100000005 /* PendingTranslationArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTranslationArchive.swift; sourceTree = "<group>"; };
+		C91B88E2775B440788FAFEEB /* AppConstants+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2617,14 +2617,6 @@
 			path = Common;
 			sourceTree = "<group>";
 		};
-		E726A224D93D43558CB34A38 /* Constants */ = {
-			isa = PBXGroup;
-			children = (
-				C91B88E2775B440788FAFEEB /* AppConstants+CommonNetworkingExtensions.swift */,
-			);
-			path = Constants;
-			sourceTree = "<group>";
-		};
 		B9A233772CE30DC800DC3110 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -3586,6 +3578,14 @@
 				B9F5609A2B69A485009ABDD5 /* NotificationExtensionConstants.swift */,
 			);
 			path = NotificationExtension;
+			sourceTree = "<group>";
+		};
+		E726A224D93D43558CB34A38 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				C91B88E2775B440788FAFEEB /* AppConstants+CommonNetworkingExtensions.swift */,
+			);
+			path = Constants;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
