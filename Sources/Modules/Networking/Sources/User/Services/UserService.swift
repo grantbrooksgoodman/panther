@@ -36,6 +36,8 @@ final class UserService: @unchecked Sendable {
     /// The service that generates random user data for testing during development.
     let testing: UserTestingService
 
+    private static let coalescer = KeyedCoalescer<String, User>()
+
     @Cached(CacheKey.userDataSnapshots) private var cachedUserDataSnapshots: [UserDataSnapshot]?
 
     // MARK: - Init
@@ -168,6 +170,32 @@ final class UserService: @unchecked Sendable {
             ).appending(userInfo: userInfo)
         }
 
+        // Coalesce concurrent fetches of the same user so participants
+        // shared across conversations resolve – and upsert – only once.
+        return try await Self.coalescer(
+            "\(id)|\(bypassSnapshotCache)|\(String(describing: cacheStrategy))"
+        ) { [weak self] () async throws(Exception) -> User in
+            guard let self else {
+                throw Exception(
+                    "Service has been deallocated.",
+                    metadata: .init(sender: Self.self)
+                )
+            }
+
+            return try await fetchUser(
+                id: id,
+                bypassSnapshotCache: bypassSnapshotCache,
+                cacheStrategy: cacheStrategy
+            )
+        }
+    }
+
+    private func fetchUser(
+        id: String,
+        bypassSnapshotCache: Bool,
+        cacheStrategy: CacheStrategy?
+    ) async throws(Exception) -> User {
+        let userInfo = ["UserID": id]
         typealias Keys = User.SerializableKey
 
         if !bypassSnapshotCache,

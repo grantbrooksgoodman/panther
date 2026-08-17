@@ -117,10 +117,7 @@ final class InputBarActionHandlerService {
             do {
                 try services.audio.recording.cancelRecording()
             } catch {
-                guard !error.isEqual(toAny: [
-                    .couldntRemoveInput,
-                    .noAudioRecorderToStop,
-                ]) else { return }
+                guard !error.isEqual(to: .noAudioRecorderToStop) else { return }
                 throw error
             }
 
@@ -129,11 +126,15 @@ final class InputBarActionHandlerService {
         case .startRecording:
             guard !services.audio.recording.isInOrWillTransitionToRecordingState else { return }
             avSpeechSynthesizer.stopSpeakingIfNeeded()
-
             chatPageViewService.audioMessagePlayback?.stopPlayback()
+
+            // Plays before activating the recording audio session,
+            // which suppresses the Taptic Engine; the show-recording-UI
+            // animation gives the impact time to play in full.
+            services.haptics.generateFeedback(.medium)
+
             await chatPageViewService.recordingUI?.showRecordingUI()
             chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(false)
-            services.haptics.generateFeedback(.medium)
 
             if let languageCode = clientSession.entity.user.currentUser?.languageCode {
                 liveTranscriptionSession = services.audio.transcription.startLiveSession(
@@ -172,10 +173,7 @@ final class InputBarActionHandlerService {
             } catch {
                 liveTranscriptionSession?.cancel()
                 liveTranscriptionSession = nil
-                guard !error.isEqual(toAny: [
-                    .noAudioRecorderToStop,
-                    .transcribeNoSuchFileOrDirectory,
-                ]) else { return }
+                guard !error.isEqual(to: .noAudioRecorderToStop) else { return }
                 playRecordingCancellationVibration()
                 throw error
             }

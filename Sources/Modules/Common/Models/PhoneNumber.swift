@@ -279,6 +279,7 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         forRegion regionCode: String? = nil
     ) -> String {
         @Dependency(\.commonServices) var services: CommonServices
+        @Dependency(\.phoneNumberKit) var phoneNumberKit: PhoneNumberKit.PhoneNumberUtility
 
         let regionCode = regionCode ?? self.regionCode
 
@@ -297,6 +298,7 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         guard fullFormatAttempt == failsafeFormat(partialNumberString) else {
             guard fullFormatAttempt.hasPrefix("+\(callingCode)") else {
                 let partialFormatter = PartialFormatter(
+                    utility: phoneNumberKit,
                     defaultRegion: regionCode.uppercased(),
                     withPrefix: false
                 )
@@ -309,6 +311,7 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         }
 
         let partialFormatter = PartialFormatter(
+            utility: phoneNumberKit,
             defaultRegion: regionCode.uppercased(),
             withPrefix: false
         )

@@ -168,6 +168,7 @@ final class MenuView: UIView {
             if highlightedElementIndex != nil,
                newHighlightedIndex != nil {
                 hapticsService.generateFeedback(.selection)
+                hapticsService.prepare(.selection)
             }
 
             highlightedElementIndex = newHighlightedIndex

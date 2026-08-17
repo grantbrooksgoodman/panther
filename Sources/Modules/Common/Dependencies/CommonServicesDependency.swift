@@ -16,6 +16,7 @@ enum CommonServicesDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> CommonServices {
         @MainActorIsolated var attributeDetectionService = AttributeDetectionService.shared
         @MainActorIsolated var contactService = ContactService(contactPairArchive: .init())
+        @MainActorIsolated var hapticsService = HapticsService.shared
         @MainActorIsolated var inviteService = InviteService()
         @MainActorIsolated var messageRecipientConsentService = MessageRecipientConsentService()
         @MainActorIsolated var messageRetranslationService = MessageRetranslationService()
@@ -39,7 +40,7 @@ enum CommonServicesDependency: DependencyKey {
                 media: .init()
             ),
             documentExport: .init(),
-            haptics: .init(),
+            haptics: hapticsService,
             invite: inviteService,
             messageRecipientConsent: messageRecipientConsentService,
             messageRetranslation: messageRetranslationService,

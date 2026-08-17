@@ -108,7 +108,10 @@ final class MessageDeliveryService {
     /// Sends to an existing conversation are staged in the outbox and marked failed if
     /// delivery fails; when the send creates a new conversation, a mock message is
     /// optimistically inserted once the message's transcription succeeds, and delivery
-    /// failures are thrown instead. If no recipients are resolved, this method does nothing.
+    /// failures are thrown instead. A send that fails because the recording could not be
+    /// captured or transcribed is removed from the outbox and thrown rather than marked
+    /// failed, since retrying it cannot succeed. If no recipients are resolved, this method
+    /// does nothing.
     ///
     /// - Parameters:
     ///   - inputFile: The audio file to send.
@@ -116,7 +119,8 @@ final class MessageDeliveryService {
     ///     default is `nil`.
     ///
     /// - Throws: An `Exception` if delivery fails for a message that was not staged in the
-    ///   outbox.
+    ///   outbox, or for a staged message whose recording could not be captured or
+    ///   transcribed.
     func sendAudioMessage(
         _ inputFile: AudioFile,
         transcription: String? = nil
@@ -206,10 +210,15 @@ final class MessageDeliveryService {
             services.analytics.logEvent(.sendAudioMessage)
             setCurrentConversationIfApplicable(conversation)
         } catch {
-            if let outboxEntryID {
+            if let outboxEntryID,
+               !error.isEqual(toAny: AppException.audioRecordingFailures) {
                 clientSession.outbox.markFailed(id: outboxEntryID)
                 Logger.log(error)
             } else {
+                if let outboxEntryID {
+                    clientSession.outbox.remove(id: outboxEntryID)
+                }
+
                 Task { @MainActor in
                     @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
                     recipientBarLayoutService?.setIsUserInteractionEnabled(true)

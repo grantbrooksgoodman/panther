@@ -166,8 +166,25 @@ struct ConversationsPageReducer: Reducer {
         /// Falls back to the current chat session's conversation
         /// during the brief window between local conversation
         /// creation and server-side `conversationIDs` sync.
+        ///
+        /// Memoized against ``conversationsChangeToken`` and the search query, so its expensive resolution runs once per change rather than on every view body evaluation.
         @MainActor
         var conversations: [Conversation] {
+            if ConversationsListMemo.token == conversationsChangeToken,
+               ConversationsListMemo.searchQuery == searchQuery,
+               let value = ConversationsListMemo.value {
+                return value
+            }
+
+            let value = resolvedConversations
+            ConversationsListMemo.token = conversationsChangeToken
+            ConversationsListMemo.searchQuery = searchQuery
+            ConversationsListMemo.value = value
+            return value
+        }
+
+        @MainActor
+        private var resolvedConversations: [Conversation] {
             @Dependency(\.clientSession.entity) var entitySession: EntitySession
 
             let allConversations = (
@@ -253,6 +270,11 @@ struct ConversationsPageReducer: Reducer {
                 state.didAppear = true
                 return .none
             }
+
+            // Session store changes are skipped while a
+            // pushed page covers the list, so refresh the
+            // memo on return.
+            state.conversationsChangeToken = UUID()
 
             // Backstop for cell reloads lost while the list was covered
             // by a pushed page; cells re-derive their view data upon
@@ -366,4 +388,13 @@ private extension ConversationsPageReducer {
             cancelInFlight: true
         )
     }
+}
+
+/// In-memory memo for the resolved conversation list, keyed by the page's change token and
+/// search query. One entry suffices: the home page is the sole resolver at any time.
+@MainActor
+private enum ConversationsListMemo {
+    static var searchQuery: String?
+    static var token: UUID?
+    static var value: [Conversation]?
 }

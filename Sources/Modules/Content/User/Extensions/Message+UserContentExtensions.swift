@@ -198,6 +198,10 @@ extension Message {
             languageCode: translation.languagePair.from
         ).wrappedValue
 
+        // A non-matching message can never be a consent request, so
+        // short-circuit before resolving the current conversation's
+        // messages – an expensive lookup to run per message.
+        guard inputMatches else { return false }
         guard let currentConversation else { return inputMatches }
         let firstMessageID = currentConversation
             .messages?

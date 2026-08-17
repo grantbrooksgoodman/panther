@@ -254,12 +254,7 @@ final class InputBarGestureRecognizerService {
     // MARK: - Auxiliary
 
     private func showError(_ exception: Exception) {
-        guard exception.isEqual(toAny: [
-            .avFoundationError,
-            .kAFAssistantError,
-            .noSpeechDetected,
-            .transcribeNoSuchFileOrDirectory,
-        ]) else {
+        guard exception.isEqual(toAny: AppException.audioRecordingFailures) else {
             return Logger.log(
                 exception,
                 with: .toast

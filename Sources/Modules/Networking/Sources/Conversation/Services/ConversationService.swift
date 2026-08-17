@@ -29,6 +29,8 @@ struct ConversationService {
     /// The service that stages sample conversations during development.
     let staging: ConversationStagingService
 
+    private static let coalescer = KeyedCoalescer<String, Conversation>()
+
     // MARK: - Init
 
     /// Creates a conversation service with the given staging service.
@@ -189,6 +191,18 @@ struct ConversationService {
                 metadata: .init(sender: self)
             ).appending(userInfo: userInfo)
         }
+
+        // Coalesce concurrent fetches of the same conversation so it is
+        // fetched and decoded only once.
+        return try await Self.coalescer(idKey) { () async throws(Exception) -> Conversation in
+            try await fetchConversation(idKey: idKey)
+        }
+    }
+
+    private func fetchConversation(
+        idKey: String
+    ) async throws(Exception) -> Conversation {
+        let userInfo = ["ConversationIDKey": idKey]
 
         var data: [String: Any]
         do {

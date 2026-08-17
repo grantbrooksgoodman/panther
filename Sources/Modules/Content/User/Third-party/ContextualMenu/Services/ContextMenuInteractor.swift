@@ -249,6 +249,7 @@ final class ContextMenuInteractor {
 
         playSelectionSound()
         hapticsService.generateFeedback(.heavy)
+        hapticsService.prepare(.selection)
 
         window.makeKeyAndVisible()
         contextMenuController.appearAnimation()

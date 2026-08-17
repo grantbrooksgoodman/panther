@@ -104,12 +104,19 @@ extension AppException {
 
     // MARK: - Properties
 
+    static let audioRecordingFailures: [AppException] = [
+        .failedToInitializeRecognizer,
+        .kAFAssistantError,
+        .noSpeechDetected,
+    ]
+
     static let cannotSendTextMessages: AppException = .init("56F0")
     static let contactAccessDenied: AppException = .init("C8DC")
     static let currentUserIDNotSet: AppException = .init("EA90")
     static let emptyContactList: AppException = .init("A431")
     static let exhaustedAvailablePlatforms: AppException = .init("C526")
     static let failedToGenerateMediaFile: AppException = .init("D648")
+    static let failedToInitializeRecognizer: AppException = .init("9E79")
     static let kAFAssistantError: AppException = .init("F59D")
     static let mismatchedHashAndCallingCode: AppException = .init("D339")
     static let mistranslationReported: AppException = .init("CA45")
@@ -128,10 +135,4 @@ extension AppException {
     static let translationDerivationFailed: AppException = .init("43B4")
     static let translationPlatformNotSupported: AppException = .init("B04E")
     static let updateRequired: AppException = .init("B455")
-
-    // TODO: All of the below need regeneration.
-
-    static let avFoundationError: AppException = .init("EA73")
-    static let couldntRemoveInput: AppException = .init("F9A1")
-    static let transcribeNoSuchFileOrDirectory: AppException = .init("5BBC")
 }

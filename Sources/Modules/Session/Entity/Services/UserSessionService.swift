@@ -488,12 +488,24 @@ struct UserSessionService {
               let conversations = user.conversations else { return }
 
         guard !Task.isCancelled else { return }
-        try await conversations
-            .visibleForCurrentUser
-            .forEachConcurrently { conversation throws(Exception) in
-                guard !Task.isCancelled else { return }
-                try await conversation.resolveUsers()
-            }
+
+        // Fetch each missing participant once across all conversations,
+        // rather than re-fetching a conversation's full roster – shared,
+        // already-resolved users included – whenever one participant is absent.
+        let missingUserIDs = Set(
+            conversations
+                .visibleForCurrentUser
+                .flatMap { $0.participants.map(\.userID) }
+        )
+        .subtracting([User.currentUserID].compactMap(\.self))
+        .filter { clientSession.store.users[$0] == nil }
+
+        guard !Task.isCancelled,
+              !missingUserIDs.isEmpty else { return }
+
+        _ = try await networking.userService.getUsers(
+            ids: Array(missingUserIDs)
+        )
     }
 
     private func signOutToPreserveSingleActiveUser() {

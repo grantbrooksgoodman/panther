@@ -6,7 +6,7 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable file_length
+// swiftlint:disable file_length type_body_length
 
 /* Native */
 import Foundation
@@ -35,6 +35,8 @@ struct MessageService {
 
     /// The service that uploads, downloads, and deletes media message content.
     let media: MediaMessageService
+
+    private static let coalescer = KeyedCoalescer<String, Message>()
 
     // MARK: - Init
 
@@ -220,6 +222,18 @@ struct MessageService {
                 metadata: .init(sender: self)
             ).appending(userInfo: userInfo)
         }
+
+        // Coalesce concurrent fetches of the same message so it is
+        // fetched and decoded only once.
+        return try await Self.coalescer(id) { () async throws(Exception) -> Message in
+            try await fetchMessage(id: id)
+        }
+    }
+
+    private func fetchMessage(
+        id: String
+    ) async throws(Exception) -> Message {
+        let userInfo = ["MessageID": id]
 
         var data: [String: Any]
         do {
@@ -432,4 +446,4 @@ private extension Message {
     }
 }
 
-// swiftlint:enable file_length
+// swiftlint:enable file_length type_body_length

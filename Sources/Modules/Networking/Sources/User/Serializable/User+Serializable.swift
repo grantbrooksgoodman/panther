@@ -111,10 +111,12 @@ extension User: Serializable {
 
         let phoneNumber = try await PhoneNumber(from: encodedPhoneNumber)
 
+        // Dictionaries carry no order; sort map-derived arrays so
+        // re-decodes of identical data compare equal.
         let blockedUserIDs: [String] = if let map = data[
             Keys.blockedUserIDs.rawValue
         ] as? [String: Any] {
-            Array(map.keys)
+            map.keys.sorted()
         } else {
             []
         }
@@ -122,12 +124,14 @@ extension User: Serializable {
         let conversationIDs: [ConversationID] = if let map = data[
             Keys.conversationIDs.rawValue
         ] as? [String: String] {
-            map.map {
-                ConversationID(
-                    key: $0.key,
-                    hash: $0.value
-                )
-            }
+            map
+                .map {
+                    ConversationID(
+                        key: $0.key,
+                        hash: $0.value
+                    )
+                }
+                .sorted { $0.key < $1.key }
         } else {
             []
         }
@@ -135,7 +139,7 @@ extension User: Serializable {
         let pushTokens: [String] = if let map = data[
             Keys.pushTokens.rawValue
         ] as? [String: Any] {
-            Array(map.keys)
+            map.keys.sorted()
         } else {
             []
         }

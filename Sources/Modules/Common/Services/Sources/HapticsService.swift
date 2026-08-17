@@ -36,6 +36,21 @@ struct HapticsService {
         case soft
     }
 
+    // MARK: - Properties
+
+    static let shared = HapticsService()
+
+    private let heavyImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
+    private let lightImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+    private let mediumImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+    private let rigidImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .rigid)
+    private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
+    private let softImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .soft)
+
+    // MARK: - Init
+
+    private init() {}
+
     // MARK: - Methods
 
     /// Plays haptic feedback of the given style.
@@ -43,12 +58,26 @@ struct HapticsService {
     /// - Parameter style: The kind of haptic feedback to play.
     func generateFeedback(_ style: HapticFeedbackStyle) {
         switch style {
-        case .heavy: UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
-        case .light: UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        case .medium: UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        case .rigid: UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
-        case .selection: UISelectionFeedbackGenerator().selectionChanged()
-        case .soft: UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        case .heavy: heavyImpactFeedbackGenerator.impactOccurred()
+        case .light: lightImpactFeedbackGenerator.impactOccurred()
+        case .medium: mediumImpactFeedbackGenerator.impactOccurred()
+        case .rigid: rigidImpactFeedbackGenerator.impactOccurred()
+        case .selection: selectionFeedbackGenerator.selectionChanged()
+        case .soft: softImpactFeedbackGenerator.impactOccurred()
+        }
+    }
+
+    /// Prepares the given style generator to receive events.
+    ///
+    /// - Parameter generatorStyle: The style of generator to prepare.
+    func prepare(_ generatorStyle: HapticFeedbackStyle) {
+        switch generatorStyle {
+        case .heavy: heavyImpactFeedbackGenerator.prepare()
+        case .light: lightImpactFeedbackGenerator.prepare()
+        case .medium: mediumImpactFeedbackGenerator.prepare()
+        case .rigid: rigidImpactFeedbackGenerator.prepare()
+        case .selection: selectionFeedbackGenerator.prepare()
+        case .soft: softImpactFeedbackGenerator.prepare()
         }
     }
 }
