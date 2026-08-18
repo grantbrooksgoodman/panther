@@ -42,6 +42,7 @@ final class InputBarService {
 
     // MARK: - Dependencies
 
+    @SharedEvent(\.audioMessageCapabilityInventoryLoaded) private var audioMessageCapabilityInventoryLoaded
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
@@ -65,6 +66,7 @@ final class InputBarService {
     private let viewController: ChatPageViewController
 
     @Cached(CacheKey.shouldShowRecordButton) private var cachedShouldShowRecordButton: (encodedConversationID: String, Bool)?
+    private var inventoryObservationTask: Task<Void, Never>?
 
     // MARK: - Computed Properties
 
@@ -112,7 +114,7 @@ final class InputBarService {
         getShouldShowRecordButton()
     }
 
-    // MARK: - Init
+    // MARK: - Object Lifecycle
 
     /// Creates the service, binding it to the given chat page view controller.
     ///
@@ -120,6 +122,22 @@ final class InputBarService {
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
         actionHandler = .init(viewController)
+
+        // The record button depends on speech-capability inventories that load asynchronously after
+        // launch; force a full reconfiguration – including gesture wiring – once they arrive so a
+        // chat page opened pre-load updates itself without a reload.
+        let inventoryLoadedEvents = audioMessageCapabilityInventoryLoaded.events
+        inventoryObservationTask = Task { [weak self] in
+            for await _ in inventoryLoadedEvents {
+                guard let self else { return }
+                cachedShouldShowRecordButton = nil
+                configureInputBar(forceUpdate: true)
+            }
+        }
+    }
+
+    deinit {
+        inventoryObservationTask?.cancel()
     }
 
     // MARK: - Configure Input Bar

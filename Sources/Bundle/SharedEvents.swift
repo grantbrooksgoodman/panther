@@ -38,6 +38,7 @@ import AppSubsystem
 /// Subscribe view models with ``ViewModelOf/observing(_:_:)``, or iterate
 /// the ``EventStream/events`` stream from services.
 extension SharedEvents {
+    var audioMessageCapabilityInventoryLoaded: EventStream<Void> { event() }
     var audioMessageTranscriptionSucceeded: EventStream<AudioMessageTranscriptionData> { event() }
     var chatInfoPageLoadingStateUpdated: EventStream<Void> { event() }
     var conversationsPageReappeared: EventStream<Void> { event() }

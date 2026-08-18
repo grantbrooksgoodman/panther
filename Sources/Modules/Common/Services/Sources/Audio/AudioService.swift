@@ -9,6 +9,7 @@
 /* Native */
 import AVFAudio
 import Foundation
+import UIKit
 
 /* Proprietary */
 import AppSubsystem
@@ -58,6 +59,8 @@ struct AudioService {
     /// that audio messages are unsupported.
     @Persistent(.acknowledgedAudioMessagesUnsupported) var acknowledgedAudioMessagesUnsupported: Bool?
 
+    private static let sessionConfigurationState = SessionConfigurationState()
+
     // MARK: - Init
 
     /// Creates an audio service with the given sub-services.
@@ -89,7 +92,14 @@ struct AudioService {
     /// before starting playback or recording.
     ///
     /// - Throws: An `Exception` if the session cannot be configured or activated.
+    ///
+    /// - Note: Configuration and activation are each a blocking round-trip to the audio server, so
+    ///   this method skips them while the session is already configured and active. An interruption,
+    ///   route change, media-services reset, or backgrounding invalidates that state and
+    ///   reconfigures on the next call.
     func activateAudioSession() throws(Exception) {
+        guard !Self.sessionConfigurationState.isConfigured else { return }
+
         do {
             try avAudioSession.setCategory(
                 .playAndRecord,
@@ -102,11 +112,67 @@ struct AudioService {
             )
 
             try avAudioSession.setActive(true)
+            Self.sessionConfigurationState.markConfigured()
         } catch {
             throw Exception(
                 error,
                 metadata: .init(sender: self)
             )
         }
+    }
+
+    /// Invalidates the cached audio-session configuration.
+    ///
+    /// Call this when an event may have deactivated or reconfigured the shared session – such as a
+    /// media-services reset – so the next call to ``activateAudioSession()`` reconfigures it from
+    /// scratch.
+    func invalidateSessionConfiguration() {
+        Self.sessionConfigurationState.invalidate()
+    }
+}
+
+private final class SessionConfigurationState: @unchecked Sendable {
+    // MARK: - Dependencies
+
+    @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
+
+    // MARK: - Properties
+
+    @LockIsolated private var didConfigure = false
+
+    // MARK: - Computed Properties
+
+    var isConfigured: Bool {
+        didConfigure
+    }
+
+    // MARK: - Init
+
+    init() {
+        // The system may deactivate or reroute the shared session on any of these events – silently,
+        // in the backgrounded case – so drop the cached configuration and let the next activation
+        // reconfigure from scratch.
+        for name in [
+            AVAudioSession.interruptionNotification,
+            AVAudioSession.routeChangeNotification,
+            UIApplication.didEnterBackgroundNotification,
+        ] {
+            notificationCenter.addObserver(
+                self,
+                name: name
+            ) { @Sendable [weak self] _ in
+                self?.invalidate()
+            }
+        }
+    }
+
+    // MARK: - Methods
+
+    func invalidate() {
+        didConfigure = false
+    }
+
+    func markConfigured() {
+        didConfigure = true
     }
 }

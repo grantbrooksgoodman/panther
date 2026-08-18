@@ -16,8 +16,10 @@ import AppSubsystem
 /// Use ``RecordingService`` to record audio from the device microphone.
 ///
 /// The service records M4A audio to a fixed file in the app's Documents directory; starting a
-/// new recording overwrites the previous one. When an audio session interruption begins, any
-/// in-progress recording stops automatically.
+/// new recording overwrites the previous one. When an audio session interruption begins or the
+/// audio engine's configuration changes, any in-progress recording stops and is finalized
+/// automatically; when the system's media services are reset, any in-progress recording is
+/// discarded.
 @MainActor
 final class RecordingService: NSObject {
     // MARK: - Type Aliases
@@ -42,6 +44,7 @@ final class RecordingService: NSObject {
     private let outputFile = LockIsolated<AVAudioFile?>(nil)
 
     private var audioEngine: AVAudioEngine?
+    private var isObservingSessionEvents = false
 
     // MARK: - Computed Properties
 
@@ -53,13 +56,6 @@ final class RecordingService: NSObject {
     // MARK: - Init
 
     override nonisolated init() {}
-
-    // MARK: - Object Lifecycle
-
-    @MainActor
-    deinit {
-        stopObservingInterruptions()
-    }
 
     // MARK: - Recording
 
@@ -95,8 +91,8 @@ final class RecordingService: NSObject {
     /// - Parameter bufferSink: A closure that receives each captured audio buffer as it is
     ///   written, suitable for feeding a ``LiveTranscriptionSession``. The default is `nil`.
     ///
-    /// - Throws: An `Exception` if the audio session cannot be activated, or if recording fails
-    ///   to start.
+    /// - Throws: An `Exception` if the audio session cannot be activated, if the microphone is
+    ///   unavailable, or if recording fails to start.
     func startRecording(
         bufferSink: (@Sendable (AVAudioPCMBuffer) -> Void)? = nil
     ) throws(Exception) {
@@ -107,6 +103,18 @@ final class RecordingService: NSObject {
 
         let audioEngine = AVAudioEngine()
         let inputFormat = audioEngine.inputNode.outputFormat(forBus: 0)
+
+        // A 0 Hz / 0-channel format means the microphone is
+        // unavailable (permission revoked, another app holds it, or media
+        // services just reset); installing a tap with it raises an
+        // uncatchable Objective-C exception.
+        guard inputFormat.sampleRate > 0,
+              inputFormat.channelCount > 0 else {
+            throw Exception(
+                "The microphone is unavailable.",
+                metadata: .init(sender: self)
+            )
+        }
 
         do {
             outputFile.wrappedValue = try AVAudioFile(
@@ -165,7 +173,7 @@ final class RecordingService: NSObject {
             )
         }
 
-        startObservingInterruptions()
+        startObservingSessionEventsIfNeeded()
     }
 
     /// Stops the current recording.
@@ -177,7 +185,6 @@ final class RecordingService: NSObject {
     /// - Throws: An `Exception` if no recording is in progress.
     func stopRecording() throws(Exception) -> URL {
         willStartRecording = false
-        stopObservingInterruptions()
 
         guard let audioEngine,
               let fileURL = outputFile.wrappedValue?.url else {
@@ -197,9 +204,33 @@ final class RecordingService: NSObject {
         return fileURL
     }
 
-    // MARK: - Interruptions
+    // MARK: - Session Events
 
-    private func startObservingInterruptions() {
+    private func handleMediaServicesReset() {
+        // The audio server crashed; every engine and player in
+        // the process is invalid. Tear down without touching the
+        // dead engine, discard playback, and force the session to reconfigure.
+        willStartRecording = false
+
+        if audioEngine?.isRunning == true {
+            audioEngine?.inputNode.removeTap(onBus: 0)
+            audioEngine?.stop()
+        }
+
+        audioEngine = nil
+        outputFile.wrappedValue = nil
+
+        audioService.playback.stopPlaying()
+        audioService.invalidateSessionConfiguration()
+    }
+
+    private func startObservingSessionEventsIfNeeded() {
+        // Closure-based observers cannot be unregistered individually,
+        // so register once for the service's lifetime and let each
+        // handler check the current recording state.
+        guard !isObservingSessionEvents else { return }
+        isObservingSessionEvents = true
+
         notificationCenter.addObserver(
             self,
             name: AVAudioSession.interruptionNotification,
@@ -207,28 +238,43 @@ final class RecordingService: NSObject {
         ) { @Sendable notification in
             guard let userInfo = notification.userInfo,
                   let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-                  let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
+                  let type = AVAudioSession.InterruptionType(rawValue: typeValue),
+                  type == .began else { return }
 
-            switch type {
-            case .began:
-                Task { @MainActor in
-                    do throws(Exception) {
-                        _ = try self.stopRecording()
-                    } catch {
-                        Logger.log(error)
-                    }
-                }
-
-            default: ()
+            Task { @MainActor in
+                guard self.audioEngine != nil else { return }
+                self.stopRecordingGracefully()
             }
+        }
+
+        notificationCenter.addObserver(
+            self,
+            name: .AVAudioEngineConfigurationChange
+        ) { @Sendable notification in
+            // The engine stopped and the tap's captured format is stale; finalize what was recorded.
+            let changedEngineID = (notification.object as? AVAudioEngine).map(ObjectIdentifier.init)
+            Task { @MainActor in
+                guard let changedEngineID,
+                      let audioEngine = self.audioEngine,
+                      ObjectIdentifier(audioEngine) == changedEngineID else { return }
+                self.stopRecordingGracefully()
+            }
+        }
+
+        notificationCenter.addObserver(
+            self,
+            name: AVAudioSession.mediaServicesWereResetNotification,
+            object: avAudioSession
+        ) { @Sendable _ in
+            Task { @MainActor in self.handleMediaServicesReset() }
         }
     }
 
-    private func stopObservingInterruptions() {
-        notificationCenter.removeObserver(
-            self,
-            name: AVAudioSession.interruptionNotification,
-            object: avAudioSession
-        )
+    private func stopRecordingGracefully() {
+        do throws(Exception) {
+            _ = try stopRecording()
+        } catch {
+            Logger.log(error)
+        }
     }
 }

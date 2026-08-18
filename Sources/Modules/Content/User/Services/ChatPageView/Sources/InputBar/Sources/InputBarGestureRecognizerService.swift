@@ -63,6 +63,9 @@ final class InputBarGestureRecognizerService {
     /// transcription permissions, a tap instead explains the limitation or requests the
     /// permissions. Otherwise, a long press records and a tap shows recording instructions.
     ///
+    /// While the transcription support inventory is still loading, audio-message support cannot
+    /// yet be determined, so no recognizers are installed.
+    ///
     /// This method has no effect while the send button is not configured as a record button.
     func configureGestureRecognizers() {
         removeInputBarGestureRecognizers()
@@ -71,6 +74,11 @@ final class InputBarGestureRecognizerService {
               inputBar.sendButton.isRecordButton else { return }
 
         guard currentUser.canSendAudioMessages else {
+            // A provisional verdict (inventory still loading) must not wire
+            // the unsupported-alert tap, whose acknowledgement permanently
+            // hides the record button; the inventory-loaded event re-runs
+            // configuration once the verdict is definitive.
+            guard services.audio.transcription.isSupportInventoryLoaded else { return }
             inputBar.sendButton.addOrEnable(UITapGestureRecognizer(
                 target: self,
                 action: #selector(presentAudioMessagesUnsupportedAlert)

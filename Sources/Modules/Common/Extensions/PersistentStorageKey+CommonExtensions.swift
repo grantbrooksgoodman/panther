@@ -28,6 +28,7 @@ extension PersistentStorageKey {
     /// The persistent storage keys scoped to ``AudioService``.
     enum AudioServiceStorageKey: String {
         case acknowledgedAudioMessagesUnsupported
+        case ttsSynthesisInFlight
     }
 
     /// The persistent storage keys scoped to ``BreadcrumbsCaptureService``.

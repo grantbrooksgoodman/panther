@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import AVFAudio
 import Foundation
@@ -23,6 +25,17 @@ struct TranscriptionService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.permission) private var permissionService: PermissionService
+
+    // MARK: - Properties
+
+    /// A Boolean value that indicates whether the supported-locale inventory has loaded.
+    ///
+    /// While the inventory is loading, ``isTranscriptionSupported(for:)`` returns `false` for
+    /// every language code; use this value to distinguish that provisional verdict from a
+    /// definitive one.
+    var isSupportInventoryLoaded: Bool {
+        TranscriptionSupportInventory.shared.loadedLocales != nil
+    }
 
     // MARK: - Transcribe Audio File
 
@@ -158,13 +171,20 @@ struct TranscriptionService {
     ///
     /// - Returns: `true` if transcription is supported for the given language code; otherwise,
     ///   `false`.
+    ///
+    /// - Note: The check consults the locale inventory without blocking. While the inventory is
+    ///   still loading, this method starts the load and returns `false` without caching a result.
     func isTranscriptionSupported(for languageCode: String) -> Bool {
         if let cachedValue = _TranscriptionServiceCache.cachedTranscriptionSupportForLanguageCodes?[languageCode] {
             return cachedValue
         }
 
-        let isTranscriptionSupported = SFSpeechRecognizer
-            .supportedLocales()
+        guard let locales = TranscriptionSupportInventory.shared.loadedLocales else {
+            TranscriptionSupportInventory.shared.load()
+            return false
+        }
+
+        let isTranscriptionSupported = locales
             .compactMap(\.language.languageCode?.identifier)
             .contains(where: { $0.hasPrefix(languageCode.lowercased()) })
 
@@ -173,6 +193,17 @@ struct TranscriptionService {
         cachedTranscriptionSupportForLanguageCodes[languageCode] = isTranscriptionSupported
         _TranscriptionServiceCache.cachedTranscriptionSupportForLanguageCodes = cachedTranscriptionSupportForLanguageCodes
         return isTranscriptionSupported
+    }
+
+    // MARK: - Prewarm
+
+    /// Begins loading the supported-locale inventory in the background if it has not already
+    /// started.
+    ///
+    /// Call this once at app startup so the first transcription or support query need not wait on
+    /// the speech daemon. The inventory loads at most once; subsequent calls have no effect.
+    func prewarmSupportInventory() {
+        TranscriptionSupportInventory.shared.load()
     }
 }
 
@@ -307,11 +338,75 @@ final class LiveTranscriptionSession: @unchecked Sendable {
     }
 }
 
+private final class TranscriptionSupportInventory: @unchecked Sendable {
+    // MARK: - Types
+
+    private enum LoadState {
+        case loaded(Set<Locale>)
+        case loading
+        case notLoaded
+    }
+
+    // MARK: - Dependencies
+
+    @SharedEvent(\.audioMessageCapabilityInventoryLoaded) private var audioMessageCapabilityInventoryLoaded
+
+    // MARK: - Properties
+
+    static let shared = TranscriptionSupportInventory()
+
+    private static let loadQueue = DispatchQueue(
+        label: "us.neotechnica.panther.transcription-support-inventory",
+        qos: .userInitiated
+    )
+
+    @LockIsolated private var state: LoadState = .notLoaded
+
+    // MARK: - Computed Properties
+
+    var loadedLocales: Set<Locale>? {
+        guard case let .loaded(locales) = state else { return nil }
+        return locales
+    }
+
+    // MARK: - Methods
+
+    func invalidate() {
+        // Reload only from a loaded state;
+        // a load already in flight will publish fresh results.
+        let shouldReload: Bool = $state.withValue { state in
+            guard case .loaded = state else { return false }
+            state = .notLoaded
+            return true
+        }
+
+        guard shouldReload else { return }
+        load()
+    }
+
+    func load() {
+        let shouldLoad: Bool = $state.withValue { state in
+            guard case .notLoaded = state else { return false }
+            state = .loading
+            return true
+        }
+
+        guard shouldLoad else { return }
+
+        Self.loadQueue.async {
+            let locales = SFSpeechRecognizer.supportedLocales()
+            self.$state.withValue { $0 = .loaded(locales) }
+            self.audioMessageCapabilityInventoryLoaded.send()
+        }
+    }
+}
+
 /// A namespace for managing the in-memory transcription language support cache.
 enum TranscriptionServiceCache {
-    /// Removes every cached language support value.
+    /// Removes every cached language support value and reloads the supported-locale inventory.
     static func clearCache() {
         _TranscriptionServiceCache.clearCache()
+        TranscriptionSupportInventory.shared.invalidate()
     }
 }
 
@@ -334,3 +429,5 @@ private enum _TranscriptionServiceCache {
         cachedTranscriptionSupportForLanguageCodes = nil
     }
 }
+
+// swiftlint:enable file_length

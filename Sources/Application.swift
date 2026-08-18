@@ -7,7 +7,6 @@
 //
 
 /* Native */
-import AVFAudio
 import Foundation
 import UIKit
 
@@ -131,10 +130,6 @@ enum Application {
         networking.database.prewarm()
         networking.storage.prewarm()
 
-        // The first voice catalog fetch is a seconds-slow XPC call that is unsafe
-        // under concurrent first access; prewarming keeps it off the send path.
-        Task.background { _ = AVSpeechSynthesisVoice.speechVoices() }
-
         @Persistent(.hasRunOnce) var hasRunOnce: Bool?
         if UIDevice.isSimulator,
            hasRunOnce == nil {
@@ -151,6 +146,24 @@ enum Application {
             hasRunOnce = true
         } else if buildMilestone == .generalRelease {
             Networking.config.setEnvironment(.production)
+        }
+
+        /* MARK: Text-to-Speech Setup */
+
+        // The first speech-daemon query is a seconds-slow XPC call
+        // that must never run on the maim thread or the cooperative pool;
+        // prewarm both inventories onto their own background queues so the
+        // send and view-construction paths never block on the daemon.
+        @Dependency(\.commonServices.audio) var audioService: AudioService
+        audioService.textToSpeech.prewarmVoiceInventory()
+        audioService.transcription.prewarmSupportInventory()
+
+        // A set in-flight flag means the previous process terminated
+        // mid-synthesis; the speech daemon may be wedged, so degrade
+        // synthesis to serial traffic for the first window.
+        @Persistent(.ttsSynthesisInFlight) var ttsSynthesisInFlight: Bool?
+        if ttsSynthesisInFlight == true {
+            Task { await audioService.textToSpeech.degradeSynthesisAfterUncleanLaunch() }
         }
 
         /* MARK: Dependency Prewarm */

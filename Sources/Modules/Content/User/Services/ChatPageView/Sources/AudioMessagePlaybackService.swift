@@ -65,7 +65,13 @@ final class AudioMessagePlaybackService {
     @MainActor
     deinit {
         stopPlaybackTimer()
-        // NIT: Best to remove observers, but selector-based observers should be removed by the system anyway.
+        notificationCenter.removeObserver(
+            self,
+            name: .init(rawValue: AppConstants.Strings.AudioFile.setDurationNotificationName),
+            object: nil
+        )
+
+        cellsAwaitingDurationLabelSet.removeAll()
     }
 
     // MARK: - Did Tap Play Button
@@ -189,8 +195,9 @@ final class AudioMessagePlaybackService {
             name: .init(rawValue: AppConstants.Strings.AudioFile.setDurationNotificationName),
             object: audioFile,
             removeAfterFirstPost: true
-        ) { notification in
+        ) { [weak self] notification in
             Task { @MainActor in
+                guard let self else { return }
                 let collectionView = self.viewController.messagesCollectionView
 
                 guard let messageIndex = self.viewController.displayedMessages.firstIndex(
@@ -279,11 +286,12 @@ final class AudioMessagePlaybackService {
                 name: .init(rawValue: AppConstants.Strings.AudioFile.setDurationNotificationName),
                 object: audioFile,
                 removeAfterFirstPost: true
-            ) { notification in
+            ) { [weak self] notification in
                 guard let duration = notification.audioFileDuration,
                       let url = notification.audioFileURL else { return }
 
                 Task { @MainActor in
+                    guard let self else { return }
                     for (audioFileURL, cell) in self.cellsAwaitingDurationLabelSet where audioFileURL == url {
                         cell.durationLabel.text = duration.durationString
                         self.cellsAwaitingDurationLabelSet[audioFileURL] = nil
