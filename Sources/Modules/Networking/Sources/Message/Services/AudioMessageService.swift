@@ -96,12 +96,16 @@ struct AudioMessageService {
     ///   - message: The message the audio belongs to.
     ///   - inputUploadTask: A task whose completion provides an already-in-progress input upload,
     ///     or `nil` to upload the input as part of this call.
+    ///   - outputUploadTasks: Tasks whose completion provides already-in-progress output uploads,
+    ///     keyed by translation hosting key. A missing entry uploads that output as part of this
+    ///     call.
     ///
     /// - Throws: An `Exception` if an upload fails.
     func uploadAudioComponents(
         _ audioComponents: [AudioMessageReference],
         for message: Message,
-        inputUploadTask: Task<Callback<Void, Exception>, Never>? = nil
+        inputUploadTask: Task<Callback<Void, Exception>, Never>? = nil,
+        outputUploadTasks: [String: Task<Callback<Void, Exception>, Never>] = [:]
     ) async throws(Exception) {
         enum UploadOperation {
             case input
@@ -171,10 +175,17 @@ struct AudioMessageService {
                   audioComponent.translated.url != audioComponent.original.url else { return }
             defer { moveOutputFile(for: audioComponent) }
 
-            try await upload(
-                audioFile: audioComponent.translated,
-                to: audioComponent.translatedDirectoryPath
-            )
+            // Prefer the pipelined upload the caller started
+            // at synthesis time; a failure rethrows exactly where
+            // the inline upload would have, keeping the outbox retry surface unchanged.
+            if let outputUploadTask = outputUploadTasks[audioComponent.translation.reference.hostingKey] {
+                try await (outputUploadTask.value).get()
+            } else {
+                try await upload(
+                    audioFile: audioComponent.translated,
+                    to: audioComponent.translatedDirectoryPath
+                )
+            }
         }
 
         guard !audioComponents.isEmpty else { return }
@@ -213,6 +224,18 @@ struct AudioMessageService {
         try await upload(
             audioFile: renamedInputFile,
             to: NetworkPath.audioMessageInputs.rawValue
+        )
+    }
+
+    /// Uploads the translated output for the given component without
+    /// moving the local file; sequencing of the move is the caller's
+    /// responsibility.
+    func uploadOutputAudioComponent(
+        _ audioComponent: AudioMessageReference
+    ) async throws(Exception) {
+        try await upload(
+            audioFile: audioComponent.translated,
+            to: audioComponent.translatedDirectoryPath
         )
     }
 

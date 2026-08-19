@@ -131,10 +131,11 @@ struct MessageSessionService {
             count: uniqueLanguageCodes.count
         )
 
+        var outputUploadTasks = [String: Task<Callback<Void, Exception>, Never>]()
         let taskGroupResult: Callback<Void, Exception> = await withTaskGroup(
             of: (
                 Int,
-                Callback<(Translation, AudioMessageReference), Exception>
+                Callback<SynthesizedLanguageResult, Exception>
             ).self
         ) { taskGroup in
             for (index, languageCode) in uniqueLanguageCodes.enumerated() {
@@ -177,7 +178,23 @@ struct MessageSessionService {
                                     translatedDirectoryPath: "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
                                 )
 
-                                return (index, .success((translation, audioComponent)))
+                                // Start this language's output upload the instant its synthesis
+                                // finishes, overlapping it with the remaining languages' compute.
+                                // Unstructured on purpose: it must NOT inherit the task group's
+                                // cancellation. If a sibling fails and the group cancels, an upload
+                                // that finishes anyway lands at a content-addressed path, so the
+                                // outbox retry's preRecordedOutputExists check reuses it.
+                                let outputUploadTask = Task {
+                                    await Callback.asCallback {
+                                        try await networking.messageService.audio.uploadOutputAudioComponent(audioComponent)
+                                    }
+                                }
+
+                                return (index, .success(.init(
+                                    audioComponent: audioComponent,
+                                    outputUploadTask: outputUploadTask,
+                                    translation: translation
+                                )))
 
                             case let .failure(exception):
                                 return (index, .failure(exception))
@@ -190,7 +207,13 @@ struct MessageSessionService {
                                 translatedDirectoryPath: "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
                             )
 
-                            return (index, .success((translation, audioComponent)))
+                            // The pre-recorded/idempotent branch reuses the input file as a
+                            // placeholder and uploads nothing, so it carries no upload handle.
+                            return (index, .success(.init(
+                                audioComponent: audioComponent,
+                                outputUploadTask: nil,
+                                translation: translation
+                            )))
                         }
                     } catch {
                         return (index, .failure(error))
@@ -209,9 +232,12 @@ struct MessageSessionService {
                 )
 
                 switch result {
-                case let .success((translation, audioComponent)):
-                    aggregatedTranslations[index] = translation
-                    aggregatedAudioComponents[index] = audioComponent
+                case let .success(languageResult):
+                    aggregatedTranslations[index] = languageResult.translation
+                    aggregatedAudioComponents[index] = languageResult.audioComponent
+                    if let outputUploadTask = languageResult.outputUploadTask {
+                        outputUploadTasks[languageResult.translation.reference.hostingKey] = outputUploadTask
+                    }
 
                     // TODO: Audit necessity of this when pre-recorded output exists.
                     incrementDeliveryProgress(
@@ -224,6 +250,9 @@ struct MessageSessionService {
 
                 // swiftlint:disable:next identifier_name
                 case let .failure(_exception):
+                    // Collected output-upload handles are deliberately left running;
+                    // any that finish land at content-addressed paths and are reused
+                    // by the outbox retry's preRecordedOutputExists check.
                     exception = _exception
                     taskGroup.cancelAll()
                 }
@@ -251,6 +280,7 @@ struct MessageSessionService {
                 otherUsers: users,
                 presetID: messageID,
                 inputUploadTask: inputUploadTask,
+                outputUploadTasks: outputUploadTasks,
                 richContent: .audio(audioComponents),
                 translations: translations
             )
@@ -405,6 +435,7 @@ struct MessageSessionService {
         otherUsers: [User],
         presetID: String? = nil,
         inputUploadTask: Task<Callback<Void, Exception>, Never>? = nil,
+        outputUploadTasks: [String: Task<Callback<Void, Exception>, Never>] = [:],
         richContent: RichMessageContent?,
         translations: [Translation]?
     ) async throws(Exception) -> Conversation {
@@ -463,6 +494,7 @@ struct MessageSessionService {
                 fromAccountID: initiatingUser.id,
                 presetID: presetID,
                 inputUploadTask: inputUploadTask,
+                outputUploadTasks: outputUploadTasks,
                 richContent: richContent,
                 translations: translations
             )
@@ -637,6 +669,14 @@ private extension Conversation {
         messageStrings.removeFirst()
         return messageStrings.isEmpty ? nil : messageStrings.joined(separator: "\n")
     }
+}
+
+private struct SynthesizedLanguageResult {
+    let audioComponent: AudioMessageReference
+    /// The in-flight upload of the synthesized output, or nil when the language reused the input
+    /// file as a placeholder and uploaded nothing.
+    let outputUploadTask: Task<Callback<Void, Exception>, Never>?
+    let translation: Translation
 }
 
 // swiftlint:enable file_length type_body_length

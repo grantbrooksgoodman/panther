@@ -65,6 +65,7 @@ struct MessageService {
         fromAccountID: String,
         presetID: String? = nil,
         inputUploadTask: Task<Callback<Void, Exception>, Never>? = nil,
+        outputUploadTasks: [String: Task<Callback<Void, Exception>, Never>] = [:],
         richContent: RichMessageContent?,
         sentDate: Date = .now,
         translations: [Translation]?
@@ -121,7 +122,8 @@ struct MessageService {
             try await audio.uploadAudioComponents(
                 audioComponents,
                 for: mockMessage,
-                inputUploadTask: inputUploadTask
+                inputUploadTask: inputUploadTask,
+                outputUploadTasks: outputUploadTasks
             )
 
             // NIT: Can have uploadAudioComponents modify the message.
@@ -175,7 +177,7 @@ struct MessageService {
 
     /// Builds a message and writes its node to RTDB.
     ///
-    /// Use ``buildMessage(fromAccountID:richContent:sentDate:translations:)``
+    /// Use ``buildMessage(fromAccountID:presetID:inputUploadTask:outputUploadTasks:richContent:sentDate:translations:)``
     /// on the send path where the message node write should
     /// join the atomic fan-out instead.
     func createMessage(

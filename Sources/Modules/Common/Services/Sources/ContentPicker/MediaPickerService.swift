@@ -141,22 +141,32 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
     private func loadVideo(_ itemProvider: NSItemProvider) {
         typealias Strings = AppConstants.Strings.ChatPageViewService.MediaActionHandler
 
-        let fileManager = fileManager
+        let fileManager = LockIsolated(fileManager)
         let temporaryFileName = "\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
-        let temporaryFilePath = fileManager.temporaryDirectory.appending(path: temporaryFileName)
+        let temporaryFilePath = fileManager
+            .wrappedValue
+            .temporaryDirectory
+            .appending(path: temporaryFileName)
 
-        itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { @Sendable url, error in
-            // The system deletes the source file when this handler returns; the copy must complete synchronously here.
+        itemProvider.loadFileRepresentation(
+            forTypeIdentifier: UTType.movie.identifier
+        ) { @Sendable url, error in
+            // The system deletes the source file when this handler returns;
+            // the copy must complete synchronously here.
             let copyResult: Callback<URL, Exception>
 
             if let url {
-                try? fileManager.removeItem(atPath: temporaryFilePath.path())
+                try? fileManager
+                    .wrappedValue
+                    .removeItem(atPath: temporaryFilePath.path())
 
                 do {
-                    try fileManager.copyItem(
-                        at: url,
-                        to: temporaryFilePath
-                    )
+                    try fileManager
+                        .wrappedValue
+                        .copyItem(
+                            at: url,
+                            to: temporaryFilePath
+                        )
 
                     copyResult = .success(temporaryFilePath)
                 } catch {
