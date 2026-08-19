@@ -15,7 +15,7 @@ import Foundation
 ///
 /// ``MediaFileExtension`` categorizes a file extension by media kind – audio, document, image,
 /// or video – carrying the specific extension as an associated value.
-enum MediaFileExtension: Codable, Equatable, CaseIterable {
+enum MediaFileExtension: Codable, Equatable {
     /* MARK: Cases */
 
     /// An audio file with the given extension.
@@ -31,27 +31,6 @@ enum MediaFileExtension: Codable, Equatable, CaseIterable {
     case video(VideoFileExtension)
 
     /* MARK: Properties */
-
-    /// The canonical extension for each media kind when content is hosted remotely.
-    static let hostedCases: [MediaFileExtension] = [
-        .audio(.m4a),
-        .document(.pdf),
-        .image(.jpeg),
-        .video(.mp4),
-    ]
-
-    /// Every supported media file extension.
-    static let allCases: [MediaFileExtension] = [
-        .audio(.caf),
-        .audio(.m4a),
-        .document(.pdf),
-        .image(.jpeg),
-        .image(.jpg),
-        .image(.png),
-        .video(.mp4),
-    ]
-
-    /* MARK: Computed Properties */
 
     /// The MIME content type for this extension.
     var contentTypeString: String {
@@ -110,9 +89,16 @@ enum MediaFileExtension: Codable, Equatable, CaseIterable {
     /// Creates a media file extension from the given string, ignoring case and surrounding
     /// whitespace.
     ///
+    /// A string that does not match a known audio, image, video, or PDF extension but is
+    /// non-empty and strictly alphanumeric is treated as a plain-text document extension
+    /// (``DocumentFileExtension/plainText(_:)``). This determination does not consult the
+    /// Uniform Type Identifier database, so callers that ingest arbitrary user files must first
+    /// validate the file's conformance to `UTType.plainText` themselves.
+    ///
     /// - Parameter string: The extension's string value, without a leading period.
     ///
-    /// - Returns: A media file extension, or `nil` if the string is not a supported extension.
+    /// - Returns: A media file extension, or `nil` if the string is empty or not strictly
+    ///   alphanumeric.
     init?(_ string: String) {
         let rawValue = string.lowercasedTrimmingWhitespaceAndNewlines
         if rawValue == AudioFileExtension.caf.rawValue {
@@ -129,6 +115,9 @@ enum MediaFileExtension: Codable, Equatable, CaseIterable {
             self = .image(.png)
         } else if rawValue == VideoFileExtension.mp4.rawValue {
             self = .video(.mp4)
+        } else if !rawValue.isEmpty,
+                  rawValue.allSatisfy({ $0.isLetter || $0.isNumber }) {
+            self = .document(.plainText(rawValue))
         } else {
             return nil
         }
@@ -138,7 +127,7 @@ enum MediaFileExtension: Codable, Equatable, CaseIterable {
 // MARK: - Audio File Extension
 
 /// The supported audio file extensions.
-enum AudioFileExtension: String, Codable, Equatable {
+enum AudioFileExtension: String, CaseIterable, Codable, Equatable {
     /* MARK: Cases */
 
     case caf
@@ -157,11 +146,18 @@ enum AudioFileExtension: String, Codable, Equatable {
 
 // MARK: - Document File Extension
 
-/// The supported document file extensions.
-enum DocumentFileExtension: String, Codable, Equatable {
+/// A document file's extension.
+///
+/// ``DocumentFileExtension`` distinguishes PDF documents from plain-text documents, carrying
+/// an arbitrary plain-text extension as an associated value.
+enum DocumentFileExtension: Codable, Equatable {
     /* MARK: Cases */
 
+    /// A PDF file.
     case pdf
+
+    /// A plain-text file with the given extension, lowercased and without a leading period.
+    case plainText(String)
 
     /* MARK: Properties */
 
@@ -169,6 +165,15 @@ enum DocumentFileExtension: String, Codable, Equatable {
     var contentTypeString: String {
         switch self {
         case .pdf: "application/pdf"
+        case .plainText: "text/plain"
+        }
+    }
+
+    /// The extension's string value, without a leading period.
+    var rawValue: String {
+        switch self {
+        case .pdf: "pdf"
+        case let .plainText(fileExtension): fileExtension
         }
     }
 }

@@ -67,14 +67,9 @@ struct LocalMediaFilePath: Codable, Equatable {
             let filePath = "\(pathPrefix).\(fileExtension.rawValue)"
             let thumbnailPath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 
-            let thumbnailMediaFileExtensions = [
-                MediaFileExtension.document(.pdf),
-                MediaFileExtension.video(.mp4),
-            ]
-
             self.init(
                 relativePathString: filePath,
-                relativeThumbnailPathString: thumbnailMediaFileExtensions.contains(fileExtension) ? thumbnailPath : nil
+                relativeThumbnailPathString: (fileExtension.isDocument || fileExtension.isVideo) ? thumbnailPath : nil
             )
 
         default: return nil

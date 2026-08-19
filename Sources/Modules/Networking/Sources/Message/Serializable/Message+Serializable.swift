@@ -39,7 +39,7 @@ extension Message: Serializable {
         return [
             Keys.id.rawValue: id,
             Keys.fromAccountID.rawValue: fromAccountID,
-            Keys.contentType.rawValue: contentType.mediaFileID == nil ? contentType.rawValue : "\(contentType.rawValue) – \(contentType.mediaFileID!)",
+            Keys.contentType.rawValue: contentType.hostedValue,
             Keys.translationReferences.rawValue: translationReferences?.map(\.hostingKey) ?? .bangQualifiedEmpty,
             Keys.readReceipts.rawValue: readReceipts?.map(\.encoded) ?? .bangQualifiedEmpty,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),

@@ -25,6 +25,19 @@ enum HostedContentType: Codable, Equatable {
 
     // MARK: - Properties
 
+    /// The content type's complete wire-format string.
+    ///
+    /// For text and audio content, this value equals ``rawValue``. For media content, it is the
+    /// MIME type, file identifier, and file extension joined by `" – "` (a space, an en dash, and
+    /// a space): `"<mime> – <id> – <ext>"`. Encode media content types through this property
+    /// rather than assembling the wire string by hand.
+    var hostedValue: String {
+        switch self {
+        case let .media(id, fileExtension): "\(fileExtension.contentTypeString) – \(id) – \(fileExtension.rawValue)"
+        default: rawValue
+        }
+    }
+
     /// A Boolean value that indicates whether the content is audio.
     var isAudio: Bool {
         switch self {
@@ -56,7 +69,11 @@ enum HostedContentType: Codable, Equatable {
         return "\(mediaFileID).\(mediaFileExtension.rawValue)"
     }
 
-    /// The content type's wire-format string.
+    /// The content type's raw string.
+    ///
+    /// For text content, this value is `"text"`; for audio and media content, it is the MIME
+    /// type. To encode a content type for the wire, use ``hostedValue`` instead, which for media
+    /// content also includes the file identifier and extension.
     var rawValue: String {
         switch self {
         case let .audio(fileExtension): fileExtension.contentTypeString
@@ -86,25 +103,24 @@ enum HostedContentType: Codable, Equatable {
         }
 
         let components = hostedValue.components(separatedBy: " – ")
-        guard (components.itemAt(1) ?? hostedValue).isBangQualifiedEmpty == false,
-              let fileExtension = MediaFileExtension
-              .hostedCases
-              .first(where: {
-                  $0.contentTypeString == components.first ?? hostedValue
-              }) else { return nil }
-
         switch components.count {
         case 1:
-            switch fileExtension {
-            case let .audio(audioFileExtension): self = .audio(audioFileExtension)
-            default: return nil
-            }
+            guard let audioFileExtension = AudioFileExtension
+                .allCases
+                .first(where: { $0.contentTypeString == hostedValue }) else { return nil }
 
-        case 2:
-            switch fileExtension {
-            case .audio: return nil
-            default: self = .media(id: components[1], extension: fileExtension)
-            }
+            self = .audio(audioFileExtension)
+
+        case 3:
+            let id = components[1]
+            let fileExtensionString = components[2]
+            guard !id.isBangQualifiedEmpty,
+                  !fileExtensionString.isBangQualifiedEmpty,
+                  let fileExtension = MediaFileExtension(fileExtensionString),
+                  !fileExtension.isAudio,
+                  components[0] == fileExtension.contentTypeString else { return nil }
+
+            self = .media(id: id, extension: fileExtension)
 
         default: return nil
         }

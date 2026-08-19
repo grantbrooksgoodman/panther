@@ -813,7 +813,7 @@ struct IntegrityService {
             var updates: [String: Any] = [:]
             for await result in taskGroup {
                 if let path = result.contentTypeKeyPath {
-                    updates[path] = HostedContentType.text.rawValue
+                    updates[path] = HostedContentType.text.hostedValue
                 }
 
                 exceptions.append(contentsOf: result.exceptions)
