@@ -68,7 +68,7 @@ extension DevModeAction.AppActions {
 
                     guard await AKConfirmationAlert(
                         title: "Migrate Database", // swiftlint:disable:next line_length
-                        message: "This will migrate all database nodes in the \(Networking.config.environment.rawValue.uppercased()) to the version 5.1.0 schema.\n\nA snapshot will be captured for rollback before migration."
+                        message: "This will migrate all database nodes in the \(Networking.config.environment.rawValue.uppercased()) to the version 5+ schema.\n\nA snapshot will be captured for rollback before migration."
                     ).present(translating: []) else { return }
 
                     do throws(Exception) {

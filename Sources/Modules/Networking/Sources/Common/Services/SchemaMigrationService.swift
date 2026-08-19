@@ -25,20 +25,26 @@ import Networking
 /// this migration completes, the database contains only
 /// new-format nodes.
 ///
-/// The migration reads every user and conversation node,
-/// detects legacy-format fields, and builds a single
-/// atomic ``DatabaseDelegate/commit(_:)`` payload that
-/// rewrites all affected paths in one operation.
+/// The migration reads every user, conversation, and
+/// message node, detects legacy-format fields, and builds
+/// a single atomic ``DatabaseDelegate/commit(_:)`` payload
+/// that rewrites all affected paths in one operation.
 ///
 /// User nodes are also brought fully up to the current
 /// schema – required fields introduced by later versions
 /// (e.g. `deviceID`) are backfilled with their creation
 /// defaults, and retired fields are removed.
+///
+/// Message nodes have their legacy two-component media
+/// `contentType` values (`"<mime> – <id>"`) rewritten to
+/// the current explicit-extension format
+/// (`"<mime> – <id> – <extension>"`).
 struct SchemaMigrationService {
     // MARK: - Types
 
     private struct MigrationResult {
         let conversationsMigrated: Int
+        let messagesMigrated: Int
         let updates: [String: Any]
         let usersMigrated: Int
     }
@@ -54,18 +60,28 @@ struct SchemaMigrationService {
     /// The shared schema migration service.
     static let shared = SchemaMigrationService()
 
+    /// Maps a legacy two-component media content type's MIME to
+    /// its canonical file extension, for rewriting legacy values
+    /// to the explicit-extension wire format.
+    private static let legacyMediaExtensions: [String: String] = [
+        "application/pdf": "pdf",
+        "image/jpeg": "jpeg",
+        "video/mp4": "mp4",
+    ]
+
     // MARK: - Init
 
     private init() {}
 
     // MARK: - Migrate Database
 
-    /// Reads every user and conversation node, converts
-    /// legacy array-format fields to keyed maps, backfills
-    /// required user fields introduced by later schema
-    /// versions, recomputes version tokens, and persists
-    /// `imageHash` where absent. All changes are committed
-    /// atomically.
+    /// Reads every user, conversation, and message node,
+    /// converts legacy array-format fields to keyed maps,
+    /// backfills required user fields introduced by later
+    /// schema versions, recomputes version tokens, persists
+    /// `imageHash` where absent, and rewrites legacy media
+    /// `contentType` values to the explicit-extension
+    /// format. All changes are committed atomically.
     func migrateDatabase() async throws(Exception) {
         Logger.log(
             "Starting full database schema migration.",
@@ -75,6 +91,7 @@ struct SchemaMigrationService {
 
         let userData: [String: Any]
         let conversationData: [String: Any]
+        let messageData: [String: Any]
 
         do {
             userData = try await database.getValues(
@@ -84,6 +101,11 @@ struct SchemaMigrationService {
 
             conversationData = try await database.getValues(
                 at: NetworkPath.conversations.rawValue,
+                cacheStrategy: .disregardCache
+            )
+
+            messageData = try await database.getValues(
+                at: NetworkPath.messages.rawValue,
                 cacheStrategy: .disregardCache
             )
         } catch {
@@ -104,6 +126,12 @@ struct SchemaMigrationService {
             uniquingKeysWith: { _, new in new }
         )
 
+        let messageResult = migrateMessageContentTypes(messageData)
+        updates.merge(
+            messageResult.updates,
+            uniquingKeysWith: { _, new in new }
+        )
+
         guard !updates.isEmpty else {
             Logger.log(
                 "No legacy-format nodes found. Database is already migrated.",
@@ -115,7 +143,10 @@ struct SchemaMigrationService {
         }
 
         Logger.log(
-            "Committing migration: \(userResult.usersMigrated) user(s), \(conversationResult.conversationsMigrated) conversation(s), \(updates.count) path(s).",
+            "Committing migration: \(userResult.usersMigrated) user(s), "
+                + "\(conversationResult.conversationsMigrated) conversation(s), "
+                + "\(messageResult.messagesMigrated) message(s), "
+                + "\(updates.count) path(s).",
             domain: .schemaMigration,
             sender: self
         )
@@ -204,6 +235,7 @@ struct SchemaMigrationService {
 
         return .init(
             conversationsMigrated: 0,
+            messagesMigrated: 0,
             updates: updates,
             usersMigrated: usersMigrated
         )
@@ -284,6 +316,47 @@ struct SchemaMigrationService {
 
         return .init(
             conversationsMigrated: conversationsMigrated,
+            messagesMigrated: 0,
+            updates: updates,
+            usersMigrated: 0
+        )
+    }
+
+    // MARK: - Message Migration
+
+    private func migrateMessageContentTypes(
+        _ messageData: [String: Any]
+    ) -> MigrationResult {
+        // Message contentType is not a conversation hash factor
+        // (only message IDs are), and message nodes carry no
+        // persisted hash, so no hash recomputation or fan-out
+        // is required here.
+        var updates = [String: Any]()
+        var messagesMigrated = 0
+
+        for (messageID, rawMessage) in messageData {
+            guard let messageDictionary = rawMessage as? [String: Any],
+                  let contentType = messageDictionary[
+                      Message.SerializableKey.contentType.rawValue
+                  ] as? String else { continue }
+
+            let components = contentType.components(separatedBy: " – ")
+            guard components.count == 2,
+                  let fileExtension = Self.legacyMediaExtensions[components[0]] else { continue }
+
+            let path = [
+                NetworkPath.messages.rawValue,
+                messageID,
+                Message.SerializableKey.contentType.rawValue,
+            ].joined(separator: "/")
+
+            updates[path] = "\(contentType) – \(fileExtension)"
+            messagesMigrated += 1
+        }
+
+        return .init(
+            conversationsMigrated: 0,
+            messagesMigrated: messagesMigrated,
             updates: updates,
             usersMigrated: 0
         )
