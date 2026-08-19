@@ -122,7 +122,8 @@ final class MediaActionHandlerService {
         // so confirm the file truly conforms to plain text before
         // sending it.
         if case let .document(.plainText(plainTextExtension)) = mediaFileExtension {
-            guard UTType(filenameExtension: plainTextExtension)?.conforms(to: .plainText) == true else {
+            guard UTType(filenameExtension: plainTextExtension)?
+                .conforms(to: .plainText) == true else {
                 throw Exception(
                     "Failed to determine file type.",
                     metadata: .init(sender: self)

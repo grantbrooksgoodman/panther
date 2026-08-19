@@ -25,6 +25,9 @@ struct MediaMessageService {
     /// Returns the media file for the given message, using the local copy when available and
     /// downloading it otherwise.
     ///
+    /// - Note: A downloaded plain-text document payload is LZFSE-decompressed in place before the
+    ///   media file is returned, so the local file is always the plain text the app expects.
+    ///
     /// - Parameters:
     ///   - messageID: The identifier of the message.
     ///   - localMediaFilePath: The local file paths for the message's media.
@@ -125,6 +128,9 @@ struct MediaMessageService {
     /// The file and its thumbnail are uploaded concurrently – each skipped if already present in
     /// remote storage – and the local files are moved into their permanent locations afterward.
     ///
+    /// - Note: Plain-text document payloads are LZFSE-compressed before upload; every other kind
+    ///   is uploaded unchanged. The local file is always left uncompressed.
+    ///
     /// - Parameters:
     ///   - mediaComponent: The media file to upload.
     ///   - message: The message the media belongs to.
@@ -145,14 +151,42 @@ struct MediaMessageService {
 
         func uploadPrimary() async throws(Exception) {
             if await (try? networking.storage.itemExists(at: relativePath)) != true {
-                try await networking.storage.upload(
-                    fileAt: mediaComponent.localPathURL,
-                    metadata: .init(
-                        relativePath,
-                        contentType: mediaComponent.fileExtension.contentTypeString
-                    ),
-                    timeout: .transferTimeout(forItemAt: mediaComponent.localPathURL)
-                )
+                if case .document(.plainText) = mediaComponent.fileExtension {
+                    // Hosted plain-text payloads are always LZFSE-compressed,
+                    // while the local file stays uncompressed. The timeout is
+                    // derived from the uncompressed size and so conservatively
+                    // overestimates the compressed transfer.
+                    let compressedData: Data
+                    do {
+                        compressedData = try (Data.fromURL(mediaComponent.localPathURL) as NSData)
+                            .compressed(using: .lzfse) as Data
+                    } catch let exception as Exception {
+                        throw exception
+                    } catch {
+                        throw Exception(
+                            error,
+                            metadata: .init(sender: self)
+                        )
+                    }
+
+                    try await networking.storage.upload(
+                        compressedData,
+                        metadata: .init(
+                            relativePath,
+                            contentType: "application/octet-stream"
+                        ),
+                        timeout: .transferTimeout(forItemAt: mediaComponent.localPathURL)
+                    )
+                } else {
+                    try await networking.storage.upload(
+                        fileAt: mediaComponent.localPathURL,
+                        metadata: .init(
+                            relativePath,
+                            contentType: mediaComponent.fileExtension.contentTypeString
+                        ),
+                        timeout: .transferTimeout(forItemAt: mediaComponent.localPathURL)
+                    )
+                }
             }
 
             try fileManager.move(
@@ -224,6 +258,27 @@ struct MediaMessageService {
             )
         } catch {
             throw error.appending(userInfo: userInfo)
+        }
+
+        // Hosted plain-text payloads are stored LZFSE-compressed;
+        // decompress in place so the local file is the plain text
+        // the rest of the app expects.
+        if case .document(.plainText)? = MediaFileExtension(localPath.localPathURL.pathExtension) {
+            do {
+                try (Data.fromURL(localPath.localPathURL) as NSData)
+                    .decompressed(using: .lzfse)
+                    .write(
+                        to: localPath.localPathURL,
+                        options: .atomic
+                    )
+            } catch let exception as Exception {
+                throw exception.appending(userInfo: userInfo)
+            } catch {
+                throw Exception(
+                    error,
+                    metadata: .init(sender: self)
+                ).appending(userInfo: userInfo)
+            }
         }
 
         if let thumbnailPathString = localPath.relativeThumbnailPathString,
