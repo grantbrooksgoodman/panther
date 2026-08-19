@@ -13,6 +13,7 @@ import AVFoundation
 import Foundation
 import QuickLook
 import UIKit
+import UniformTypeIdentifiers
 
 /* Proprietary */
 import AlertKit
@@ -115,6 +116,18 @@ final class MediaActionHandlerService {
                 "Failed to determine file type.",
                 metadata: .init(sender: self)
             )
+        }
+
+        // An unknown extension resolves to a plain-text document,
+        // so confirm the file truly conforms to plain text before
+        // sending it.
+        if case let .document(.plainText(plainTextExtension)) = mediaFileExtension {
+            guard UTType(filenameExtension: plainTextExtension)?.conforms(to: .plainText) == true else {
+                throw Exception(
+                    "Failed to determine file type.",
+                    metadata: .init(sender: self)
+                )
+            }
         }
 
         let relativePath = [

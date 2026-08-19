@@ -18,7 +18,7 @@ import AppSubsystem
 /// Call ``present()`` to show the picker, and register a dismissal handler with
 /// ``onDismiss(_:)`` to receive the selected file. Selected files are copied to the app's
 /// temporary directory; images and MP4 videos are delivered as ``ContentPickerResult/image(_:)``
-/// and ``ContentPickerResult/video(_:)`` items, and PDF files as
+/// and ``ContentPickerResult/video(_:)`` items, and PDF and plain-text files as
 /// ``ContentPickerResult/document(_:)`` items.
 final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
     // MARK: - Dependencies
@@ -38,12 +38,13 @@ final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - Present
 
-    /// Presents the system document picker for choosing a JPEG, PNG, MP4, or PDF file.
+    /// Presents the system document picker for choosing a JPEG, PNG, MP4, PDF, or plain-text file.
     func present() {
         let viewController = UIDocumentPickerViewController(forOpeningContentTypes: [
             .jpeg,
             .mpeg4Movie,
             .pdf,
+            .plainText,
             .png,
         ])
         viewController.delegate = self
