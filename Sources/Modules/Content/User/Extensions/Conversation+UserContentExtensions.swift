@@ -132,7 +132,7 @@ extension Conversation {
 
             var mediaTypeLabelText = Localized(.attachment).wrappedValue
             if mediaFile.fileExtension.isDocument {
-                mediaTypeLabelText = Localized(.document).wrappedValue
+                mediaTypeLabelText = "\(Localized(.file).wrappedValue) • \(mediaFile.fileExtension.rawValue)"
             } else if mediaFile.fileExtension.isImage {
                 mediaTypeLabelText = Localized(.image).wrappedValue
             } else if mediaFile.fileExtension.isVideo {

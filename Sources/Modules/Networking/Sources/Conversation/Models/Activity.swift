@@ -13,6 +13,7 @@ import Foundation
 import AppSubsystem
 import Translator
 
+// TODO: Use phone number instead of userID to avoid "Someone" when user deletes account.
 /// A recorded change to a conversation, such as a participant joining, leaving, or renaming it.
 struct Activity: Codable, EncodedHashable, Equatable {
     // MARK: - Properties

@@ -55,7 +55,6 @@ extension IntegrityService {
         if isFirstRun {
             do {
                 try coreUtilities.eraseTemporaryDirectory()
-                try await rollbackService.captureSnapshot()
                 try await networking.schemaMigrationService.migrateDatabase()
             } catch {
                 Logger.log(error)
@@ -292,6 +291,20 @@ extension IntegrityService {
         defer {
             networking.database.setGlobalCacheStrategy(nil)
             networking.storage.setGlobalCacheStrategy(nil)
+
+            let rollbackService = LockIsolated(rollbackService)
+            Task {
+                do throws(Exception) {
+                    try await rollbackService
+                        .wrappedValue
+                        .captureSnapshot()
+                } catch {
+                    Logger.log(
+                        error,
+                        domain: .dataIntegrity
+                    )
+                }
+            }
         }
 
         var logMessage = "Hosted data integrity was validated."

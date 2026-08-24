@@ -53,6 +53,7 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case enable
     case errorReportedSuccessfully
 
+    case file
     case finishingUp
     case fromUser
     case fromYou
