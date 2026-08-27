@@ -467,7 +467,9 @@ final class SplashPageViewService: ObservableObject {
     /// Call this method concurrently with ``initializeBundle(fromRetry:)``. If a complete cached
     /// user – one whose conversations all have their messages and users present – is available,
     /// the method waits for the network health to degrade to poor, or for a fallback deadline to
-    /// elapse on a network that has produced no health evidence. It then reports progress as
+    /// elapse on a network that has produced no health evidence. A deadline that elapses while
+    /// the health is fair or good does not trigger the fallback; the method keeps waiting for a
+    /// poor transition instead. When the fallback triggers, the method reports progress as
     /// nearly complete, applies the cached user's language, and schedules a deferred resolution
     /// of the user's data for when the network health recovers.
     ///
@@ -493,24 +495,37 @@ final class SplashPageViewService: ObservableObject {
         if networking.health.health.tier != .poor {
             let healthChanges = $networkHealth.changes
             let shouldTriggerDeferredResolution = await withTaskGroup(
-                of: Void.self
+                of: Bool.self
             ) { taskGroup in
                 taskGroup.addTask {
                     for await health in healthChanges where health.tier == .poor {
-                        return
+                        return true
                     }
+
+                    return false
                 }
 
                 taskGroup.addTask {
                     // Fallback deadline; on a dead network, the
                     // health estimator has no evidence until the
-                    // first censored timeout sample lands.
+                    // first censored timeout sample lands. A usable
+                    // tier at the deadline means initialization is
+                    // genuinely progressing on a healthy network,
+                    // so defer to the poor transition instead.
                     try? await Task.sleep(for: .seconds(5))
+                    guard !Task.isCancelled else { return false }
+                    let tier = Dependency(\.networking).wrappedValue.health.health.tier
+                    return tier == nil || tier == .poor
                 }
 
-                _ = await taskGroup.next()
+                var shouldTrigger = false
+                for await didDegrade in taskGroup where didDegrade {
+                    shouldTrigger = true
+                    break
+                }
+
                 taskGroup.cancelAll()
-                return !Task.isCancelled
+                return shouldTrigger && !Task.isCancelled
             }
 
             guard shouldTriggerDeferredResolution else { return false }

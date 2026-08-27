@@ -126,6 +126,15 @@ enum Application {
             )
         )
 
+        // Enabled before prewarming so the realtime connection
+        // attempt itself is captured in the Firebase console
+        // output, splitting establishment latency into its
+        // socket, auth, and request phases.
+        @Dependency(\.build.isDeveloperModeEnabled) var isDeveloperModeEnabled: Bool
+        if isDeveloperModeEnabled {
+            Networking.setVerboseFirebaseLoggingEnabled(true)
+        }
+
         @Dependency(\.networking) var networking: NetworkServices
         networking.database.prewarm()
         networking.storage.prewarm()
