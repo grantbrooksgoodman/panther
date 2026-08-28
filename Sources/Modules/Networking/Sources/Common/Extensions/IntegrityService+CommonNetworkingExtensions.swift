@@ -53,6 +53,16 @@ extension IntegrityService {
         @Dependency(\.rollbackService) var rollbackService: RollbackService
 
         if isFirstRun {
+            // Refuse to repair unless the realtime connection is established.
+            guard await networking.database.awaitRealtimeConnection(
+                timeout: .seconds(15)
+            ) else {
+                throw Exception( // swiftlint:disable:next line_length
+                    "Aborting database repair: the realtime connection is not established. Repair must read authoritative server data and must never act on a cached snapshot.",
+                    metadata: .init(sender: self)
+                )
+            }
+
             do {
                 try coreUtilities.eraseTemporaryDirectory()
                 try await networking.schemaMigrationService.migrateDatabase()

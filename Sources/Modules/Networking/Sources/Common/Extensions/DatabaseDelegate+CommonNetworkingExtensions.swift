@@ -38,20 +38,20 @@ extension DatabaseDelegate {
             at: NetworkPath.conversations.rawValue
         )
 
-        async let getMessageValues: [String: Any] = database.wrappedValue.getValues(
-            at: NetworkPath.messages.rawValue
-        )
+//        async let getMessageValues: [String: Any] = database.wrappedValue.getValues(
+//            at: NetworkPath.messages.rawValue
+//        )
 
         async let getUserValues: [String: Any] = database.wrappedValue.getValues(
             at: NetworkPath.users.rawValue
         )
 
         let conversationData: [String: Any]
-        let messageData: [String: Any]
+//        let messageData: [String: Any]
         let userData: [String: Any]
         do {
             conversationData = try await getConversationValues
-            messageData = try await getMessageValues
+//            messageData = try await getMessageValues
             userData = try await getUserValues
         } catch let error as Exception {
             throw error
@@ -78,19 +78,19 @@ extension DatabaseDelegate {
             )
         }
 
-        for (key, value) in messageData {
-            CoreDatabaseStore.addValue(
-                .init(
-                    data: value,
-                    expiresAfter: expiryThreshold
-                ),
-                forKey: [
-                    Networking.config.environment.shortString,
-                    NetworkPath.messages.rawValue,
-                    key,
-                ].joined(separator: "/")
-            )
-        }
+//        for (key, value) in messageData {
+//            CoreDatabaseStore.addValue(
+//                .init(
+//                    data: value,
+//                    expiresAfter: expiryThreshold
+//                ),
+//                forKey: [
+//                    Networking.config.environment.shortString,
+//                    NetworkPath.messages.rawValue,
+//                    key,
+//                ].joined(separator: "/")
+//            )
+//        }
 
         for (key, value) in userData {
             CoreDatabaseStore.addValue(

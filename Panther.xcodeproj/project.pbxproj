@@ -52,9 +52,9 @@
 		A28371A32ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28371A22ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift */; };
 		A28786DB301A9AC500C6DB6A /* AudioMessageTranscriptionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28786DA301A9AC500C6DB6A /* AudioMessageTranscriptionData.swift */; };
 		A28786DD301BA35800C6DB6A /* AVSpeechSynthesizer+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28786DC301BA35800C6DB6A /* AVSpeechSynthesizer+UserContentExtensions.swift */; };
-		A294524F3019B3C3001D1D61 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = A294524E3019B3C3001D1D61 /* Networking */; };
 		A29DFA972ED5749800171C04 /* ActivitySessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DFA962ED5749800171C04 /* ActivitySessionService.swift */; };
 		A2A094E42F2C43EB00AD185B /* FeaturePermissionPageViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A094E32F2C43EB00AD185B /* FeaturePermissionPageViewConfiguration.swift */; };
+		A2A180243041384200F32C30 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = A2A180233041384200F32C30 /* Networking */; };
 		A2A7A13D2F03596E00E09921 /* DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13C2F03596E00E09921 /* DataUsageView.swift */; };
 		A2A7A13F2F16DD3B00E09921 /* AppConstants+DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */; };
 		A2A92DC92FE0FE13008C356C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A2A92DC82FE0FE13008C356C /* GoogleService-Info.plist */; };
@@ -1625,7 +1625,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A294524F3019B3C3001D1D61 /* Networking in Frameworks */,
+				A2A180243041384200F32C30 /* Networking in Frameworks */,
 				B921F4062CCB6F34006BB149 /* FirebaseMessaging in Frameworks */,
 				B9E2E6142C72E7AF004022FE /* MessageKit in Frameworks */,
 				A244335D2FB5407F001C810F /* PhoneNumberKit in Frameworks */,
@@ -3615,7 +3615,7 @@
 				B921F4052CCB6F34006BB149 /* FirebaseMessaging */,
 				B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */,
 				A244335C2FB5407F001C810F /* PhoneNumberKit */,
-				A294524E3019B3C3001D1D61 /* Networking */,
+				A2A180233041384200F32C30 /* Networking */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3744,7 +3744,7 @@
 				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
 				A244335B2FB5407E001C810F /* XCRemoteSwiftPackageReference "PhoneNumberKit" */,
-				A294524D3019B3C3001D1D61 /* XCRemoteSwiftPackageReference "networking" */,
+				A2A180223041384200F32C30 /* XCRemoteSwiftPackageReference "networking" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -4982,7 +4982,7 @@
 				minimumVersion = 4.2.12;
 			};
 		};
-		A294524D3019B3C3001D1D61 /* XCRemoteSwiftPackageReference "networking" */ = {
+		A2A180223041384200F32C30 /* XCRemoteSwiftPackageReference "networking" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
 			requirement = {
@@ -5022,9 +5022,9 @@
 			package = A244335B2FB5407E001C810F /* XCRemoteSwiftPackageReference "PhoneNumberKit" */;
 			productName = PhoneNumberKit;
 		};
-		A294524E3019B3C3001D1D61 /* Networking */ = {
+		A2A180233041384200F32C30 /* Networking */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = A294524D3019B3C3001D1D61 /* XCRemoteSwiftPackageReference "networking" */;
+			package = A2A180223041384200F32C30 /* XCRemoteSwiftPackageReference "networking" */;
 			productName = Networking;
 		};
 		B921F4032CCB6F34006BB149 /* FirebaseAnalytics */ = {

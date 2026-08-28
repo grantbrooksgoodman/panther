@@ -89,6 +89,16 @@ struct SchemaMigrationService {
             sender: self
         )
 
+        // Refuse to repair unless the realtime connection is established.
+        guard await database.awaitRealtimeConnection(
+            timeout: .seconds(15)
+        ) else {
+            throw Exception( // swiftlint:disable:next line_length
+                "Aborting schema migration: the realtime connection is not established. Migration must read authoritative server data and must never act on a cached snapshot.",
+                metadata: .init(sender: self)
+            )
+        }
+
         let userData: [String: Any]
         let conversationData: [String: Any]
         let messageData: [String: Any]

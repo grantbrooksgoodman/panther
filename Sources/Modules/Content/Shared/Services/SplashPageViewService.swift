@@ -200,13 +200,15 @@ final class SplashPageViewService: ObservableObject {
         guard !Task.isCancelled else { return }
 
         // Launch the heaviest independent network calls concurrently.
+        let currentUserID = User.currentUserID
         async let resolveCurrentUserResult = clientSession.entity.user.resolveCurrentUser()
         async let resolveLanguageCodeResult: Void = clientSession.resolveAndSetLanguageCode()
         async let resolveValuesResult: Void = services.metadata.resolveValues()
+        async let cacheStatusResult: RemoteCacheStatus? = resolveCacheStatus(userID: currentUserID)
 
         do {
             guard !Task.isCancelled else { return }
-            if User.currentUserID != nil {
+            if currentUserID != nil {
                 try await resolveLanguageCodeResult
             }
 
@@ -232,14 +234,10 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: Cache Setup */
 
-        // Runs while resolveCurrentUser() continues in the background.
-        if let currentUserID = User.currentUserID {
-            do {
-                guard !Task.isCancelled else { return }
-                let cacheStatus = try await services.remoteCache.cacheStatus(
-                    userID: currentUserID
-                )
-
+        do {
+            guard !Task.isCancelled else { return }
+            if let cacheStatus = try await cacheStatusResult,
+               let currentUserID {
                 initializationProgress += 0.02
 
                 if cacheStatus == .invalid {
@@ -252,11 +250,16 @@ final class SplashPageViewService: ObservableObject {
                     Application.reset(preserveCurrentUserID: true)
                     return try await initializeBundle(fromRetry: true)
                 }
-            } catch {
-                if !error.isEqual(to: .Networking.Database.noValueExists) {
-                    Logger.log(error)
-                }
             }
+        } catch let error as Exception {
+            if !error.isEqual(to: .Networking.Database.noValueExists) {
+                Logger.log(error)
+            }
+        } catch {
+            Logger.log(Exception(
+                error,
+                metadata: .init(sender: self)
+            ))
         }
 
         /* MARK: UserSessionService Setup */
@@ -292,11 +295,24 @@ final class SplashPageViewService: ObservableObject {
 
             /* MARK: Contact Pair Archive + Temporary Cache Population */
 
-            do {
-                guard !Task.isCancelled else { return }
-                try await ContactService.syncIfNeeded()
-            } catch {
-                Logger.log(error)
+            /* TODO: -
+             Audit whether this can cause ConversationCellViewData title
+             resolution to fail to catch the contact name.
+             */
+
+            // Off the critical path: the archive drives contact display
+            // names, not initial render, and for accounts whose device
+            // contacts include no other registered users it re-runs a full
+            // users-node read on every launch. Already non-fatal; the sync
+            // clears and repopulates the archive, so the conversations list
+            // refreshes reactively once it settles.
+            Task.detached(priority: .utility) {
+                do throws(Exception) {
+                    guard !Task.isCancelled else { return }
+                    try await ContactService.syncIfNeeded()
+                } catch {
+                    Logger.log(error)
+                }
             }
 
             if (currentUser.conversationIDs ?? []).count > 20,
@@ -538,6 +554,23 @@ final class SplashPageViewService: ObservableObject {
         }
 
         return true
+    }
+
+    /// Resolves the remote cache status for the given user, or `nil` when no user ID is provided.
+    ///
+    /// Launched alongside the parallel initialization trio so the read overlaps the other startup
+    /// work rather than running serially after the update gate.
+    ///
+    /// - Parameter userID: The ID of the user whose cache status to resolve, or `nil`.
+    ///
+    /// - Returns: The user's remote cache status, or `nil` when no user ID is provided.
+    ///
+    /// - Throws: An `Exception` if resolving the cache status fails.
+    private func resolveCacheStatus(
+        userID: String?
+    ) async throws(Exception) -> RemoteCacheStatus? {
+        guard let userID else { return nil }
+        return try await services.remoteCache.cacheStatus(userID: userID)
     }
 
     private func checkPrevaricationMode(_ phoneNumber: PhoneNumber) {

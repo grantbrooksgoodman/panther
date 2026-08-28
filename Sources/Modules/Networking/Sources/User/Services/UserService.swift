@@ -150,9 +150,26 @@ final class UserService: @unchecked Sendable {
             at: NetworkPath.users.rawValue
         )
 
-        return try await getUsers(
-            ids: Array(userData.keys)
-        )
+        // Decode every user from the snapshot already downloaded above,
+        // rather than re-fetching each record individually by ID.
+        let userDataByID: [[String: Any]] = userData.compactMap { id, value in
+            guard var data = value as? [String: Any] else { return nil }
+            data[User.SerializableKey.id.rawValue] = id
+            return data
+        }
+
+        cachedUserDataSnapshots = userDataByID.map {
+            .init(
+                data: $0,
+                expiryThreshold: .milliseconds(500)
+            )
+        }
+
+        return try await userDataByID.parallelMap(
+            failForEmptyCollection: true
+        ) {
+            try await self.user(from: $0)
+        }
     }
 
     // MARK: - Retrieval by ID
