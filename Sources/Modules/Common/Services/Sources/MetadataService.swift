@@ -15,10 +15,10 @@ import Networking
 
 /// Use ``MetadataService`` to read app configuration values hosted in the remote database.
 ///
-/// Call ``resolveValues()`` to fetch the hosted values; each resolved value is then available
-/// through its corresponding property. Values are fetched once and retained for the lifetime
-/// of the process.
-final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
+/// Each value is persisted across launches and served immediately through its corresponding
+/// property. Call ``resolveValues()`` to revalidate the persisted snapshot against the network
+/// once per session, so callers converge on authoritative data without blocking on the fetch.
+struct MetadataService: GeminiAPIKeyDelegate {
     // MARK: - Types
 
     private enum MetadataServiceKey: String {
@@ -48,13 +48,30 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
     /// The shared metadata service instance.
     static let shared = MetadataService()
 
-    private let _appShareLink = LockIsolated<URL?>(nil)
-    private let _appStoreBuildNumber = LockIsolated<Int?>(nil)
-    private let _geminiAPIKey = LockIsolated<String?>(nil)
-    private let _isPrevaricationModeEnabled = LockIsolated<Bool?>(nil)
-    private let _redirectionKey = LockIsolated<String?>(nil)
-    private let _shouldForceUpdate = LockIsolated<Bool?>(nil)
-    private let _storageReferenceURL = LockIsolated<URL?>(nil)
+    /// The app's share link, or `nil` if it has not been resolved.
+    @Persistent(.appShareLink) private(set) var appShareLink: URL?
+
+    /// The App Store build number, or `nil` if it has not been resolved.
+    @Persistent(.appStoreBuildNumber) private(set) var appStoreBuildNumber: Int?
+
+    /// The Gemini API key, or `nil` if it has not been resolved.
+    @Persistent(.geminiAPIKey) private(set) var geminiAPIKey: String?
+
+    /// A Boolean value that indicates whether prevarication mode may be enabled, or `nil` if it
+    /// has not been resolved.
+    @Persistent(.isPrevaricationModeEnabled) private(set) var isPrevaricationModeEnabled: Bool?
+
+    /// The hosted redirection key, or `nil` if it has not been resolved.
+    @Persistent(.redirectionKey) private(set) var redirectionKey: String?
+
+    /// A Boolean value that indicates whether the app should force an update, or `nil` if it
+    /// has not been resolved.
+    @Persistent(.shouldForceUpdate) private(set) var shouldForceUpdate: Bool?
+
+    /// The base URL for browsing remote storage, or `nil` if it has not been resolved.
+    @Persistent(.storageReferenceURL) private(set) var storageReferenceURL: URL?
+
+    private static let coalescer = SingleSlotCoalescer<Void>()
 
     // MARK: - Computed Properties
 
@@ -63,48 +80,14 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
         geminiAPIKey ?? ""
     }
 
-    /// The app's share link, or `nil` if it has not been resolved.
-    private(set) var appShareLink: URL? {
-        get { _appShareLink.wrappedValue }
-        set { _appShareLink.wrappedValue = newValue }
-    }
-
-    /// The App Store build number, or `nil` if it has not been resolved.
-    private(set) var appStoreBuildNumber: Int? {
-        get { _appStoreBuildNumber.wrappedValue }
-        set { _appStoreBuildNumber.wrappedValue = newValue }
-    }
-
-    /// The Gemini API key, or `nil` if it has not been resolved.
-    private(set) var geminiAPIKey: String? {
-        get { _geminiAPIKey.wrappedValue }
-        set { _geminiAPIKey.wrappedValue = newValue }
-    }
-
-    /// A Boolean value that indicates whether prevarication mode may be enabled, or `nil` if it
-    /// has not been resolved.
-    private(set) var isPrevaricationModeEnabled: Bool? {
-        get { _isPrevaricationModeEnabled.wrappedValue }
-        set { _isPrevaricationModeEnabled.wrappedValue = newValue }
-    }
-
-    /// The hosted redirection key, or `nil` if it has not been resolved.
-    private(set) var redirectionKey: String? {
-        get { _redirectionKey.wrappedValue }
-        set { _redirectionKey.wrappedValue = newValue }
-    }
-
-    /// A Boolean value that indicates whether the app should force an update, or `nil` if it
-    /// has not been resolved.
-    private(set) var shouldForceUpdate: Bool? {
-        get { _shouldForceUpdate.wrappedValue }
-        set { _shouldForceUpdate.wrappedValue = newValue }
-    }
-
-    /// The base URL for browsing remote storage, or `nil` if it has not been resolved.
-    private(set) var storageReferenceURL: URL? {
-        get { _storageReferenceURL.wrappedValue }
-        set { _storageReferenceURL.wrappedValue = newValue }
+    private var canRevalidate: Bool {
+        appShareLink == nil ||
+            appStoreBuildNumber == nil ||
+            geminiAPIKey == nil ||
+            isPrevaricationModeEnabled == nil ||
+            redirectionKey == nil ||
+            shouldForceUpdate == nil ||
+            storageReferenceURL == nil
     }
 
     // MARK: - Init
@@ -115,123 +98,101 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
 
     // MARK: - Resolve All Values
 
-    /// Fetches and assigns any hosted values that have not yet been resolved.
+    /// Revalidates the hosted values against the network, overwriting the persisted snapshot.
     ///
-    /// If every value has already been resolved, this method returns immediately.
+    /// The persisted values are served immediately on launch. Concurrent calls coalesce onto a
+    /// single in-flight refresh, and subsequent calls within the session return immediately.
     ///
     /// - Throws: An `Exception` if fetching fails, or if a hosted value is missing or of an
     ///   unexpected type.
     func resolveValues() async throws(Exception) {
-        guard appShareLink == nil
-            || appStoreBuildNumber == nil
-            || geminiAPIKey == nil
-            || isPrevaricationModeEnabled == nil
-            || redirectionKey == nil
-            || shouldForceUpdate == nil
-            || storageReferenceURL == nil else { return }
-
-        try await assignValues(
-            from: database.getValues(
-                at: NetworkPath.shared.rawValue,
-                prependingEnvironment: false,
-                cacheStrategy: .adaptive
+        guard canRevalidate else { return }
+        try await Self.coalescer { () async throws(Exception) in
+            guard canRevalidate else { return }
+            try await assignValues(
+                from: database.getValues(
+                    at: NetworkPath.shared.rawValue,
+                    prependingEnvironment: false,
+                    cacheStrategy: .returnCacheOnFailure
+                )
             )
-        )
+        }
     }
 
     // MARK: - Auxiliary
 
-    private func assignValues(from dictionary: [String: Any]) throws(Exception) {
-        if appShareLink == nil {
-            guard let urlString = dictionary[
-                MetadataServiceKey.appShareLink.rawValue
-            ] as? String, let url = URL(string: urlString) else {
-                throw Exception.Networking.typecastFailed(
-                    "URL",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            appShareLink = url
+    private func assignValues(
+        from dictionary: [String: Any]
+    ) throws(Exception) {
+        guard let appShareLink = (dictionary[
+            MetadataServiceKey.appShareLink.rawValue
+        ] as? String).flatMap({ URL(string: $0) }) else {
+            throw Exception.Networking.typecastFailed(
+                "URL",
+                metadata: .init(sender: self)
+            )
         }
 
-        if appStoreBuildNumber == nil {
-            guard let value = dictionary[
-                MetadataServiceKey.appStoreBuildNumber.rawValue
-            ] as? Int else {
-                throw Exception.Networking.typecastFailed(
-                    "integer",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            appStoreBuildNumber = value
+        guard let storageReferenceURL = (dictionary[
+            MetadataServiceKey.storageReferenceURL.rawValue
+        ] as? String).flatMap({ URL(string: $0) }) else {
+            throw Exception.Networking.typecastFailed(
+                "URL",
+                metadata: .init(sender: self)
+            )
         }
 
-        if geminiAPIKey == nil {
-            guard let value = dictionary[
-                MetadataServiceKey.geminiAPIKey.rawValue
-            ] as? String else {
-                throw Exception.Networking.typecastFailed(
-                    "string",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            geminiAPIKey = value
+        guard let appStoreBuildNumber = dictionary[
+            MetadataServiceKey.appStoreBuildNumber.rawValue
+        ] as? Int else {
+            throw Exception.Networking.typecastFailed(
+                "integer",
+                metadata: .init(sender: self)
+            )
         }
 
-        if isPrevaricationModeEnabled == nil {
-            guard let value = dictionary[
-                MetadataServiceKey.isPrevaricationModeEnabled.rawValue
-            ] as? Bool else {
-                throw Exception.Networking.typecastFailed(
-                    "Bool",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            isPrevaricationModeEnabled = value
+        guard let geminiAPIKey = dictionary[
+            MetadataServiceKey.geminiAPIKey.rawValue
+        ] as? String else {
+            throw Exception.Networking.typecastFailed(
+                "string",
+                metadata: .init(sender: self)
+            )
         }
 
-        if redirectionKey == nil {
-            guard let value = dictionary[
-                MetadataServiceKey.redirectionKey.rawValue
-            ] as? String else {
-                throw Exception.Networking.typecastFailed(
-                    "string",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            redirectionKey = value
+        guard let redirectionKey = dictionary[
+            MetadataServiceKey.redirectionKey.rawValue
+        ] as? String else {
+            throw Exception.Networking.typecastFailed(
+                "string",
+                metadata: .init(sender: self)
+            )
         }
 
-        if shouldForceUpdate == nil {
-            guard let value = dictionary[
-                MetadataServiceKey.shouldForceUpdate.rawValue
-            ] as? Bool else {
-                throw Exception.Networking.typecastFailed(
-                    "Bool",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            shouldForceUpdate = value
+        guard let isPrevaricationModeEnabled = dictionary[
+            MetadataServiceKey.isPrevaricationModeEnabled.rawValue
+        ] as? Bool else {
+            throw Exception.Networking.typecastFailed(
+                "Bool",
+                metadata: .init(sender: self)
+            )
         }
 
-        if storageReferenceURL == nil {
-            guard let value = dictionary[
-                MetadataServiceKey.storageReferenceURL.rawValue
-            ] as? String,
-                let url = URL(string: value) else {
-                throw Exception.Networking.typecastFailed(
-                    "URL",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            storageReferenceURL = url
+        guard let shouldForceUpdate = dictionary[
+            MetadataServiceKey.shouldForceUpdate.rawValue
+        ] as? Bool else {
+            throw Exception.Networking.typecastFailed(
+                "Bool",
+                metadata: .init(sender: self)
+            )
         }
+
+        self.appShareLink = appShareLink
+        self.appStoreBuildNumber = appStoreBuildNumber
+        self.geminiAPIKey = geminiAPIKey
+        self.isPrevaricationModeEnabled = isPrevaricationModeEnabled
+        self.redirectionKey = redirectionKey
+        self.shouldForceUpdate = shouldForceUpdate
+        self.storageReferenceURL = storageReferenceURL
     }
 }

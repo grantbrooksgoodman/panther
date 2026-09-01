@@ -26,7 +26,8 @@ import AppSubsystem
 ///   ``SplashPageViewService/resolveCachedUserIfPoorNetwork()``; whichever settles first
 ///   determines how the app loads, and the other is cancelled.
 /// - Each network activity event nudges the initialization progress forward until it approaches
-///   completion, and the progress bar is shown only while a user is signed in.
+///   completion. After a one-second delay, the page shows a determinate progress bar for heavy
+///   loads – a poor network or a cold cache – and an indeterminate spinner otherwise.
 /// - If initialization succeeds, the page presents the user content when a signed-in user
 ///   resolved; otherwise, it presents onboarding with an empty navigation stack.
 /// - If initialization fails, the first failure attempts recovery automatically; subsequent
@@ -81,18 +82,8 @@ struct SplashPageReducer: Reducer {
 
     /// The state of the splash page.
     struct State: Equatable {
-        /* MARK: Properties */
-
         fileprivate var didAttemptAutomaticErrorRecovery = false
         fileprivate var exception: Exception?
-
-        /* MARK: Computed Properties */
-
-        /// A Boolean value that indicates whether the progress bar is shown. Shown only while a
-        /// user is signed in.
-        var shouldShowProgressBar: Bool {
-            User.currentUserID != nil
-        }
     }
 
     // MARK: - Reduce

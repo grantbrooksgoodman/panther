@@ -19,8 +19,6 @@ extension AppConstants.CGFloats {
     enum SplashPageView {
         static let activityIndicatorScaleEffect: CGFloat = 0.8
 
-        static let fadeInDelayMilliseconds: CGFloat = 250
-
         static let imageFrameHeight: CGFloat = 70
         static let imageFrameWidth: CGFloat = 150
 

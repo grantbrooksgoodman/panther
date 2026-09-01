@@ -71,13 +71,13 @@ extension IntegrityService {
             }
         }
 
+        // Revalidate first so the version gate is never evaluated
+        // against a stale, persisted build number.
+        try await metadataService.resolveValues()
         guard let hostedAppStoreBuildNumber = metadataService.appStoreBuildNumber else {
-            try await metadataService.resolveValues()
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
+            throw Exception(
+                "Failed to resolve hosted App Store build number.",
+                metadata: .init(sender: self)
             )
         }
 

@@ -54,7 +54,8 @@ struct SplashPageView: View {
                     .padding(.bottom, Floats.padding)
             }
 
-            if viewModel.shouldShowProgressBar {
+            switch viewService.loadingIndicatorStyle {
+            case .bar:
                 progressBar
                     .animation(.easeIn, value: viewService.initializationProgress)
                     .controlSize(.large)
@@ -62,7 +63,11 @@ struct SplashPageView: View {
                     .tint(Colors.progressBarTint)
                     .padding(.horizontal, Floats.progressBarHorizontalPadding)
                     .padding(.top, Floats.progressBarTopPadding)
-            } else {
+
+            case .hidden:
+                EmptyView()
+
+            case .spinner:
                 ProgressView()
                     .controlSize(.large)
                     .dynamicTypeSize(.large)
@@ -70,13 +75,11 @@ struct SplashPageView: View {
                     .padding(.top, Floats.padding)
             }
         }
-        .fadeIn(delay: .milliseconds(Floats.fadeInDelayMilliseconds))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .preferredStatusBarStyle(
             .appAware,
             restoreOnDisappear: !Application.isInPrevaricationMode
         )
-        .redrawsOnTraitCollectionChange()
         .onAppear {
             Application.loadStartDate = .now
         }

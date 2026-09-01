@@ -75,6 +75,12 @@ extension PersistentStorageKey {
         .init(key.rawValue)
     }
 
+    static func metadataService(
+        _ key: MetadataServiceStorageKey
+    ) -> PersistentStorageKey {
+        .init(key.rawValue)
+    }
+
     static func penPalsService(
         _ key: PenPalsServiceStorageKey
     ) -> PersistentStorageKey {

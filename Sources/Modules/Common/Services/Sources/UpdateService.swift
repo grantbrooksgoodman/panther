@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AlertKit
 import AppSubsystem
+import Networking
 
 /// Use ``UpdateService`` to prompt the user to install app updates.
 ///
@@ -34,6 +35,7 @@ struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.currentCalendar) private var calendar: Calendar
+    @Dependency(\.networking.database) private var database: DatabaseDelegate
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
@@ -41,6 +43,8 @@ struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
 
     /// The shared update service instance.
     static let shared = UpdateService()
+
+    private let observationTask: LockIsolated<Task<Void, Never>?> = .init(nil)
 
     @Persistent(.buildNumberWhenLastForcedToUpdate) private var buildNumberWhenLastForcedToUpdate: Int?
     @Persistent(.relaunchesSinceLastPostponedUpdate) private var relaunchesSinceLastPostponedUpdate: Int?
@@ -68,6 +72,44 @@ struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
 
     private init() {}
 
+    // MARK: - Observe Forced Update Changes
+
+    func startObservingForcedUpdateChanges() {
+        observationTask.projectedValue.withValue {
+            $0?.cancel()
+            $0 = Task {
+                do {
+                    Logger.log(
+                        "Started observing forced update changes.",
+                        sender: self
+                    )
+
+                    for try await dictionary: [String: Any] in database.observe(
+                        path: NetworkPath.shared.rawValue,
+                        prependingEnvironment: false
+                    ) {
+                        typealias Key = PersistentStorageKey.MetadataServiceStorageKey
+                        guard let appStoreBuildNumber = dictionary[
+                            Key.appStoreBuildNumber.rawValue
+                        ] as? Int, let shouldForceUpdate = dictionary[
+                            Key.shouldForceUpdate.rawValue
+                        ] as? Bool else { continue }
+
+                        if appStoreBuildNumber > build.buildNumber,
+                           shouldForceUpdate {
+                            triggerForcedUpdateModal()
+                        }
+                    }
+                } catch {
+                    Logger.log(.init(
+                        error,
+                        metadata: .init(sender: self)
+                    ))
+                }
+            }
+        }
+    }
+
     // MARK: - Check for Updates
 
     /// Checks for an available update and prompts the user to install it if needed.
@@ -86,22 +128,33 @@ struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
 
         switch updateType {
         case .forced:
-            firstPostponedUpdate = nil
-            relaunchesSinceLastPostponedUpdate = 0
-            buildNumberWhenLastForcedToUpdate = build.buildNumber
-            SharedState(\.isForcedUpdateRequired).wrappedValue = true
+            triggerForcedUpdateModal()
 
         case .normal:
             try await presentUpdateCTA()
         }
     }
 
+    // MARK: - Increment Relaunch Count
+
+    /// Increments the persisted relaunch count if an update has been postponed.
+    ///
+    /// Call this method once per launch; the count determines when a postponed update alert
+    /// reappears.
+    func incrementRelaunchCountIfNeeded() {
+        guard firstPostponedUpdate != nil else { return }
+        relaunchesSinceLastPostponedUpdate = (relaunchesSinceLastPostponedUpdate ?? 0) + 1
+    }
+
+    // MARK: - Auxiliary
+
     private func checkForUpdates() async throws(Exception) -> UpdateType? {
+        // Revalidate first so the update decision is never made
+        // against a stale, persisted build number.
+        try await metadataService.resolveValues()
+
         guard let appStoreBuildNumber = metadataService.appStoreBuildNumber,
-              let overrideForceUpdate = metadataService.shouldForceUpdate else {
-            try await metadataService.resolveValues()
-            return try await checkForUpdates()
-        }
+              let overrideForceUpdate = metadataService.shouldForceUpdate else { return nil }
 
         let isUpdateAvailable = appStoreBuildNumber > build.buildNumber
         let shouldPrompt = (relaunchesSinceLastPostponedUpdate ?? 0) >= 3
@@ -141,19 +194,6 @@ struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
         return isUpdateAvailable ? .forced : nil
     }
 
-    // MARK: - Increment Relaunch Count
-
-    /// Increments the persisted relaunch count if an update has been postponed.
-    ///
-    /// Call this method once per launch; the count determines when a postponed update alert
-    /// reappears.
-    func incrementRelaunchCountIfNeeded() {
-        guard firstPostponedUpdate != nil else { return }
-        relaunchesSinceLastPostponedUpdate = (relaunchesSinceLastPostponedUpdate ?? 0) + 1
-    }
-
-    // MARK: - Call to Action
-
     private func presentUpdateCTA() async throws(Exception) {
         guard let appShareLink = metadataService.appShareLink else {
             try await metadataService.resolveValues()
@@ -185,5 +225,12 @@ struct UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
             message: "A new version of ⌘\(build.finalName)⌘ is available in the ⌘App Store⌘. Would you like to update now?",
             actions: [updateAction, cancelAction]
         ).present(translating: [.actions([updateAction]), .message, .title])
+    }
+
+    private func triggerForcedUpdateModal() {
+        firstPostponedUpdate = nil
+        relaunchesSinceLastPostponedUpdate = 0
+        buildNumberWhenLastForcedToUpdate = build.buildNumber
+        SharedState(\.isForcedUpdateRequired).wrappedValue = true
     }
 }

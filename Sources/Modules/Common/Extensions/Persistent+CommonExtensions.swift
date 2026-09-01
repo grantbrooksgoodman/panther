@@ -68,6 +68,15 @@ extension Persistent {
         self.init(.messageRetranslationService(messageRetranslationServiceKey))
     }
 
+    /// Creates a persistent value bound to the given ``MetadataService`` storage key.
+    ///
+    /// - Parameter metadataServiceKey: The key that identifies the stored value.
+    convenience init(
+        _ metadataServiceKey: PersistentStorageKey.MetadataServiceStorageKey
+    ) {
+        self.init(.metadataService(metadataServiceKey))
+    }
+
     /// Creates a persistent value bound to the given ``PenPalsService`` storage key.
     ///
     /// - Parameter penPalsServiceKey: The key that identifies the stored value.

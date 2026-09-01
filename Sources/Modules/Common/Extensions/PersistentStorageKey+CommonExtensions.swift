@@ -50,6 +50,17 @@ extension PersistentStorageKey {
         case retranslationOutputHashes
     }
 
+    /// The persistent storage keys scoped to ``MetadataService``.
+    enum MetadataServiceStorageKey: String {
+        case appShareLink
+        case appStoreBuildNumber
+        case geminiAPIKey
+        case isPrevaricationModeEnabled
+        case redirectionKey
+        case shouldForceUpdate
+        case storageReferenceURL
+    }
+
     /// The persistent storage keys scoped to ``PenPalsService``.
     enum PenPalsServiceStorageKey: String {
         case presentedPenPalsPermissionPageAtStartup

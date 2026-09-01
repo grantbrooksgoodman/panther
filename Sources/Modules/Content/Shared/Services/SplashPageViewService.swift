@@ -37,6 +37,20 @@ import Translator
 ///   once cancelled.
 @MainActor
 final class SplashPageViewService: ObservableObject {
+    // MARK: - Types
+
+    /// The loading indicator shown behind the splash page while the bundle initializes.
+    enum LoadingIndicatorStyle {
+        /// A determinate progress bar, shown for heavy loads: a poor network or a cold cache.
+        case bar
+
+        /// No indicator, shown for the first second of loading.
+        case hidden
+
+        /// An indeterminate spinner, shown for light loads.
+        case spinner
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
@@ -66,12 +80,19 @@ final class SplashPageViewService: ObservableObject {
         }
     }
 
+    /// The loading indicator shown behind the splash page, or ``LoadingIndicatorStyle/hidden`` for
+    /// the first second of a fresh load. Resolved once, one second in, from network and cache state.
+    @Published private(set) var loadingIndicatorStyle: LoadingIndicatorStyle = .hidden
+
     /// The localized text that describes the current initialization activity, such as loading or
     /// repairing data.
     @Published private(set) var loadingLabelText = ""
 
     /// The formatted percentage text corresponding to ``initializationProgress``.
     @Published private(set) var percentageLabelText = ""
+
+    private static let deferredResolutionRetryInterval: Duration = .seconds(3)
+    private static let maximumDeferredResolutionAttempts = 15
 
     private var didAttemptDatabaseRepair = false
     private var didSurpassQuickLoadTimeoutDuration = false
@@ -137,11 +158,20 @@ final class SplashPageViewService: ObservableObject {
             didSurpassQuickLoadTimeoutDuration = false
             initializationProgress = 0
             initializationStartDate = .now
+            loadingIndicatorStyle = .hidden
 
             Task.delayed(by: .milliseconds(2500)) { @MainActor in
                 guard !Task.isCancelled,
                       initializationProgress <= 0.6 else { return }
                 didSurpassQuickLoadTimeoutDuration = true
+            }
+
+            // Show no indicator for the first second, then pick the bar
+            // or spinner from the network and cache state at that point.
+            Task.delayed(by: .seconds(1)) { @MainActor in
+                guard !Task.isCancelled,
+                      initializationProgress < 1 else { return }
+                loadingIndicatorStyle = resolveLoadingIndicatorStyle()
             }
         }
 
@@ -203,16 +233,23 @@ final class SplashPageViewService: ObservableObject {
         let currentUserID = User.currentUserID
         async let resolveCurrentUserResult = clientSession.entity.user.resolveCurrentUser()
         async let resolveLanguageCodeResult: Void = clientSession.resolveAndSetLanguageCode()
-        async let resolveValuesResult: Void = services.metadata.resolveValues()
         async let cacheStatusResult: RemoteCacheStatus? = resolveCacheStatus(userID: currentUserID)
+
+        /* TODO: -
+          Audit what happens when a value in MetadataService
+          is nil when read by a dependent service. Prevarication mode?
+         */
+
+        // Revalidate hosted metadata in the background: consumers read
+        // the persisted snapshot until it lands, and the update gate
+        // below awaits the same refresh so it never sees stale values.
+        Task { try? await services.metadata.resolveValues() }
 
         do {
             guard !Task.isCancelled else { return }
             if currentUserID != nil {
                 try await resolveLanguageCodeResult
             }
-
-            try await resolveValuesResult
         } catch let error as Exception {
             throw error
         } catch {
@@ -229,6 +266,7 @@ final class SplashPageViewService: ObservableObject {
         guard !Task.isCancelled else { return }
         services.update.incrementRelaunchCountIfNeeded()
         try await services.update.promptToUpdateIfNeeded()
+        services.update.startObservingForcedUpdateChanges()
 
         initializationProgress += 0.01
 
@@ -538,19 +576,7 @@ final class SplashPageViewService: ObservableObject {
         )
 
         Task(priority: .background) { @MainActor [weak self] in
-            await self?.waitForUsableNetworkHealth()
-            do throws(Exception) {
-                try await self?.clientSession.entity.user.resolveCurrentUser(
-                    and: .allDataTypes
-                )
-
-                Logger.log(
-                    "Deferred resolution of current user data was successful.",
-                    sender: self ?? SplashPageViewService.self
-                )
-            } catch {
-                Logger.log(error)
-            }
+            await self?.resolveCurrentUserDataWhenNetworkRecovers()
         }
 
         return true
@@ -571,6 +597,23 @@ final class SplashPageViewService: ObservableObject {
     ) async throws(Exception) -> RemoteCacheStatus? {
         guard let userID else { return nil }
         return try await services.remoteCache.cacheStatus(userID: userID)
+    }
+
+    /// Resolves which loading indicator to show for a load still running after one second.
+    ///
+    /// - Returns: ``LoadingIndicatorStyle/bar`` for a heavy load – a signed-in session on a poor
+    ///   network or with a cold conversation store – and ``LoadingIndicatorStyle/spinner`` otherwise.
+    private func resolveLoadingIndicatorStyle() -> LoadingIndicatorStyle {
+        guard User.currentUserID != nil else {
+            return .spinner
+        }
+
+        guard networking.health.health.tier != .poor,
+              !clientSession.store.conversations.isEmpty else {
+            return .bar
+        }
+
+        return .spinner
     }
 
     private func checkPrevaricationMode(_ phoneNumber: PhoneNumber) {
@@ -596,23 +639,43 @@ final class SplashPageViewService: ObservableObject {
         )
     }
 
-    /// Suspends until the network health becomes usable – `.fair`
-    /// or `.good` – returning immediately if it already is.
-    private func waitForUsableNetworkHealth() async {
-        let usableTiers: [NetworkHealthTier] = [
-            .fair,
-            .good,
-        ]
+    /// Resolves the current user's data once the network can
+    /// carry it, retrying on a fixed interval until the
+    /// resolution succeeds or the retry budget is exhausted.
+    ///
+    /// Each attempt doubles as an active probe – the resolution
+    /// request is real traffic that feeds the health estimator
+    /// and completes the moment the network recovers. When the
+    /// budget is exhausted, the cached data remains in place and
+    /// full resolution resumes on the next launch or sync.
+    private func resolveCurrentUserDataWhenNetworkRecovers() async {
+        for attempt in 1 ... Self.maximumDeferredResolutionAttempts {
+            guard !Task.isCancelled else { return }
 
-        // The values stream doesn't replay the current value, so
-        // check it first.
-        if let tier = networking.health.health.tier,
-           usableTiers.contains(tier) { return }
+            do throws(Exception) {
+                try await clientSession.entity.user.resolveCurrentUser(
+                    and: .allDataTypes
+                )
 
-        for await health in $networkHealth.changes {
-            guard let tier = health.tier,
-                  usableTiers.contains(tier) else { continue }
-            return
+                return Logger.log(
+                    "Deferred resolution of current user data was successful.",
+                    sender: self
+                )
+            } catch {
+                Logger.log(error)
+            }
+
+            guard attempt < Self.maximumDeferredResolutionAttempts else {
+                return Logger.log(.init(
+                    "Exhausted deferred resolution attempts; retaining cached data.",
+                    isReportable: false,
+                    metadata: .init(sender: self)
+                ))
+            }
+
+            try? await Task.sleep(
+                for: Self.deferredResolutionRetryInterval
+            )
         }
     }
 }
