@@ -65,7 +65,7 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
 
     case language
     case leftConversation
-    case loadingData
+    case loadingData // NIT: Unused.
 
     // swiftlint:disable:next identifier_name
     case messageRecipientConsentAcknowledgementMessage
@@ -93,7 +93,7 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case removedFromConversation
     case removedGroupPhoto
     case renamedConversation
-    case repairingData
+    case repairingData // NIT: Unused.
     case reportMistranslation
     case reportUser
     case requestConsent

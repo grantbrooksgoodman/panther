@@ -19,6 +19,7 @@ struct SplashPageView: View {
 
     private typealias Colors = AppConstants.Colors.SplashPageView
     private typealias Floats = AppConstants.CGFloats.SplashPageView
+    private typealias Strings = AppConstants.Strings.SplashPageView
 
     // MARK: - Dependencies
 
@@ -45,29 +46,38 @@ struct SplashPageView: View {
 
     var body: some View {
         VStack {
-            ThemedView {
-                Image(.hello)
-                    .resizable()
-                    .renderingMode((ThemeService.isDarkModeActive || !ThemeService.isAppDefaultThemeApplied) ? .template : .original)
-                    .foregroundColor((ThemeService.isDarkModeActive || !ThemeService.isAppDefaultThemeApplied) ? Colors.imageDarkForeground : .none)
-                    .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
-                    .padding(.bottom, Floats.padding)
+            ZStack {
+                GIFImage(
+                    Strings.gifImageName,
+                    isActive: viewService.loadingIndicatorStyle == .bar
+                )
+                .frame(
+                    width: Floats.imageFrameWidth,
+                    height: Floats.imageFrameHeight
+                )
+                .opacity(viewService.loadingIndicatorStyle == .bar ? 1 : 0)
+
+                ThemedView {
+                    Image(.hello)
+                        .resizable()
+                        .renderingMode(
+                            (ThemeService.isDarkModeActive || !ThemeService.isAppDefaultThemeApplied) ? .template : .original
+                        )
+                        .foregroundColor(
+                            (ThemeService.isDarkModeActive || !ThemeService.isAppDefaultThemeApplied) ? Colors.imageDarkForeground : .none
+                        )
+                        .frame(
+                            width: Floats.imageFrameWidth,
+                            height: Floats.imageFrameHeight
+                        )
+                }
+                .opacity(viewService.loadingIndicatorStyle == .bar ? 0 : 1)
             }
+            .padding(.bottom, Floats.padding)
 
-            switch viewService.loadingIndicatorStyle {
-            case .bar:
-                progressBar
-                    .animation(.easeIn, value: viewService.initializationProgress)
-                    .controlSize(.large)
-                    .dynamicTypeSize(.large)
-                    .tint(Colors.progressBarTint)
-                    .padding(.horizontal, Floats.progressBarHorizontalPadding)
-                    .padding(.top, Floats.progressBarTopPadding)
+            progressBar
 
-            case .hidden:
-                EmptyView()
-
-            case .spinner:
+            if viewService.loadingIndicatorStyle == .spinner {
                 ProgressView()
                     .controlSize(.large)
                     .dynamicTypeSize(.large)
@@ -88,37 +98,16 @@ struct SplashPageView: View {
         }
     }
 
-    @ViewBuilder
     private var progressBar: some View {
-        if viewService.shouldShowLoadingLabel {
-            ProgressView(value: viewService.initializationProgress) {
-                HStack(spacing: 0) {
-                    ProgressView()
-                        .controlSize(.regular)
-                        .dynamicTypeSize(.large)
-                        .frame(
-                            maxWidth: Floats.progressBarActivityIndicatorFrameMaxWidth,
-                            maxHeight: Floats.progressBarActivityIndicatorFrameMaxHeight
-                        )
-                        .tint(Colors.progressBarActivityIndicatorTint)
-
-                    ThemedView {
-                        Components.text(
-                            viewService.loadingLabelText,
-                            foregroundColor: Colors.loadingLabelForeground
-                        )
-                    }
-
-                    Spacer()
-
-                    Components.text(
-                        viewService.percentageLabelText,
-                        foregroundColor: Colors.loadingLabelForeground
-                    )
-                }
-            }
-        } else {
-            ProgressView(value: viewService.initializationProgress)
-        }
+        ProgressView(value: viewService.initializationProgress)
+            .animation(.easeIn, value: viewService.initializationProgress)
+            .controlSize(.large)
+            .dynamicTypeSize(.large)
+            .tint(Colors.progressBarTint)
+            .opacity(viewService.loadingIndicatorStyle == .bar ? 1 : 0)
+            .padding(.horizontal, Floats.progressBarHorizontalPadding)
+            .fadeIn(delay: .milliseconds(
+                Floats.progressBarFadeInDelayMilliseconds
+            ))
     }
 }

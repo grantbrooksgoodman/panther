@@ -23,12 +23,8 @@ extension AppConstants.CGFloats {
         static let imageFrameWidth: CGFloat = 150
 
         static let padding: CGFloat = 5
-
-        // swiftlint:disable:next identifier_name
-        static let progressBarActivityIndicatorFrameMaxHeight: CGFloat = 30 // swiftlint:disable:next identifier_name
-        static let progressBarActivityIndicatorFrameMaxWidth: CGFloat = 30
-
-        static let progressBarHorizontalPadding: CGFloat = 40
+        static let progressBarFadeInDelayMilliseconds: CGFloat = 1750
+        static let progressBarHorizontalPadding: CGFloat = 130
         static let progressBarTopPadding: CGFloat = 10
     }
 }
@@ -40,18 +36,20 @@ extension AppConstants.Colors {
         /* MARK: Properties */
 
         static let imageDarkForeground = Color(hex: 0xF8F8F8)
-        static let progressBarActivityIndicatorTint = Color(.systemGray)
 
         /* MARK: Computed Properties */
 
         @MainActor
-        static var loadingLabelForeground: Color {
-            .init(uiColor: ThemeService.isDarkModeActive ? .lightGray : .darkGray)
-        }
-
-        @MainActor
         static var progressBarTint: Color {
-            .init(uiColor: .accentOrSystemBlue)
+            .titleText
         }
+    }
+}
+
+// MARK: - String
+
+extension AppConstants.Strings {
+    enum SplashPageView {
+        static let gifImageName = "animated_logotype"
     }
 }

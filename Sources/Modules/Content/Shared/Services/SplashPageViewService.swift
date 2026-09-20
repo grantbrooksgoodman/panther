@@ -66,11 +66,10 @@ final class SplashPageViewService: ObservableObject {
 
     /// The fraction of bundle initialization that has completed, from `0` to `1`.
     ///
-    /// Updating this value refreshes ``percentageLabelText``. When the value reaches `1`, it
-    /// resets itself to `0` after a brief delay unless a new initialization has since begun.
-    var initializationProgress: CGFloat = 0 {
+    /// When the value reaches `1`, it resets itself to `0` after a brief delay
+    /// unless a new initialization has since begun.
+    @Published var initializationProgress: CGFloat = 0 {
         didSet {
-            percentageLabelText = initializationProgress >= 1 ? "100%" : "\(initializationProgress.roundedString)%"
             guard initializationProgress == 1 else { return }
             Task.delayed(by: .seconds(2)) { @MainActor in
                 // Skip if a new initialization has since begun.
@@ -84,13 +83,6 @@ final class SplashPageViewService: ObservableObject {
     /// the first second of a fresh load. Resolved once, one second in, from network and cache state.
     @Published private(set) var loadingIndicatorStyle: LoadingIndicatorStyle = .hidden
 
-    /// The localized text that describes the current initialization activity, such as loading or
-    /// repairing data.
-    @Published private(set) var loadingLabelText = ""
-
-    /// The formatted percentage text corresponding to ``initializationProgress``.
-    @Published private(set) var percentageLabelText = ""
-
     private static let deferredResolutionRetryInterval: Duration = .seconds(3)
     private static let maximumDeferredResolutionAttempts = 15
 
@@ -98,16 +90,6 @@ final class SplashPageViewService: ObservableObject {
     private var didSurpassQuickLoadTimeoutDuration = false
     private var initializationStartDate = Date(timeIntervalSince1970: 0)
     @SharedState(\.networkHealth) private var networkHealth
-
-    // MARK: - Computed Properties
-
-    /// A Boolean value that indicates whether the splash page should show the loading label.
-    ///
-    /// `true` once a database repair has been attempted, or once initialization has run long
-    /// enough to exceed the quick-load timeout.
-    var shouldShowLoadingLabel: Bool {
-        didAttemptDatabaseRepair || didSurpassQuickLoadTimeoutDuration
-    }
 
     // MARK: - Methods
 
@@ -152,7 +134,6 @@ final class SplashPageViewService: ObservableObject {
         /* MARK: Service Setup */
 
         Toast.hide()
-        loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
         if !fromRetry {
             didSurpassQuickLoadTimeoutDuration = false
@@ -322,7 +303,6 @@ final class SplashPageViewService: ObservableObject {
             )
 
             checkPrevaricationMode(currentUser.phoneNumber)
-            loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
             /* MARK: Device ID Update */
 
@@ -451,10 +431,9 @@ final class SplashPageViewService: ObservableObject {
 
     /// Attempts to recover from a failed initialization.
     ///
-    /// The first call attempts a database repair, updating ``loadingLabelText`` while the repair
-    /// runs. If the repair reveals that a forced update is required, the method sets the shared
-    /// forced-update flag and returns without error. A subsequent call after another failure
-    /// resets the application entirely.
+    /// The first call attempts a database repair. If the repair reveals that a forced update
+    /// is required, the method sets the shared forced-update flag and returns without error.
+    /// A subsequent call after another failure resets the application entirely.
     ///
     /// The splash page's reducer calls this method before retrying initialization when recovery
     /// is warranted.
@@ -463,7 +442,6 @@ final class SplashPageViewService: ObservableObject {
     func performRetryHandler() async throws(Exception) {
         func attemptDatabaseRepair() async throws(Exception) {
             didAttemptDatabaseRepair = true
-            loadingLabelText = "\(Localized(.repairingData).wrappedValue)..."
 
             do {
                 try await networking.integrityService.repairDatabase()
@@ -613,7 +591,7 @@ final class SplashPageViewService: ObservableObject {
             return .bar
         }
 
-        return .spinner
+        return .hidden
     }
 
     private func checkPrevaricationMode(_ phoneNumber: PhoneNumber) {
