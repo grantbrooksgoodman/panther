@@ -71,7 +71,7 @@ struct MetadataService: GeminiAPIKeyDelegate {
     /// The base URL for browsing remote storage, or `nil` if it has not been resolved.
     @Persistent(.storageReferenceURL) private(set) var storageReferenceURL: URL?
 
-    private static let coalescer = SingleSlotCoalescer<Void>()
+    private static let coalescer = SingleSlotCoalescer<Void, Exception>()
 
     // MARK: - Computed Properties
 

@@ -42,7 +42,7 @@ final class ContactService: @unchecked Sendable {
     /// The Contacts framework contacts matched during archive syncs.
     @Cached(CacheKey.cnContacts) var cachedCNContacts: [CNContact]?
 
-    private static let coalescer = SingleSlotCoalescer<Void>()
+    private static let coalescer = SingleSlotCoalescer<Void, Exception>()
 
     // MARK: - Init
 

@@ -32,10 +32,10 @@ struct UserSessionService {
 
     // MARK: - Properties
 
-    private static let conversationCoalescer = SingleSlotCoalescer<Void>(policy: .replace)
-    private static let messageCoalescer = SingleSlotCoalescer<Void>(policy: .replace)
-    private static let updateCoalescer = SingleSlotCoalescer<Void>(policy: .rerun)
-    private static let userCoalescer = SingleSlotCoalescer<Void>(policy: .replace)
+    private static let conversationCoalescer = SingleSlotCoalescer<Void, Exception>(policy: .replace)
+    private static let messageCoalescer = SingleSlotCoalescer<Void, Exception>(policy: .replace)
+    private static let updateCoalescer = SingleSlotCoalescer<Void, Never>(policy: .rerun)
+    private static let userCoalescer = SingleSlotCoalescer<Void, Exception>(policy: .replace)
 
     private let observationTask: LockIsolated<Task<Void, Never>?> = .init(nil)
 

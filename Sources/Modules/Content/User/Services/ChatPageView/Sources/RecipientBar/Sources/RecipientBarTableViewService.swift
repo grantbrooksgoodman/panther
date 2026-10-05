@@ -39,7 +39,7 @@ final class RecipientBarTableViewService {
 
     // MARK: - Properties
 
-    private static let coalescer = SingleSlotCoalescer<[ContactPair]>()
+    private static let coalescer = SingleSlotCoalescer<[ContactPair], Never>()
 
     private let viewController: ChatPageViewController
 

@@ -36,7 +36,7 @@ struct MessageService {
     /// The service that uploads, downloads, and deletes media message content.
     let media: MediaMessageService
 
-    private static let coalescer = Coalescer<String, Message>()
+    private static let coalescer = Coalescer<String, Message, Exception>()
 
     // MARK: - Init
 

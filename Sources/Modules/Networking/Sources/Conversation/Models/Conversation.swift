@@ -51,8 +51,8 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     /// The reactions applied to the conversation's messages, or `nil` if it has none.
     let reactionMetadata: [ReactionMetadata]?
 
-    private static let messageCoalescer = Coalescer<String, Void>()
-    private static let userCoalescer = Coalescer<String, Void>()
+    private static let messageCoalescer = Coalescer<String, Void, Exception>()
+    private static let userCoalescer = Coalescer<String, Void, Exception>()
 
     // MARK: - Computed Properties
 

@@ -36,9 +36,8 @@ struct DataUsageService {
 
     fileprivate static let shared = DataUsageService()
 
-    private static let coalescer = SingleSlotCoalescer<Int>()
+    private static let coalescer = SingleSlotCoalescer<Int, Exception>()
 
-    private let isCalculatingDataUsage = LockIsolated(false)
     private let lastDataUsageCalculation = LockIsolated(DataUsageCalculation.empty)
     private let warningAlertRatio: Double = 0.6
 
@@ -92,8 +91,7 @@ struct DataUsageService {
                 calculation == DataUsageCalculation.empty || calculation.isExpired
             }
 
-        guard !isCalculatingDataUsage.wrappedValue,
-              isDataUsageCalculationInvalid else {
+        guard isDataUsageCalculationInvalid else {
             Logger.log( // swiftlint:disable:next line_length
                 "Returning last known data usage calculation (\(lastDataUsageCalculation.wrappedValue.dataUsageInKilobytes)kb), from \(abs(lastDataUsageCalculation.wrappedValue.date.seconds(from: .now)))s ago.",
                 domain: .dataUsage,
@@ -103,8 +101,6 @@ struct DataUsageService {
             return lastDataUsageCalculation.wrappedValue.dataUsageInKilobytes
         }
 
-        isCalculatingDataUsage.wrappedValue = true
-        defer { isCalculatingDataUsage.wrappedValue = false }
         var dataUsageInKilobytes = 0
 
         // Size of user object

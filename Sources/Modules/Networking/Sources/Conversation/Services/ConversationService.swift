@@ -29,7 +29,7 @@ struct ConversationService {
     /// The service that stages sample conversations during development.
     let staging: ConversationStagingService
 
-    private static let coalescer = Coalescer<String, Conversation>()
+    private static let coalescer = Coalescer<String, Conversation, Exception>()
 
     // MARK: - Init
 

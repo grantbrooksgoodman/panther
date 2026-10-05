@@ -36,8 +36,8 @@ final class UserService: @unchecked Sendable {
     /// The service that generates random user data for testing during development.
     let testing: UserTestingService
 
-    private static let keyedCoalescer = Coalescer<String, User>()
-    private static let singleSlotCoalescer = SingleSlotCoalescer<[User]>()
+    private static let keyedCoalescer = Coalescer<String, User, Exception>()
+    private static let singleSlotCoalescer = SingleSlotCoalescer<[User], Exception>()
 
     @Cached(CacheKey.userDataSnapshots) private var cachedUserDataSnapshots: [UserDataSnapshot]?
 
