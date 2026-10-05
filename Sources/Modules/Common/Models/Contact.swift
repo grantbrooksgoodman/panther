@@ -57,7 +57,7 @@ struct Contact: Codable, EncodedHashable, Equatable {
     /// The contact's image, decoded from ``imageData`` and cached in memory, or `nil` if the
     /// contact has no image.
     var image: UIImage? {
-        _ContactImageCache.cachedImagesForContactIDs?[id] ?? .init(data: imageData, id: id)
+        _ContactImageCache.image(forContactID: id) ?? .init(data: imageData, id: id)
     }
 
     /// The contact's full name, composed from the non-blank components of their first and last
@@ -110,12 +110,10 @@ struct Contact: Codable, EncodedHashable, Equatable {
         self.phoneNumbers = phoneNumbers
         self.imageData = imageData
         if let imageData {
-            if var cachedImagesForContactIDs = _ContactImageCache.cachedImagesForContactIDs {
-                cachedImagesForContactIDs[id] = .init(data: imageData)
-                _ContactImageCache.cachedImagesForContactIDs = cachedImagesForContactIDs
-            } else if let image = UIImage(data: imageData) {
-                _ContactImageCache.cachedImagesForContactIDs = [id: image]
-            }
+            _ContactImageCache.setImage(
+                UIImage(data: imageData),
+                forContactID: id
+            )
         }
     }
 
@@ -147,19 +145,25 @@ enum ContactImageCache {
 private enum _ContactImageCache {
     // MARK: - Properties
 
-    private static let _cachedImagesForContactIDs = LockIsolated<[String: UIImage]?>(nil)
+    private static let cachedImagesForContactIDs = LockIsolated([String: UIImage]())
 
-    // MARK: - Computed Properties
-
-    fileprivate static var cachedImagesForContactIDs: [String: UIImage]? {
-        get { _cachedImagesForContactIDs.wrappedValue }
-        set { _cachedImagesForContactIDs.wrappedValue = newValue }
-    }
-
-    // MARK: - Clear Cache
+    // MARK: - Methods
 
     fileprivate static func clearCache() {
-        cachedImagesForContactIDs = nil
+        cachedImagesForContactIDs.wrappedValue = [:]
+    }
+
+    fileprivate static func image(forContactID id: String) -> UIImage? {
+        cachedImagesForContactIDs.projectedValue[id]
+    }
+
+    /// Caches the given image for the contact, or evicts the contact's cached image when `nil`
+    /// is passed.
+    fileprivate static func setImage(
+        _ image: UIImage?,
+        forContactID id: String
+    ) {
+        cachedImagesForContactIDs.projectedValue[id] = image
     }
 }
 
@@ -169,12 +173,10 @@ private extension UIImage {
         id: String
     ) {
         guard let data else { return nil }
-        if var cachedImagesForContactIDs = _ContactImageCache.cachedImagesForContactIDs {
-            cachedImagesForContactIDs[id] = .init(data: data)
-            _ContactImageCache.cachedImagesForContactIDs = cachedImagesForContactIDs
-        } else if let image = UIImage(data: data) {
-            _ContactImageCache.cachedImagesForContactIDs = [id: image]
-        }
+        _ContactImageCache.setImage(
+            UIImage(data: data),
+            forContactID: id
+        )
 
         self.init(data: data)
     }

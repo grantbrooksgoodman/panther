@@ -69,7 +69,7 @@ enum PLISTGenerator {
         enhancementContext: String? = nil,
         completion: @escaping @Sendable (Callback<String, Exception>) -> Void
     ) {
-        let postProcess = LockIsolated<((String) -> String)?>(postProcess)
+        let postProcess = UncheckedSendable<((String) -> String)?>(postProcess)
         Task {
             do throws(Exception) {
                 try await completion(.success(

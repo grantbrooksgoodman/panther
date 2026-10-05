@@ -6,8 +6,6 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
-
 /* Native */
 import Foundation
 import UIKit
@@ -17,6 +15,12 @@ import AppSubsystem
 import Networking
 
 /// The service that applies and removes message reactions.
+///
+/// The service is main-actor isolated. ``isReactingToMessage`` is written only on the main
+/// actor, in the same turn that drains and runs the effects registered for the new value. A
+/// registered effect therefore runs exactly once, for the assignment it was registered against,
+/// and no other writer can interleave between the write and the drain.
+@MainActor
 final class ReactionSessionService {
     // MARK: - Dependencies
 
@@ -29,12 +33,17 @@ final class ReactionSessionService {
     // MARK: - Properties
 
     /// A Boolean value that indicates whether a reaction is currently being applied to a message.
-    @LockIsolated private(set) var isReactingToMessage = false {
-        didSet { didSetIsReactingToMessage() }
-    }
+    ///
+    /// Written only through ``setIsReactingToMessage(_:)``, which runs the effects registered for
+    /// the new value in the same turn.
+    private(set) var isReactingToMessage = false
 
-    @LockIsolated private var uponIsReactingToMessageChangedToFalse = [ReactionSessionServiceEffectID: () -> Void]()
-    @LockIsolated private var uponIsReactingToMessageChangedToTrue = [ReactionSessionServiceEffectID: () -> Void]()
+    private var uponIsReactingToMessageChangedToFalse = [ReactionSessionServiceEffectID: () -> Void]()
+    private var uponIsReactingToMessageChangedToTrue = [ReactionSessionServiceEffectID: () -> Void]()
+
+    // MARK: - Init
+
+    nonisolated init() {}
 
     // MARK: - Add Effect
 
@@ -53,8 +62,8 @@ final class ReactionSessionService {
         id: ReactionSessionServiceEffectID,
         _ effect: @escaping () -> Void
     ) {
-        guard state else { return $uponIsReactingToMessageChangedToFalse[id] = effect }
-        $uponIsReactingToMessageChangedToTrue[id] = effect
+        guard state else { return uponIsReactingToMessageChangedToFalse[id] = effect }
+        uponIsReactingToMessageChangedToTrue[id] = effect
     }
 
     // MARK: - React to Message
@@ -70,7 +79,6 @@ final class ReactionSessionService {
     ///   - message: The message to react to.
     ///
     /// - Throws: An `Exception` if the required values cannot be resolved or the write fails.
-    @MainActor
     func react(
         _ reaction: Reaction,
         to message: Message
@@ -103,7 +111,7 @@ final class ReactionSessionService {
             return try await removeReaction(from: message)
         }
 
-        isReactingToMessage = true
+        setIsReactingToMessage(true)
 
         // Notify users of reaction to message
 
@@ -130,56 +138,6 @@ final class ReactionSessionService {
 
     // MARK: - Auxiliary
 
-    private func didSetIsReactingToMessage() {
-        switch isReactingToMessage {
-        case true:
-            Task { @MainActor in
-                ContextMenuInteraction.setCanBegin(false)
-            }
-
-            let uponIsReactingToMessageChangedToTrue = drainEffects($uponIsReactingToMessageChangedToTrue)
-            guard !uponIsReactingToMessageChangedToTrue.isEmpty else { return }
-
-            Logger.log(.init(
-                "Running effects for change of \"isReactingToMessage\" to TRUE.",
-                isReportable: false,
-                userInfo: ["EnqueuedEffectIDs": uponIsReactingToMessageChangedToTrue.keys.map(\.rawValue)],
-                metadata: .init(sender: self)
-            ))
-
-            runEffects(uponIsReactingToMessageChangedToTrue)
-
-        case false:
-            Task { @MainActor in
-                ContextMenuInteraction.setCanBegin(true)
-            }
-
-            let uponIsReactingToMessageChangedToFalse = drainEffects($uponIsReactingToMessageChangedToFalse)
-            guard !uponIsReactingToMessageChangedToFalse.isEmpty else { return }
-
-            Logger.log(.init(
-                "Running effects for change of \"isReactingToMessage\" to FALSE.",
-                isReportable: false,
-                userInfo: ["EnqueuedEffectIDs": uponIsReactingToMessageChangedToFalse.keys.map(\.rawValue)],
-                metadata: .init(sender: self)
-            ))
-
-            runEffects(uponIsReactingToMessageChangedToFalse)
-        }
-    }
-
-    private func drainEffects(
-        _ effects: LockIsolatedProjection<[ReactionSessionServiceEffectID: () -> Void]>
-    ) -> [ReactionSessionServiceEffectID: () -> Void] {
-        effects.withValue {
-            guard !$0.isEmpty else { return [:] }
-            let drained = $0
-            $0 = [:]
-            return drained
-        }
-    }
-
-    @MainActor
     private func notifyUsers(
         ofReaction reaction: Reaction,
         to message: Message
@@ -211,7 +169,6 @@ final class ReactionSessionService {
         )
     }
 
-    @MainActor
     private func removeReaction(
         from message: Message
     ) async throws(Exception) {
@@ -229,7 +186,7 @@ final class ReactionSessionService {
             )
         }
 
-        isReactingToMessage = true
+        setIsReactingToMessage(true)
         try await updateConversation(
             conversation,
             messageData: (messageIndex, message),
@@ -237,11 +194,42 @@ final class ReactionSessionService {
         )
     }
 
-    private func runEffects(_ effects: [ReactionSessionServiceEffectID: () -> Void]) {
+    /// Writes ``isReactingToMessage`` and, in the same main-actor turn, drains and runs the
+    /// effects registered for the new value.
+    ///
+    /// The registry is drained before the effects run, so an effect that registers a new effect
+    /// for the same value keeps it for the next assignment.
+    private func setIsReactingToMessage(_ isReactingToMessage: Bool) {
+        self.isReactingToMessage = isReactingToMessage
+
+        // Deferred to the next turn on purpose: the context menu gate
+        // flips after this turn's effects and the caller's continuation
+        // have run, which matches the ordering callers were written for.
+        Task { @MainActor in
+            ContextMenuInteraction.setCanBegin(!isReactingToMessage)
+        }
+
+        let effects: [ReactionSessionServiceEffectID: () -> Void]
+        if isReactingToMessage {
+            effects = uponIsReactingToMessageChangedToTrue
+            uponIsReactingToMessageChangedToTrue = [:]
+        } else {
+            effects = uponIsReactingToMessageChangedToFalse
+            uponIsReactingToMessageChangedToFalse = [:]
+        }
+
+        guard !effects.isEmpty else { return }
+
+        Logger.log(.init(
+            "Running effects for change of \"isReactingToMessage\" to \(isReactingToMessage ? "TRUE" : "FALSE").",
+            isReportable: false,
+            userInfo: ["EnqueuedEffectIDs": effects.keys.map(\.rawValue)],
+            metadata: .init(sender: self)
+        ))
+
         effects.values.forEach { $0() }
     }
 
-    @MainActor
     private func updateConversation(
         _ conversation: Conversation,
         messageData: (index: Int, message: Message),
@@ -337,11 +325,11 @@ final class ReactionSessionService {
                 }
             )
         } catch {
-            isReactingToMessage = false
+            setIsReactingToMessage(false)
             throw error
         }
 
-        isReactingToMessage = false
+        setIsReactingToMessage(false)
         try await updatedConversation.resolveMessages(
             ids: [
                 messageData.message.id,
@@ -377,5 +365,3 @@ final class ReactionSessionService {
             .updateDurationLabelIfNeeded(forMessage: messageData.message)
     }
 }
-
-// swiftlint:enable type_body_length

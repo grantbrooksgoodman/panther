@@ -41,7 +41,7 @@ final class RecordingService: NSObject {
     /// remains `true` until the recording stops.
     private(set) var willStartRecording = false
 
-    private let outputFile = LockIsolated<AVAudioFile?>(nil)
+    private let outputFile = UncheckedLockIsolated<AVAudioFile?>(nil)
 
     private var audioEngine: AVAudioEngine?
     private var isObservingSessionEvents = false

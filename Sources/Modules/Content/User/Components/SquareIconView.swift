@@ -128,16 +128,16 @@ struct SquareIconView: View {
     ///
     /// - Returns: The rendered image; otherwise, `nil` if rendering fails.
     static func image(_ configuration: Configuration) -> UIImage? {
-        // swiftlint:disable:next identifier_name
-        if let cachedSquareIconImagesForConfigurationEncodedHashes = _SquareIconImageCache.cachedSquareIconImagesForConfigurationEncodedHashes,
-           let image = cachedSquareIconImagesForConfigurationEncodedHashes[configuration.encodedHash] {
-            return image
+        if let cachedImage = _SquareIconImageCache.image(forEncodedHash: configuration.encodedHash) {
+            return cachedImage
         }
 
-        let image = ImageRenderer(content: SquareIconView(configuration)).uiImage // swiftlint:disable:next identifier_name
-        var cachedSquareIconImagesForConfigurationEncodedHashes = _SquareIconImageCache.cachedSquareIconImagesForConfigurationEncodedHashes ?? [:]
-        cachedSquareIconImagesForConfigurationEncodedHashes[configuration.encodedHash] = image
-        _SquareIconImageCache.cachedSquareIconImagesForConfigurationEncodedHashes = cachedSquareIconImagesForConfigurationEncodedHashes
+        let image = ImageRenderer(content: SquareIconView(configuration)).uiImage
+        _SquareIconImageCache.setImage(
+            image,
+            forEncodedHash: configuration.encodedHash
+        )
+
         return image
     }
 }
@@ -153,19 +153,24 @@ enum SquareIconImageCache {
 private enum _SquareIconImageCache {
     // MARK: - Properties
 
-    // swiftlint:disable identifier_name
-    private static let _cachedSquareIconImagesForConfigurationEncodedHashes = LockIsolated<[String: UIImage]?>(nil)
+    private static let cachedImagesForEncodedHashes = LockIsolated([String: UIImage]())
 
-    // MARK: - Computed Properties
-
-    fileprivate static var cachedSquareIconImagesForConfigurationEncodedHashes: [String: UIImage]? {
-        get { _cachedSquareIconImagesForConfigurationEncodedHashes.wrappedValue }
-        set { _cachedSquareIconImagesForConfigurationEncodedHashes.wrappedValue = newValue }
-    } // swiftlint:enable identifier_name
-
-    // MARK: - Clear Cache
+    // MARK: - Methods
 
     fileprivate static func clearCache() {
-        cachedSquareIconImagesForConfigurationEncodedHashes = nil
+        cachedImagesForEncodedHashes.wrappedValue = [:]
+    }
+
+    fileprivate static func image(forEncodedHash encodedHash: String) -> UIImage? {
+        cachedImagesForEncodedHashes.projectedValue[encodedHash]
+    }
+
+    /// Caches the given image for the encoded hash, or evicts the encoded hash's cached image
+    /// when `nil` is passed.
+    fileprivate static func setImage(
+        _ image: UIImage?,
+        forEncodedHash encodedHash: String
+    ) {
+        cachedImagesForEncodedHashes.projectedValue[encodedHash] = image
     }
 }

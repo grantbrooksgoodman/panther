@@ -30,7 +30,7 @@ extension DatabaseDelegate {
         @Dependency(\.build.milestone) var buildMilestone: Build.Milestone
 
         guard !RuntimeStorage.populatedTemporaryCaches else { return }
-        let database = LockIsolated(
+        let database = UncheckedSendable(
             Dependency(\.networking.database).wrappedValue
         )
 

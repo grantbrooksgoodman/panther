@@ -22,7 +22,7 @@ import AppSubsystem
 enum PendingTranslationArchive {
     // MARK: - Properties
 
-    private static let entries = LockIsolated([String: (key: String, value: Any)]())
+    private static let entries = UncheckedLockIsolated([String: (key: String, value: Any)]())
 
     // MARK: - Methods
 

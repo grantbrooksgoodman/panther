@@ -23,6 +23,11 @@ import Translator
 /// messages can be retried; sends that create a new conversation optimistically insert a mock
 /// message instead. While a send is in flight, ``isSendingMessage`` is `true` and context
 /// menu interactions are disabled.
+///
+/// The service is main-actor isolated. ``isSendingMessage`` is written only on the main actor,
+/// in the same turn that drains and runs the effects registered for the new value. A registered
+/// effect therefore runs exactly once, for the assignment it was registered against, and no
+/// other writer can interleave between the write and the drain.
 @MainActor
 final class MessageDeliveryService {
     // MARK: - Dependencies
@@ -34,9 +39,10 @@ final class MessageDeliveryService {
     // MARK: - Properties
 
     /// A Boolean value that indicates whether a message send is in flight.
-    private(set) var isSendingMessage = false {
-        didSet { didSetIsSendingMessage() }
-    }
+    ///
+    /// Written only through ``setIsSendingMessage(_:)``, which runs the effects registered for
+    /// the new value in the same turn.
+    private(set) var isSendingMessage = false
 
     @SharedEvent(\.audioMessageTranscriptionSucceeded) private var audioMessageTranscriptionSucceeded
     private var eventChangeTask: Task<Void, Never>?
@@ -127,7 +133,7 @@ final class MessageDeliveryService {
     ) async throws(Exception) {
         guard !users.isEmpty else { return }
 
-        isSendingMessage = true
+        setIsSendingMessage(true)
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
 
         Task { @MainActor in
@@ -295,7 +301,7 @@ final class MessageDeliveryService {
             )
         }
 
-        isSendingMessage = true
+        setIsSendingMessage(true)
         chatPageViewService.inputBar?.toggleSendingUI(
             on: true,
             clearInputTextViewText: false
@@ -377,7 +383,7 @@ final class MessageDeliveryService {
             )
         }
 
-        isSendingMessage = true
+        setIsSendingMessage(true)
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
         defer { cleanUpAfterSend() }
@@ -499,7 +505,7 @@ final class MessageDeliveryService {
     }
 
     private func cleanUpAfterSend() {
-        isSendingMessage = false
+        setIsSendingMessage(false)
         chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
         chatPageViewService.inputBar?.toggleSendingUI(on: false)
 
@@ -507,38 +513,6 @@ final class MessageDeliveryService {
             chatPageViewService
                 .deliveryProgressIndicator?
                 .stopAnimatingDeliveryProgress()
-        }
-    }
-
-    private func didSetIsSendingMessage() {
-        switch isSendingMessage {
-        case true:
-            ContextMenuInteraction.setCanBegin(false)
-            guard !uponIsSendingMessageChangedToTrue.isEmpty else { return }
-
-            Logger.log(.init(
-                "Running effects for change of \"isSendingMessage\" to TRUE.",
-                isReportable: false,
-                userInfo: ["EnqueuedEffectIDs": uponIsSendingMessageChangedToTrue.keys.map(\.rawValue)],
-                metadata: .init(sender: self)
-            ))
-
-            uponIsSendingMessageChangedToTrue.values.forEach { $0() }
-            uponIsSendingMessageChangedToTrue = .init()
-
-        case false:
-            ContextMenuInteraction.setCanBegin(true)
-            guard !uponIsSendingMessageChangedToFalse.isEmpty else { return }
-
-            Logger.log(.init(
-                "Running effects for change of \"isSendingMessage\" to FALSE.",
-                isReportable: false,
-                userInfo: ["EnqueuedEffectIDs": uponIsSendingMessageChangedToFalse.keys.map(\.rawValue)],
-                metadata: .init(sender: self)
-            ))
-
-            uponIsSendingMessageChangedToFalse.values.forEach { $0() }
-            uponIsSendingMessageChangedToFalse = .init()
         }
     }
 
@@ -561,6 +535,36 @@ final class MessageDeliveryService {
 
         clientSession.entity.conversation.setCurrentConversation(conversation)
         chatPageViewService.reloadCollectionView()
+    }
+
+    /// Writes ``isSendingMessage`` and, in the same main-actor turn, drains and runs the effects
+    /// registered for the new value.
+    ///
+    /// The registry is drained before the effects run, so an effect that registers a new effect
+    /// for the same value keeps it for the next assignment.
+    private func setIsSendingMessage(_ isSendingMessage: Bool) {
+        self.isSendingMessage = isSendingMessage
+        ContextMenuInteraction.setCanBegin(!isSendingMessage)
+
+        let effects: [MessageDeliveryServiceEffectID: () -> Void]
+        if isSendingMessage {
+            effects = uponIsSendingMessageChangedToTrue
+            uponIsSendingMessageChangedToTrue = [:]
+        } else {
+            effects = uponIsSendingMessageChangedToFalse
+            uponIsSendingMessageChangedToFalse = [:]
+        }
+
+        guard !effects.isEmpty else { return }
+
+        Logger.log(.init(
+            "Running effects for change of \"isSendingMessage\" to \(isSendingMessage ? "TRUE" : "FALSE").",
+            isReportable: false,
+            userInfo: ["EnqueuedEffectIDs": effects.keys.map(\.rawValue)],
+            metadata: .init(sender: self)
+        ))
+
+        effects.values.forEach { $0() }
     }
 }
 

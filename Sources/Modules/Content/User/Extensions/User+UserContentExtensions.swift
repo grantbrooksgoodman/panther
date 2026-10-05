@@ -31,12 +31,13 @@ extension User {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
 
         func cache(_ displayName: String) {
-            var cachedDisplayNamesForUserIDs = _UserDisplayNameCache.cachedDisplayNamesForUserIDs ?? [:]
-            cachedDisplayNamesForUserIDs[id] = displayName
-            _UserDisplayNameCache.cachedDisplayNamesForUserIDs = cachedDisplayNamesForUserIDs
+            _UserDisplayNameCache.setDisplayName(
+                displayName,
+                forUserID: id
+            )
         }
 
-        if let cachedValue = _UserDisplayNameCache.cachedDisplayNamesForUserIDs?[id] {
+        if let cachedValue = _UserDisplayNameCache.displayName(forUserID: id) {
             return cachedValue
         }
 
@@ -139,27 +140,30 @@ enum UserDisplayNameCache {
 private enum _UserDisplayNameCache {
     // MARK: - Properties
 
-    private static let _cachedDisplayNamesForUserIDs = LockIsolated<[String: String]?>(nil)
-
-    // MARK: - Computed Properties
-
-    fileprivate static var cachedDisplayNamesForUserIDs: [String: String]? {
-        get { _cachedDisplayNamesForUserIDs.wrappedValue }
-        set { _cachedDisplayNamesForUserIDs.wrappedValue = newValue }
-    }
+    private static let cachedDisplayNamesForUserIDs = LockIsolated([String: String]())
 
     // MARK: - Methods
 
     fileprivate static func clearCache() {
-        cachedDisplayNamesForUserIDs = nil
+        cachedDisplayNamesForUserIDs.wrappedValue = [:]
+    }
+
+    fileprivate static func displayName(forUserID id: String) -> String? {
+        cachedDisplayNamesForUserIDs.projectedValue[id]
     }
 
     fileprivate static func removeValues(forUserIDs ids: Set<String>) {
-        guard var cache = cachedDisplayNamesForUserIDs else { return }
-        for id in ids {
-            cache[id] = nil
+        cachedDisplayNamesForUserIDs.projectedValue.withValue { cache in
+            for id in ids {
+                cache[id] = nil
+            }
         }
+    }
 
-        cachedDisplayNamesForUserIDs = cache
+    fileprivate static func setDisplayName(
+        _ displayName: String,
+        forUserID id: String
+    ) {
+        cachedDisplayNamesForUserIDs.projectedValue[id] = displayName
     }
 }

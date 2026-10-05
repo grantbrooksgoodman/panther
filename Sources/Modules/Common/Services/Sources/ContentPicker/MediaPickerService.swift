@@ -76,7 +76,7 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
         }
 
         guard let firstResult = results.first else { return _onDismiss = nil }
-        let itemProvider = LockIsolated(firstResult.itemProvider)
+        let itemProvider = UncheckedSendable(firstResult.itemProvider)
 
         let confirmAction: AKAction = .init("Confirm", style: .preferred) {
             Task.delayed(by: .milliseconds(250)) { @MainActor in
@@ -88,17 +88,19 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
                     }
                 }
 
-                itemProvider.projectedValue.withValue {
-                    if $0.canLoadObject(ofClass: UIImage.self) {
-                        self.loadImage($0)
-                    } else if $0.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
-                        self.loadVideo($0)
-                    } else {
-                        self.dismissReturningFailure(.init(
-                            "Failed to process media.",
-                            metadata: .init(sender: self)
-                        ))
-                    }
+                if itemProvider.wrappedValue.canLoadObject(
+                    ofClass: UIImage.self
+                ) {
+                    self.loadImage(itemProvider.wrappedValue)
+                } else if itemProvider.wrappedValue.hasItemConformingToTypeIdentifier(
+                    UTType.movie.identifier
+                ) {
+                    self.loadVideo(itemProvider.wrappedValue)
+                } else {
+                    self.dismissReturningFailure(.init(
+                        "Failed to process media.",
+                        metadata: .init(sender: self)
+                    ))
                 }
             }
         }
@@ -141,7 +143,7 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
     private func loadVideo(_ itemProvider: NSItemProvider) {
         typealias Strings = AppConstants.Strings.ChatPageViewService.MediaActionHandler
 
-        let fileManager = LockIsolated(fileManager)
+        let fileManager = UncheckedSendable(fileManager)
         let temporaryFileName = "\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
         let temporaryFilePath = fileManager
             .wrappedValue

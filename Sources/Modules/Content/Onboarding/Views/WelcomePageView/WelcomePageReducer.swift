@@ -135,7 +135,7 @@ struct WelcomePageReducer: Reducer {
             core.utils.restoreDeviceLanguageCode()
             onboardingService.flushValues()
 
-            let auth = LockIsolated(networking.auth)
+            let auth = UncheckedSendable(networking.auth)
             return .task(delay: .seconds(1)) {
                 do throws(Exception) {
                     _ = try await auth.wrappedValue.signInAnonymously()
@@ -165,7 +165,7 @@ struct WelcomePageReducer: Reducer {
                 }
             }
 
-            let translator = LockIsolated(networking.hostedTranslation)
+            let translator = UncheckedSendable(networking.hostedTranslation)
             return .task {
                 do throws(Exception) {
                     return try await .resolveReturned(

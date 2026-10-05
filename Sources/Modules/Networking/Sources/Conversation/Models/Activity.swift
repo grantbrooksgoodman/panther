@@ -41,7 +41,7 @@ struct Activity: Codable, EncodedHashable, Equatable {
     /// The description is resolved once per activity version and cached in memory.
     @MainActor
     var description: String {
-        if let cachedValue = _ActivityDescriptionCache.cachedDescriptionsForEncodedHashes?[encodedHash] {
+        if let cachedValue = _ActivityDescriptionCache.description(forEncodedHash: encodedHash) {
             return cachedValue
         }
 
@@ -98,9 +98,11 @@ struct Activity: Codable, EncodedHashable, Equatable {
         }
 
         guard let localizedString else { return "�" }
-        var cachedDescriptionsForEncodedHashes = _ActivityDescriptionCache.cachedDescriptionsForEncodedHashes ?? [:]
-        cachedDescriptionsForEncodedHashes[encodedHash] = localizedString
-        _ActivityDescriptionCache.cachedDescriptionsForEncodedHashes = cachedDescriptionsForEncodedHashes
+        _ActivityDescriptionCache.setDescription(
+            localizedString,
+            forEncodedHash: encodedHash
+        )
+
         return localizedString
     }
 
@@ -227,19 +229,25 @@ enum ActivityDescriptionCache {
 private enum _ActivityDescriptionCache {
     // MARK: - Properties
 
-    private static let _cachedDescriptionsForEncodedHashes = LockIsolated<[String: String]?>(nil)
+    private static let cachedDescriptionsForEncodedHashes = LockIsolated([String: String]())
 
-    // MARK: - Computed Properties
-
-    fileprivate static var cachedDescriptionsForEncodedHashes: [String: String]? {
-        get { _cachedDescriptionsForEncodedHashes.wrappedValue }
-        set { _cachedDescriptionsForEncodedHashes.wrappedValue = newValue }
-    }
-
-    // MARK: - Clear Cache
+    // MARK: - Methods
 
     fileprivate static func clearCache() {
-        cachedDescriptionsForEncodedHashes = nil
+        cachedDescriptionsForEncodedHashes.wrappedValue = [:]
+    }
+
+    fileprivate static func description(
+        forEncodedHash encodedHash: String
+    ) -> String? {
+        cachedDescriptionsForEncodedHashes.projectedValue[encodedHash]
+    }
+
+    fileprivate static func setDescription(
+        _ description: String,
+        forEncodedHash encodedHash: String
+    ) {
+        cachedDescriptionsForEncodedHashes.projectedValue[encodedHash] = description
     }
 }
 

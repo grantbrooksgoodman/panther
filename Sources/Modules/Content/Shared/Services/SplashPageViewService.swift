@@ -202,7 +202,7 @@ final class SplashPageViewService: ObservableObject {
         /* MARK: Anonymous Sign-In */
 
         guard !Task.isCancelled else { return }
-        _ = try? await LockIsolated(networking.auth)
+        _ = try? await UncheckedSendable(networking.auth)
             .wrappedValue
             .signInAnonymously()
 
@@ -335,7 +335,7 @@ final class SplashPageViewService: ObservableObject {
 
             if (currentUser.conversationIDs ?? []).count > 20,
                clientSession.store.conversations.isEmpty {
-                let database = LockIsolated(networking.database)
+                let database = UncheckedSendable(networking.database)
                 Task.detached(priority: .utility) {
                     do throws(Exception) {
                         guard !Task.isCancelled else { return }
@@ -362,7 +362,7 @@ final class SplashPageViewService: ObservableObject {
                 guard let self,
                       !Task.isCancelled else { return }
 
-                let pushTokenService = LockIsolated(services.pushToken)
+                let pushTokenService = UncheckedSendable(services.pushToken)
                 if Networking.config.environment != .staging {
                     do throws(Exception) {
                         guard !Task.isCancelled else { return }
@@ -389,12 +389,11 @@ final class SplashPageViewService: ObservableObject {
                 }
 
                 do throws(Exception) {
-                    let currentUser = LockIsolated(currentUser)
                     guard !Task.isCancelled else { return }
                     try await services
                         .notification
                         .setBadgeNumber(
-                            currentUser.wrappedValue.calculateBadgeNumber()
+                            currentUser.calculateBadgeNumber()
                         )
                 } catch {
                     Logger.log(

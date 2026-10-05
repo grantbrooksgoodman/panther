@@ -146,7 +146,7 @@ extension DevModeAction {
             @Sendable
             func stagingModeOptions() { // swiftlint:disable:next identifier_name
                 @Dependency(\.networking.conversationService.staging) var _conversationStagingService: ConversationStagingService
-                let conversationStagingService = LockIsolated(_conversationStagingService)
+                let conversationStagingService = UncheckedSendable(_conversationStagingService)
 
                 Task { @MainActor in
                     @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD

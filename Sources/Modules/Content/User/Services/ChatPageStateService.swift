@@ -14,24 +14,33 @@ import AppSubsystem
 
 /// Use ``ChatPageStateService`` to track whether the chat page is presented and to schedule
 /// one-shot effects on presentation changes.
+///
+/// The service is main-actor isolated. ``isPresented`` is written only on the main actor, in the
+/// same turn that drains and runs the effects registered for the new value. A registered
+/// effect therefore runs exactly once, for the assignment it was registered against, and no
+/// other writer can interleave between the write and the drain.
+@MainActor
 final class ChatPageStateService {
     // MARK: - Properties
 
     /// A Boolean value that indicates whether the chat page is presented.
-    private(set) var isPresented: Bool {
-        didSet { didSetIsPresented() }
-    }
+    ///
+    /// Written only through ``setIsPresented(_:)``, which runs the effects registered for
+    /// the new value in the same turn.
+    private(set) var isPresented: Bool
 
-    @LockIsolated private var uponIsPresentedChangedToFalse = [ChatPageStateServiceEffectID: () -> Void]()
-    @LockIsolated private var uponIsPresentedChangedToTrue = [ChatPageStateServiceEffectID: () -> Void]()
+    private var uponIsPresentedChangedToFalse = [ChatPageStateServiceEffectID: () -> Void]()
+    private var uponIsPresentedChangedToTrue = [ChatPageStateServiceEffectID: () -> Void]()
 
     // MARK: - Init
 
     /// Creates a chat page state service with the given initial presentation state.
     ///
+    /// No effects run for the initial value.
+    ///
     /// - Parameter isPresented: A Boolean value that indicates whether the chat page is
     ///   presented.
-    init(isPresented: Bool) {
+    nonisolated init(isPresented: Bool) {
         self.isPresented = isPresented
     }
 
@@ -39,13 +48,37 @@ final class ChatPageStateService {
 
     /// Sets whether the chat page is presented.
     ///
-    /// Each assignment runs – and clears – the effects registered for the assigned value,
-    /// whether or not the value changed.
+    /// Each assignment runs – and clears – the effects registered for the new value,
+    /// whether or not the value changed. The registry is drained before the effects run, so an
+    /// effect that registers a new effect for the same value keeps it for the next assignment.
     ///
     /// - Parameter isPresented: A Boolean value that indicates whether the chat page is
     ///   presented.
     func setIsPresented(_ isPresented: Bool) {
         self.isPresented = isPresented
+
+        let effects: [ChatPageStateServiceEffectID: () -> Void]
+        if isPresented {
+            effects = uponIsPresentedChangedToTrue
+            uponIsPresentedChangedToTrue = [:]
+        } else {
+            effects = uponIsPresentedChangedToFalse
+            uponIsPresentedChangedToFalse = [:]
+        }
+
+        guard !effects.isEmpty else { return }
+
+        Logger.log(
+            .init(
+                "Running effects for change of \"isPresented\" to \(isPresented ? "TRUE" : "FALSE").",
+                isReportable: false,
+                userInfo: ["EnqueuedEffectIDs": effects.keys.map(\.rawValue)],
+                metadata: .init(sender: self)
+            ),
+            domain: .chatPageState
+        )
+
+        effects.values.forEach { $0() }
     }
 
     // MARK: - Effect Addition
@@ -65,60 +98,7 @@ final class ChatPageStateService {
         id: ChatPageStateServiceEffectID,
         _ effect: @escaping () -> Void
     ) {
-        guard state else { return $uponIsPresentedChangedToFalse[id] = effect }
-        $uponIsPresentedChangedToTrue[id] = effect
-    }
-
-    // MARK: - Auxiliary
-
-    private func didSetIsPresented() {
-        switch isPresented {
-        case true:
-            let uponIsPresentedChangedToTrue = drainEffects($uponIsPresentedChangedToTrue)
-            guard !uponIsPresentedChangedToTrue.isEmpty else { return }
-
-            Logger.log(
-                .init(
-                    "Running effects for change of \"isPresented\" to TRUE.",
-                    isReportable: false,
-                    userInfo: ["EnqueuedEffectIDs": uponIsPresentedChangedToTrue.keys.map(\.rawValue)],
-                    metadata: .init(sender: self)
-                ),
-                domain: .chatPageState
-            )
-
-            runEffects(uponIsPresentedChangedToTrue)
-
-        case false:
-            let uponIsPresentedChangedToFalse = drainEffects($uponIsPresentedChangedToFalse)
-            guard !uponIsPresentedChangedToFalse.isEmpty else { return }
-
-            Logger.log(
-                .init(
-                    "Running effects for change of \"isPresented\" to FALSE.",
-                    isReportable: false,
-                    userInfo: ["EnqueuedEffectIDs": uponIsPresentedChangedToFalse.keys.map(\.rawValue)],
-                    metadata: .init(sender: self)
-                ),
-                domain: .chatPageState
-            )
-
-            runEffects(uponIsPresentedChangedToFalse)
-        }
-    }
-
-    private func drainEffects(
-        _ effects: LockIsolatedProjection<[ChatPageStateServiceEffectID: () -> Void]>
-    ) -> [ChatPageStateServiceEffectID: () -> Void] {
-        effects.withValue {
-            guard !$0.isEmpty else { return [:] }
-            let drained = $0
-            $0 = [:]
-            return drained
-        }
-    }
-
-    private func runEffects(_ effects: [ChatPageStateServiceEffectID: () -> Void]) {
-        effects.values.forEach { $0() }
+        guard state else { return uponIsPresentedChangedToFalse[id] = effect }
+        uponIsPresentedChangedToTrue[id] = effect
     }
 }

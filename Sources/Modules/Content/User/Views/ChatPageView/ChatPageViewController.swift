@@ -173,7 +173,7 @@ final class ChatPageViewController: MessagesViewController {
         forMessageID messageID: String,
         sourceView: UIView
     ) {
-        let messageOutboxService = LockIsolated(messageOutboxService)
+        let messageOutboxService = UncheckedSendable(messageOutboxService)
         let deleteAction = AKAction(
             Localized(.delete).wrappedValue,
             style: .destructive

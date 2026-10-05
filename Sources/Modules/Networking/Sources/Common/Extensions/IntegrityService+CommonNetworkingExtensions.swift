@@ -302,7 +302,7 @@ extension IntegrityService {
             networking.database.setGlobalCacheStrategy(nil)
             networking.storage.setGlobalCacheStrategy(nil)
 
-            let rollbackService = LockIsolated(rollbackService)
+            let rollbackService = UncheckedSendable(rollbackService)
             Task {
                 do throws(Exception) {
                     try await rollbackService

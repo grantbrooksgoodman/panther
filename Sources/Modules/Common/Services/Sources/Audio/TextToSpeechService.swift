@@ -103,7 +103,7 @@ struct TextToSpeechService {
             return true
         }
 
-        if let cachedValue = _TextToSpeechServiceCache.cachedVoicesForLanguageCodes?[languageCode] {
+        if let cachedValue = _TextToSpeechServiceCache.voice(forLanguageCode: languageCode) {
             return cachedValue
         }
 
@@ -115,9 +115,10 @@ struct TextToSpeechService {
         if let voiceForLanguageCode = voices
             .filter({ $0.language.lowercased().hasPrefix(languageCode.lowercased()) })
             .first(where: { satisfiesConstraints($0) }) ?? .init(language: languageCode) {
-            var cachedVoicesForLanguageCodes = _TextToSpeechServiceCache.cachedVoicesForLanguageCodes ?? [:]
-            cachedVoicesForLanguageCodes[languageCode] = voiceForLanguageCode
-            _TextToSpeechServiceCache.cachedVoicesForLanguageCodes = cachedVoicesForLanguageCodes
+            _TextToSpeechServiceCache.setVoice(
+                voiceForLanguageCode,
+                forLanguageCode: languageCode
+            )
 
             return voiceForLanguageCode
         }
@@ -141,7 +142,7 @@ struct TextToSpeechService {
     /// - Note: The check consults the voice inventory without blocking. While the inventory is
     ///   still loading, this method starts the load and returns `false` without caching a result.
     func isTextToSpeechSupported(for languageCode: String) -> Bool {
-        if let cachedValue = _TextToSpeechServiceCache.cachedTextToSpeechSupportForLanguageCodes?[languageCode] {
+        if let cachedValue = _TextToSpeechServiceCache.supportValue(forLanguageCode: languageCode) {
             return cachedValue
         }
 
@@ -154,10 +155,11 @@ struct TextToSpeechService {
             $0.language.lowercased().hasPrefix(languageCode.lowercased())
         })
 
-        // swiftlint:disable:next identifier_name
-        var cachedTextToSpeechSupportForLanguageCodes = _TextToSpeechServiceCache.cachedTextToSpeechSupportForLanguageCodes ?? [:]
-        cachedTextToSpeechSupportForLanguageCodes[languageCode] = isTextToSpeechSupported
-        _TextToSpeechServiceCache.cachedTextToSpeechSupportForLanguageCodes = cachedTextToSpeechSupportForLanguageCodes
+        _TextToSpeechServiceCache.setSupportValue(
+            isTextToSpeechSupported,
+            forLanguageCode: languageCode
+        )
+
         return isTextToSpeechSupported
     }
 
@@ -284,7 +286,9 @@ private final class TextToSpeechSynthesisSession: @unchecked Sendable {
     private let outputFileURL: URL
     private let utterance: AVSpeechUtterance
 
-    @LockIsolated private var state = State()
+    /// `State` holds an `AVSpeechSynthesizer` and an `AVAudioFile`, neither of
+    /// which is `Sendable`; the claim is made explicitly here.
+    @UncheckedLockIsolated private var state = State()
 
     // MARK: - Init
 
@@ -570,7 +574,9 @@ private final class TextToSpeechVoiceInventory: @unchecked Sendable {
         qos: .userInitiated
     )
 
-    @LockIsolated private var state: LoadState = .notLoaded
+    // `LoadState` carries `AVSpeechSynthesisVoice` values, which are not known
+    // here to be `Sendable`; the claim is made explicitly rather than inferred.
+    @UncheckedLockIsolated private var state: LoadState = .notLoaded
     @LockIsolated private var waiters = [UUID: CheckedContinuation<Void, Error>]()
 
     // MARK: - Computed Properties
@@ -676,27 +682,43 @@ enum TextToSpeechServiceCache {
 private enum _TextToSpeechServiceCache {
     // MARK: - Properties
 
-    // swiftlint:disable identifier_name
-    private static let _cachedTextToSpeechSupportForLanguageCodes = LockIsolated<[String: Bool]?>(nil)
-    private static let _cachedVoicesForLanguageCodes = LockIsolated<[String: AVSpeechSynthesisVoice]?>(nil)
+    private static let cachedSupportValuesForLanguageCodes = LockIsolated([String: Bool]())
 
-    // MARK: - Computed Properties
+    /// `AVSpeechSynthesisVoice` is not known here to be `Sendable`, so the
+    /// claim is made explicitly rather than inferred from the lock.
+    private static let cachedVoicesForLanguageCodes = UncheckedLockIsolated([String: AVSpeechSynthesisVoice]())
 
-    fileprivate static var cachedTextToSpeechSupportForLanguageCodes: [String: Bool]? {
-        get { _cachedTextToSpeechSupportForLanguageCodes.wrappedValue }
-        set { _cachedTextToSpeechSupportForLanguageCodes.wrappedValue = newValue }
-    }
-
-    fileprivate static var cachedVoicesForLanguageCodes: [String: AVSpeechSynthesisVoice]? {
-        get { _cachedVoicesForLanguageCodes.wrappedValue }
-        set { _cachedVoicesForLanguageCodes.wrappedValue = newValue }
-    } // swiftlint:enable identifier_name
-
-    // MARK: - Clear Cache
+    // MARK: - Methods
 
     fileprivate static func clearCache() {
-        cachedTextToSpeechSupportForLanguageCodes = nil
-        cachedVoicesForLanguageCodes = nil
+        cachedSupportValuesForLanguageCodes.wrappedValue = [:]
+        cachedVoicesForLanguageCodes.wrappedValue = [:]
+    }
+
+    fileprivate static func setSupportValue(
+        _ isSupported: Bool,
+        forLanguageCode languageCode: String
+    ) {
+        cachedSupportValuesForLanguageCodes.projectedValue[languageCode] = isSupported
+    }
+
+    fileprivate static func setVoice(
+        _ voice: AVSpeechSynthesisVoice,
+        forLanguageCode languageCode: String
+    ) {
+        cachedVoicesForLanguageCodes.projectedValue[languageCode] = voice
+    }
+
+    fileprivate static func supportValue(
+        forLanguageCode languageCode: String
+    ) -> Bool? {
+        cachedSupportValuesForLanguageCodes.projectedValue[languageCode]
+    }
+
+    fileprivate static func voice(
+        forLanguageCode languageCode: String
+    ) -> AVSpeechSynthesisVoice? {
+        cachedVoicesForLanguageCodes.projectedValue[languageCode]
     }
 }
 

@@ -23,12 +23,6 @@ struct UserSessionService {
         case getDataUsage
     }
 
-    private enum UpdateState {
-        case idle
-        case running
-        case runningWithPending
-    }
-
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -38,12 +32,12 @@ struct UserSessionService {
 
     // MARK: - Properties
 
-    private static let conversationCoalescer = SingleSlotCoalescer<Void>()
-    private static let messageCoalescer = SingleSlotCoalescer<Void>()
-    private static let userCoalescer = SingleSlotCoalescer<Void>()
+    private static let conversationCoalescer = SingleSlotCoalescer<Void>(policy: .replace)
+    private static let messageCoalescer = SingleSlotCoalescer<Void>(policy: .replace)
+    private static let updateCoalescer = SingleSlotCoalescer<Void>(policy: .rerun)
+    private static let userCoalescer = SingleSlotCoalescer<Void>(policy: .replace)
 
     private let observationTask: LockIsolated<Task<Void, Never>?> = .init(nil)
-    private let updateState = LockIsolated<UpdateState>(.idle)
 
     @Persistent(.currentUserID) private var currentUserID: String?
 
@@ -84,10 +78,7 @@ struct UserSessionService {
                 try await resolveCurrentUserConversations()
             }
 
-            try await Self.conversationCoalescer(
-                mode: .lastCallerWins,
-                resolveConversations
-            )
+            try await Self.conversationCoalescer(resolveConversations)
         }
 
         if data.contains(.messages) {
@@ -95,10 +86,7 @@ struct UserSessionService {
                 try await resolveMessagesOnCurrentUserConversations()
             }
 
-            try await Self.messageCoalescer(
-                mode: .lastCallerWins,
-                resolveMessages
-            )
+            try await Self.messageCoalescer(resolveMessages)
         }
 
         if data.contains(.users) {
@@ -106,10 +94,7 @@ struct UserSessionService {
                 try await resolveUsersOnCurrentUserConversations()
             }
 
-            try await Self.userCoalescer(
-                mode: .lastCallerWins,
-                resolveUsers
-            )
+            try await Self.userCoalescer(resolveUsers)
         }
     }
 
@@ -527,35 +512,16 @@ struct UserSessionService {
     /// Resolves the current user and their conversations in
     /// response to an observed change.
     ///
-    /// Only one update runs at a time. If a second call
-    /// arrives while an update is in progress, it is queued
-    /// and retried after the current update completes.
+    /// Only one update runs at a time. A call that arrives
+    /// while an update is in progress waits for it to finish
+    /// and then runs once more, so every observed change is
+    /// reflected by an update that began after it. Any number
+    /// of such calls collapse into a single rerun.
     private func updateCurrentUser() {
         Task {
-            let didStart: Bool = updateState
-                .projectedValue
-                .withValue {
-                    switch $0 {
-                    case .idle:
-                        $0 = .running
-                        return true
-                    case .running:
-                        $0 = .runningWithPending
-                        return false
-                    case .runningWithPending:
-                        return false
-                    }
-                }
-
-            guard didStart else {
-                return Logger.log(
-                    "Queuing pending current user update because an update is already occurring.",
-                    domain: .userSession,
-                    sender: self
-                )
-            }
-
-            repeat {
+            // Logging and follow-up work live inside the operation so
+            // they happen once per run, not once per waiting caller.
+            await Self.updateCoalescer {
                 do throws(Exception) {
                     try await resolveCurrentUser(
                         and: .allDataTypes
@@ -580,29 +546,7 @@ struct UserSessionService {
                         domain: .userSession
                     )
                 }
-
-                let shouldContinue: Bool = updateState
-                    .projectedValue
-                    .withValue {
-                        switch $0 {
-                        case .idle:
-                            return false
-                        case .running:
-                            $0 = .idle
-                            return false
-                        case .runningWithPending:
-                            $0 = .running
-                            return true
-                        }
-                    }
-
-                guard shouldContinue else { break }
-                Logger.log(
-                    "Retrying current user update from pending request.",
-                    domain: .userSession,
-                    sender: self
-                )
-            } while true
+            }
         }
     }
 }

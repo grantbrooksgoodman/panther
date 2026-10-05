@@ -108,7 +108,7 @@ final class AudioFile: Codable, Equatable, Sendable {
             contentDuration: 0
         )
 
-        if let cachedValue = _AudioFileDurationCache.cachedDurationsForLocalPaths?[url] {
+        if let cachedValue = _AudioFileDurationCache.duration(forURL: url) {
             contentDuration = cachedValue
             return
         }
@@ -188,9 +188,10 @@ final class AudioFile: Codable, Equatable, Sendable {
             let duration: Float = try await .init(assetReader.asset.load(.duration).seconds)
             guard duration > 0 else { return }
 
-            var cachedDurationsForLocalPaths = _AudioFileDurationCache.cachedDurationsForLocalPaths ?? [:]
-            cachedDurationsForLocalPaths[url] = duration
-            _AudioFileDurationCache.cachedDurationsForLocalPaths = cachedDurationsForLocalPaths
+            _AudioFileDurationCache.setDuration(
+                duration,
+                forURL: url
+            )
 
             contentDuration = duration
         } catch let error as Exception {
@@ -215,18 +216,22 @@ enum AudioFileDurationCache {
 private enum _AudioFileDurationCache {
     // MARK: - Properties
 
-    private static let _cachedDurationsForLocalPaths = LockIsolated<[URL: Float]?>(nil)
+    private static let cachedDurationsForLocalPaths = LockIsolated([URL: Float]())
 
-    // MARK: - Computed Properties
-
-    fileprivate static var cachedDurationsForLocalPaths: [URL: Float]? {
-        get { _cachedDurationsForLocalPaths.wrappedValue }
-        set { _cachedDurationsForLocalPaths.wrappedValue = newValue }
-    }
-
-    // MARK: - Clear Cache
+    // MARK: - Methods
 
     fileprivate static func clearCache() {
-        cachedDurationsForLocalPaths = nil
+        cachedDurationsForLocalPaths.wrappedValue = [:]
+    }
+
+    fileprivate static func duration(forURL url: URL) -> Float? {
+        cachedDurationsForLocalPaths.projectedValue[url]
+    }
+
+    fileprivate static func setDuration(
+        _ duration: Float,
+        forURL url: URL
+    ) {
+        cachedDurationsForLocalPaths.projectedValue[url] = duration
     }
 }

@@ -261,7 +261,7 @@ extension CoreKit.Utilities {
         )
 
         let userIDs = Array(userData.keys)
-        let database = LockIsolated(networking.database)
+        let database = UncheckedSendable(networking.database)
         try await userIDs.forEachConcurrently { @Sendable userID throws(Exception) in
             try await database.wrappedValue.setValue(
                 NSNull(),

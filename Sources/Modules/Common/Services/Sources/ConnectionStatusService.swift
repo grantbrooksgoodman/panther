@@ -16,48 +16,59 @@ import AppSubsystem
 ///
 /// The service observes network reachability for the lifetime of the instance, running its
 /// registered effects when connectivity is lost and when it is restored.
+///
+/// The service is main-actor isolated. `Reachability` delivers its change notifications on the
+/// main queue, and every registration, removal, and run happens on the main actor, so the
+/// registry needs no lock and no other context can interleave with a run.
+@MainActor
 final class ConnectionStatusService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
 
     // MARK: - Properties
 
+    /// Boxed so the nonisolated `deinit` can stop the notifier.
+    private let reachability = UncheckedLockIsolated<Reachability?>(nil)
+
     private var isAwaitingConnectionRestoration = false
-    private var reachability: Reachability?
-    @LockIsolated private var uponConnectionChanged = [ConnectionStatusServiceEffectID: () -> Void]()
+    private var uponConnectionChanged = [ConnectionStatusServiceEffectID: () -> Void]()
 
     // MARK: - Init
 
     /// Creates a connection status service and begins observing network reachability.
-    init() {
+    nonisolated init() {
+        @Dependency(\.build) var build: Build
+        @Dependency(\.notificationCenter) var notificationCenter: NotificationCenter
+
         isAwaitingConnectionRestoration = !build.isOnline
 
         do {
-            try reachability = .init()
-            try reachability?.startNotifier()
+            try reachability.wrappedValue = .init()
+            try reachability.wrappedValue?.startNotifier()
         } catch {
             Logger.log(.init(error, metadata: .init(sender: self)))
         }
 
-        notificationCenter.addObserver(self, name: .reachabilityChanged) { _ in
-            guard self.build.isOnline else {
-                self.runEffects()
-                self.isAwaitingConnectionRestoration = true
-                return
+        // `Reachability` is created with its default notification queue,
+        // the main queue, so the observer runs on the main actor already
+        // and asserts that rather than hopping to it.
+        notificationCenter.addObserver(
+            self,
+            name: .reachabilityChanged
+        ) { _ in
+            MainActor.assumeIsolated {
+                self.reachabilityDidChange()
             }
-
-            guard self.isAwaitingConnectionRestoration else { return }
-            self.runEffects()
-            self.isAwaitingConnectionRestoration = false
         }
     }
 
     // MARK: - Object Lifecycle
 
     deinit {
-        reachability?.stopNotifier()
+        @Dependency(\.notificationCenter) var notificationCenter: NotificationCenter
+
+        reachability.wrappedValue?.stopNotifier()
         notificationCenter.removeObserver(
             self,
             name: .reachabilityChanged,
@@ -81,7 +92,7 @@ final class ConnectionStatusService {
         id: ConnectionStatusServiceEffectID,
         _ effect: @escaping () -> Void
     ) {
-        $uponConnectionChanged[id] = effect
+        uponConnectionChanged[id] = effect
     }
 
     /// Removes every registered effect.
@@ -93,13 +104,27 @@ final class ConnectionStatusService {
     ///
     /// - Parameter id: The identifier of the effect to remove.
     func removeEffect(_ id: ConnectionStatusServiceEffectID) {
-        $uponConnectionChanged[id] = nil
+        uponConnectionChanged[id] = nil
     }
 
     // MARK: - Auxiliary
 
+    private func reachabilityDidChange() {
+        guard build.isOnline else {
+            runEffects()
+            isAwaitingConnectionRestoration = true
+            return
+        }
+
+        guard isAwaitingConnectionRestoration else { return }
+        runEffects()
+        isAwaitingConnectionRestoration = false
+    }
+
     private func runEffects() {
-        let effects = $uponConnectionChanged.withValue { Array($0.values) }
+        // Snapshot the registry first so an effect that registers or
+        // removes an effect does not mutate the collection being iterated.
+        let effects = Array(uponConnectionChanged.values)
         effects.forEach { $0() }
     }
 }

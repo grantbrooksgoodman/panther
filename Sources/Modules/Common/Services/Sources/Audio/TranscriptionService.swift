@@ -95,7 +95,7 @@ struct TranscriptionService {
             }
         }
 
-        let recognitionTask = LockIsolated<SFSpeechRecognitionTask?>(nil)
+        let recognitionTask = UncheckedLockIsolated<SFSpeechRecognitionTask?>(nil)
         let timeout = LockIsolated<Timeout?>(nil)
 
         do {
@@ -175,7 +175,7 @@ struct TranscriptionService {
     /// - Note: The check consults the locale inventory without blocking. While the inventory is
     ///   still loading, this method starts the load and returns `false` without caching a result.
     func isTranscriptionSupported(for languageCode: String) -> Bool {
-        if let cachedValue = _TranscriptionServiceCache.cachedTranscriptionSupportForLanguageCodes?[languageCode] {
+        if let cachedValue = _TranscriptionServiceCache.supportValue(forLanguageCode: languageCode) {
             return cachedValue
         }
 
@@ -188,10 +188,11 @@ struct TranscriptionService {
             .compactMap(\.language.languageCode?.identifier)
             .contains(where: { $0.hasPrefix(languageCode.lowercased()) })
 
-        // swiftlint:disable:next identifier_name
-        var cachedTranscriptionSupportForLanguageCodes = _TranscriptionServiceCache.cachedTranscriptionSupportForLanguageCodes ?? [:]
-        cachedTranscriptionSupportForLanguageCodes[languageCode] = isTranscriptionSupported
-        _TranscriptionServiceCache.cachedTranscriptionSupportForLanguageCodes = cachedTranscriptionSupportForLanguageCodes
+        _TranscriptionServiceCache.setSupportValue(
+            isTranscriptionSupported,
+            forLanguageCode: languageCode
+        )
+
         return isTranscriptionSupported
     }
 
@@ -226,7 +227,7 @@ final class LiveTranscriptionSession: @unchecked Sendable {
 
     private let latestTranscription = LockIsolated<String?>(nil)
     private let recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-    private let recognitionTask = LockIsolated<SFSpeechRecognitionTask?>(nil)
+    private let recognitionTask = UncheckedLockIsolated<SFSpeechRecognitionTask?>(nil)
     private let speechRecognizer: SFSpeechRecognizer
     private let timeout = LockIsolated<Timeout?>(nil)
 
@@ -413,20 +414,25 @@ enum TranscriptionServiceCache {
 private enum _TranscriptionServiceCache {
     // MARK: - Properties
 
-    // swiftlint:disable identifier_name
-    private static let _cachedTranscriptionSupportForLanguageCodes = LockIsolated<[String: Bool]?>(nil)
+    private static let cachedSupportValuesForLanguageCodes = LockIsolated([String: Bool]())
 
-    // MARK: - Computed Properties
-
-    fileprivate static var cachedTranscriptionSupportForLanguageCodes: [String: Bool]? {
-        get { _cachedTranscriptionSupportForLanguageCodes.wrappedValue }
-        set { _cachedTranscriptionSupportForLanguageCodes.wrappedValue = newValue }
-    } // swiftlint:enable identifier_name
-
-    // MARK: - Clear Cache
+    // MARK: - Methods
 
     fileprivate static func clearCache() {
-        cachedTranscriptionSupportForLanguageCodes = nil
+        cachedSupportValuesForLanguageCodes.wrappedValue = [:]
+    }
+
+    fileprivate static func setSupportValue(
+        _ isSupported: Bool,
+        forLanguageCode languageCode: String
+    ) {
+        cachedSupportValuesForLanguageCodes.projectedValue[languageCode] = isSupported
+    }
+
+    fileprivate static func supportValue(
+        forLanguageCode languageCode: String
+    ) -> Bool? {
+        cachedSupportValuesForLanguageCodes.projectedValue[languageCode]
     }
 }
 

@@ -36,7 +36,7 @@ extension ReadReceipt: Serializable {
     ) async throws(Exception) {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
-        if let cachedValue = _ReadReceiptCache.cachedReadReceiptsForEncodedStrings?[data] {
+        if let cachedValue = _ReadReceiptCache.readReceipt(forEncodedString: data) {
             self = cachedValue
             return
         }
@@ -56,9 +56,10 @@ extension ReadReceipt: Serializable {
             readDate: readDate
         )
 
-        var cachedReadReceiptsForEncodedStrings = _ReadReceiptCache.cachedReadReceiptsForEncodedStrings ?? [:]
-        cachedReadReceiptsForEncodedStrings[data] = decoded
-        _ReadReceiptCache.cachedReadReceiptsForEncodedStrings = cachedReadReceiptsForEncodedStrings
+        _ReadReceiptCache.setReadReceipt(
+            decoded,
+            forEncodedString: data
+        )
 
         self = decoded
     }
@@ -94,18 +95,24 @@ enum ReadReceiptCache {
 private enum _ReadReceiptCache {
     // MARK: - Properties
 
-    private static let _cachedReadReceiptsForEncodedStrings = LockIsolated<[String: ReadReceipt]?>(nil)
+    private static let cachedReadReceiptsForEncodedStrings = LockIsolated([String: ReadReceipt]())
 
-    // MARK: - Computed Properties
-
-    fileprivate static var cachedReadReceiptsForEncodedStrings: [String: ReadReceipt]? {
-        get { _cachedReadReceiptsForEncodedStrings.wrappedValue }
-        set { _cachedReadReceiptsForEncodedStrings.wrappedValue = newValue }
-    }
-
-    // MARK: - Clear Cache
+    // MARK: - Methods
 
     fileprivate static func clearCache() {
-        cachedReadReceiptsForEncodedStrings = nil
+        cachedReadReceiptsForEncodedStrings.wrappedValue = [:]
+    }
+
+    fileprivate static func readReceipt(
+        forEncodedString encodedString: String
+    ) -> ReadReceipt? {
+        cachedReadReceiptsForEncodedStrings.projectedValue[encodedString]
+    }
+
+    fileprivate static func setReadReceipt(
+        _ readReceipt: ReadReceipt,
+        forEncodedString encodedString: String
+    ) {
+        cachedReadReceiptsForEncodedStrings.projectedValue[encodedString] = readReceipt
     }
 }

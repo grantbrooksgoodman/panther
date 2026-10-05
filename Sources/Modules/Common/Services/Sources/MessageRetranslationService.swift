@@ -145,7 +145,7 @@ struct MessageRetranslationService {
                     targetLanguageCode: targetLanguageCode
                 ) else { continue }
 
-                let database = LockIsolated(database)
+                let database = UncheckedSendable(database)
                 try await database.wrappedValue.updateChildValues(
                     forKey: "\(NetworkPath.translations.rawValue)/\(translation.languagePair.string)",
                     with: [
