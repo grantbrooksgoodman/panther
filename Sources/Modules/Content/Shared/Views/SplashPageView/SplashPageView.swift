@@ -99,15 +99,17 @@ struct SplashPageView: View {
     }
 
     private var progressBar: some View {
-        ProgressView(value: viewService.initializationProgress)
-            .animation(.easeIn, value: viewService.initializationProgress)
-            .controlSize(.large)
-            .dynamicTypeSize(.large)
-            .tint(Colors.progressBarTint)
-            .opacity(viewService.loadingIndicatorStyle == .bar ? 1 : 0)
-            .padding(.horizontal, Floats.progressBarHorizontalPadding)
-            .fadeIn(delay: .milliseconds(
-                Floats.progressBarFadeInDelayMilliseconds
-            ))
+        ThemedView {
+            ProgressView(value: viewService.initializationProgress)
+                .animation(.easeIn, value: viewService.initializationProgress)
+                .controlSize(.large)
+                .dynamicTypeSize(.large)
+                .tint(Colors.progressBarTint)
+                .opacity(viewService.loadingIndicatorStyle == .bar ? 1 : 0)
+                .padding(.horizontal, Floats.progressBarHorizontalPadding)
+                .fadeIn(delay: .milliseconds(
+                    Floats.progressBarFadeInDelayMilliseconds
+                ))
+        }
     }
 }

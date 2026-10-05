@@ -560,39 +560,7 @@ final class SplashPageViewService: ObservableObject {
         return true
     }
 
-    /// Resolves the remote cache status for the given user, or `nil` when no user ID is provided.
-    ///
-    /// Launched alongside the parallel initialization trio so the read overlaps the other startup
-    /// work rather than running serially after the update gate.
-    ///
-    /// - Parameter userID: The ID of the user whose cache status to resolve, or `nil`.
-    ///
-    /// - Returns: The user's remote cache status, or `nil` when no user ID is provided.
-    ///
-    /// - Throws: An `Exception` if resolving the cache status fails.
-    private func resolveCacheStatus(
-        userID: String?
-    ) async throws(Exception) -> RemoteCacheStatus? {
-        guard let userID else { return nil }
-        return try await services.remoteCache.cacheStatus(userID: userID)
-    }
-
-    /// Resolves which loading indicator to show for a load still running after one second.
-    ///
-    /// - Returns: ``LoadingIndicatorStyle/bar`` for a heavy load – a signed-in session on a poor
-    ///   network or with a cold conversation store – and ``LoadingIndicatorStyle/spinner`` otherwise.
-    private func resolveLoadingIndicatorStyle() -> LoadingIndicatorStyle {
-        guard User.currentUserID != nil else {
-            return .spinner
-        }
-
-        guard networking.health.health.tier != .poor,
-              !clientSession.store.conversations.isEmpty else {
-            return .bar
-        }
-
-        return .hidden
-    }
+    // MARK: - Auxiliary
 
     private func checkPrevaricationMode(_ phoneNumber: PhoneNumber) {
         let isUsingTestAccount = [
@@ -615,6 +583,23 @@ final class SplashPageViewService: ObservableObject {
             UITheme.prevaricationMode,
             checkStyle: false
         )
+    }
+
+    /// Resolves the remote cache status for the given user, or `nil` when no user ID is provided.
+    ///
+    /// Launched alongside the parallel initialization trio so the read overlaps the other startup
+    /// work rather than running serially after the update gate.
+    ///
+    /// - Parameter userID: The ID of the user whose cache status to resolve, or `nil`.
+    ///
+    /// - Returns: The user's remote cache status, or `nil` when no user ID is provided.
+    ///
+    /// - Throws: An `Exception` if resolving the cache status fails.
+    private func resolveCacheStatus(
+        userID: String?
+    ) async throws(Exception) -> RemoteCacheStatus? {
+        guard let userID else { return nil }
+        return try await services.remoteCache.cacheStatus(userID: userID)
     }
 
     /// Resolves the current user's data once the network can
@@ -655,6 +640,23 @@ final class SplashPageViewService: ObservableObject {
                 for: Self.deferredResolutionRetryInterval
             )
         }
+    }
+
+    /// Resolves which loading indicator to show for a load still running after one second.
+    ///
+    /// - Returns: ``LoadingIndicatorStyle/bar`` for a heavy load – a signed-in session on a poor
+    ///   network or with a cold conversation store – and ``LoadingIndicatorStyle/spinner`` otherwise.
+    private func resolveLoadingIndicatorStyle() -> LoadingIndicatorStyle {
+        guard User.currentUserID != nil else {
+            return .spinner
+        }
+
+        guard networking.health.health.tier != .poor,
+              !clientSession.store.conversations.isEmpty else {
+            return .bar
+        }
+
+        return .hidden
     }
 }
 

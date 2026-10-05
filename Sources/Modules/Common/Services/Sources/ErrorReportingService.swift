@@ -176,7 +176,11 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
             guard showsToastOnSuccess,
                   !Logger.reportsErrorsAutomatically else { return }
 
-            var toastAction: (@Sendable () -> Void)? {
+            /// Local `func` on purpose: closures inside a local computed `var`'s getter lose
+            /// their `@MainActor` isolation at codegen (Swift 6.0–6.3.3, no diagnostic) and
+            /// run on the cooperative pool.
+            @MainActor
+            func toastAction() -> (@MainActor @Sendable () -> Void)? {
                 guard self.build.isDeveloperModeEnabled,
                       let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString else { return nil }
 
@@ -190,7 +194,7 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
                 }.joined(separator: "~2F")
 
                 guard let url = URL(string: urlString) else { return nil }
-                return { @Sendable in
+                return { @MainActor @Sendable in
                     self.uiApplication.open(url)
                     self.uiPasteboard.string = url.absoluteString
                 }
@@ -202,7 +206,7 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
                     message: Localized(.errorReportedSuccessfully).wrappedValue,
                     perpetuation: build.isDeveloperModeEnabled ? .persistent : .ephemeral(.seconds(3))
                 ),
-                onTap: toastAction
+                onTap: toastAction()
             )
         }
     }

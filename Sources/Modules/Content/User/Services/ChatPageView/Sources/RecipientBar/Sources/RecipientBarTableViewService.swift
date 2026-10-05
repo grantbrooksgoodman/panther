@@ -39,6 +39,8 @@ final class RecipientBarTableViewService {
 
     // MARK: - Properties
 
+    private static let coalescer = SingleSlotCoalescer<[ContactPair]>()
+
     private let viewController: ChatPageViewController
 
     private var contactPairs: [ContactPair]?
@@ -85,52 +87,56 @@ final class RecipientBarTableViewService {
     /// The resolved set combines the user's known contacts with the participants of their visible
     /// conversations, excluding participants whose identity is obfuscated in a PenPals
     /// conversation, and removes duplicates by phone number.
+    ///
+    /// Concurrent calls coalesce onto a single in-flight resolution.
     func resolveContactPairs() async {
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
         let conversations = conversations
         let knownContactPairs = contactPairArchive ?? []
 
-        contactPairs = await Task.detached(priority: .utility) {
-            guard !knownContactPairs.isEmpty,
-                  let visibleConversations = conversations?.filter(\.isVisibleForCurrentUser) else {
-                return knownContactPairs.uniquedByPhoneNumber
-            }
-
-            let knownUserIDs = Set(knownContactPairs.userIDs)
-
-            var obfuscatedUserIDs = Set<String>()
-            var seenUserIDs = Set<String>()
-            var unknownUsers = [User]()
-
-            for conversation in visibleConversations {
-                if conversation.metadata.isPenPalsConversation {
-                    let sharingIDs = Set(
-                        (conversation.participantsSharingPenPalsDataWithCurrentUser ?? []).map(\.userID)
-                    )
-
-                    obfuscatedUserIDs.formUnion(
-                        conversation
-                            .participants
-                            .lazy
-                            .map(\.userID)
-                            .filter { !sharingIDs.contains($0) }
-                    )
+        contactPairs = await Self.coalescer { () async -> [ContactPair] in
+            await Task.detached(priority: .utility) {
+                guard !knownContactPairs.isEmpty,
+                      let visibleConversations = conversations?.filter(\.isVisibleForCurrentUser) else {
+                    return knownContactPairs.uniquedByPhoneNumber
                 }
 
-                unknownUsers += conversation
-                    .users?
-                    .filter {
-                        !knownUserIDs.contains($0.id) &&
-                            seenUserIDs.insert($0.id).inserted
-                    } ?? []
-            }
+                let knownUserIDs = Set(knownContactPairs.userIDs)
 
-            let unknownContactPairs = unknownUsers
-                .filter { !obfuscatedUserIDs.contains($0.id) }
-                .map { ContactPair.withUser($0) }
+                var obfuscatedUserIDs = Set<String>()
+                var seenUserIDs = Set<String>()
+                var unknownUsers = [User]()
 
-            return (knownContactPairs + unknownContactPairs).uniquedByPhoneNumber
-        }.value
+                for conversation in visibleConversations {
+                    if conversation.metadata.isPenPalsConversation {
+                        let sharingIDs = Set(
+                            (conversation.participantsSharingPenPalsDataWithCurrentUser ?? []).map(\.userID)
+                        )
+
+                        obfuscatedUserIDs.formUnion(
+                            conversation
+                                .participants
+                                .lazy
+                                .map(\.userID)
+                                .filter { !sharingIDs.contains($0) }
+                        )
+                    }
+
+                    unknownUsers += conversation
+                        .users?
+                        .filter {
+                            !knownUserIDs.contains($0.id) &&
+                                seenUserIDs.insert($0.id).inserted
+                        } ?? []
+                }
+
+                let unknownContactPairs = unknownUsers
+                    .filter { !obfuscatedUserIDs.contains($0.id) }
+                    .map { ContactPair.withUser($0) }
+
+                return (knownContactPairs + unknownContactPairs).uniquedByPhoneNumber
+            }.value
+        }
     }
 
     // MARK: - Set Query

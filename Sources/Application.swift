@@ -181,7 +181,10 @@ enum Application {
 
         Task.delayed(by: .seconds(1)) { @MainActor in
             guard ThemeService.currentTheme == UITheme.default else { return }
-            ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
+            ThemeService.setTheme(
+                UITheme.appDefault,
+                checkStyle: false
+            )
         }
 
         /* MARK: Swizzling */

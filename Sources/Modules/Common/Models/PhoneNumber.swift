@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import Contacts
 import Foundation
@@ -26,10 +28,30 @@ import PhoneNumberKit
 /// calling code and region using the device's region and number length validation when the
 /// source does not specify them.
 ///
+/// Every stored property is immutable except the per-region formatted string cache, which is
+/// lock-isolated; a phone number can therefore be formatted concurrently from any isolation
+/// context.
+///
 /// - Important: Equality and hashing derive from ``hashFactors``, which include the number's
 ///   ``label`` and ``internalFormattedString`` in addition to its digits. Two phone numbers with
 ///   the same digits but different labels are not equal.
 final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable {
+    // MARK: - Types
+
+    private enum CodingKeys: String, CodingKey {
+        case callingCode
+        case internalFormattedString
+        case label
+        case nationalNumberString
+        case regionCode
+    }
+
+    /// A formatted string, cached alongside the code of the region it was formatted for.
+    private struct FormattedStringCacheEntry {
+        let formattedString: String
+        let regionCode: String
+    }
+
     // MARK: - Properties
 
     /// The number's calling code, containing digits only.
@@ -48,8 +70,7 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
     /// The code of the region the number belongs to.
     let regionCode: String
 
-    private var formattedString: String?
-    private var formattedStringRegionCode: String?
+    private let formattedStringCache = LockIsolated<FormattedStringCacheEntry?>(nil)
 
     // MARK: - Computed Properties
 
@@ -236,7 +257,8 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
     /// Returns the number formatted for display, prefixed with its calling code.
     ///
     /// The formatted result is cached per region; formatting again for the same region returns
-    /// the cached string.
+    /// the cached string. The cache is lock-isolated, so this method is safe to call
+    /// concurrently from any isolation context.
     ///
     /// - Parameters:
     ///   - regionCode: The code of the region whose formatting conventions to use. Pass `nil`
@@ -248,10 +270,9 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
     ) -> String {
         let regionCode = regionCode ?? self.regionCode
 
-        if let formattedStringRegionCode,
-           formattedStringRegionCode == regionCode,
-           let formattedString {
-            return formattedString
+        if let cacheEntry = formattedStringCache.wrappedValue,
+           cacheEntry.regionCode == regionCode {
+            return cacheEntry.formattedString
         }
 
         let partiallyFormatted = partiallyFormatted(forRegion: regionCode)
@@ -262,8 +283,10 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         }
 
         let formattedString = "+\(callingCode) \(partiallyFormatted.trimmingLeadingWhitespace)"
-        self.formattedString = formattedString
-        formattedStringRegionCode = regionCode
+        formattedStringCache.wrappedValue = .init(
+            formattedString: formattedString,
+            regionCode: regionCode
+        )
 
         return formattedString
     }
@@ -391,3 +414,5 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         hasher.combine(hashFactors)
     }
 }
+
+// swiftlint:enable file_length

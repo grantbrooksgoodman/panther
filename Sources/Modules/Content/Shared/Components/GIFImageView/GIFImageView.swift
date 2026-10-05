@@ -66,6 +66,12 @@ public struct GIFImage: UIViewRepresentable {
         webView.isUserInteractionEnabled = false
 
         context.coordinator.wasActive = isActive
+        context.coordinator.observeAppearanceChanges(of: webView)
+        context.coordinator.updateTheme(
+            isDarkModeActive: ThemeService.isDarkModeActive,
+            in: webView
+        )
+
         loadImage(into: webView)
 
         // Begin playback from the first frame once the primed load
@@ -112,7 +118,7 @@ public struct GIFImage: UIViewRepresentable {
             <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
             <style>
             html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
-            img { width: 100%; height: 100%; object-fit: fill; display: block; }
+            img { width: 100%; height: 100%; object-fit: fill; display: block; filter: var(--gif-filter, none); }
             </style>
             </head>
             <body>
@@ -177,6 +183,11 @@ public struct GIFImage: UIViewRepresentable {
     ) {
         let coordinator = context.coordinator
         defer { coordinator.wasActive = isActive }
+
+        coordinator.updateTheme(
+            isDarkModeActive: ThemeService.isDarkModeActive,
+            in: uiView
+        )
 
         // Begin (or restart) playback from the first frame on the hidden →
         // visible transition. While hidden the GIF is primed but never plays,

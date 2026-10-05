@@ -50,6 +50,6 @@ extension AppConstants.Colors {
 
 extension AppConstants.Strings {
     enum SplashPageView {
-        static let gifImageName = "animated_logotype"
+        static let gifImageName = "Animated-Logotype"
     }
 }

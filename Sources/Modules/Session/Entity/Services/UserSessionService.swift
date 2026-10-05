@@ -485,9 +485,8 @@ struct UserSessionService {
     /// store.
     private func resolveUsersOnCurrentUserConversations() async throws(Exception) {
         guard let user = currentUser,
-              let conversations = user.conversations else { return }
-
-        guard !Task.isCancelled else { return }
+              let conversations = user.conversations,
+              !Task.isCancelled else { return }
 
         // Fetch each missing participant once across all conversations,
         // rather than re-fetching a conversation's full roster – shared,
@@ -500,8 +499,8 @@ struct UserSessionService {
         .subtracting([User.currentUserID].compactMap(\.self))
         .filter { clientSession.store.users[$0] == nil }
 
-        guard !Task.isCancelled,
-              !missingUserIDs.isEmpty else { return }
+        guard !missingUserIDs.isEmpty,
+              !Task.isCancelled else { return }
 
         _ = try await networking.userService.getUsers(
             ids: Array(missingUserIDs)
