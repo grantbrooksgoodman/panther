@@ -391,8 +391,13 @@ final class SettingsPageViewService {
                     confirmButtonStyle: .destructivePreferred
                 ).present(translating: [])
 
+                @Persistent(.init("isDeveloperModeEnabled")) var isDeveloperModeEnabled: Bool?
+                @Persistent(.init("isTimebombActive")) var isTimebombActive: Bool?
+
                 guard confirmed else { return }
                 buildMilestoneString = nil
+                isDeveloperModeEnabled = false
+                isTimebombActive = true
                 exit(0)
             }
 
@@ -424,8 +429,11 @@ final class SettingsPageViewService {
             }
 
             buildMilestoneString = Build.Milestone.beta.rawValue
+            let exitAction: AKAction = .init(
+                "Exit",
+                style: .destructivePreferred
+            ) { exit(0) }
 
-            let exitAction: AKAction = .init("Exit", style: .destructivePreferred) { exit(0) }
             await AKAlert(
                 message: "Successfully entered Prerelease Mode. You must now restart the app.",
                 actions: [exitAction]

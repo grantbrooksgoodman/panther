@@ -365,6 +365,7 @@ final class ContextMenuInteractionService {
 
                     return ContextMenuConfiguration(
                         accessoryView: reactionsViewController.view,
+                        highlightableAccessory: reactionsViewController,
                         menu: menu
                     )
                 },

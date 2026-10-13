@@ -119,37 +119,53 @@ final class ContextMenuInteractor {
             )
 
         case .changed:
-            guard let contextMenuViewController,
-                  let menuView = contextMenuViewController.menuView else { return }
-            menuView.highlightElement(at: sender.location(in: menuView))
+            guard let contextMenuViewController else { return }
+            if let menuView = contextMenuViewController.menuView {
+                menuView.highlightElement(at: sender.location(in: menuView))
+            }
+
+            if let accessoryView = contextMenuViewController.accessoryView {
+                contextMenuViewController.highlightableAccessory?.highlightElement(
+                    at: sender.location(in: accessoryView)
+                )
+            }
 
         case .ended:
             defer { interactionOrigin = nil }
-
-            guard let contextMenuViewController,
-                  let menuView = contextMenuViewController.menuView else { return }
+            guard let contextMenuViewController else { return }
 
             let location = sender.location(in: sender.view)
             let didDragFromOrigin = interactionOrigin.map { origin in
                 hypot(location.x - origin.x, location.y - origin.y) > 10
             } ?? false
 
-            let locationInMenuView = sender.location(in: menuView)
-            if didDragFromOrigin,
-               let element = menuView.element(at: locationInMenuView) {
+            guard didDragFromOrigin else {
+                return unhighlightAllElements()
+            }
+
+            if let menuView = contextMenuViewController.menuView,
+               let element = menuView.element(at: sender.location(in: menuView)) {
                 menuView.unhighlightAllElements()
                 menuView.delegate?.dismissMenuView(
                     menuView: menuView,
                     uponTapping: element
                 )
-            } else {
-                menuView.unhighlightAllElements()
+
+                return
+            }
+
+            guard let accessoryView = contextMenuViewController.accessoryView,
+                  let highlightableAccessory = contextMenuViewController.highlightableAccessory,
+                  highlightableAccessory.selectElement(
+                      at: sender.location(in: accessoryView)
+                  ) else {
+                return unhighlightAllElements()
             }
 
         case .cancelled,
              .failed:
             interactionOrigin = nil
-            contextMenuViewController?.menuView?.unhighlightAllElements()
+            unhighlightAllElements()
 
         default:
             break
@@ -260,5 +276,10 @@ final class ContextMenuInteractor {
         )) { @MainActor in
             self.isShowing = false
         }
+    }
+
+    private func unhighlightAllElements() {
+        contextMenuViewController?.highlightableAccessory?.unhighlightAllElements()
+        contextMenuViewController?.menuView?.unhighlightAllElements()
     }
 }

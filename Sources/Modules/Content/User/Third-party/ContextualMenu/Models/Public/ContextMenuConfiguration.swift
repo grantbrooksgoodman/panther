@@ -16,6 +16,7 @@ struct ContextMenuConfiguration {
     let menu: Menu
 
     weak var accessoryView: UIView?
+    weak var highlightableAccessory: ContextMenuHighlightable?
 
     // MARK: - Computed Properties
 
@@ -32,9 +33,11 @@ struct ContextMenuConfiguration {
 
     init(
         accessoryView: UIView? = nil,
+        highlightableAccessory: ContextMenuHighlightable? = nil,
         menu: Menu
     ) {
         self.accessoryView = accessoryView
+        self.highlightableAccessory = highlightableAccessory
         self.menu = menu
     }
 }

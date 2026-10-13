@@ -168,7 +168,19 @@ extension Message {
     /// The message bubble's background color, distinguishing sent from received messages.
     @MainActor
     var backgroundColor: UIColor {
-        isFromCurrentUser ? .senderBubble : .receiverBubble
+        @Dependency(\.clientSession.entity.conversation) var conversationSession: ConversationSessionService
+        var color: UIColor = isFromCurrentUser ? .senderBubble : .receiverBubble
+
+        if isFromCurrentUser,
+           conversationSession
+           .currentConversation?
+           .users?
+           .compactMap(\.deviceID)
+           .contains(where: { $0.hasPrefix("and") }) == true {
+            color = UIColor(hex: 0x3DD062)
+        }
+
+        return color
     }
 
     /// A Boolean value that indicates whether this message acknowledges a message receipt consent

@@ -735,6 +735,7 @@
 		B9EFB9F62B26763100624794 /* Participant+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFB9F52B26763100624794 /* Participant+CommonNetworkingExtensions.swift */; };
 		B9EFB9F82B268A3600624794 /* ClientSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFB9F72B268A3600624794 /* ClientSession.swift */; };
 		B9EFBA162B2694C500624794 /* Array+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFBA152B2694C500624794 /* Array+CommonNetworkingExtensions.swift */; };
+		B9F1C0A22F8E4B2000D1A7E1 /* ContextMenuHighlightable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F1C0A12F8E4B2000D1A7E1 /* ContextMenuHighlightable.swift */; };
 		B9F3C4C42B6B59C600109CC5 /* ChatPageViewController+UITextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F3C4C32B6B59C600109CC5 /* ChatPageViewController+UITextViewDelegate.swift */; };
 		B9F47AE62B576EE300D86C67 /* ConversationsPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F47AE52B576EE300D86C67 /* ConversationsPageReducer.swift */; };
 		B9F47AEA2B576EFF00D86C67 /* ConversationsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F47AE92B576EFF00D86C67 /* ConversationsPageView.swift */; };
@@ -1593,6 +1594,7 @@
 		B9EFB9F52B26763100624794 /* Participant+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Participant+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9EFB9F72B268A3600624794 /* ClientSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientSession.swift; sourceTree = "<group>"; };
 		B9EFBA152B2694C500624794 /* Array+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
+		B9F1C0A12F8E4B2000D1A7E1 /* ContextMenuHighlightable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuHighlightable.swift; sourceTree = "<group>"; };
 		B9F3C4C32B6B59C600109CC5 /* ChatPageViewController+UITextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+UITextViewDelegate.swift"; sourceTree = "<group>"; };
 		B9F47AE52B576EE300D86C67 /* ConversationsPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsPageReducer.swift; sourceTree = "<group>"; };
 		B9F47AE92B576EFF00D86C67 /* ConversationsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsPageView.swift; sourceTree = "<group>"; };
@@ -2154,6 +2156,7 @@
 			isa = PBXGroup;
 			children = (
 				B9223D1B2CD584DA00C05BC6 /* ContextMenuAnimatable.swift */,
+				B9F1C0A12F8E4B2000D1A7E1 /* ContextMenuHighlightable.swift */,
 			);
 			path = Public;
 			sourceTree = "<group>";
@@ -4568,6 +4571,7 @@
 				B9223D2F2CD584DA00C05BC6 /* Menu.swift in Sources */,
 				B9223D302CD584DA00C05BC6 /* AnimationParameters.swift in Sources */,
 				B9223D312CD584DA00C05BC6 /* ContextMenuAnimatable.swift in Sources */,
+				B9F1C0A22F8E4B2000D1A7E1 /* ContextMenuHighlightable.swift in Sources */,
 				A2543E122F7785D70087C95E /* BinaryFloatingPoint+CommonExtensions.swift in Sources */,
 				B9223D332CD584DA00C05BC6 /* MenuElementView.swift in Sources */,
 				B9223D342CD584DA00C05BC6 /* ContextMenuConfiguration.swift in Sources */,

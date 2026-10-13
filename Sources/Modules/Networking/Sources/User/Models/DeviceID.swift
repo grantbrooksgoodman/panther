@@ -25,7 +25,7 @@ enum DeviceID {
     static var current: String {
         get async {
             if let existingID = read() { return existingID }
-            let newID = await (MainActor.run { UIDevice.current.identifierForVendor } ?? UUID()).uuidString
+            let newID = await "ios_\((MainActor.run { UIDevice.current.identifierForVendor } ?? UUID()).uuidString)"
             save(newID)
             return newID
         }

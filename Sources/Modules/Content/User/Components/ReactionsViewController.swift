@@ -22,7 +22,13 @@ import MessageKit
 /// ``ReactionsViewController`` appears alongside a message's context menu. Tapping a reaction
 /// forwards the selection to the context menu interaction service; use ``markSelected(_:)``
 /// and ``deselectAllReactions()`` to reflect the current selection.
-final class ReactionsViewController: UIViewController {
+///
+/// The view controller also follows the long-press gesture that
+/// presents the menu, as well as any touch that begins on the strip
+/// once the menu appears: dragging left or right across the strip
+/// highlights each reaction in turn, and releasing over a reaction
+/// applies it as though it were tapped.
+final class ReactionsViewController: UIViewController, ContextMenuHighlightable {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ReactionsViewController
@@ -31,10 +37,14 @@ final class ReactionsViewController: UIViewController {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService.contextMenu?.interaction) private var contextMenuInteractionService: ContextMenuInteractionService?
+    @Dependency(\.commonServices.haptics) private var hapticsService: HapticsService
 
     // MARK: - Properties
 
     private let reactions: [String] = Reaction.Style.orderedCases.map(\.emojiValue)
+
+    private var highlightedReactionStyle: Reaction.Style?
+    private var selectedReactionStyle: Reaction.Style?
 
     // MARK: - Computed Properties
 
@@ -47,6 +57,10 @@ final class ReactionsViewController: UIViewController {
         return stackView
     }()
 
+    private var reactionButtons: [UIButton] {
+        stackView.arrangedSubviews.compactMap { $0 as? UIButton }
+    }
+
     // MARK: - View Did Load
 
     /// Configures the reaction strip and its preferred content size after the view loads.
@@ -57,24 +71,83 @@ final class ReactionsViewController: UIViewController {
         updatePreferredContentSize()
     }
 
+    // MARK: - ContextMenuHighlightable Conformance
+
+    /// Highlights the reaction at the given point with its selected
+    /// background, in place of the current selection.
+    ///
+    /// The context menu calls this method as a touch it tracks moves,
+    /// whether that touch is the long-press gesture that presents the
+    /// menu or one that begins on the strip once the menu appears.
+    /// Moving directly from one reaction to another generates
+    /// selection haptic feedback. Each reaction's hit area extends
+    /// halfway into the spacing beside it, so the highlight never
+    /// clears between adjacent reactions.
+    ///
+    /// - Parameter point: A point in the coordinate space of the view
+    ///   controller's view.
+    func highlightElement(at point: CGPoint) {
+        guard view.isUserInteractionEnabled else { return }
+        let reactionStyle = reactionButton(at: point).flatMap {
+            self.reactionStyle(for: $0)
+        }
+
+        guard reactionStyle != highlightedReactionStyle else { return }
+        if highlightedReactionStyle != nil,
+           reactionStyle != nil {
+            hapticsService.generateFeedback(.selection)
+            hapticsService.prepare(.selection)
+        }
+
+        highlightedReactionStyle = reactionStyle
+        updateReactionButtonBackgrounds()
+    }
+
+    /// Applies the reaction at the given point to the message the
+    /// context menu targets.
+    ///
+    /// The reaction remains highlighted while the context menu
+    /// dismisses.
+    ///
+    /// - Parameter point: A point in the coordinate space of the view
+    ///   controller's view.
+    ///
+    /// - Returns: `true` if a reaction exists at `point` and the
+    ///   view accepts user interaction; otherwise, `false`.
+    func selectElement(at point: CGPoint) -> Bool {
+        guard view.isUserInteractionEnabled,
+              let reactionButton = reactionButton(at: point),
+              let contextMenuInteractionService else { return false }
+
+        contextMenuInteractionService.reactToSelectedMessage(reactionButton)
+        return true
+    }
+
+    /// Clears the highlighted reaction, restoring the background of
+    /// the reaction marked as selected.
+    func unhighlightAllElements() {
+        highlightedReactionStyle = nil
+        updateReactionButtonBackgrounds()
+    }
+
     // MARK: - Reaction Selection
 
     /// Restores every reaction button to its unselected background.
     func deselectAllReactions() {
-        for subview in stackView.subviews {
-            subview.backgroundColor = Colors.reactionButtonBackground
-        }
+        highlightedReactionStyle = nil
+        selectedReactionStyle = nil
+        updateReactionButtonBackgrounds()
     }
 
     /// Highlights the button for the given reaction style with its selected background.
     ///
+    /// While a touch highlights a reaction, that reaction's
+    /// background takes precedence until the highlight clears.
+    ///
     /// - Parameter reactionStyle: The reaction style to mark as selected.
     func markSelected(_ reactionStyle: Reaction.Style) {
-        stackView
-            .subviews
-            .compactMap { $0 as? UIButton }
-            .first(where: { $0.titleLabel?.text == reactionStyle.emojiValue })?
-            .backgroundColor = UIColor(reactionStyle.squareIconBackgroundColor)
+        selectedReactionStyle = reactionStyle
+        updateReactionButtonBackgrounds()
     }
 
     // MARK: - Auxiliary
@@ -110,6 +183,24 @@ final class ReactionsViewController: UIViewController {
         }
 
         return reactionButton
+    }
+
+    private func reactionButton(at point: CGPoint) -> UIButton? {
+        let pointInStackView = stackView.convert(
+            point,
+            from: view
+        )
+
+        return reactionButtons.first {
+            $0.frame
+                .insetBy(dx: -stackView.spacing / 2, dy: 0)
+                .contains(pointInStackView)
+        }
+    }
+
+    private func reactionStyle(for reactionButton: UIButton) -> Reaction.Style? {
+        guard let emojiValue = reactionButton.titleLabel?.text else { return nil }
+        return .init(emojiValue: emojiValue)
     }
 
     private func setUpReactions() {
@@ -163,5 +254,19 @@ final class ReactionsViewController: UIViewController {
             width: stackView.frame.width,
             height: Floats.reactionButtonHeight
         )
+    }
+
+    private func updateReactionButtonBackgrounds() {
+        let displayedReactionStyle = highlightedReactionStyle ?? selectedReactionStyle
+        for reactionButton in reactionButtons {
+            if let reactionStyle = reactionStyle(for: reactionButton),
+               reactionStyle == displayedReactionStyle {
+                reactionButton.backgroundColor = UIColor(
+                    reactionStyle.squareIconBackgroundColor
+                )
+            } else {
+                reactionButton.backgroundColor = Colors.reactionButtonBackground
+            }
+        }
     }
 }

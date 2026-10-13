@@ -47,11 +47,19 @@ extension ContextMenuViewController: ContextMenuAnimatable {
                     accessoryView?.alpha = 1
                 }
             },
-            completion: { _ in completion?() }
+            completion: { [weak self] _ in
+                self?.accessoryDragGesture?.isEnabled = true
+                completion?()
+            }
         )
     }
 
     func disappearAnimation(completion: (() -> Void)? = nil) {
+        // The accessory view may outlive this controller and be reused by the next one
+        if let accessoryDragGesture {
+            accessoryView?.removeGestureRecognizer(accessoryDragGesture)
+        }
+
         NSLayoutConstraint.deactivate(constraintsAlteringPreviewPosition)
         view.setNeedsLayout()
 

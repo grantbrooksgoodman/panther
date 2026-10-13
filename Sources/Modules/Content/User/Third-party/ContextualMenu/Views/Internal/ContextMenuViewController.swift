@@ -15,6 +15,7 @@ final class ContextMenuViewController: UIViewController {
 
     let accessoryView: UIView?
     let baseFrameInScreen: CGRect
+    let highlightableAccessory: ContextMenuHighlightable?
     let interaction: ContextMenuInteractor.Interaction
     let previewRendering: UIView
     let style: ContextMenuStyle
@@ -24,6 +25,8 @@ final class ContextMenuViewController: UIViewController {
     var targetedPreview: UITargetedPreview?
 
     weak var delegate: ContextMenuViewControllerDelegate?
+
+    private(set) var accessoryDragGesture: UILongPressGestureRecognizer?
 
     private let menuConfiguration: ContextMenuConfiguration?
 
@@ -71,6 +74,7 @@ final class ContextMenuViewController: UIViewController {
         previewRendering = targetedPreview.view.snapshotView(afterScreenUpdates: false) ?? UIView()
         self.baseFrameInScreen = baseFrameInScreen
         accessoryView = configuration?.accessoryView
+        highlightableAccessory = configuration?.highlightableAccessory
         style = interaction.style
         self.delegate = delegate
 
@@ -121,6 +125,31 @@ final class ContextMenuViewController: UIViewController {
 
     // MARK: - Auxiliary
 
+    @objc
+    private func handleAccessoryDragGesture(_ sender: UIGestureRecognizer) {
+        guard let accessoryView,
+              let highlightableAccessory else { return }
+
+        let location = sender.location(in: accessoryView)
+        switch sender.state {
+        case .began,
+             .changed:
+            highlightableAccessory.highlightElement(at: location)
+
+        case .ended:
+            if !highlightableAccessory.selectElement(at: location) {
+                highlightableAccessory.unhighlightAllElements()
+            }
+
+        case .cancelled,
+             .failed:
+            highlightableAccessory.unhighlightAllElements()
+
+        default:
+            break
+        }
+    }
+
     private func setupAccessoryViewIfNeeded(
         alignment: Alignment
     ) -> FixedAndAnimatableConstraints {
@@ -128,6 +157,20 @@ final class ContextMenuViewController: UIViewController {
 
         view.addSubview(accessoryView)
         accessoryView.translatesAutoresizingMaskIntoConstraints = false
+
+        if highlightableAccessory != nil {
+            let gesture = UILongPressGestureRecognizer(
+                target: self,
+                action: #selector(handleAccessoryDragGesture(_:))
+            )
+
+            gesture.allowableMovement = .greatestFiniteMagnitude
+            gesture.isEnabled = false
+            gesture.minimumPressDuration = 0
+            accessoryView.addGestureRecognizer(gesture)
+
+            accessoryDragGesture = gesture
+        }
 
         return FixedAndAnimatableConstraints(
             fixed: [
