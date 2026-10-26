@@ -20,7 +20,7 @@ extension LanguageModelSession {
 
     // MARK: - Methods
 
-    /// Sends the given prompt to the model and returns its reply,
+    /// Sends the given prompt to the model and returns its replies,
     /// resubmitting the prompt if it fails to submit.
     ///
     /// A prompt that fails to submit never reaches the model, so
@@ -30,33 +30,44 @@ extension LanguageModelSession {
     ///
     /// - Parameter prompt: The prompt to send.
     ///
-    /// - Returns: The model's reply.
+    /// - Returns: The model's replies, in the order to send them. The
+    ///   array is empty if the prompt allows no reply and the model
+    ///   declined to reply.
     ///
     /// - Throws: An `Exception` if the model cannot produce a reply.
     func response(
         to prompt: ChatGPTPrompt
-    ) async throws(Exception) -> String {
-        try await response(
-            to: prompt,
-            retryCount: 0
-        )
+    ) async throws(Exception) -> [String] {
+        do throws(LanguageModelError) {
+            return try await prompt.replies(from: response(
+                to: prompt.text,
+                retryCount: 0
+            ))
+        } catch {
+            guard prompt.allowsNoReply,
+                  case .emptyResponse = error else {
+                throw Exception(
+                    error,
+                    metadata: .init(sender: self)
+                )
+            }
+
+            return []
+        }
     }
 
     // MARK: - Auxiliary
 
     private func response(
-        to prompt: ChatGPTPrompt,
+        to prompt: String,
         retryCount: Int
-    ) async throws(Exception) -> String {
+    ) async throws(LanguageModelError) -> String {
         do throws(LanguageModelError) {
-            return try await response(to: prompt.text)
+            return try await response(to: prompt)
         } catch {
             guard case .submissionFailed = error,
                   retryCount < Int(Floats.submissionRetryCountMaximum) else {
-                throw Exception(
-                    error,
-                    metadata: .init(sender: self)
-                )
+                throw error
             }
 
             Logger.log(

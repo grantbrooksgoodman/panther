@@ -186,11 +186,13 @@ extension Conversation: RemotelyUpdatable {
 
     /// Prepares a single-field remote update before it is written.
     ///
-    /// When new messages are written, this method commits the message nodes, their conversation
-    /// index entries, an un-delete of every participant, a reset of the current user's typing
-    /// status, the conversation's hash token and last-modified date, the participants' hash
-    /// tokens, and any pending hosted translation archive entries, all in a single atomic fan-out.
-    /// Other fields proceed with the default write.
+    /// When new messages are written, this method commits the message
+    /// nodes, their conversation index entries, an un-delete of every
+    /// participant, a reset of the typing status of the current user
+    /// and of each new message's sender, the conversation's hash token
+    /// and last-modified date, the participants' hash tokens, and any
+    /// pending hosted translation archive entries, all in a single
+    /// atomic fan-out. Other fields proceed with the default write.
     ///
     /// - Parameters:
     ///   - value: The new value being written.
@@ -229,15 +231,19 @@ extension Conversation: RemotelyUpdatable {
             )
         }
 
-        // Reset typing for current user + un-delete all
-        // participants (sending revives the conversation).
+        // Reset typing for current user and senders + un-delete
+        // all participants (sending revives the conversation).
+        let typingResetUserIDs = Set(
+            newMessages.map(\.fromAccountID) + [currentUserParticipant.userID]
+        )
+
         let conversation = updateIDHash(
             updated.copying(
                 participants: participants.map {
                     .init(
                         userID: $0.userID,
                         hasDeletedConversation: false,
-                        isTyping: $0.userID == currentUserParticipant.userID ? false : $0.isTyping
+                        isTyping: typingResetUserIDs.contains($0.userID) ? false : $0.isTyping
                     )
                 }
             )
@@ -281,15 +287,17 @@ extension Conversation: RemotelyUpdatable {
             ] = false
         }
 
-        // Reset typing status for current user.
-        updates[
-            [
-                conversationPath,
-                SerializableKey.participants.rawValue,
-                currentUserParticipant.userID,
-                Participant.SerializableKey.isTyping.rawValue,
-            ].joined(separator: "/")
-        ] = false
+        // Reset typing status for current user and senders.
+        for userID in typingResetUserIDs {
+            updates[
+                [
+                    conversationPath,
+                    SerializableKey.participants.rawValue,
+                    userID,
+                    Participant.SerializableKey.isTyping.rawValue,
+                ].joined(separator: "/")
+            ] = false
+        }
 
         // Update conversation hash.
         updates[

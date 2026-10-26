@@ -14,6 +14,7 @@
 		33261DB5EDC8D88347774727 /* UICacheInvalidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B8D4F6D87373A21AC2D9B0 /* UICacheInvalidationService.swift */; };
 		5A0E5C416BC89662BCE73DFD /* LanguageModelSession+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF3E4A9721718EFD13ED1424 /* LanguageModelSession+CommonExtensions.swift */; };
 		6194F931E54D7974EBE2BF59 /* AppConstants+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CB8076C4EC8027F05B0347 /* AppConstants+CommonExtensions.swift */; };
+		7B339C4BAA9BE1C481D82FC1 /* ChatGPTService+Participant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A12225F3F950744CCD90F44 /* ChatGPTService+Participant.swift */; };
 		944C2C255D851B9A9551ED35 /* MessageOutboxService+Retry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D796340D4837FEB17610C1 /* MessageOutboxService+Retry.swift */; };
 		A2000000000000000000E501 /* SharedStates.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000E502 /* SharedStates.swift */; };
 		A200C552300180C3002D9651 /* ChatPageHeaderReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */; };
@@ -811,6 +812,7 @@
 		57B5CE6E751AC9E4F11F99E2 /* ChatGPTPrompt.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChatGPTPrompt.swift; sourceTree = "<group>"; };
 		5A8D47EEC9004E089F3ADA7A /* Duration+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		63CB8076C4EC8027F05B0347 /* AppConstants+CommonExtensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "AppConstants+CommonExtensions.swift"; sourceTree = "<group>"; };
+		6A12225F3F950744CCD90F44 /* ChatGPTService+Participant.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "ChatGPTService+Participant.swift"; sourceTree = "<group>"; };
 		71E3975125E2C53333647262 /* AppConstants+ChatGPTPrompt.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChatGPTPrompt.swift"; sourceTree = "<group>"; };
 		7E7381F8AD705D813AA1F59A /* ChatGPTService+Account.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "ChatGPTService+Account.swift"; sourceTree = "<group>"; };
 		8AF3FCA5F163DEEAAC9F1FF2 /* OutboxEntry+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OutboxEntry+UserContentExtensions.swift"; sourceTree = "<group>"; };
@@ -2598,6 +2600,7 @@
 				B900B5352B1ABA2300BA2F1D /* ReviewService.swift */,
 				B969691A2B18259400ADA875 /* UpdateService.swift */,
 				7E7381F8AD705D813AA1F59A /* ChatGPTService+Account.swift */,
+				6A12225F3F950744CCD90F44 /* ChatGPTService+Participant.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -4637,6 +4640,7 @@
 				6194F931E54D7974EBE2BF59 /* AppConstants+CommonExtensions.swift in Sources */,
 				5A0E5C416BC89662BCE73DFD /* LanguageModelSession+CommonExtensions.swift in Sources */,
 				C9F23C3815B2295270DC5AC0 /* ChatGPTService+Account.swift in Sources */,
+				7B339C4BAA9BE1C481D82FC1 /* ChatGPTService+Participant.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -13,16 +13,21 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 import Translator
 
 /// The service that sends messages from the chat page.
 ///
-/// Use ``MessageDeliveryService`` to send text, audio, and media messages to the current
-/// conversation's users – or, when composing a new conversation, to the recipients selected
-/// in the recipient bar. Sends to existing conversations are staged in the outbox, so failed
-/// messages can be retried; sends that create a new conversation optimistically insert a mock
-/// message instead. While a send is in flight, ``isSendingMessage`` is `true` and context
-/// menu interactions are disabled.
+/// Use ``MessageDeliveryService`` to send text, audio, and media
+/// messages to the current conversation's users – or, when composing
+/// a new conversation, to the recipients selected in the recipient
+/// bar. Sends to existing conversations are staged in the outbox, so
+/// failed messages can be retried; each staged message reserves the
+/// identifier of the message it delivers, so the staged copy is
+/// hidden as soon as the delivered copy is displayed. Sends that
+/// create a new conversation optimistically insert a mock message
+/// instead. While a send is in flight, ``isSendingMessage`` is `true`
+/// and context menu interactions are disabled.
 ///
 /// The service is main-actor isolated. ``isSendingMessage`` is written only on the main actor,
 /// in the same turn that drains and runs the effects registered for the new value. A registered
@@ -34,6 +39,7 @@ final class MessageDeliveryService {
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.networking.database) private var database: DatabaseDelegate
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
@@ -142,6 +148,7 @@ final class MessageDeliveryService {
         }
 
         var outboxEntryID: String?
+        var reservedMessageID: String?
 
         if isExistingConversation,
            let conversation,
@@ -151,6 +158,7 @@ final class MessageDeliveryService {
                     from: inputFile.url
                 )
 
+                reservedMessageID = database.generateKey(for: NetworkPath.messages.rawValue)
                 let entry = OutboxEntry(
                     conversationIDKey: conversation.id.key,
                     createdDate: .now,
@@ -161,6 +169,7 @@ final class MessageDeliveryService {
                     recipientUserIDs: users.map(\.id),
                     attemptCount: 1,
                     lastAttemptDate: .now,
+                    reservedRemoteID: reservedMessageID,
                     state: .sending,
                     transcription: transcription
                 )
@@ -204,6 +213,7 @@ final class MessageDeliveryService {
         do {
             let conversation = try await clientSession.entity.message.sendAudioMessage(
                 inputFile,
+                presetID: reservedMessageID,
                 transcription: transcription,
                 toUsers: users,
                 inConversation: conversationContext
@@ -256,6 +266,7 @@ final class MessageDeliveryService {
         services.haptics.generateFeedback(.medium)
 
         var outboxEntryID: String?
+        var reservedMessageID: String?
 
         if isExistingConversation,
            let conversation,
@@ -265,6 +276,7 @@ final class MessageDeliveryService {
                     from: mediaFile.localPathURL
                 )
 
+                reservedMessageID = database.generateKey(for: NetworkPath.messages.rawValue)
                 let entry = OutboxEntry(
                     conversationIDKey: conversation.id.key,
                     createdDate: .now,
@@ -278,6 +290,7 @@ final class MessageDeliveryService {
                     recipientUserIDs: users.map(\.id),
                     attemptCount: 1,
                     lastAttemptDate: .now,
+                    reservedRemoteID: reservedMessageID,
                     state: .sending
                 )
 
@@ -313,6 +326,7 @@ final class MessageDeliveryService {
         do {
             let conversation = try await clientSession.entity.message.sendMediaMessage(
                 mediaFile,
+                presetID: reservedMessageID,
                 toUsers: users,
                 inConversation: conversationContext
             )
@@ -354,10 +368,12 @@ final class MessageDeliveryService {
 
         services.haptics.generateFeedback(.medium)
         var outboxEntryID: String?
+        var reservedMessageID: String?
 
         if isExistingConversation,
            let conversation,
            let currentUser = clientSession.entity.user.currentUser {
+            reservedMessageID = database.generateKey(for: NetworkPath.messages.rawValue)
             let entry = OutboxEntry(
                 conversationIDKey: conversation.id.key,
                 createdDate: .now,
@@ -368,6 +384,7 @@ final class MessageDeliveryService {
                 recipientUserIDs: users.map(\.id),
                 attemptCount: 1,
                 lastAttemptDate: .now,
+                reservedRemoteID: reservedMessageID,
                 state: .sending
             )
 
@@ -391,6 +408,7 @@ final class MessageDeliveryService {
         do {
             let conversation = try await clientSession.entity.message.sendTextMessage(
                 text,
+                presetID: reservedMessageID,
                 toUsers: users,
                 inConversation: conversationContext
             )

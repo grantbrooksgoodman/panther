@@ -17,7 +17,7 @@ import AppSubsystem
 extension AppConstants.CGFloats {
     enum CommonExtensions {
         enum LanguageModelSession {
-            static let submissionRetryCountMaximum: CGFloat = 2
+            static let submissionRetryCountMaximum: CGFloat = 5
             static let submissionRetryDelayMilliseconds: CGFloat = 1000
         }
     }

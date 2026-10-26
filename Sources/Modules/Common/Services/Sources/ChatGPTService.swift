@@ -22,9 +22,12 @@ import Networking
 /// represented by a registered user account, so a conversation with
 /// ChatGPT is stored, synchronized, and displayed like any other.
 /// ChatGPT marks the messages it answers as read and sends each reply
-/// from its account as an ordinary text message. As with any
+/// from its account as an ordinary text message – or as several
+/// consecutive messages, as a person texting would. As with any
 /// participant, it appears as typing while it composes a reply only in
-/// a one-to-one conversation.
+/// a one-to-one conversation. In a group conversation, ChatGPT replies
+/// only when a message addresses it directly or the conversation
+/// clearly calls for its reply.
 ///
 /// A prompt that fails to submit is resubmitted automatically. When
 /// ChatGPT still fails to reply – or the app terminates while it is
@@ -44,7 +47,7 @@ import Networking
 final class ChatGPTService {
     // MARK: - Constants Accessors
 
-    private typealias Floats = AppConstants.CGFloats.ChatPageViewService.TypingIndicator
+    private typealias Floats = AppConstants.CGFloats.ChatGPTService
     private typealias Strings = AppConstants.Strings.ChatGPTService
 
     // MARK: - Types
@@ -128,10 +131,9 @@ final class ChatGPTService {
     ///
     /// Call this method after the current user sends a message. When
     /// the message is from the current user and ChatGPT participates
-    /// in the conversation, ChatGPT replies to every message the
-    /// current user has sent since its last reply – including any
-    /// that are undelivered to ChatGPT. Otherwise, this method does
-    /// nothing.
+    /// in the conversation, ChatGPT replies to the messages sent since
+    /// its last reply – including any that are undelivered to ChatGPT.
+    /// Otherwise, this method does nothing.
     ///
     /// Replies to a conversation are composed one at a time. A request
     /// made while a reply is being composed is fulfilled once that
@@ -212,20 +214,6 @@ final class ChatGPTService {
         ) ?? conversation
     }
 
-    private func markAsRead(
-        _ messages: [Message],
-        in conversation: Conversation
-    ) async {
-        do throws(Exception) {
-            try await conversation.updateReadDate(
-                for: messages,
-                userID: CommonConstants.chatGPTUserID
-            )
-        } catch {
-            Logger.log(error)
-        }
-    }
-
     private func persistUndeliveredMessageIDs() {
         guard !undeliveredMessageIDs.isEmpty else {
             return persistedUndeliveredMessageIDs = nil
@@ -260,11 +248,11 @@ final class ChatGPTService {
         let conversation = latestVersion(of: conversation)
         let context = conversationContexts[conversation.id.key]
         guard let prompt = ChatGPTPrompt(
-            conversationMessages: conversation.messages ?? [],
+            conversation: conversation,
             relayedMessageIDs: context?.relayedMessageIDs
         ) else { return }
 
-        let messageIDs = prompt.messages.map(\.id)
+        let messageIDs = prompt.messages.filter(\.isFromCurrentUser).map(\.id)
         setIsUndelivered(
             false,
             messageIDs: messageIDs,
@@ -279,7 +267,7 @@ final class ChatGPTService {
         defer { inFlightReplyMessageIDs?[conversation.id.key] = nil }
 
         // Typing status is published in one-to-one conversations only.
-        let publishesTypingStatus = conversation.participants.count == Int(Floats.participantCountThreshold)
+        let publishesTypingStatus = conversation.participants.count == Int(Floats.typingStatusParticipantCount)
         if publishesTypingStatus {
             await setIsTyping(
                 true,
@@ -287,10 +275,15 @@ final class ChatGPTService {
             )
         }
 
+        // Sending a message resets the sender's typing status in the
+        // same atomic commit, so typing is cleared explicitly only
+        // when no reply is sent.
+        var didSendReply = false
+
         do throws(Exception) {
             let user = try await resolveUser()
             let session = context?.session ?? takePreparedSession()
-            let response = try await session.response(to: prompt)
+            let replies = try await session.response(to: prompt)
 
             conversationContexts[conversation.id.key] = .init(
                 relayedMessageIDs: Set(conversation.messageIDs).union(
@@ -304,11 +297,28 @@ final class ChatGPTService {
                 in: latestVersion(of: conversation)
             )
 
-            _ = try await clientSession.entity.message.sendTextMessage(
-                response,
-                from: user,
-                in: latestVersion(of: conversation)
-            )
+            for (index, reply) in replies.enumerated() {
+                if index > 0 {
+                    if publishesTypingStatus {
+                        await setIsTyping(
+                            true,
+                            inConversationWithIDKey: conversation.id.key
+                        )
+                    }
+
+                    try? await Task.sleep(
+                        for: .milliseconds(Floats.interMessageDelayMilliseconds)
+                    )
+                }
+
+                _ = try await clientSession.entity.message.sendTextMessage(
+                    reply,
+                    from: user,
+                    in: latestVersion(of: conversation)
+                )
+            }
+
+            didSendReply = !replies.isEmpty
         } catch {
             conversationContexts[conversation.id.key] = nil
             setIsUndelivered(
@@ -320,31 +330,13 @@ final class ChatGPTService {
             Logger.log(error)
         }
 
-        guard publishesTypingStatus else { return }
+        guard publishesTypingStatus,
+              !didSendReply else { return }
+
         await setIsTyping(
             false,
             inConversationWithIDKey: conversation.id.key
         )
-    }
-
-    private func setIsTyping(
-        _ isTyping: Bool,
-        inConversationWithIDKey conversationIDKey: String
-    ) async {
-        let path = [
-            NetworkPath.conversations.rawValue,
-            conversationIDKey,
-            Conversation.SerializableKey.participants.rawValue,
-            CommonConstants.chatGPTUserID,
-            Participant.SerializableKey.isTyping.rawValue,
-        ].joined(separator: "/")
-
-        do throws(Exception) {
-            let database = UncheckedSendable(networking.database)
-            try await database.wrappedValue.commit([path: isTyping])
-        } catch {
-            Logger.log(error)
-        }
     }
 
     private func setIsUndelivered(

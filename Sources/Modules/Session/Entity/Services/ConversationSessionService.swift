@@ -188,10 +188,16 @@ final class ConversationSessionService: @unchecked Sendable {
 
     // MARK: - Update Displayed Messages
 
-    /// Recomputes the current conversation's displayed messages, including any outbox entries.
+    /// Recomputes the current conversation's displayed messages,
+    /// including any outbox entries.
     ///
-    /// Store-change events land on a later main actor job; a caller reloading UI in the same job as
-    /// an upsert can call this first to refresh immediately.
+    /// An outbox entry whose reserved message identifier is already
+    /// among the conversation's messages is omitted, so a message is
+    /// never displayed twice while its delivery settles.
+    ///
+    /// Store-change events land on a later main actor job; a caller
+    /// reloading UI in the same job as an upsert can call this first
+    /// to refresh immediately.
     func updateDisplayedMessages() {
         var messages = withMessagesOffset(
             hydratedMessages.offsetFromCurrentUserAdditionDate(
@@ -199,11 +205,17 @@ final class ConversationSessionService: @unchecked Sendable {
             ).sortedByAscendingSentDate
         )
 
-        if let conversationIDKey = currentConversation?.id.key {
+        if let currentConversation {
+            let deliveredMessageIDs = Set(currentConversation.messageIDs)
             messages.append(
                 contentsOf: clientSession
                     .outbox
-                    .entries(forConversationIDKey: conversationIDKey)
+                    .entries(forConversationIDKey: currentConversation.id.key)
+                    .filter { entry in
+                        entry.reservedRemoteID.map {
+                            !deliveredMessageIDs.contains($0)
+                        } ?? true
+                    }
                     .map(\.asDisplayMessage)
             )
         }
