@@ -70,9 +70,11 @@ final class TapGestureRecognizerService {
 
     /// Handles a tap on the message list.
     ///
-    /// When the tap lands within a message's content, this method presents the failed message
-    /// action sheet for a failed outbox message, previews the tapped media, or handles a
-    /// detected attribute in tapped text. Taps outside message content are ignored.
+    /// When the tap lands within a message's content, this method
+    /// presents the failed message action sheet for an undelivered
+    /// message, previews the tapped media, or handles a detected
+    /// attribute in tapped text. Taps outside message content are
+    /// ignored.
     ///
     /// - Parameter sender: The tap gesture recognizer that recognized the tap.
     @objc
@@ -86,9 +88,9 @@ final class TapGestureRecognizerService {
 
         let message = viewController.displayedMessages.itemAt(indexPath.section)
         if let message,
-           message.isFailedOutboxMessage {
+           message.isUndelivered {
             viewController.presentFailedMessageActionSheet(
-                forMessageID: message.id,
+                for: message,
                 sourceView: selectedCell.messageContainerView
             )
         } else if let mediaCell = selectedCell as? MediaMessageCell {

@@ -76,9 +76,11 @@ struct NotificationService {
     /// Sends a push notification about the given message – or a reaction to it – to each of
     /// the given users.
     ///
-    /// Notification content is localized to each recipient's language, and each recipient's
-    /// hosted badge number is incremented atomically. Recipients who have not registered for
-    /// push notifications are skipped; stale push tokens are erased.
+    /// Notification content is localized to each recipient's language,
+    /// and each recipient's hosted badge number is incremented
+    /// atomically. Recipients who have not registered for push
+    /// notifications are skipped, as is ChatGPT; stale push tokens are
+    /// erased.
     ///
     /// Each recipient's push tokens are read from the database at
     /// send time, rather than taken from the given users. If the
@@ -89,33 +91,46 @@ struct NotificationService {
     ///   - reaction: The reaction the notification describes; pass `nil` to describe the
     ///     message itself. The default is `nil`.
     ///   - message: The message the notification describes.
+    ///   - sender: The user the notification is from, or `nil` if it
+    ///     is from the current user. Notifications from ChatGPT are
+    ///     titled with ChatGPT's name in place of its phone number.
+    ///     The default is `nil`.
     ///   - conversationIDKey: The identifier key of the conversation containing the message.
     ///   - isPenPalsConversation: A Boolean value that indicates whether the conversation is a
     ///     PenPals conversation, in which case notification titles use a PenPals display
     ///     name in place of the sender's phone number.
     ///
-    /// - Throws: An `Exception` if the current user has not been set, or if delivery fails.
+    /// - Throws: An `Exception` if no sender is given and the current
+    ///   user has not been set, or if delivery fails.
     func notify(
         _ users: [User],
         ofReaction reaction: Reaction? = nil,
         message: Message,
+        from sender: User? = nil,
         conversationIDKey: String,
         isPenPalsConversation: Bool
     ) async throws(Exception) {
-        guard let currentUser = clientSession.entity.user.currentUser else {
+        guard let sender = sender ?? clientSession.entity.user.currentUser else {
             throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
             )
         }
 
-        let currentUserFormattedPhoneNumberString = currentUser.phoneNumber.formattedString()
+        let users = users.filter { !$0.isChatGPT }
+        let senderTitle = if sender.isChatGPT {
+            sender.displayName
+        } else {
+            sender.phoneNumber.formattedString()
+        }
+
         guard let reaction else {
             try await users.forEachConcurrently { user throws(Exception) in
                 do throws(Exception) {
                     try await self.notify(
                         user,
-                        title: isPenPalsConversation ? self.penPalsName(for: user) : currentUserFormattedPhoneNumberString,
+                        from: sender,
+                        title: isPenPalsConversation ? self.penPalsName(for: user) : senderTitle,
                         body: self.notificationBody(
                             for: message,
                             user: user
@@ -141,7 +156,7 @@ struct NotificationService {
 
             let reactionSuffix = "\(reactedString) \(reaction.style.emojiValue)"
 
-            let titlePrefix = isPenPalsConversation ? penPalsName(for: user) : currentUserFormattedPhoneNumberString
+            let titlePrefix = isPenPalsConversation ? penPalsName(for: user) : senderTitle
             var body = notificationBody(
                 for: message,
                 user: user
@@ -155,6 +170,7 @@ struct NotificationService {
             do throws(Exception) {
                 try await self.notify(
                     user,
+                    from: sender,
                     title: "\(titlePrefix) \(reactionSuffix)",
                     body: body,
                     conversationIDKey: conversationIDKey,
@@ -509,8 +525,10 @@ struct NotificationService {
         return body
     }
 
+    // swiftlint:disable:next function_parameter_count
     private func notify(
         _ user: User,
+        from sender: User,
         title: String,
         body: String?,
         conversationIDKey: String,
@@ -519,13 +537,6 @@ struct NotificationService {
     ) async throws(Exception) {
         let isReaction = reactionMessageID != nil
         let userInfo = ["UserID": user.id]
-
-        guard let currentUser = clientSession.entity.user.currentUser else {
-            throw Exception(
-                "Current user has not been set.",
-                metadata: .init(sender: self)
-            ).appending(userInfo: userInfo)
-        }
 
         // Atomic badge increment via transaction to avoid
         // read-modify-write races when multiple senders
@@ -553,7 +564,7 @@ struct NotificationService {
             ).appending(userInfo: userInfo)
         }
 
-        let userNumberHash = currentUser.phoneNumber.nationalNumberString.digits.encodedHash
+        let userNumberHash = sender.phoneNumber.nationalNumberString.digits.encodedHash
         var exceptions = [Exception]()
         for pushToken in pushTokens {
             do {

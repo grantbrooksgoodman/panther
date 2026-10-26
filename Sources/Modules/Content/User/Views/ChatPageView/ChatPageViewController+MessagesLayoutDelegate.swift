@@ -33,7 +33,7 @@ extension ChatPageViewController: @MainActor MessagesLayoutDelegate {
               let message = message as? Message,
               !message.isMock else { return 0 }
 
-        if message.isFailedOutboxMessage {
+        if message.isUndelivered {
             return Floats.cellBottomLabelHeight
         }
 

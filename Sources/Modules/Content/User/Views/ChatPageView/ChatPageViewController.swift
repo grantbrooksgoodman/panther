@@ -19,10 +19,11 @@ import MessageKit
 
 /// The view controller that displays a conversation's messages.
 ///
-/// ``ChatPageViewController`` is the chat page's message list. It forwards its lifecycle, scroll,
-/// and trait events to ``ChatPageViewService``, which orchestrates the page, and supplies the
-/// message cells – including a system message cell for custom content and a failed-delivery
-/// indicator for messages that could not be sent.
+/// ``ChatPageViewController`` is the chat page's message list. It
+/// forwards its lifecycle, scroll, and trait events to
+/// ``ChatPageViewService``, which orchestrates the page, and supplies
+/// the message cells – including a system message cell for custom
+/// content and a failed-delivery indicator for undelivered messages.
 final class ChatPageViewController: MessagesViewController {
     // MARK: - Dependencies
 
@@ -32,6 +33,7 @@ final class ChatPageViewController: MessagesViewController {
     /// The messages currently displayed in the conversation.
     @Dependency(\.clientSession.entity.conversation.displayedMessages) var displayedMessages: [Message]
 
+    @Dependency(\.commonServices.chatGPT) private var chatGPTService: ChatGPTService
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.clientSession.outbox) private var messageOutboxService: MessageOutboxService
     @Dependency(\.chatPageViewService) private var viewService: ChatPageViewService
@@ -83,8 +85,9 @@ final class ChatPageViewController: MessagesViewController {
 
     /// Returns the cell for the message at the given index path.
     ///
-    /// Custom-content messages are shown in a system message cell; other messages use the
-    /// default cell, with a failed-delivery indicator added when the message failed to send.
+    /// Custom-content messages are shown in a system message cell;
+    /// other messages use the default cell, with a failed-delivery
+    /// indicator added when the message is undelivered.
     override func collectionView(
         _ collectionView: UICollectionView,
         cellForItemAt indexPath: IndexPath
@@ -166,13 +169,24 @@ final class ChatPageViewController: MessagesViewController {
 
     /// Presents an action sheet for a failed message, offering to retry or delete it.
     ///
+    /// For a message undelivered to ChatGPT, the action sheet offers
+    /// only to retry; retrying prompts ChatGPT again without sending
+    /// the message again.
+    ///
     /// - Parameters:
-    ///   - messageID: The identifier of the failed message.
+    ///   - message: The failed message.
     ///   - sourceView: The view to anchor the action sheet to.
     func presentFailedMessageActionSheet(
-        forMessageID messageID: String,
+        for message: Message,
         sourceView: UIView
     ) {
+        guard !message.isUndeliveredToChatGPT else {
+            return presentUndeliveredToChatGPTActionSheet(
+                sourceView: sourceView
+            )
+        }
+
+        let messageID = message.id
         let messageOutboxService = UncheckedSendable(messageOutboxService)
         let deleteAction = AKAction(
             Localized(.delete).wrappedValue,
@@ -214,7 +228,7 @@ final class ChatPageViewController: MessagesViewController {
         ) as? UIButton
 
         guard let message,
-              message.isFailedOutboxMessage else {
+              message.isUndelivered else {
             existingButton?.removeFromSuperview()
             return
         }
@@ -266,11 +280,34 @@ final class ChatPageViewController: MessagesViewController {
         guard let cell = sender.superview?.superview as? MessageContentCell,
               let indexPath = messagesCollectionView.indexPath(for: cell),
               let message = displayedMessages.itemAt(indexPath.section),
-              message.isFailedOutboxMessage else { return }
+              message.isUndelivered else { return }
 
         presentFailedMessageActionSheet(
-            forMessageID: message.id,
+            for: message,
             sourceView: sender
         )
+    }
+
+    private func presentUndeliveredToChatGPTActionSheet(
+        sourceView: UIView
+    ) {
+        guard let currentConversation else { return }
+
+        let chatGPTService = chatGPTService
+        let tryAgainAction = AKAction(Localized(.tryAgain).wrappedValue) {
+            Task { @MainActor in
+                chatGPTService.retryDelivery(in: currentConversation)
+            }
+        }
+
+        Task { @MainActor in
+            await AKActionSheet(
+                actions: [
+                    .cancelAction,
+                    tryAgainAction,
+                ],
+                sourceItem: .custom(.view(sourceView))
+            ).present(translating: [])
+        }
     }
 }

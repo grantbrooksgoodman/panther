@@ -16,9 +16,14 @@ import AppSubsystem
 extension User {
     // MARK: - Properties
 
-    /// The contact pair matching this user in the contact pair archive, if one exists.
+    /// The contact pair that represents this user, if one exists.
+    ///
+    /// For ChatGPT, this is the contact pair that
+    /// ``ContactPair/chatGPT(_:)`` creates; for any other user, it is
+    /// the contact pair matching the user in the contact pair archive.
     var contactPair: ContactPair? {
         @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
+        guard !isChatGPT else { return .chatGPT(self) }
         return contactPairArchive.getValue(phoneNumber: phoneNumber)
     }
 
@@ -65,6 +70,11 @@ extension User {
         @Persistent(.currentUserID) var persistedValue: String?
         @Dependency(\.clientSession.entity.user.currentUser?.id) var sessionValue: String?
         return sessionValue ?? persistedValue
+    }
+
+    /// A Boolean value that indicates whether the user is ChatGPT.
+    var isChatGPT: Bool {
+        id == CommonConstants.chatGPTUserID
     }
 
     /// The color of the user's PenPals icon, derived from their language or region flag, or `nil`

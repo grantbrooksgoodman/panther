@@ -19,6 +19,9 @@ import AppSubsystem
 /// combining the user's known contacts with the participants of their existing conversations –
 /// and groups them into alphabetical sections. It also filters the suggestions by the text the
 /// user types.
+///
+/// Entering the text that selects ChatGPT suggests ChatGPT in place
+/// of the user's contacts.
 @MainActor
 final class RecipientBarTableViewService {
     // MARK: - Types
@@ -34,6 +37,7 @@ final class RecipientBarTableViewService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.commonServices.chatGPT) private var chatGPTService: ChatGPTService
     @Dependency(\.clientSession.entity.user.currentUser?.conversations) private var conversations: [Conversation]?
     @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
 
@@ -43,6 +47,7 @@ final class RecipientBarTableViewService {
 
     private let viewController: ChatPageViewController
 
+    private var chatGPTContactPair: ContactPair?
     private var contactPairs: [ContactPair]?
     private var currentQuery: String?
     private var queriedContactPairs = [ContactPair]()
@@ -84,8 +89,9 @@ final class RecipientBarTableViewService {
 
     /// Resolves the contacts that can be added as recipients.
     ///
-    /// The resolved set combines the user's known contacts with the participants of their visible
-    /// conversations, excluding participants whose identity is obfuscated in a PenPals
+    /// The resolved set combines the user's known contacts with the
+    /// participants of their visible conversations, excluding ChatGPT
+    /// and participants whose identity is obfuscated in a PenPals
     /// conversation, and removes duplicates by phone number.
     ///
     /// Concurrent calls coalesce onto a single in-flight resolution.
@@ -125,7 +131,8 @@ final class RecipientBarTableViewService {
                     unknownUsers += conversation
                         .users?
                         .filter {
-                            !knownUserIDs.contains($0.id) &&
+                            !$0.isChatGPT &&
+                                !knownUserIDs.contains($0.id) &&
                                 seenUserIDs.insert($0.id).inserted
                         } ?? []
                 }
@@ -143,8 +150,11 @@ final class RecipientBarTableViewService {
 
     /// Filters the suggestions by the given query and shows or hides the table accordingly.
     ///
-    /// A blank query hides the table and restores the message list; a non-blank query shows the
-    /// filtered suggestions in place of the message list.
+    /// A blank query hides the table and restores the message list; a
+    /// non-blank query shows the filtered suggestions in place of the
+    /// message list. The query that selects ChatGPT shows ChatGPT as
+    /// the only suggestion, creating ChatGPT's user account if it does
+    /// not exist.
     ///
     /// - Parameter query: The text to filter the suggestions by.
     func setQuery(_ query: String) {
@@ -160,8 +170,11 @@ final class RecipientBarTableViewService {
             return
         }
 
-        let contactPairs = contactPairs ?? []
-        queriedContactPairs = query.isZero ? contactPairs : contactPairs.queried(by: query)
+        queriedContactPairs = filteredContactPairs(for: query)
+        if chatGPTService.isRecipientQuery(query),
+           chatGPTContactPair == nil {
+            resolveChatGPTContactPair()
+        }
 
         tableView.frame.origin.y = recipientBarView.frame.maxY
         tableView.alpha = 1
@@ -172,6 +185,17 @@ final class RecipientBarTableViewService {
     }
 
     // MARK: - Auxiliary
+
+    private func filteredContactPairs(for query: String?) -> [ContactPair] {
+        guard let query,
+              !query.isZero else { return contactPairs ?? [] }
+
+        guard !chatGPTService.isRecipientQuery(query) else {
+            return chatGPTContactPair.map { [$0] } ?? []
+        }
+
+        return (contactPairs ?? []).queried(by: query)
+    }
 
     private func getSections() -> [TableViewSection] {
         func sortedByLastName(_ contactPairs: [ContactPair]) -> [ContactPair] {
@@ -195,9 +219,27 @@ final class RecipientBarTableViewService {
         if tableView.dataSource == nil { tableView.dataSource = recipientBarView }
         if tableView.delegate == nil { tableView.delegate = recipientBarView }
 
-        queriedContactPairs = currentQuery == nil || currentQuery?.isZero == true ? contactPairs : contactPairs.queried(by: currentQuery!)
+        queriedContactPairs = filteredContactPairs(for: currentQuery)
         tableView.reloadData()
         QueriedContactPairCache.canWriteToCache = true // NIT: May need to toggle this value when NewChatPageView disappears.
+    }
+
+    private func resolveChatGPTContactPair() {
+        Task {
+            do throws(Exception) {
+                chatGPTContactPair = try await chatGPTService.resolveContactPair()
+                chatGPTService.prewarm()
+
+                guard let currentQuery,
+                      chatGPTService.isRecipientQuery(currentQuery) else { return }
+                setQuery(currentQuery)
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
+            }
+        }
     }
 }
 

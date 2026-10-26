@@ -78,11 +78,14 @@ extension Application {
 
     /// Resets the app to a signed-out, freshly installed state.
     ///
-    /// This method tears down the client session – clearing the outbox, advancing the session
-    /// store's epoch, and stopping conversation observation – then clears all caches, erases the
-    /// app's on-disk directories, removes the archives shared with the notification extension,
-    /// resets persisted defaults, and signs the current user out. Persistent storage keys
-    /// registered as permanent survive the reset.
+    /// This method discards ChatGPT's sessions and delivery records
+    /// and tears down the client session – clearing the outbox,
+    /// advancing the session store's epoch, and stopping conversation
+    /// observation – then clears all caches, erases the app's on-disk
+    /// directories, removes the archives shared with the notification
+    /// extension, resets persisted defaults, and signs the current
+    /// user out. Persistent storage keys registered as permanent
+    /// survive the reset.
     ///
     /// - Parameters:
     ///   - preserveCurrentUserID: A Boolean value that indicates whether the current user's
@@ -98,11 +101,13 @@ extension Application {
     ) {
         @Dependency(\.appGroupDefaults) var appGroupDefaults: UserDefaults
         @Dependency(\.networking.auth) var auth: AuthDelegate
+        @Dependency(\.commonServices.chatGPT) var chatGPTService: ChatGPTService
         @Dependency(\.clientSession) var clientSession: ClientSession
         @Dependency(\.coreKit) var core: CoreKit
         @Dependency(\.userDefaults) var defaults: UserDefaults
         @Dependency(\.navigation) var navigation: Navigation
 
+        chatGPTService.reset()
         clientSession.outbox.removeAll()
         clientSession.store.advanceEpoch()
         clientSession.sync.conversationObserver.stopObserving()

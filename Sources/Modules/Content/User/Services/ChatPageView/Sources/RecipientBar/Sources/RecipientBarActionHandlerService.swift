@@ -178,9 +178,11 @@ final class RecipientBarActionHandlerService {
 
     /// Handles the text field's return by adding the entered text as a recipient.
     ///
-    /// A phone number resolves to its registered user when one exists; any other text is added as
-    /// an unregistered recipient. When the text is blank, the method instead deselects any
-    /// provisional recipients and returns focus to the message input bar.
+    /// A phone number resolves to its registered user when one exists;
+    /// any other text is added as an unregistered recipient. The text
+    /// that selects ChatGPT adds ChatGPT as a recipient. When the text
+    /// is blank, the method instead deselects any provisional
+    /// recipients and returns focus to the message input bar.
     ///
     /// - Parameters:
     ///   - text: The text entered in the text field.
@@ -206,6 +208,23 @@ final class RecipientBarActionHandlerService {
                 Task.delayed(by: .milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) { @MainActor in
                     self.chatPageViewService.inputBar?.becomeFirstResponder()
                 }
+                return
+            }
+
+            guard !services.chatGPT.isRecipientQuery(text) else {
+                do throws(Exception) {
+                    try await contactSelectionUIService.selectContactPair(
+                        services.chatGPT.resolveContactPair()
+                    )
+
+                    services.chatGPT.prewarm()
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toast
+                    )
+                }
+
                 return
             }
 

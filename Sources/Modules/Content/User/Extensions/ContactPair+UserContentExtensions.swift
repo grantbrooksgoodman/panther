@@ -13,6 +13,10 @@ import Foundation
 import AppSubsystem
 
 extension ContactPair {
+    // MARK: - Type Aliases
+
+    private typealias Strings = AppConstants.Strings.UserContentExtensions.ContactPair
+
     // MARK: - Properties
 
     /// The compiled number strings of the contact's phone numbers.
@@ -67,6 +71,32 @@ extension ContactPair {
     }
 
     // MARK: - Methods
+
+    /// Creates a contact pair that represents ChatGPT.
+    ///
+    /// The contact pair presents ChatGPT's account under ChatGPT's
+    /// name rather than its phone number.
+    ///
+    /// - Parameter user: ChatGPT's user account.
+    ///
+    /// - Returns: A contact pair representing ChatGPT.
+    static func chatGPT(_ user: User) -> ContactPair {
+        .init(
+            contact: .init(
+                user.id,
+                firstName: Strings.chatGPTContactFirstName,
+                lastName: "",
+                phoneNumbers: [user.phoneNumber],
+                imageData: nil
+            ),
+            numberPairs: [
+                .init(
+                    phoneNumber: user.phoneNumber,
+                    userIDs: [user.id]
+                ),
+            ]
+        )
+    }
 
     /// Creates a mock contact pair with the given name, representing an unresolved recipient.
     ///

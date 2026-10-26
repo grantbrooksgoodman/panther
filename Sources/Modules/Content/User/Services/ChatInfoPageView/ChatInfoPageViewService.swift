@@ -94,11 +94,14 @@ final class ChatInfoPageViewService {
     // swiftlint:disable function_body_length
     /// Returns the current conversation's participants, prepared for display.
     ///
-    /// Each participant combines their user record with a matching device contact, when one
-    /// exists. In PenPals conversations, participants who have not shared their data with the
-    /// current user – and are not otherwise known to them – appear under their obfuscated
-    /// PenPals names without contact information. Results outside PenPals conversations are
-    /// cached in memory per user, and uncached participants resolve in parallel.
+    /// Each participant combines their user record with a matching
+    /// device contact, when one exists; ChatGPT appears under its name
+    /// as an unknown contact. In PenPals conversations, participants
+    /// who have not shared their data with the current user – and are
+    /// not otherwise known to them – appear under their obfuscated
+    /// PenPals names without contact information. Results outside
+    /// PenPals conversations are cached in memory per user, and
+    /// uncached participants resolve in parallel.
     ///
     /// - Returns: The participants, sorted by display name – names beginning with a letter
     ///   first.
@@ -140,6 +143,25 @@ final class ChatInfoPageViewService {
         // Resolve uncached users in parallel (the only async work is the CNContact lookup).
         let participants = try await uncachedUsers
             .parallelMap { @Sendable user -> (String, ChatParticipant)? in
+                guard !user.isChatGPT else {
+                    let contactPair: ContactPair = .chatGPT(user)
+                    let cnContact = CNMutableContact()
+                    cnContact.givenName = contactPair.contact.fullName
+
+                    return (
+                        user.id,
+                        .init(
+                            displayName: contactPair.contact.fullName,
+                            cnContactContainer: .init(
+                                cnContact,
+                                isUnknown: true
+                            ),
+                            contactPair: contactPair,
+                            penPalsStatus: nil
+                        )
+                    )
+                }
+
                 let currentUserSharesData = conversation.currentUserSharesPenPalsData(with: user)
                 // swiftlint:disable:next identifier_name
                 let currentUserDoesNotShareDataButOtherUserDoes = !currentUserSharesData && conversation.userSharesPenPalsDataWithCurrentUser(user)

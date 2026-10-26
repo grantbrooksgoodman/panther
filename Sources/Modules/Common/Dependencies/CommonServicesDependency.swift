@@ -15,6 +15,7 @@ import AppSubsystem
 enum CommonServicesDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> CommonServices {
         @MainActorIsolated var attributeDetectionService = AttributeDetectionService.shared
+        @MainActorIsolated var chatGPTService = ChatGPTService()
         @MainActorIsolated var contactService = ContactService(contactPairArchive: .init())
         @MainActorIsolated var hapticsService = HapticsService.shared
         @MainActorIsolated var inviteService = InviteService()
@@ -32,6 +33,7 @@ enum CommonServicesDependency: DependencyKey {
                 transcription: .init()
             ),
             breadcrumbsCapture: .shared,
+            chatGPT: chatGPTService,
             connectionStatus: .init(),
             contact: contactService,
             contentPicker: .init(

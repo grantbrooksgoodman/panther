@@ -37,6 +37,12 @@ extension PersistentStorageKey {
         case breadcrumbsCaptureHistory
     }
 
+    /// The persistent storage keys scoped to ``ChatGPTService``.
+    enum ChatGPTServiceStorageKey: String {
+        case inFlightReplyMessageIDs
+        case undeliveredMessageIDs
+    }
+
     /// The persistent storage keys scoped to ``ContactPairArchiveService``.
     enum ContactPairArchiveServiceStorageKey: String {
         case contactPairArchive

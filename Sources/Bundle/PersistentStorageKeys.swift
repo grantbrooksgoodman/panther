@@ -63,6 +63,12 @@ extension PersistentStorageKey {
         .init(key.rawValue)
     }
 
+    static func chatGPTService(
+        _ key: ChatGPTServiceStorageKey
+    ) -> PersistentStorageKey {
+        .init(key.rawValue)
+    }
+
     static func contactPairArchiveService(
         _ key: ContactPairArchiveServiceStorageKey
     ) -> PersistentStorageKey {

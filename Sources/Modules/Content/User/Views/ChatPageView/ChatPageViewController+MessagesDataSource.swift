@@ -60,7 +60,7 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
               !message.isMock,
               !message.isOutboxMessage || message.isFailedOutboxMessage else { return nil }
 
-        if message.isFailedOutboxMessage {
+        if message.isUndelivered {
             return Localized(.notDelivered)
                 .wrappedValue
                 .attributed(.init([

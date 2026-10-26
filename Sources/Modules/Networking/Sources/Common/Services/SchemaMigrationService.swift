@@ -265,7 +265,7 @@ struct SchemaMigrationService {
             var didMigrateConversation = false
             let conversationPath = "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)"
 
-            // messages: ["msgID", ...] → { "msgID": true, ... }
+            // messages: ["messageID", ...] → { "messageID": true, ... }
             if let messageUpdates = migrateMessages(
                 conversationDictionary,
                 conversationPath: conversationPath

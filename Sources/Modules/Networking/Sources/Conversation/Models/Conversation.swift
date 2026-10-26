@@ -345,19 +345,28 @@ struct Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Update Read Date
 
-    /// Marks the given messages as read by the current user and writes the read receipts.
+    /// Marks the given messages as read by the specified user and
+    /// writes the read receipts.
     ///
-    /// This method appends the current user's read receipt to each message that the user has not
-    /// already read, and has no effect for messages the user has already read. In a one-to-one
-    /// conversation, it also updates the conversation's last-modified date and hash token, and the
-    /// participants' hash tokens, in the same atomic fan-out.
+    /// This method appends the user's read receipt to each message
+    /// that the user has not already read, and has no effect for
+    /// messages the user has already read. In a one-to-one
+    /// conversation, it also updates the conversation's
+    /// last-modified date and hash token, and the participants' hash
+    /// tokens, in the same atomic fan-out.
     ///
-    /// - Parameter messages: The messages to mark as read.
+    /// - Parameters:
+    ///   - messages: The messages to mark as read.
+    ///   - userID: The identifier of the user who read the messages,
+    ///     or `nil` to mark them as read by the current user. The
+    ///     default is `nil`.
     ///
-    /// - Throws: An `Exception` if no messages are provided, the current user identifier has not
-    ///   been set, or the write fails.
+    /// - Throws: An `Exception` if no messages are provided, the
+    ///   reading user's identifier cannot be resolved, or the write
+    ///   fails.
     func updateReadDate(
-        for messages: [Message]
+        for messages: [Message],
+        userID: String? = nil
     ) async throws(Exception) {
         @Dependency(\.networking.database) var database: DatabaseDelegate
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
@@ -370,7 +379,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
             )
         }
 
-        guard let currentUserID = User.currentUserID else {
+        guard let readerID = userID ?? User.currentUserID else {
             throw Exception(
                 "Current user ID has not been set.",
                 metadata: .init(sender: self)
@@ -379,12 +388,14 @@ struct Conversation: Codable, EncodedHashable, Hashable {
 
         let now = Date.now
         let readReceipt = ReadReceipt(
-            userID: currentUserID,
+            userID: readerID,
             readDate: now
         )
 
-        let unreadMessages = messages.filter {
-            $0.currentUserReadReceipt == nil
+        let unreadMessages = messages.filter { message in
+            !(message.readReceipts ?? []).contains {
+                $0.userID == readerID
+            }
         }
 
         guard !unreadMessages.isEmpty else { return }
@@ -401,7 +412,7 @@ struct Conversation: Codable, EncodedHashable, Hashable {
                 (
                     message
                         .readReceipts?
-                        .filter { $0.userID != currentUserID } ?? []
+                        .filter { $0.userID != readerID } ?? []
                 ) + [readReceipt]
             ).unique
 

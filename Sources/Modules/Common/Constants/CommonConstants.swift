@@ -10,6 +10,7 @@
 import Foundation
 
 enum CommonConstants {
+    static let chatGPTUserID = "ai_chatgpt"
     static let newConversationID = "EMPTY"
     static let newMessageID = "NEW"
     static let systemMessageID = "SYSTEM"

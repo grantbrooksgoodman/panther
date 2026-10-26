@@ -18,14 +18,16 @@ import MessageKit
 
 /// The collection view flow layout for the chat page's message list.
 ///
-/// ``MessageFlowLayout`` extends the standard message layout with sizing for system message
-/// cells and extra trailing padding for failed outbox messages.
+/// ``MessageFlowLayout`` extends the standard message layout with
+/// sizing for system message cells and extra trailing padding for
+/// undelivered messages.
 @MainActor
 final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
     // MARK: - Properties
 
-    /// The extra trailing padding added to the message container of failed outbox messages,
-    /// reserving space for the failure indicator button.
+    /// The extra trailing padding added to the message container of
+    /// undelivered messages, reserving space for the failure indicator
+    /// button.
     static let failedIndicatorPaddingRight: CGFloat = 28
 
     private lazy var sizeCalculator = SizeCalculator(layout: self)
@@ -49,26 +51,26 @@ final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
         return super.cellSizeCalculatorForItem(at: indexPath)
     }
 
-    /// Returns the layout attributes for the elements in the given rectangle, applying
-    /// failed-outbox padding where needed.
+    /// Returns the layout attributes for the elements in the given
+    /// rectangle, applying undelivered-message padding where needed.
     override func layoutAttributesForElements(
         in rect: CGRect
     ) -> [UICollectionViewLayoutAttributes]? {
         guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }
         for attribute in attributes {
-            applyFailedOutboxPaddingIfNeeded(to: attribute)
+            applyUndeliveredPaddingIfNeeded(to: attribute)
         }
 
         return attributes
     }
 
-    /// Returns the layout attributes for the item at the given index path, applying
-    /// failed-outbox padding where needed.
+    /// Returns the layout attributes for the item at the given index
+    /// path, applying undelivered-message padding where needed.
     override func layoutAttributesForItem(
         at indexPath: IndexPath
     ) -> UICollectionViewLayoutAttributes? {
         guard let attributes = super.layoutAttributesForItem(at: indexPath) else { return nil }
-        applyFailedOutboxPaddingIfNeeded(to: attributes)
+        applyUndeliveredPaddingIfNeeded(to: attributes)
         return attributes
     }
 
@@ -81,10 +83,10 @@ final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
 
     // MARK: - Auxiliary
 
-    private func applyFailedOutboxPaddingIfNeeded(
+    private func applyUndeliveredPaddingIfNeeded(
         to attributes: UICollectionViewLayoutAttributes
     ) {
-        guard let msgAttributes = attributes as? MessagesCollectionViewLayoutAttributes else { return }
+        guard let messageAttributes = attributes as? MessagesCollectionViewLayoutAttributes else { return }
 
         let message = messagesDataSource.messageForItem(
             at: attributes.indexPath,
@@ -92,9 +94,9 @@ final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
         )
 
         guard let message = message as? Message,
-              message.isFailedOutboxMessage else { return }
+              message.isUndelivered else { return }
 
-        msgAttributes.messageContainerPadding.right += Self.failedIndicatorPaddingRight
+        messageAttributes.messageContainerPadding.right += Self.failedIndicatorPaddingRight
     }
 }
 

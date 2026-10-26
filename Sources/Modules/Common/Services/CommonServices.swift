@@ -35,6 +35,10 @@ struct CommonServices: @unchecked Sendable {
     /// diagnostic purposes.
     let breadcrumbsCapture: BreadcrumbsCaptureService
 
+    /// The service that makes ChatGPT available as a conversation
+    /// participant.
+    let chatGPT: ChatGPTService
+
     /// The service that runs effects when network connectivity changes.
     let connectionStatus: ConnectionStatusService
 

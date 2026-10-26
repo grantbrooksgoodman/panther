@@ -382,48 +382,75 @@ struct MessageSessionService {
         }
 
         let users = users.filter { $0 != currentUser }
-        let uniqueLanguageCodes = users.map(\.languageCode).unique
-        let enhancementConfig = await getEnhancementConfiguration(
-            for: conversation.value,
-            isAudioMessage: false,
-            userCount: users.count
-        )
-
-        let sourceLanguageCode = await resolveSourceLanguageCode(
-            forText: text,
-            currentUserLanguageCode: currentUser.languageCode,
-            recipientLanguageCodes: uniqueLanguageCodes
-        )
-
-        let translations = try await uniqueLanguageCodes.parallelMap { languageCode in
-            let translation = try await networking.hostedTranslation.translate(
-                .init(text),
-                with: .init(
-                    from: sourceLanguageCode,
-                    to: languageCode
-                ),
-                enhance: enhancementConfig,
-                archive: .deferred
-            )
-
-            await recordPendingArchiveEntry(for: translation)
-            return translation
-        }
-
-        guard translations.isWellFormed else {
-            throw Exception(
-                "Translations fail validation.",
-                metadata: .init(sender: self)
-            )
-        }
-
         return try await createMessageAndAddToConversation(
             conversation: conversation,
             initiatingUser: currentUser,
             otherUsers: users,
             presetID: presetID,
             richContent: nil,
-            translations: translations
+            translations: translate(
+                text,
+                from: currentUser,
+                to: users,
+                enhancementConfig: getEnhancementConfiguration(
+                    for: conversation.value,
+                    isAudioMessage: false,
+                    userCount: users.count
+                )
+            )
+        )
+    }
+
+    /// Sends a text message from the given user in the given
+    /// conversation.
+    ///
+    /// Use this method to deliver a message on behalf of another
+    /// participant, such as a reply from ChatGPT. The text is
+    /// translated into the language of each of the conversation's
+    /// other participants – including the current user – and
+    /// delivered as though the given user had sent it. The delivery
+    /// progress indicator does not reflect the send.
+    ///
+    /// - Parameters:
+    ///   - text: The text to send.
+    ///   - sender: The user to send the message from.
+    ///   - conversation: The conversation to send the message in.
+    ///
+    /// - Returns: The conversation the message was sent in.
+    ///
+    /// - Throws: An `Exception` if the current user is unavailable,
+    ///   translation fails, or the message cannot be sent.
+    func sendTextMessage(
+        _ text: String,
+        from sender: User,
+        in conversation: Conversation
+    ) async throws(Exception) -> Conversation {
+        guard let currentUser = clientSession.entity.user.currentUser else {
+            throw Exception(
+                "Current user has not been set.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        let users = ((conversation.users ?? []) + [currentUser])
+            .filter { $0.id != sender.id }
+            .unique
+
+        return try await createMessageAndAddToConversation(
+            conversation: (
+                conversation,
+                conversation.metadata.isPenPalsConversation
+            ),
+            initiatingUser: sender,
+            otherUsers: users,
+            animatesDeliveryProgress: false,
+            richContent: nil,
+            translations: translate(
+                text,
+                from: sender,
+                to: users,
+                enhancementConfig: nil
+            )
         )
     }
 
@@ -436,18 +463,23 @@ struct MessageSessionService {
         presetID: String? = nil,
         inputUploadTask: Task<Callback<Void, Exception>, Never>? = nil,
         outputUploadTasks: [String: Task<Callback<Void, Exception>, Never>] = [:],
+        animatesDeliveryProgress: Bool = true,
         richContent: RichMessageContent?,
         translations: [Translation]?
     ) async throws(Exception) -> Conversation {
+        @Sendable func incrementDeliveryProgress(by increment: Float) {
+            guard animatesDeliveryProgress else { return }
+            self.incrementDeliveryProgress(
+                in: conversation.value,
+                by: increment
+            )
+        }
+
         func addMessage(
             _ message: Message,
             to conversation: Conversation
         ) async throws(Exception) -> Conversation {
-            incrementDeliveryProgress(
-                in: conversation,
-                by: Floats.addMessageDeliveryProgressIncrement
-            )
-
+            incrementDeliveryProgress(by: Floats.addMessageDeliveryProgressIncrement)
             return try await clientSession.entity.conversation.addMessages(
                 [message],
                 to: conversation
@@ -466,6 +498,7 @@ struct MessageSessionService {
                             !($0.blockedUserIDs ?? []).contains(initiatingUser.id)
                         },
                         message: message,
+                        from: initiatingUser,
                         conversationIDKey: conversationIDKey,
                         isPenPalsConversation: isPenPalsConversation
                     )
@@ -476,17 +509,11 @@ struct MessageSessionService {
                     )
                 }
 
-                incrementDeliveryProgress(
-                    in: conversation.value,
-                    by: Floats.notifyDeliveryProgressIncrement
-                )
+                incrementDeliveryProgress(by: Floats.notifyDeliveryProgressIncrement)
             }
         }
 
-        incrementDeliveryProgress(
-            in: conversation.value,
-            by: Floats.createMessageDeliveryProgressIncrement
-        )
+        incrementDeliveryProgress(by: Floats.createMessageDeliveryProgressIncrement)
 
         let message: Message
         do {
@@ -511,19 +538,23 @@ struct MessageSessionService {
 
             // Participant un-delete is merged into the
             // willWrite(.messages) atomic fan-out.
-            return try await addMessage(
+            let updatedConversation = try await addMessage(
                 message,
                 to: conversation
             )
+
+            requestChatGPTReply(
+                to: message,
+                in: updatedConversation
+            )
+
+            return updatedConversation
         } else {
             var participantUsers = [initiatingUser]
             participantUsers.append(contentsOf: otherUsers)
 
             services.analytics.logEvent(.createNewConversation)
-            incrementDeliveryProgress(
-                in: conversation.value,
-                by: Floats.createConversationDeliveryProgressIncrement
-            )
+            incrementDeliveryProgress(by: Floats.createConversationDeliveryProgressIncrement)
 
             let createdConversation = try await networking.conversationService.createConversation(
                 firstMessage: message,
@@ -535,6 +566,11 @@ struct MessageSessionService {
                 of: message,
                 conversationIDKey: createdConversation.id.key,
                 isPenPalsConversation: createdConversation.metadata.isPenPalsConversation
+            )
+
+            requestChatGPTReply(
+                to: message,
+                in: createdConversation
             )
 
             return createdConversation
@@ -601,20 +637,32 @@ struct MessageSessionService {
         )
     }
 
+    private func requestChatGPTReply(
+        to message: Message,
+        in conversation: Conversation
+    ) {
+        Task { @MainActor in
+            services.chatGPT.requestReply(
+                to: message,
+                in: conversation
+            )
+        }
+    }
+
     /// An input written in another participant's language becomes the
     /// translation source for every recipient.
     private func resolveSourceLanguageCode(
         forText text: String,
-        currentUserLanguageCode: String,
+        senderLanguageCode: String,
         recipientLanguageCodes: [String]
     ) async -> String {
-        let candidateLanguageCodes = recipientLanguageCodes.filter { $0 != currentUserLanguageCode }
+        let candidateLanguageCodes = recipientLanguageCodes.filter { $0 != senderLanguageCode }
         guard !candidateLanguageCodes.isEmpty,
               await languageRecognitionService.matchConfidence(
                   for: text,
-                  inLanguage: currentUserLanguageCode
+                  inLanguage: senderLanguageCode
               ) < Floats.languageRecognitionServiceMatchConfidenceThreshold else {
-            return currentUserLanguageCode
+            return senderLanguageCode
         }
 
         var bestMatch: (languageCode: String, confidence: Float)?
@@ -629,11 +677,49 @@ struct MessageSessionService {
             bestMatch = (languageCode, confidence)
         }
 
-        return bestMatch?.languageCode ?? currentUserLanguageCode
+        return bestMatch?.languageCode ?? senderLanguageCode
     }
 
     private func shouldAnimateDeliveryProgress(in conversation: Conversation?) -> Bool {
         clientSession.entity.conversation.currentConversation?.id.key == conversation?.id.key
+    }
+
+    private func translate(
+        _ text: String,
+        from sender: User,
+        to users: [User],
+        enhancementConfig: EnhancementConfiguration?
+    ) async throws(Exception) -> [Translation] {
+        let uniqueLanguageCodes = users.map(\.languageCode).unique
+        let sourceLanguageCode = await resolveSourceLanguageCode(
+            forText: text,
+            senderLanguageCode: sender.languageCode,
+            recipientLanguageCodes: uniqueLanguageCodes
+        )
+
+        let translations = try await uniqueLanguageCodes.parallelMap { languageCode in
+            let translation = try await networking.hostedTranslation.translate(
+                .init(text),
+                with: .init(
+                    from: sourceLanguageCode,
+                    to: languageCode
+                ),
+                enhance: enhancementConfig,
+                archive: .deferred
+            )
+
+            await recordPendingArchiveEntry(for: translation)
+            return translation
+        }
+
+        guard translations.isWellFormed else {
+            throw Exception(
+                "Translations fail validation.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        return translations
     }
 }
 

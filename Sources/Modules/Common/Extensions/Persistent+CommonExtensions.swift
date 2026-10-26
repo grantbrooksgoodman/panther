@@ -50,6 +50,17 @@ extension Persistent {
         self.init(.breadcrumbsCaptureService(breadcrumbsCaptureServiceKey))
     }
 
+    /// Creates a persistent value bound to the given
+    /// ``ChatGPTService`` storage key.
+    ///
+    /// - Parameter chatGPTServiceKey: The key that identifies the
+    ///   stored value.
+    convenience init(
+        _ chatGPTServiceKey: PersistentStorageKey.ChatGPTServiceStorageKey
+    ) {
+        self.init(.chatGPTService(chatGPTServiceKey))
+    }
+
     /// Creates a persistent value bound to the given ``ContactPairArchiveService`` storage key.
     ///
     /// - Parameter contactPairArchiveServiceKey: The key that identifies the stored value.

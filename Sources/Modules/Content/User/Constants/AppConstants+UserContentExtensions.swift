@@ -86,6 +86,10 @@ extension AppConstants.Colors {
 
 extension AppConstants.Strings {
     enum UserContentExtensions {
+        enum ContactPair {
+            static let chatGPTContactFirstName = "ChatGPT"
+        }
+
         enum UIImage {
             static let averageColorCoreImageFilterName = "CIAreaAverage"
             static let documentImageSystemName = "doc.circle.fill"

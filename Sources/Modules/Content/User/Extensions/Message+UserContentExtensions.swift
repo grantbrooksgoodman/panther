@@ -289,6 +289,27 @@ extension Message {
         fromAccountID == CommonConstants.systemMessageID
     }
 
+    /// A Boolean value that indicates whether the message failed to
+    /// deliver.
+    ///
+    /// A message fails to deliver when it is an outbox message whose
+    /// delivery failed, or when it is undelivered to ChatGPT.
+    @MainActor
+    var isUndelivered: Bool {
+        isFailedOutboxMessage || isUndeliveredToChatGPT
+    }
+
+    /// A Boolean value that indicates whether the message is
+    /// undelivered to ChatGPT because ChatGPT failed to reply to it.
+    ///
+    /// Only the current user's messages are undelivered to ChatGPT.
+    @MainActor
+    var isUndeliveredToChatGPT: Bool {
+        @Dependency(\.commonServices.chatGPT) var chatGPTService: ChatGPTService
+        guard isFromCurrentUser else { return false }
+        return chatGPTService.isUndelivered(self)
+    }
+
     /// A copy of this system message hydrated with its localized activity text, or the message
     /// itself if it is not a system message.
     @MainActor
