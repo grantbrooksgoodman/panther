@@ -356,13 +356,20 @@ struct MessageService {
         if updateConversationHash {
             @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
 
+            let lastModifiedDate = Date.now
             let updated = conversation
                 .copying(messageIDs: conversation.messageIDs.filter { $0 != messageID })
-                .copying(metadata: conversation.metadata.copyWith(lastModifiedDate: .now))
+                .copying(metadata: conversation.metadata.copyWith(lastModifiedDate: lastModifiedDate))
+
+            let lastModifiedDatePath = [
+                conversationPath,
+                Conversation.SerializableKey.metadata.rawValue,
+                ConversationMetadata.SerializableKey.lastModifiedDate.rawValue,
+            ].joined(separator: "/")
 
             let newHash = updated.encodedHash
             updates["\(conversationPath)/\(Conversation.SerializableKey.encodedHash.rawValue)"] = newHash
-            updates["\(conversationPath)/\(Conversation.SerializableKey.metadata.rawValue)/lastModifiedDate"] = timestampDateFormatter.string(from: .now)
+            updates[lastModifiedDatePath] = timestampDateFormatter.string(from: lastModifiedDate)
 
             for participant in conversation.participants {
                 let tokenPath = [

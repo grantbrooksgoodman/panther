@@ -121,6 +121,22 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
 
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse
+    ) async {
+        do throws(Exception) {
+            try services
+                .notification
+                .respondToNotificationTap(response)
+        } catch {
+            Logger.log(
+                error,
+                domain: .notifications
+            )
+        }
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
         do {

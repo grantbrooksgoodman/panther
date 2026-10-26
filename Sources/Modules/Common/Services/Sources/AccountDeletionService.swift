@@ -66,6 +66,11 @@ final class AccountDeletionService: @unchecked Sendable {
             )
         }
 
+        $completedUnits.withValue {
+            $0 = 0
+            completionPercent = 0
+        }
+
         entitySession.user.stopObservingCurrentUserChanges()
         let progressAlert = await MainActor.run {
             let progressAlert = AKProgressAlert(

@@ -364,7 +364,7 @@ final class MessageDeliveryService {
                 fromAccountID: currentUser.id,
                 id: "outbox-\(UUID().uuidString)",
                 isPenPalsConversation: isPenPalsConversation,
-                payload: .text(text.trimmingTrailingWhitespace),
+                payload: .text(text),
                 recipientUserIDs: users.map(\.id),
                 attemptCount: 1,
                 lastAttemptDate: .now,

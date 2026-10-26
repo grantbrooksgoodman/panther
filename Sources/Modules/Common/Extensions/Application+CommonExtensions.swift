@@ -87,7 +87,7 @@ extension Application {
     /// - Parameters:
     ///   - preserveCurrentUserID: A Boolean value that indicates whether the current user's
     ///     identifier should survive the reset. When `true`, current-user change observation also
-    ///     continues uninterrupted. The default is `false`.
+    ///     continues uninterrupted, and the current user stays signed in. The default is `false`.
     ///   - procedure: The follow-up action to perform once the reset completes, dismissing all
     ///     presented sheets beforehand. Pass `nil` to leave the interface untouched. The default
     ///     is `nil`.
@@ -131,10 +131,12 @@ extension Application {
         defaults.synchronize()
         RuntimeStorage.remove(.populatedTemporaryCaches)
 
-        do {
-            try auth.signOut()
-        } catch {
-            Logger.log(error)
+        if !preserveCurrentUserID {
+            do {
+                try auth.signOut()
+            } catch {
+                Logger.log(error)
+            }
         }
 
         guard let procedure else { return }

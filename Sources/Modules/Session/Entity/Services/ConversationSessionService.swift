@@ -408,7 +408,7 @@ final class ConversationSessionService: @unchecked Sendable {
         let amountToGet = messageOffset
         guard messages.unique.count > amountToGet else { return messages }
         return Array(
-            messages.unique.reversed()[0 ... amountToGet].reversed()
+            messages.unique.reversed()[0 ..< amountToGet].reversed()
         )
     }
 }

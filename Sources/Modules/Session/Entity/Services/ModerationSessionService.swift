@@ -61,6 +61,8 @@ struct ModerationSessionService {
 
     /// Prompts the user to unblock one or more of their blocked users.
     ///
+    /// If the user has no blocked users, the prompt offers only a Cancel action.
+    ///
     /// - Throws: An `Exception` if the blocked users cannot be resolved or unblocking fails.
     func unblockUsers() async throws(Exception) {
         try await moderate(
@@ -198,13 +200,27 @@ struct ModerationSessionService {
             User.SerializableKey.blockedUserIDs.rawValue,
         ].joined(separator: "/")
 
-        let rawValue: [String: Any] = try await networking.database.getValues(
-            at: path,
-            cacheStrategy: .adaptive
-        )
+        let rawValue: [String: Any]
+        do {
+            rawValue = try await networking.database.getValues(
+                at: path,
+                cacheStrategy: .adaptive
+            )
+        } catch {
+            guard error.isEqual(
+                to: .Networking.Database.noValueExists
+            ) else { throw error }
+            return []
+        }
+
+        let blockedUserIDs = rawValue
+            .keys
+            .filter { !$0.isBangQualifiedEmpty }
+
+        guard !blockedUserIDs.isEmpty else { return [] }
 
         return try await networking.userService.getUsers(
-            ids: Array(rawValue.keys)
+            ids: blockedUserIDs
         )
     }
 

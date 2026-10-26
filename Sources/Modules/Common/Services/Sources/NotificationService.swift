@@ -17,8 +17,9 @@ import UserNotifications
 import AppSubsystem
 import Networking
 
-/// Use ``NotificationService`` to send push notifications and respond to notifications
-/// received while the app is in the foreground.
+/// Use ``NotificationService`` to send push notifications, respond to notifications
+/// received while the app is in the foreground, and open the conversations of notifications
+/// the user taps.
 ///
 /// Notifications are delivered directly through the push notification backend, localized to
 /// each recipient's language.
@@ -27,6 +28,7 @@ struct NotificationService {
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.urlSession) private var urlSession: URLSession
@@ -77,6 +79,10 @@ struct NotificationService {
     /// Notification content is localized to each recipient's language, and each recipient's
     /// hosted badge number is incremented atomically. Recipients who have not registered for
     /// push notifications are skipped; stale push tokens are erased.
+    ///
+    /// Each recipient's push tokens are read from the database at
+    /// send time, rather than taken from the given users. If the
+    /// read fails, the given user's push tokens are used instead.
     ///
     /// - Parameters:
     ///   - users: The users to notify.
@@ -182,20 +188,24 @@ struct NotificationService {
             at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)"
         )
 
-        let pushTokens = userData.reduce(into: [String]()) { partialResult, keyPair in
+        let deviceIDsForPushTokens = userData.reduce(into: [String: String]()) { partialResult, keyPair in
             guard let userData = keyPair.value as? [String: Any],
                   let map = userData[User.SerializableKey.pushTokens.rawValue] as? [String: Any] else { return }
-            partialResult.append(contentsOf: map.keys)
+            let deviceID = userData[User.SerializableKey.deviceID.rawValue] as? String ?? ""
+            for pushToken in map.keys {
+                partialResult[pushToken] = deviceID
+            }
         }
 
-        try await pushTokens.unique.forEachConcurrently(
+        try await deviceIDsForPushTokens.forEachConcurrently(
             failFast: false
-        ) { pushToken throws(Exception) in
+        ) { pushToken, deviceID throws(Exception) in
             try await sendNotification(
                 title: title,
                 body: body,
                 badgeNumber: 0,
                 pushToken: pushToken,
+                deviceID: deviceID,
                 userInfo: [:],
                 isReaction: false
             )
@@ -229,6 +239,112 @@ struct NotificationService {
             sender: self
         )
 
+        let destination = try destination(
+            forNotificationUserInfo: notificationContent.userInfo
+        )
+
+        guard !isPresenting(destination.conversation) else {
+            guard destination.focusedMessageID != nil else { return [] }
+            services.haptics.generateFeedback(.medium)
+            return []
+        }
+
+        let toast: Toast = .init(
+            .capsule(),
+            title: notificationContent.title.isBlank ? nil : notificationContent.title,
+            message: notificationContent.body,
+            perpetuation: .ephemeral(.seconds(5))
+        )
+
+        Toast.show(toast) {
+            Task { @MainActor in
+                navigate(
+                    to: destination.conversation,
+                    focusedMessageID: destination.focusedMessageID
+                )
+            }
+        }
+
+        return [.sound]
+    }
+
+    // MARK: - Respond to Notification Tap
+
+    /// Opens the conversation of a notification the user tapped.
+    ///
+    /// The conversation opens with the reacted-to message focused
+    /// if the notification describes a reaction. If the
+    /// conversation is already open, this method has no effect.
+    ///
+    /// A tap that arrives before the user content appears – while
+    /// the app is launching, for example – is held until you call
+    /// ``openPendingNotificationConversation()``.
+    ///
+    /// - Parameter response: The user's response to the
+    ///   notification.
+    ///
+    /// - Throws: An `Exception` if the notification is malformed,
+    ///   is not intended for the current user, or references a
+    ///   conversation that is not visible.
+    @MainActor
+    func respondToNotificationTap(
+        _ response: UNNotificationResponse
+    ) throws(Exception) {
+        guard response.actionIdentifier == UNNotificationDefaultActionIdentifier else { return }
+
+        let userInfo = response.notification.request.content.userInfo
+        guard navigation.state.modal == .userContent else {
+            return RuntimeStorage.store(
+                userInfo,
+                as: .pendingNotificationTapUserInfo
+            )
+        }
+
+        try openConversation(forNotificationUserInfo: userInfo)
+    }
+
+    /// Opens the conversation of a notification the user tapped
+    /// before the user content appeared.
+    ///
+    /// Call this method once the user content appears. If no tap
+    /// is pending, this method has no effect.
+    ///
+    /// - Throws: An `Exception` if the notification is malformed,
+    ///   is not intended for the current user, or references a
+    ///   conversation that is not visible.
+    @MainActor
+    func openPendingNotificationConversation() throws(Exception) {
+        guard let userInfo = RuntimeStorage.pendingNotificationTapUserInfo else { return }
+        RuntimeStorage.remove(.pendingNotificationTapUserInfo)
+        try openConversation(forNotificationUserInfo: userInfo)
+    }
+
+    // MARK: - Auxiliary
+
+    private func currentPushTokens(for user: User) async -> [String]? {
+        do throws(Exception) {
+            let pushTokenMap: [String: Any] = try await networking.database.getValues(
+                at: [
+                    NetworkPath.users.rawValue,
+                    user.id,
+                    User.SerializableKey.pushTokens.rawValue,
+                ].joined(separator: "/"),
+                cacheStrategy: .disregardCache
+            )
+
+            let pushTokens = pushTokenMap.keys.sorted()
+            return pushTokens.isBangQualifiedEmpty ? nil : pushTokens
+        } catch {
+            guard !error.isEqual(
+                to: .Networking.Database.noValueExists
+            ) else { return nil }
+            return user.pushTokens
+        }
+    }
+
+    private func destination(
+        forNotificationUserInfo userInfo: [AnyHashable: Any]
+    ) throws(Exception) -> (conversation: Conversation, focusedMessageID: String?) {
         guard let currentUser = clientSession.entity.user.currentUser else {
             throw Exception(
                 "No current user – will not respond to notification.",
@@ -237,9 +353,9 @@ struct NotificationService {
             )
         }
 
-        guard let conversationIDKey = notificationContent.userInfo["conversationIDKey"] as? String,
-              let reactionMessageID = notificationContent.userInfo["reactionMessageID"] as? String,
-              let recipientUserID = notificationContent.userInfo["recipientUserID"] as? String else {
+        guard let conversationIDKey = userInfo["conversationIDKey"] as? String,
+              let reactionMessageID = userInfo["reactionMessageID"] as? String,
+              let recipientUserID = userInfo["recipientUserID"] as? String else {
             throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
@@ -265,56 +381,11 @@ struct NotificationService {
             )
         }
 
-        guard !(
-            chatPageState.isPresented && clientSession
-                .entity
-                .conversation
-                .currentConversation?
-                .id
-                .key == conversationIDKey
-        ) else {
-            guard !reactionMessageID.isBangQualifiedEmpty else { return [] }
-            services.haptics.generateFeedback(.medium)
-            return []
-        }
-
-        let toast: Toast = .init(
-            .capsule(),
-            title: notificationContent.title.isBlank ? nil : notificationContent.title,
-            message: notificationContent.body,
-            perpetuation: .ephemeral(.seconds(5))
+        return (
+            conversation,
+            reactionMessageID.isBangQualifiedEmpty ? nil : reactionMessageID
         )
-
-        Toast.show(toast) {
-            Task { @MainActor in
-                @Dependency(\.navigation) var navigation: Navigation
-                guard chatPageState.isPresented else {
-                    return navigation.navigate(to: .userContent(.push(.chat(
-                        conversation,
-                        focusedMessageID: reactionMessageID.isBangQualifiedEmpty ? nil : reactionMessageID
-                    ))))
-                }
-
-                navigation.navigate(to: .userContent(.stack([])))
-                chatPageState.addEffectUponIsPresented(
-                    changedTo: false,
-                    id: .deeplinkToOtherChat
-                ) {
-                    Task { @MainActor in
-                        Application.dismissSheets()
-                        navigation.navigate(to: .userContent(.push(.chat(
-                            conversation,
-                            focusedMessageID: reactionMessageID.isBangQualifiedEmpty ? nil : reactionMessageID
-                        ))))
-                    }
-                }
-            }
-        }
-
-        return [.sound]
     }
-
-    // MARK: - Auxiliary
 
     private func generateAccessToken() async throws(Exception) -> String {
         guard let url = URL(string: "https://us-central1-jaguar-5d735.cloudfunctions.net/generateAccessToken") else {
@@ -349,6 +420,44 @@ struct NotificationService {
                 error,
                 metadata: .init(sender: self)
             )
+        }
+    }
+
+    @MainActor
+    private func isPresenting(_ conversation: Conversation) -> Bool {
+        chatPageState.isPresented && clientSession
+            .entity
+            .conversation
+            .currentConversation?
+            .id
+            .key == conversation.id.key
+    }
+
+    @MainActor
+    private func navigate(
+        to conversation: Conversation,
+        focusedMessageID: String?
+    ) {
+        guard chatPageState.isPresented else {
+            Application.dismissSheets()
+            return navigation.navigate(to: .userContent(.push(.chat(
+                conversation,
+                focusedMessageID: focusedMessageID
+            ))))
+        }
+
+        navigation.navigate(to: .userContent(.stack([])))
+        chatPageState.addEffectUponIsPresented(
+            changedTo: false,
+            id: .deeplinkToOtherChat
+        ) {
+            Task { @MainActor in
+                Application.dismissSheets()
+                navigation.navigate(to: .userContent(.push(.chat(
+                    conversation,
+                    focusedMessageID: focusedMessageID
+                ))))
+            }
         }
     }
 
@@ -434,7 +543,10 @@ struct NotificationService {
             return max(0, current + 1)
         } as? Int ?? 0
 
-        guard let pushTokens = user.pushTokens else {
+        // The recipient's copy in the session store is not
+        // refreshed when their push tokens change, so read
+        // the tokens from the database at send time.
+        guard let pushTokens = await currentPushTokens(for: user) else {
             throw Exception(
                 "The specified user has not registered for push notifications.",
                 metadata: .init(sender: self)
@@ -450,6 +562,7 @@ struct NotificationService {
                     body: body ?? .bangQualifiedEmpty,
                     badgeNumber: newBadgeNumber,
                     pushToken: pushToken,
+                    deviceID: user.deviceID,
                     userInfo: [
                         "conversationIDKey": conversationIDKey,
                         "reactionMessageID": reactionMessageID ?? String.bangQualifiedEmpty,
@@ -481,6 +594,18 @@ struct NotificationService {
         }
     }
 
+    @MainActor
+    private func openConversation(
+        forNotificationUserInfo userInfo: [AnyHashable: Any]
+    ) throws(Exception) {
+        let destination = try destination(forNotificationUserInfo: userInfo)
+        guard !isPresenting(destination.conversation) else { return }
+        navigate(
+            to: destination.conversation,
+            focusedMessageID: destination.focusedMessageID
+        )
+    }
+
     private func penPalsName(for otherUser: User) -> String {
         guard let currentUser = clientSession.entity.user.currentUser else { return "PenPal" }
         let localizedRegionName = services.regionDetail.localizedRegionName(
@@ -496,6 +621,7 @@ struct NotificationService {
         body: String,
         badgeNumber: Int,
         pushToken: String,
+        deviceID: String,
         userInfo: [String: String],
         isReaction: Bool
     ) async throws(Exception) {
@@ -524,25 +650,33 @@ struct NotificationService {
         var notificationParameters = ["title": title]
         if !body.isBangQualifiedEmpty { notificationParameters["body"] = body }
 
-        let payload: [String: Any] = [
-            "message": [
-                "apns": [
-                    "payload": [
-                        "aps": [
-                            "badge": badgeNumber,
-                            "mutable-content": 1,
-                            "sound": isReaction ? "Reaction.caf" : "default",
-                        ],
-                    ],
-                ],
-                "data": userInfo,
-                "notification": notificationParameters,
-                "token": pushToken,
-            ],
+        var message: [String: Any] = [
+            "android": ["priority": "high"],
+            "token": pushToken,
         ]
 
+        if deviceID.hasPrefix("and_") {
+            // Android recipients build and display notifications
+            // from data-only messages, so the title and body
+            // travel in the data payload.
+            message["data"] = userInfo.merging(notificationParameters) { _, new in new }
+        } else {
+            message["apns"] = [
+                "payload": [
+                    "aps": [
+                        "badge": badgeNumber,
+                        "mutable-content": 1,
+                        "sound": isReaction ? "Reaction.caf" : "default",
+                    ],
+                ],
+            ]
+
+            message["data"] = userInfo
+            message["notification"] = notificationParameters
+        }
+
         do {
-            try request.httpBody = JSONSerialization.data(withJSONObject: payload)
+            try request.httpBody = JSONSerialization.data(withJSONObject: ["message": message])
             let dataResult = try await urlSession.data(for: request)
 
             guard let urlResponse = dataResult.1 as? HTTPURLResponse,

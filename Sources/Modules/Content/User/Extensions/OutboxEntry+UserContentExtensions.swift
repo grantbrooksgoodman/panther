@@ -80,9 +80,10 @@ extension OutboxEntry {
             )
 
         case let .text(string):
+            let displayString = string.trimmingTrailingWhitespace
             let mockTranslation = Translation(
-                input: .init(string),
-                output: string,
+                input: .init(displayString),
+                output: displayString,
                 languagePair: selfTranslationPair
             )
 

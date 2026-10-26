@@ -29,7 +29,8 @@ import AppSubsystem
 ///   completion. After a one-second delay, the page shows a determinate progress bar for heavy
 ///   loads – a poor network or a cold cache – and an indeterminate spinner otherwise.
 /// - If initialization succeeds, the page presents the user content when a signed-in user
-///   resolved; otherwise, it presents onboarding with an empty navigation stack.
+///   resolved – opening the conversation of any notification the user tapped while the app
+///   was launching – and otherwise presents onboarding with an empty navigation stack.
 /// - If initialization fails, the first failure attempts recovery automatically; subsequent
 ///   failures present an error alert, and dismissing it retries. In both cases, failures a
 ///   database repair cannot address – a timeout or a media file generation failure – retry
@@ -39,6 +40,7 @@ struct SplashPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.navigation) private var navigation: Navigation
+    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
     @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
     @Dependency(\.splashPageViewService) private var viewService: SplashPageViewService
 
@@ -148,6 +150,16 @@ struct SplashPageReducer: Reducer {
             } else if User.currentUserID != nil,
                       userSession.currentUser != nil {
                 navigation.navigate(to: .root(.modal(.userContent)))
+                return .fireAndForget { @MainActor in
+                    do throws(Exception) {
+                        try notificationService.openPendingNotificationConversation()
+                    } catch {
+                        Logger.log(
+                            error,
+                            domain: .notifications
+                        )
+                    }
+                }
             } else {
                 navigation.navigate(to: .onboarding(.stack([])))
                 navigation.navigate(to: .root(.modal(.onboarding)))

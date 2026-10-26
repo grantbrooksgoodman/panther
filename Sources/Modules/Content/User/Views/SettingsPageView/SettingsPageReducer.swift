@@ -223,7 +223,11 @@ struct SettingsPageReducer: Reducer {
         /// The blocked users button's text, including the count of blocked users.
         var blockedUsersButtonText: String {
             @Dependency(\.clientSession.entity.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
-            return "\(strings.value(for: .blockedUsersButtonText)) (\((blockedUserIDs ?? []).count))"
+            let blockedUserCount = (blockedUserIDs ?? [])
+                .filter { !$0.isBangQualifiedEmpty }
+                .count
+
+            return "\(strings.value(for: .blockedUsersButtonText)) (\(blockedUserCount))"
         }
 
         /// The build info button's image for dark backgrounds.

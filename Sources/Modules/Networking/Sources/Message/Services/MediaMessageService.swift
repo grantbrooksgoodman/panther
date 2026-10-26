@@ -51,7 +51,8 @@ struct MediaMessageService {
 
     // MARK: - Delete Media Component
 
-    /// Deletes the media content – and its thumbnail – for the given message from remote storage.
+    /// Deletes the media content – and its thumbnail, if it has one – for the given message from
+    /// remote storage.
     ///
     /// The content is preserved when it is still referenced by other messages, or when the
     /// message is not a media message.
@@ -100,16 +101,15 @@ struct MediaMessageService {
                 exceptions.append(error)
             }
 
-            do {
-                try await networking.storage.deleteItem(
-                    at: [
-                        NetworkPath.media.rawValue,
-                        "\(mediaFilePath)-thumbnail.\(MediaFileExtension.image(.jpeg).rawValue)",
-                    ].joined(separator: "/")
-                )
-            } catch {
-                if !error.isEqual(to: .Networking.Storage.storageItemDoesNotExist) {
-                    exceptions.append(error)
+            if let thumbnailPath = LocalMediaFilePath(
+                contentType: hostedContentType
+            )?.relativeThumbnailPathString {
+                do {
+                    try await networking.storage.deleteItem(at: thumbnailPath)
+                } catch {
+                    if !error.isEqual(to: .Networking.Storage.storageItemDoesNotExist) {
+                        exceptions.append(error)
+                    }
                 }
             }
         } catch {

@@ -114,7 +114,6 @@ extension AppException {
     static let contactAccessDenied: AppException = .init("C8DC")
     static let currentUserIDNotSet: AppException = .init("EA90")
     static let emptyContactList: AppException = .init("A431")
-    static let exhaustedAvailablePlatforms: AppException = .init("C526")
     static let failedToGenerateMediaFile: AppException = .init("D648")
     static let failedToInitializeRecognizer: AppException = .init("9E79")
     static let kAFAssistantError: AppException = .init("F59D")
@@ -127,7 +126,6 @@ extension AppException {
     static let observerRegistrationMisuse: AppException = .init("983A")
     static let penPalResolutionFailed: AppException = .init("AD6B")
     static let readWriteAccessDisabled: AppException = .init("DF6E")
-    static let sameTranslationInputOutput: AppException = .init("6CEB")
     static let stalePushToken: AppException = .init("28D1")
     /// An exception representing a timed-out operation.
     static let timedOut: AppException = .init("801F")
