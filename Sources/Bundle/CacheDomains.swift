@@ -57,6 +57,7 @@ extension CacheDomain {
                 .conversationCellViewData,
                 .mediaMessagePreviewService,
                 .messageArchive,
+                .messageBackgroundColor,
                 .Networking.database,
                 .Networking.gemini,
                 .Networking.storage,
@@ -166,6 +167,12 @@ extension CacheDomain {
     ) {
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
         sessionStore.clearMessageArchive()
+    }
+
+    static let messageBackgroundColor = CacheDomain(
+        "messageBackgroundColor"
+    ) {
+        MessageBackgroundColorCache.clearCache()
     }
 
     static let queriedContactPairs = CacheDomain(

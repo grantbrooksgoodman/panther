@@ -187,28 +187,21 @@ struct WelcomePageReducer: Reducer {
             navigation.navigate(to: .onboarding(.push(.selectLanguage)))
 
         case .cycleWelcomeLabelText:
-            guard state.cycledLanguageCodes.count < state.supportedLanguageCodes.count else {
+            // Languages that share a welcome message count as shown
+            // together, so the cycle resets once no unshown message
+            // remains.
+            var unshownMessages = unshownWelcomeMessages(in: state)
+            if unshownMessages.isEmpty {
                 state.cycledLanguageCodes = [:]
-                return cycleWelcomeLabelTextEffect()
+                unshownMessages = unshownWelcomeMessages(in: state)
             }
 
-            guard let randomLanguageCode = state.supportedLanguageCodes.randomElement() else {
-                return cycleWelcomeLabelTextEffect()
+            guard let message = unshownMessages.randomElement() else {
+                return cycleWelcomeLabelTextEffect(delay: .seconds(3))
             }
 
-            let localizedString = Localized(
-                .welcomeToHello,
-                languageCode: randomLanguageCode
-            ).wrappedValue
-
-            guard state.cycledLanguageCodes[randomLanguageCode] == nil,
-                  !state.cycledLanguageCodes.values.contains(localizedString),
-                  state.welcomeLabelText != localizedString else {
-                return cycleWelcomeLabelTextEffect()
-            }
-
-            state.cycledLanguageCodes[randomLanguageCode] = localizedString
-            state.welcomeLabelText = localizedString
+            state.cycledLanguageCodes[message.languageCode] = message.text
+            state.welcomeLabelText = message.text
 
             return cycleWelcomeLabelTextEffect(delay: .seconds(3))
 
@@ -234,15 +227,28 @@ struct WelcomePageReducer: Reducer {
 
     // MARK: - Auxiliary
 
-    private func cycleWelcomeLabelTextEffect(delay: Duration = .zero) -> Effect<Action> {
-        guard delay == .zero else {
-            return .task(delay: delay) {
-                .cycleWelcomeLabelText
-            }.cancellable(id: State.TaskID.cycleWelcomeLabelText)
-        }
-
-        return .task {
+    private func cycleWelcomeLabelTextEffect(
+        delay: Duration
+    ) -> Effect<Action> {
+        .task(delay: delay) {
             .cycleWelcomeLabelText
         }.cancellable(id: State.TaskID.cycleWelcomeLabelText)
+    }
+
+    private func unshownWelcomeMessages(
+        in state: State
+    ) -> [(languageCode: String, text: String)] {
+        state.supportedLanguageCodes.compactMap { languageCode in
+            guard state.cycledLanguageCodes[languageCode] == nil else { return nil }
+
+            let text = Localized(
+                .welcomeToHello,
+                languageCode: languageCode
+            ).wrappedValue
+
+            guard !state.cycledLanguageCodes.values.contains(text),
+                  state.welcomeLabelText != text else { return nil }
+            return (languageCode: languageCode, text: text)
+        }
     }
 }

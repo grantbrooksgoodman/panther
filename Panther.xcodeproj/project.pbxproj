@@ -196,7 +196,6 @@
 		B9223D472CD58DD100C05BC6 /* MenuView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9223D462CD58DD100C05BC6 /* MenuView+Extensions.swift */; };
 		B9223D492CD58F2600C05BC6 /* ContextMenuInteractor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9223D482CD58F2600C05BC6 /* ContextMenuInteractor+Extensions.swift */; };
 		B9223D562CD6EB4F00C05BC6 /* ReactionSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9223D552CD6EB4F00C05BC6 /* ReactionSessionService.swift */; };
-		B9223D582CD702D500C05BC6 /* Array+EntitySessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9223D572CD702D500C05BC6 /* Array+EntitySessionExtensions.swift */; };
 		B92277612C2BA3A100C18B13 /* MediaFile+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92277602C2BA3A100C18B13 /* MediaFile+UserContentExtensions.swift */; };
 		B923CA9F2B7566CC0042D3E4 /* AppConstants+ConversationSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B923CA9E2B7566CC0042D3E4 /* AppConstants+ConversationSessionService.swift */; };
 		B923CAA12B7567910042D3E4 /* AppConstants+ChatPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B923CAA02B7567910042D3E4 /* AppConstants+ChatPageViewService.swift */; };
@@ -1057,7 +1056,6 @@
 		B9223D462CD58DD100C05BC6 /* MenuView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MenuView+Extensions.swift"; sourceTree = "<group>"; };
 		B9223D482CD58F2600C05BC6 /* ContextMenuInteractor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContextMenuInteractor+Extensions.swift"; sourceTree = "<group>"; };
 		B9223D552CD6EB4F00C05BC6 /* ReactionSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionSessionService.swift; sourceTree = "<group>"; };
-		B9223D572CD702D500C05BC6 /* Array+EntitySessionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+EntitySessionExtensions.swift"; sourceTree = "<group>"; };
 		B92277602C2BA3A100C18B13 /* MediaFile+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaFile+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B923CA9E2B7566CC0042D3E4 /* AppConstants+ConversationSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ConversationSessionService.swift"; sourceTree = "<group>"; };
 		B923CAA02B7567910042D3E4 /* AppConstants+ChatPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChatPageViewService.swift"; sourceTree = "<group>"; };
@@ -1826,7 +1824,6 @@
 		A2E27FFB300C2708005F3FCC /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				B9223D572CD702D500C05BC6 /* Array+EntitySessionExtensions.swift */,
 				B9DCCAA02B34FB6C00532B12 /* Persistent+EntitySessionExtensions.swift */,
 				B9DCCAA62B34FC8D00532B12 /* PersistentStorageKey+EntitySessionExtensions.swift */,
 				A2AFE0B12FFC65E4009E0F6E /* User+EntitySessionExtensions.swift */,
@@ -4151,7 +4148,6 @@
 				B9E6D7A42B125BB0000BC88D /* UserService.swift in Sources */,
 				B9E6D7D22B12850D000BC88D /* UserNotificationCenterDependency.swift in Sources */,
 				A28786DB301A9AC500C6DB6A /* AudioMessageTranscriptionData.swift in Sources */,
-				B9223D582CD702D500C05BC6 /* Array+EntitySessionExtensions.swift in Sources */,
 				B923CA9F2B7566CC0042D3E4 /* AppConstants+ConversationSessionService.swift in Sources */,
 				27FF0CF8664D05EB60530B42 /* AppConstants+SessionStore.swift in Sources */,
 				B94A80082DFFE086003E2483 /* ComponentKit+SharedContentExtensions.swift in Sources */,
@@ -4770,7 +4766,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -4833,7 +4829,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -4861,7 +4857,7 @@
 				DEVELOPMENT_TEAM = 7R4R2FSWH9;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Sources/Resources/Property Lists/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4887,7 +4883,7 @@
 				DEVELOPMENT_TEAM = 7R4R2FSWH9;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Sources/Resources/Property Lists/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

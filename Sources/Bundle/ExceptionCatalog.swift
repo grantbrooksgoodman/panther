@@ -119,7 +119,6 @@ extension AppException {
     static let failedToInitializeRecognizer: AppException = .init("9E79")
     static let kAFAssistantError: AppException = .init("F59D")
     static let mismatchedHashAndCallingCode: AppException = .init("D339")
-    static let mistranslationReported: AppException = .init("CA45")
     static let noAudioRecorderToStop: AppException = .init("E44E")
     static let notAuthorizedForContacts: AppException = .init("B7FC")
     static let notRegisteredForPushNotifications: AppException = .init("FB09")

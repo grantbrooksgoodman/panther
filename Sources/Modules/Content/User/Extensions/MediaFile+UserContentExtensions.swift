@@ -74,6 +74,7 @@ extension MediaFile {
         var cachedFullQualityImage: UIImage? {
             mediaMessagePreviewService?.cachedImages?[localPathURL]
         }
+
         var fullQualityImage: UIImage? {
             if let cachedFullQualityImage {
                 return cachedFullQualityImage

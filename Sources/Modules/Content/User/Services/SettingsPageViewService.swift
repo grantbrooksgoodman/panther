@@ -503,8 +503,7 @@ final class SettingsPageViewService {
                     guard let currentUser = self.entitySession.user.currentUser else { return }
 
                     do throws(Exception) {
-                        self
-                            .entitySession
+                        self.entitySession
                             .user
                             .stopObservingCurrentUserChanges()
 

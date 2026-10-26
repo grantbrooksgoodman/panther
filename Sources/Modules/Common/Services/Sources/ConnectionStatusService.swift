@@ -95,11 +95,6 @@ final class ConnectionStatusService {
         uponConnectionChanged[id] = effect
     }
 
-    /// Removes every registered effect.
-    func clearAllEffects() {
-        uponConnectionChanged = .init()
-    }
-
     /// Removes the effect registered under the given identifier.
     ///
     /// - Parameter id: The identifier of the effect to remove.

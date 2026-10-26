@@ -24,6 +24,7 @@ extension DevModeAction.AppActions {
                 Task {
                     var devModeActions = [
                         markMessagesUnreadAction,
+                        resetDeviceIDAction,
                         setCurrentUserIDAction,
                     ]
 
@@ -163,6 +164,41 @@ extension DevModeAction.AppActions {
             return DevModeAction(
                 title: "Mark Messages Unread",
                 perform: markMessagesUnread
+            )
+        }()
+
+        private static let resetDeviceIDAction: DevModeAction = {
+            @Sendable
+            func resetDeviceID() {
+                Task { @MainActor in
+                    @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+                    @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
+
+                    guard await AKConfirmationAlert(
+                        title: "Reset Device ID",
+                        message: "The identifier for this device will be regenerated."
+                    ).present(translating: []) else { return }
+
+                    DeviceID.reset()
+
+                    do throws(Exception) {
+                        try await currentUser?.updateDeviceIDIfNeeded()
+                        coreHUD.flash(
+                            "Reset Device ID",
+                            image: .success
+                        )
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
+                    }
+                }
+            }
+
+            return DevModeAction(
+                title: "Reset Device ID",
+                perform: resetDeviceID
             )
         }()
 

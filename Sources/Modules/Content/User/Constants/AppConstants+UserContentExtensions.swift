@@ -69,6 +69,7 @@ extension AppConstants.Colors {
         }
 
         enum Message {
+            static let androidSenderBubble = Color(hex: 0x3DD062)
             static let kindAttributedTextCurrentUserForeground = Color(.white)
             static let kindAttributedTextDarkForeground = Color(.white)
             static let kindAttributedTextLightForeground = Color(.black)

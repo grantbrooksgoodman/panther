@@ -168,7 +168,14 @@ extension Message {
     /// The message bubble's background color, distinguishing sent from received messages.
     @MainActor
     var backgroundColor: UIColor {
+        if let cachedValue = _MessageBackgroundColorCache.backgroundColor(
+            forMessageID: id
+        ) {
+            return cachedValue
+        }
+
         @Dependency(\.clientSession.entity.conversation) var conversationSession: ConversationSessionService
+        typealias Colors = AppConstants.Colors.UserContentExtensions.Message
         var color: UIColor = isFromCurrentUser ? .senderBubble : .receiverBubble
 
         if isFromCurrentUser,
@@ -177,8 +184,13 @@ extension Message {
            .users?
            .compactMap(\.deviceID)
            .contains(where: { $0.hasPrefix("and") }) == true {
-            color = UIColor(hex: 0x3DD062)
+            color = UIColor(Colors.androidSenderBubble)
         }
+
+        _MessageBackgroundColorCache.setBackgroundColor(
+            color,
+            forMessageID: id
+        )
 
         return color
     }
@@ -322,5 +334,40 @@ extension Message {
         let searchTerm = searchTerm.lowercasedTrimmingWhitespaceAndNewlines
         let comparator = isFromCurrentUser ? translation.input.value : translation.output.sanitized
         return comparator.lowercasedTrimmingWhitespaceAndNewlines.contains(searchTerm)
+    }
+}
+
+/// A namespace for managing the in-memory message background color cache.
+enum MessageBackgroundColorCache {
+    /// Removes every cached message background color.
+    static func clearCache() {
+        _MessageBackgroundColorCache.clearCache()
+    }
+}
+
+private enum _MessageBackgroundColorCache {
+    // MARK: - Properties
+
+    private static let cachedBackgroundColorsForMessageIDs = LockIsolated([String: UIColor]())
+
+    // MARK: - Methods
+
+    fileprivate static func backgroundColor(
+        forMessageID messageID: String
+    ) -> UIColor? {
+        cachedBackgroundColorsForMessageIDs.projectedValue[messageID]
+    }
+
+    fileprivate static func clearCache() {
+        cachedBackgroundColorsForMessageIDs.wrappedValue = [:]
+    }
+
+    /// Caches the given color for the message ID, or evicts the message ID's cached color
+    /// when `nil` is passed.
+    fileprivate static func setBackgroundColor(
+        _ backgroundColor: UIColor?,
+        forMessageID messageID: String
+    ) {
+        cachedBackgroundColorsForMessageIDs.projectedValue[messageID] = backgroundColor
     }
 }

@@ -38,12 +38,10 @@ struct AnalyticsService {
         case accessNewChatPage
 
         case clearCaches
-        case closeApp
         case createNewConversation
 
         case deleteAccount
         case deleteConversation
-        case dismissNewChatPage
 
         case invite
 
