@@ -30,9 +30,7 @@ extension LanguageModelSession {
     ///
     /// - Parameter prompt: The prompt to send.
     ///
-    /// - Returns: The model's replies, in the order to send them. The
-    ///   array is empty if the prompt allows no reply and the model
-    ///   declined to reply.
+    /// - Returns: The model's replies, in the order to send them.
     ///
     /// - Throws: An `Exception` if the model cannot produce a reply.
     func response(
@@ -44,15 +42,10 @@ extension LanguageModelSession {
                 retryCount: 0
             ))
         } catch {
-            guard prompt.allowsNoReply,
-                  case .emptyResponse = error else {
-                throw Exception(
-                    error,
-                    metadata: .init(sender: self)
-                )
-            }
-
-            return []
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
     }
 

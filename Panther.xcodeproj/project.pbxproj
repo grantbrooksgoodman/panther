@@ -16,6 +16,7 @@
 		6194F931E54D7974EBE2BF59 /* AppConstants+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CB8076C4EC8027F05B0347 /* AppConstants+CommonExtensions.swift */; };
 		7B339C4BAA9BE1C481D82FC1 /* ChatGPTService+Participant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A12225F3F950744CCD90F44 /* ChatGPTService+Participant.swift */; };
 		944C2C255D851B9A9551ED35 /* MessageOutboxService+Retry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D796340D4837FEB17610C1 /* MessageOutboxService+Retry.swift */; };
+		9712B63B16FC02A83EF0B91F /* Message+ChatGPTExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC025BA31DD1E276BED123 /* Message+ChatGPTExtensions.swift */; };
 		A2000000000000000000E501 /* SharedStates.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000E502 /* SharedStates.swift */; };
 		A200C552300180C3002D9651 /* ChatPageHeaderReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200C551300180C3002D9651 /* ChatPageHeaderReducer.swift */; };
 		A2110CEA2EDC122200954DA2 /* UIColor+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */; };
@@ -897,6 +898,7 @@
 		A2EF5B2C2FCF4E7E00900A66 /* Bundle+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+CommonExtensions.swift"; sourceTree = "<group>"; };
 		A2FE37612EA7354000931829 /* MessageRetranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRetranslationService.swift; sourceTree = "<group>"; };
 		A614D5D4A6F3B22606AB10D0 /* SessionStore+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SessionStore+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		AEAC025BA31DD1E276BED123 /* Message+ChatGPTExtensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "Message+ChatGPTExtensions.swift"; sourceTree = "<group>"; };
 		B695E08BBD8687953BC6C3A5 /* AppConstants+SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SessionStore.swift"; sourceTree = "<group>"; };
 		B9002AD62DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStatusBarStyle+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarActionHandlerService.swift; sourceTree = "<group>"; };
@@ -3568,6 +3570,7 @@
 				B91822292B6DEA450068BDAB /* UIView+UserContentExtensions.swift */,
 				B9870AA52C4574C3002B1093 /* URL+UserContentExtensions.swift */,
 				B9EC2D272D2C63ED00FC7B94 /* User+UserContentExtensions.swift */,
+				AEAC025BA31DD1E276BED123 /* Message+ChatGPTExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -4641,6 +4644,7 @@
 				5A0E5C416BC89662BCE73DFD /* LanguageModelSession+CommonExtensions.swift in Sources */,
 				C9F23C3815B2295270DC5AC0 /* ChatGPTService+Account.swift in Sources */,
 				7B339C4BAA9BE1C481D82FC1 /* ChatGPTService+Participant.swift in Sources */,
+				9712B63B16FC02A83EF0B91F /* Message+ChatGPTExtensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

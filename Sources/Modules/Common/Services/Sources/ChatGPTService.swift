@@ -25,9 +25,9 @@ import Networking
 /// from its account as an ordinary text message – or as several
 /// consecutive messages, as a person texting would. As with any
 /// participant, it appears as typing while it composes a reply only in
-/// a one-to-one conversation. In a group conversation, ChatGPT replies
-/// only when a message addresses it directly or the conversation
-/// clearly calls for its reply.
+/// a one-to-one conversation. In a group conversation, ChatGPT
+/// receives and replies to only the messages that mention it with
+/// `@chat`.
 ///
 /// A prompt that fails to submit is resubmitted automatically. When
 /// ChatGPT still fails to reply – or the app terminates while it is
@@ -133,7 +133,8 @@ final class ChatGPTService {
     /// the message is from the current user and ChatGPT participates
     /// in the conversation, ChatGPT replies to the messages sent since
     /// its last reply – including any that are undelivered to ChatGPT.
-    /// Otherwise, this method does nothing.
+    /// In a group conversation, only messages that mention ChatGPT
+    /// with `@chat` are relayed. Otherwise, this method does nothing.
     ///
     /// Replies to a conversation are composed one at a time. A request
     /// made while a reply is being composed is fulfilled once that

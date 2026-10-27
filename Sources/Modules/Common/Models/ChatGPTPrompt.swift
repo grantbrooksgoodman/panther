@@ -20,14 +20,15 @@ import AppSubsystem
 /// instructs ChatGPT how to reply, names the conversation's
 /// participants, and includes a transcript of the conversation's most
 /// recent messages. A prompt that continues a session replies to the
-/// messages not yet relayed to the session, and contains only those
-/// messages. Every message is attributed to its sender by name.
+/// messages not yet relayed to the session, preceded by a transcript
+/// of any other messages not yet relayed. Every message is attributed
+/// to its sender by name.
 ///
 /// ChatGPT may answer a prompt with several consecutive messages, as
 /// a person texting would; ``replies(from:)`` separates them. In a
-/// group conversation, ChatGPT is instructed to reply only when a
-/// message addresses it directly or the conversation clearly calls
-/// for its reply; ``allowsNoReply`` is `true` for such a prompt.
+/// group conversation, ChatGPT replies only to the messages that
+/// mention it with `@chat`; the other messages appear in the
+/// transcript for context.
 struct ChatGPTPrompt {
     // MARK: - Constants Accessors
 
@@ -35,10 +36,6 @@ struct ChatGPTPrompt {
     private typealias Strings = AppConstants.Strings.ChatGPTPrompt
 
     // MARK: - Properties
-
-    /// A Boolean value that indicates whether ChatGPT may decline to
-    /// reply to the prompt.
-    let allowsNoReply: Bool
 
     /// The messages the prompt asks ChatGPT to reply to, sorted by
     /// ascending sent date.
@@ -68,6 +65,7 @@ struct ChatGPTPrompt {
     ) {
         @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
 
+        let isGroupConversation = conversation.participants.count >= Int(Floats.groupConversationParticipantCountMinimum)
         let conversationMessages = (conversation.messages ?? [])
             .filter { !$0.isMock && !$0.isOutboxMessage }
             .filter { Self.text(for: $0) != nil }
@@ -75,33 +73,28 @@ struct ChatGPTPrompt {
 
         let messages = Self.messagesToReplyTo(
             in: conversationMessages,
-            relayedMessageIDs: relayedMessageIDs
+            relayedMessageIDs: relayedMessageIDs,
+            isGroupConversation: isGroupConversation
         )
 
         guard !messages.isEmpty else { return nil }
         self.messages = messages
-        allowsNoReply = conversation.participants.count >= Int(Floats.groupConversationParticipantCountMinimum)
 
-        let messagesText = messages
-            .compactMap(Self.transcriptLine(for:))
-            .joined(separator: "\n")
-
-        guard relayedMessageIDs == nil else {
-            text = messagesText
-            return
+        var sections = [String]()
+        if relayedMessageIDs == nil {
+            sections.append(
+                Self.instructions(
+                    for: conversation,
+                    currentUser: currentUser,
+                    isGroupConversation: isGroupConversation
+                )
+            )
         }
-
-        var sections = [
-            Self.instructions(
-                for: conversation,
-                currentUser: currentUser,
-                allowsNoReply: allowsNoReply
-            ),
-        ]
 
         let messageIDs = Set(messages.map(\.id))
         let transcript = conversationMessages
             .filter { !messageIDs.contains($0.id) }
+            .filter { !(relayedMessageIDs?.contains($0.id) ?? false) }
             .suffix(Int(Floats.transcriptMessageCountMaximum))
             .compactMap(Self.transcriptLine(for:))
 
@@ -113,10 +106,8 @@ struct ChatGPTPrompt {
         }
 
         sections.append(
-            [
-                Strings.messagesHeader,
-                messagesText,
-            ].joined(separator: "\n")
+            ([Strings.messagesHeader] + messages.compactMap(Self.transcriptLine(for:)))
+                .joined(separator: "\n")
         )
 
         text = sections.joined(separator: "\n\n")
@@ -127,37 +118,31 @@ struct ChatGPTPrompt {
     /// Returns ChatGPT's replies from the given response to the
     /// prompt, in the order to send them.
     ///
+    /// The response is split wherever its message separator appears,
+    /// whether or not the separator is on a line of its own.
+    ///
     /// - Parameter response: ChatGPT's response to the prompt.
     ///
-    /// - Returns: The replies, or an empty array if ChatGPT declined
-    ///   to reply.
+    /// - Returns: The replies, or an empty array if the response is
+    ///   empty.
     func replies(from response: String) -> [String] {
         response
-            .components(separatedBy: "\n")
-            .split(whereSeparator: { Self.isToken($0, Strings.messageSeparatorToken) })
-            .map {
-                $0.joined(separator: "\n")
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            .filter { !$0.isEmpty && !Self.isToken($0, Strings.noReplyToken) }
+            .replacingOccurrences(
+                of: Strings.messageSeparatorPattern,
+                with: "\0",
+                options: [.caseInsensitive, .regularExpression]
+            )
+            .components(separatedBy: "\0")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
     }
 
     // MARK: - Auxiliary
 
-    private static func isToken(
-        _ line: String,
-        _ token: String
-    ) -> Bool {
-        line
-            .removingOccurrences(of: ["\"", "“", "”", "`", "*"])
-            .trimmingBorderedWhitespace
-            .uppercased() == token
-    }
-
     private static func instructions(
         for conversation: Conversation,
         currentUser: User?,
-        allowsNoReply: Bool
+        isGroupConversation: Bool
     ) -> String {
         let languageCode = currentUser?.languageCode ?? RuntimeStorage.languageCode
         let languageName = Locale(
@@ -188,7 +173,7 @@ struct ChatGPTPrompt {
             )
         }
 
-        if allowsNoReply {
+        if isGroupConversation {
             sentences.append(Strings.groupConversationInstructions)
         }
 
@@ -197,18 +182,22 @@ struct ChatGPTPrompt {
 
     private static func messagesToReplyTo(
         in conversationMessages: [Message],
-        relayedMessageIDs: Set<String>?
+        relayedMessageIDs: Set<String>?,
+        isGroupConversation: Bool
     ) -> [Message] {
-        guard let relayedMessageIDs else {
-            let lastReplyIndex = conversationMessages.lastIndex(where: \.isFromChatGPT)
-            return conversationMessages
-                .suffix(from: lastReplyIndex.map { $0 + 1 } ?? 0)
-                .filter { !$0.isFromChatGPT }
+        let candidates: [Message] = if let relayedMessageIDs {
+            conversationMessages.filter { !relayedMessageIDs.contains($0.id) }
+        } else {
+            Array(
+                conversationMessages.suffix(
+                    from: conversationMessages.lastIndex(where: \.isFromChatGPT).map { $0 + 1 } ?? 0
+                )
+            )
         }
 
-        return conversationMessages.filter {
+        return candidates.filter {
             !$0.isFromChatGPT &&
-                !relayedMessageIDs.contains($0.id)
+                (!isGroupConversation || $0.mentionsChatGPT)
         }
     }
 
