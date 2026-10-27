@@ -509,42 +509,31 @@ final class ChatPageViewService {
         viewController?.messagesCollectionView.reloadData()
     }
 
-    /// Reloads the items at the given index paths once it is safe to do so.
+    /// Reloads the items at the given index paths once it is safe
+    /// to do so.
     ///
-    /// If a message reaction or send is in progress, the reload is deferred until the operation
-    /// completes. Before reloading, the method validates that the chat page is still presented,
-    /// that the displayed conversation has not changed, and that the message list's structure
-    /// still matches its structure at the time of the call; if any check fails, the reload is
-    /// skipped.
+    /// If a message reaction or send is in progress, the reload is
+    /// deferred until the operation completes. Before reloading, the
+    /// method validates that the chat page is still presented, that
+    /// the displayed conversation has not changed, and that the
+    /// message list's structure still matches its structure at the
+    /// time of the call; if any check fails, the reload is skipped.
+    /// When the message list's sections and items no longer match
+    /// those its data source reports, the entire list is reloaded
+    /// instead.
     ///
     /// - Parameters:
     ///   - indexPaths: The index paths of the items to reload.
-    ///   - isAnimated: A Boolean value that indicates whether the reload is animated.
+    ///   - isAnimated: A Boolean value that indicates whether the
+    ///     reload is animated.
     func reloadItemsWhenSafe(
         at indexPaths: [IndexPath],
         animated isAnimated: Bool = true
     ) {
-        if clientSession.entity.reaction.isReactingToMessage {
-            clientSession.entity.reaction.addEffectUponIsReactingToMessage(
-                changedTo: false,
-                id: .reloadCollectionView
-            ) { [weak self] in
-                self?.reloadItemsWhenSafe(
-                    at: indexPaths,
-                    animated: isAnimated
-                )
-            }
-        } else if messageDeliveryService.isSendingMessage {
-            messageDeliveryService.addEffectUponIsSendingMessage(
-                changedTo: false,
-                id: .reloadCollectionView
-            ) { [weak self] in
-                self?.reloadItemsWhenSafe(
-                    at: indexPaths,
-                    animated: isAnimated
-                )
-            }
-        } else {
+        performWhenSafe { [weak self] in
+            guard let self,
+                  let viewController else { return }
+
             safelyReload(
                 indexPaths: indexPaths,
                 conversationIDKey: clientSession
@@ -553,9 +542,61 @@ final class ChatPageViewService {
                     .currentConversation?
                     .id
                     .key,
-                structure: viewController == nil ? nil : (0 ..< viewController!.messagesCollectionView.numberOfSections).map {
-                    viewController!.messagesCollectionView.numberOfItems(inSection: $0)
-                },
+                structure: viewController
+                    .messagesCollectionView
+                    .displayedStructure,
+                animated: isAnimated
+            )
+        }
+    }
+
+    /// Reloads the messages with the given identifiers once it is
+    /// safe to do so.
+    ///
+    /// If a message reaction or send is in progress, the reload is
+    /// deferred until the operation completes. Index paths are
+    /// resolved from the displayed messages when the reload runs;
+    /// identifiers with no displayed message are ignored. Before
+    /// reloading, the method validates that the chat page is still
+    /// presented, that the displayed conversation has not changed,
+    /// and that the message list's structure still matches its
+    /// structure at the time of the call; if any check fails, the
+    /// reload is skipped. When the message list's sections and items
+    /// no longer match those its data source reports, the entire
+    /// list is reloaded instead.
+    ///
+    /// - Parameters:
+    ///   - messageIDs: The identifiers of the messages to reload.
+    ///   - isAnimated: A Boolean value that indicates whether the
+    ///     reload is animated.
+    func reloadMessagesWhenSafe(
+        ids messageIDs: [String],
+        animated isAnimated: Bool = true
+    ) {
+        performWhenSafe { [weak self] in
+            guard let self,
+                  let viewController else { return }
+
+            let indexPaths = messageIDs
+                .compactMap { messageID in
+                    viewController
+                        .displayedMessages
+                        .firstIndex(where: { $0.id == messageID })
+                }
+                .map { IndexPath(item: 0, section: $0) }
+
+            guard !indexPaths.isEmpty else { return }
+            safelyReload(
+                indexPaths: indexPaths,
+                conversationIDKey: clientSession
+                    .entity
+                    .conversation
+                    .currentConversation?
+                    .id
+                    .key,
+                structure: viewController
+                    .messagesCollectionView
+                    .displayedStructure,
                 animated: isAnimated
             )
         }
@@ -606,6 +647,26 @@ final class ChatPageViewService {
         configuration = .preview
     }
 
+    private func performWhenSafe(_ action: @escaping () -> Void) {
+        if clientSession.entity.reaction.isReactingToMessage {
+            clientSession.entity.reaction.addEffectUponIsReactingToMessage(
+                changedTo: false,
+                id: .reloadCollectionView
+            ) { [weak self] in
+                self?.performWhenSafe(action)
+            }
+        } else if messageDeliveryService.isSendingMessage {
+            messageDeliveryService.addEffectUponIsSendingMessage(
+                changedTo: false,
+                id: .reloadCollectionView
+            ) { [weak self] in
+                self?.performWhenSafe(action)
+            }
+        } else {
+            action()
+        }
+    }
+
     private func safelyReload(
         indexPaths: [IndexPath],
         conversationIDKey previousConversationIDKey: String?,
@@ -615,22 +676,30 @@ final class ChatPageViewService {
         guard let previousConversationIDKey,
               let previousStructure else { return }
 
-        func reloadItem(
-            collectionView: MessagesCollectionView,
-            viewController: ChatPageViewController
-        ) {
-            let currentStructure = (0 ..< collectionView.numberOfSections).map {
-                collectionView.numberOfItems(inSection: $0)
-            }
-
-            guard currentStructure == previousStructure,
-                  chatPageState.isPresented,
+        func canReloadItems(
+            in collectionView: MessagesCollectionView
+        ) -> Bool {
+            guard chatPageState.isPresented,
                   previousConversationIDKey == clientSession
                   .entity
                   .conversation
                   .currentConversation?
                   .id
-                  .key else { return }
+                  .key else { return false }
+
+            guard collectionView.isSynchronizedWithDataSource else {
+                reloadCollectionView()
+                return false
+            }
+
+            return collectionView.displayedStructure == previousStructure
+        }
+
+        func reloadItem(
+            collectionView: MessagesCollectionView,
+            viewController: ChatPageViewController
+        ) {
+            guard canReloadItems(in: collectionView) else { return }
 
             let validIndexPaths = indexPaths.filter {
                 !viewController.isSectionReservedForTypingIndicator($0.section) &&
@@ -652,17 +721,20 @@ final class ChatPageViewService {
             )
         }
 
-        let collectionView = viewController?.messagesCollectionView
-        collectionView?
-            .performBatchUpdates(nil) { [weak self, weak collectionView] _ in
-                guard let collectionView,
-                      let viewController = self?.viewController else { return }
+        guard let collectionView = viewController?.messagesCollectionView,
+              canReloadItems(in: collectionView) else { return }
 
-                reloadItem(
-                    collectionView: collectionView,
-                    viewController: viewController
-                )
-            }
+        collectionView.performBatchUpdates(
+            nil
+        ) { [weak self, weak collectionView] _ in
+            guard let collectionView,
+                  let viewController = self?.viewController else { return }
+
+            reloadItem(
+                collectionView: collectionView,
+                viewController: viewController
+            )
+        }
     }
 
     private func startSettingNavigationBarButtonItemAppearance() {

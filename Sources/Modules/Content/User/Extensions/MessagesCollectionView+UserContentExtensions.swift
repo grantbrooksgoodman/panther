@@ -17,6 +17,36 @@ import AppSubsystem
 import MessageKit
 
 extension MessagesCollectionView {
+    // MARK: - Properties
+
+    /// The number of items in each section the data source
+    /// currently reports.
+    var dataSourceStructure: [Int] {
+        guard let dataSource else { return [] }
+        let sectionCount = dataSource.numberOfSections?(in: self) ?? 1
+        return (0 ..< sectionCount).map {
+            dataSource.collectionView(
+                self,
+                numberOfItemsInSection: $0
+            )
+        }
+    }
+
+    /// The number of items in each section the collection view
+    /// currently displays.
+    var displayedStructure: [Int] {
+        (0 ..< numberOfSections).map { numberOfItems(inSection: $0) }
+    }
+
+    /// A Boolean value that indicates whether the sections and
+    /// items the collection view displays match those its data
+    /// source reports.
+    var isSynchronizedWithDataSource: Bool {
+        dataSourceStructure == displayedStructure
+    }
+
+    // MARK: - Methods
+
     /// Scrolls to the message with the given identifier.
     ///
     /// This method has no effect when no displayed message has the given identifier.

@@ -235,6 +235,7 @@ final class ContextMenuInteractionService {
                     .displayedMessages
                     .itemAt(indexPath.section),
                     !message.isConsentMessage,
+                    !message.isFromChatGPT,
                     !dataUsageService.atOrAboveDataUsageLimit else { return }
 
                 let convertedTouchPoint = viewController.messagesCollectionView.convert(
@@ -355,12 +356,14 @@ final class ContextMenuInteractionService {
                     Task.delayed(by: .milliseconds(Floats.triggerExistingSelectionDelayMilliseconds)) { @MainActor in
                         self.triggerExistingSelection(reactionsViewController)
                         reactionsViewController.view.alpha = message.isConsentMessage ||
+                            message.isFromChatGPT ||
                             self.dataUsageService.atOrAboveDataUsageLimit ? 0 : 1
                     }
 
                     reactionsViewController
                         .view
                         .isUserInteractionEnabled = message.isConsentMessage ||
+                        message.isFromChatGPT ||
                         self.dataUsageService.atOrAboveDataUsageLimit ? false : true
 
                     return ContextMenuConfiguration(

@@ -89,6 +89,14 @@ extension Conversation {
         id.key == CommonConstants.newConversationID
     }
 
+    /// A Boolean value that indicates whether the conversation is
+    /// between the current user and ChatGPT alone.
+    var isOneToOneWithChatGPT: Bool {
+        participants
+            .map(\.userID)
+            .filter { $0 != User.currentUserID } == [CommonConstants.chatGPTUserID]
+    }
+
     /// A Boolean value that indicates whether the conversation is visible to the current user.
     ///
     /// A conversation is hidden when the current user has deleted it, or when any participant is

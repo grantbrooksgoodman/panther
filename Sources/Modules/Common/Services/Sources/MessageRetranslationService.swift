@@ -50,25 +50,26 @@ struct MessageRetranslationService {
 
     /// Retranslates the given message in the current conversation.
     ///
-    /// If the existing translation already appears to be in the target language, the user is
-    /// asked to confirm before retranslation proceeds. Platforms are then tried in order until
-    /// one produces a result that is novel and matches the target language; the accepted
-    /// result is written to the hosted translation record, the message is re-resolved, and the
-    /// chat page reloads the item at the given index path. When the chat page is later
-    /// dismissed, the conversation is marked stale and its last-modified date is updated.
+    /// If the existing translation already appears to be in the
+    /// target language, the user is asked to confirm before
+    /// retranslation proceeds. Platforms are then tried in order
+    /// until one produces a result that is novel and matches the
+    /// target language; the accepted result is written to the hosted
+    /// translation record, the message is re-resolved, and the chat
+    /// page reloads the message. When the chat page is later
+    /// dismissed, the conversation is marked stale and its
+    /// last-modified date is updated.
     ///
-    /// If every platform is exhausted without a novel result, a toast offering to report a
-    /// mistranslation is shown instead.
+    /// If every platform is exhausted without a novel result, a toast
+    /// offering to report a mistranslation is shown instead.
     ///
-    /// - Parameters:
-    ///   - message: The message to retranslate.
-    ///   - indexPath: The index path of the message's cell in the chat page.
+    /// - Parameter message: The message to retranslate.
     ///
-    /// - Throws: An `Exception` if the chat page is not presented, if the message cannot be
-    ///   resolved in the current conversation, or if a translation attempt fails.
+    /// - Throws: An `Exception` if the chat page is not presented, if
+    ///   the message cannot be resolved in the current conversation,
+    ///   or if a translation attempt fails.
     func retranslateMessageInCurrentConversation(
-        _ message: Message,
-        indexPath: IndexPath
+        _ message: Message
     ) async throws(Exception) {
         guard chatPageState.isPresented,
               let translation = message.translation,
@@ -158,8 +159,8 @@ struct MessageRetranslationService {
                 )
 
                 clientSession.entity.conversation.updateDisplayedMessages()
-                chatPageViewService.reloadItemsWhenSafe(
-                    at: [indexPath],
+                chatPageViewService.reloadMessagesWhenSafe(
+                    ids: [message.id],
                     animated: false
                 )
 

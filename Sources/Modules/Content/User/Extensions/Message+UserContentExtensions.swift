@@ -240,6 +240,12 @@ extension Message {
         return isConsentMessage
     }
 
+    /// A Boolean value that indicates whether the message was sent
+    /// by ChatGPT.
+    var isFromChatGPT: Bool {
+        fromAccountID == CommonConstants.chatGPTUserID
+    }
+
     /// A Boolean value that indicates whether the message was sent by the current user.
     var isFromCurrentUser: Bool {
         fromAccountID == User.currentUserID

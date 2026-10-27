@@ -35,10 +35,16 @@ struct InputBarConfigService {
 
     /// A Boolean value that indicates whether the send button can be configured as a record
     /// button for the current conversation.
+    ///
+    /// Always `false` in a conversation with ChatGPT alone.
     var canShowRecordButton: Bool {
         guard let currentUser = entitySession
             .user
-            .currentUser else { return false }
+            .currentUser,
+            entitySession
+            .conversation
+            .currentConversation?
+            .isOneToOneWithChatGPT != true else { return false }
 
         let users = entitySession
             .conversation

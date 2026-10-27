@@ -203,16 +203,14 @@ final class ContextMenuActionHandlerService {
 
     private func handleRetryTranslationAction() {
         chatPageViewService.contextMenu?.dismissMenu()
-        guard let selectedCellIndexPath,
-              let selectedMessage else { return }
+        guard let selectedMessage else { return }
 
         Task { @MainActor in
             do throws(Exception) {
                 try await services
                     .messageRetranslation
                     .retranslateMessageInCurrentConversation(
-                        selectedMessage,
-                        indexPath: selectedCellIndexPath
+                        selectedMessage
                     )
             } catch {
                 Logger.log(

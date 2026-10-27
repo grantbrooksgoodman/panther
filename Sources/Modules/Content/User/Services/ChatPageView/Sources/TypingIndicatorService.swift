@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* Proprietary */
 import AppSubsystem
@@ -19,6 +20,11 @@ import Networking
 /// directions: it publishes the current user's typing status to the database as they type, and
 /// shows or hides the indicator as other participants begin or stop typing. Typing status is
 /// published only for two-participant conversations.
+///
+/// The indicator is shown and hidden directly after a reload of the
+/// message list, in the same turn, so the section change is applied
+/// to a list that matches its data source and never animates the
+/// list's cells from stale layout attributes.
 ///
 /// - Important: The current user's typing status is written with a debounce, and is deferred
 ///   while a message is being sent so it does not interfere with delivery.
@@ -35,6 +41,7 @@ final class TypingIndicatorService: @unchecked Sendable {
 
     // MARK: - Dependencies
 
+    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession.entity) private var entitySession: EntitySession
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
 
@@ -45,31 +52,6 @@ final class TypingIndicatorService: @unchecked Sendable {
     private var isUpdatingIsTypingForCurrentUser = false
     private var sessionStoreChangeTask: Task<Void, Never>?
     @SharedEvent(\.sessionStoreDidChange) private var sessionStoreDidChange
-
-    // MARK: - Computed Properties
-
-    @MainActor
-    private var canSafelyToggleTypingIndicator: Bool {
-        guard let messagesDataSource = viewController
-            .messagesCollectionView
-            .messagesDataSource else { return false }
-
-        let sectionsFromCollectionView = viewController
-            .messagesCollectionView
-            .numberOfSections
-
-        let sectionsFromDataSource = messagesDataSource.numberOfSections(
-            in: viewController.messagesCollectionView
-        )
-
-        guard sectionsFromCollectionView > 0 else { return false }
-
-        if viewController.isTypingIndicatorHidden {
-            return sectionsFromDataSource == sectionsFromCollectionView
-        } else {
-            return sectionsFromDataSource == (sectionsFromCollectionView - 1)
-        }
-    }
 
     // MARK: - Object Lifecycle
 
@@ -219,24 +201,32 @@ final class TypingIndicatorService: @unchecked Sendable {
 
     // MARK: - Auxiliary
 
+    /// Shows or hides the indicator to match the other participants'
+    /// typing status.
+    ///
+    /// The message list is reloaded and laid out first, so the
+    /// section change that follows is applied to a list that matches
+    /// its data source.
     @MainActor
     private func checkForTypingIndicatorChanges() {
-        guard canSafelyToggleTypingIndicator else { return }
-
-        // FIXME: Still encounter crashing bugs with this. Seems to be a MessageKit issue.
-        // https://github.com/MessageKit/MessageKit/issues/1788
-        guard viewController
+        let isAnotherParticipantTyping = viewController
             .currentConversation?
             .participants
-            .filter({ $0.userID != User.currentUserID })
-            .contains(where: \.isTyping) == true else {
-            guard !viewController.isTypingIndicatorHidden else { return }
-            viewController.setTypingIndicatorViewHidden(true, animated: true)
-            return
+            .filter { $0.userID != User.currentUserID }
+            .contains(where: \.isTyping) == true
+
+        guard isAnotherParticipantTyping != !viewController.isTypingIndicatorHidden else { return }
+        chatPageViewService.reloadCollectionView()
+        viewController.messagesCollectionView.layoutIfNeeded()
+
+        UIView.performWithoutAnimation {
+            viewController.setTypingIndicatorViewHidden(
+                !isAnotherParticipantTyping,
+                animated: false
+            )
         }
 
-        guard viewController.isTypingIndicatorHidden else { return }
-        viewController.setTypingIndicatorViewHidden(false, animated: true)
+        guard isAnotherParticipantTyping else { return }
         viewController.messagesCollectionView.scrollToLastItem(animated: true)
     }
 

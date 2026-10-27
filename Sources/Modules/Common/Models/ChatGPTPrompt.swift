@@ -135,7 +135,10 @@ struct ChatGPTPrompt {
         response
             .components(separatedBy: "\n")
             .split(whereSeparator: { Self.isToken($0, Strings.messageSeparatorToken) })
-            .map { $0.joined(separator: "\n").trimmingBorderedWhitespace }
+            .map {
+                $0.joined(separator: "\n")
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+            }
             .filter { !$0.isEmpty && !Self.isToken($0, Strings.noReplyToken) }
     }
 
@@ -197,17 +200,14 @@ struct ChatGPTPrompt {
         relayedMessageIDs: Set<String>?
     ) -> [Message] {
         guard let relayedMessageIDs else {
-            let lastReplyIndex = conversationMessages.lastIndex {
-                $0.fromAccountID == CommonConstants.chatGPTUserID
-            }
-
+            let lastReplyIndex = conversationMessages.lastIndex(where: \.isFromChatGPT)
             return conversationMessages
                 .suffix(from: lastReplyIndex.map { $0 + 1 } ?? 0)
-                .filter { $0.fromAccountID != CommonConstants.chatGPTUserID }
+                .filter { !$0.isFromChatGPT }
         }
 
         return conversationMessages.filter {
-            $0.fromAccountID != CommonConstants.chatGPTUserID &&
+            !$0.isFromChatGPT &&
                 !relayedMessageIDs.contains($0.id)
         }
     }
@@ -229,7 +229,7 @@ struct ChatGPTPrompt {
 
         guard let text = text(for: message) else { return nil }
 
-        let label = if message.fromAccountID == CommonConstants.chatGPTUserID {
+        let label = if message.isFromChatGPT {
             Strings.transcriptChatGPTLabel
         } else if message.isFromCurrentUser,
                   let currentUser {

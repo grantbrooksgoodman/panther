@@ -81,6 +81,8 @@ final class InputBarService {
     }
 
     /// A Boolean value that indicates whether the attach-media button should be enabled.
+    ///
+    /// Always `false` in a conversation with ChatGPT alone.
     var shouldEnableAttachMediaButton: Bool {
         getShouldEnableAttachMediaButton()
     }
@@ -411,7 +413,8 @@ final class InputBarService {
 
     private func getShouldEnableAttachMediaButton() -> Bool {
         guard build.isOnline,
-              !dataUsageService.atOrAboveDataUsageLimit else { return false }
+              !dataUsageService.atOrAboveDataUsageLimit,
+              viewController.currentConversation?.isOneToOneWithChatGPT != true else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false

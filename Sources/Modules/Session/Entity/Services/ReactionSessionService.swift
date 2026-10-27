@@ -71,7 +71,8 @@ final class ReactionSessionService {
     /// Applies the given reaction to the given message, or removes it if the same reaction is
     /// already applied.
     ///
-    /// Reactions to mock or outbox messages are ignored. The message's sender is notified of the
+    /// Reactions to mock or outbox messages, and to messages from
+    /// ChatGPT, are ignored. The message's sender is notified of the
     /// reaction.
     ///
     /// - Parameters:
@@ -84,14 +85,15 @@ final class ReactionSessionService {
         to message: Message
     ) async throws(Exception) {
         guard !message.isMock,
-              !message.isOutboxMessage else { return }
+              !message.isOutboxMessage,
+              !message.isFromChatGPT else { return }
         guard let conversation = clientSession.entity.conversation.currentConversation,
               let currentUserID = User.currentUserID,
-              let messageIndex = clientSession
+              clientSession
               .entity
               .conversation
               .displayedMessages
-              .firstIndex(where: { $0.id == message.id }) else {
+              .contains(where: { $0.id == message.id }) else {
             throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
@@ -131,7 +133,7 @@ final class ReactionSessionService {
         chatPageViewService.contextMenu?.dismissMenu()
         try await updateConversation(
             conversation,
-            messageData: (messageIndex, message),
+            message: message,
             newReaction: reaction
         )
     }
@@ -173,11 +175,11 @@ final class ReactionSessionService {
         from message: Message
     ) async throws(Exception) {
         guard let conversation = clientSession.entity.conversation.currentConversation,
-              let messageIndex = clientSession
+              clientSession
               .entity
               .conversation
               .displayedMessages
-              .firstIndex(where: { $0.id == message.id }),
+              .contains(where: { $0.id == message.id }),
               !message.isMock,
               !message.isOutboxMessage else {
             throw Exception(
@@ -189,7 +191,7 @@ final class ReactionSessionService {
         setIsReactingToMessage(true)
         try await updateConversation(
             conversation,
-            messageData: (messageIndex, message),
+            message: message,
             newReaction: nil
         )
     }
@@ -232,7 +234,7 @@ final class ReactionSessionService {
 
     private func updateConversation(
         _ conversation: Conversation,
-        messageData: (index: Int, message: Message),
+        message: Message,
         newReaction: Reaction?
     ) async throws(Exception) {
         guard let currentUserID = User.currentUserID else {
@@ -243,7 +245,7 @@ final class ReactionSessionService {
         }
 
         let encodedReactionStyle = newReaction?.style.encodedValue
-        let messageID = messageData.message.id
+        let messageID = message.id
         let reactionUserID = newReaction?.userID
 
         // Atomically read-modify-write the reactionMetadata
@@ -332,7 +334,7 @@ final class ReactionSessionService {
         setIsReactingToMessage(false)
         try await updatedConversation.resolveMessages(
             ids: [
-                messageData.message.id,
+                message.id,
             ]
         )
 
@@ -345,23 +347,17 @@ final class ReactionSessionService {
               .key == conversation.id.key else { return }
 
         clientSession.entity.conversation.updateDisplayedMessages()
-        chatPageViewService.reloadItemsWhenSafe(at: [.init(
-            item: 0,
-            section: messageData.index
-        )])
+        chatPageViewService.reloadMessagesWhenSafe(ids: [message.id])
 
         chatPageViewService
             .contextMenu?
             .interaction
             .addContextMenuInteractionToVisibleCellsOnce()
 
-        guard messageData
-            .message
-            .contentType
-            .isAudio else { return }
+        guard message.contentType.isAudio else { return }
 
         chatPageViewService
             .audioMessagePlayback?
-            .updateDurationLabelIfNeeded(forMessage: messageData.message)
+            .updateDurationLabelIfNeeded(forMessage: message)
     }
 }
