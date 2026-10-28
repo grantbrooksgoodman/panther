@@ -110,9 +110,10 @@ struct Message: Codable, EncodedHashable, Hashable {
         getReactions()
     }
 
-    /// The translation for this message in the current user's language code.
+    /// The translation for this message in the current user's
+    /// language code, or the first translation if none matches.
     var translation: Translation? {
-        translations?.first
+        getTranslation()
     }
 
     /// The message's video, or `nil` if its content is not a video.
@@ -195,5 +196,25 @@ struct Message: Codable, EncodedHashable, Hashable {
                   $0.messageID == id
               })?.reactions else { return nil }
         return reactions
+    }
+
+    private func getTranslation() -> Translation? {
+        @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
+        guard let translations,
+              translations.count > 1 else { return translations?.first }
+
+        // A message built locally carries a translation for every
+        // participant's language; a message decoded from the database
+        // carries only the current user's.
+        let languageCode = currentUser?.languageCode ?? RuntimeStorage.languageCode
+        let languageCodeKeyPath: KeyPath<Translation, String> = if fromAccountID == User.currentUserID {
+            \.languagePair.from
+        } else {
+            \.languagePair.to
+        }
+
+        return translations.first(where: {
+            $0[keyPath: languageCodeKeyPath] == languageCode
+        }) ?? translations.first
     }
 }

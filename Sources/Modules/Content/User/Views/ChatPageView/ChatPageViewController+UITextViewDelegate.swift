@@ -77,9 +77,11 @@ extension ChatPageViewController: UITextViewDelegate {
 
     // MARK: - Did Change
 
-    /// Reconfigures the input bar as the input text changes.
+    /// Reconfigures the input bar as the input text changes, and
+    /// emphasizes mentions of ChatGPT in the text.
     func textViewDidChange(_ textView: UITextView) {
         @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
         inputBarService?.configureInputBar()
+        textView.emphasizeMentionsOfChatGPT()
     }
 }

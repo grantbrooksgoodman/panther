@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07CB557A57D39EC28AD8ADD4 /* UITextView+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E79B057BEBA53EC0DA9E2033 /* UITextView+UserContentExtensions.swift */; };
 		0BAF4EBF51C22E10052C22BD /* MessageOutboxService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC46C9C8A805C60F23920D0 /* MessageOutboxService.swift */; };
 		0CE6962C89A4485C9DF4DD42 /* OutboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1024564CEF8638666D30233F /* OutboxEntry.swift */; };
 		247517486803C9A125BD821C /* OutboxEntry+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF3FCA5F163DEEAAC9F1FF2 /* OutboxEntry+UserContentExtensions.swift */; };
@@ -1643,6 +1644,7 @@
 		C1AABB032F66000100000003 /* SelfWriteRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfWriteRegistry.swift; sourceTree = "<group>"; };
 		C1AABB052F66000100000005 /* PendingTranslationArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTranslationArchive.swift; sourceTree = "<group>"; };
 		C91B88E2775B440788FAFEEB /* AppConstants+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
+		E79B057BEBA53EC0DA9E2033 /* UITextView+UserContentExtensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "UITextView+UserContentExtensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3571,6 +3573,7 @@
 				B9870AA52C4574C3002B1093 /* URL+UserContentExtensions.swift */,
 				B9EC2D272D2C63ED00FC7B94 /* User+UserContentExtensions.swift */,
 				AEAC025BA31DD1E276BED123 /* Message+ChatGPTExtensions.swift */,
+				E79B057BEBA53EC0DA9E2033 /* UITextView+UserContentExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -4645,6 +4648,7 @@
 				C9F23C3815B2295270DC5AC0 /* ChatGPTService+Account.swift in Sources */,
 				7B339C4BAA9BE1C481D82FC1 /* ChatGPTService+Participant.swift in Sources */,
 				9712B63B16FC02A83EF0B91F /* Message+ChatGPTExtensions.swift in Sources */,
+				07CB557A57D39EC28AD8ADD4 /* UITextView+UserContentExtensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

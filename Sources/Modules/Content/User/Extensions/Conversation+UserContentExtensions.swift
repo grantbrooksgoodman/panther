@@ -77,6 +77,12 @@ extension Conversation {
         )
     }
 
+    /// A Boolean value that indicates whether ChatGPT participates
+    /// in the conversation.
+    var includesChatGPT: Bool {
+        participants.contains { $0.userID == CommonConstants.chatGPTUserID }
+    }
+
     /// A Boolean value that indicates whether the conversation is empty – having neither a key
     /// nor a hash.
     var isEmpty: Bool {

@@ -27,7 +27,7 @@ extension AppConstants.Strings {
     enum ChatGPTPrompt {
         // swiftlint:disable line_length
         static let groupConversationInstructions = "This is a group conversation. Reply only to the messages that mention you with \(mentionToken); the other messages are provided for context."
-        static let instructions = "You are ChatGPT, messaging through Panther, a messaging app. Write each reply as a text message: conversational, concise, and in plain text without Markdown formatting. Each message is prefixed with its sender's name; do not prefix your replies. You may reply with several messages in a row, as a person texting would; separate consecutive messages with a line containing only \(messageSeparatorToken)."
+        static let instructions = "You are ChatGPT, messaging through Hello, a messaging app. Write each reply as a text message: conversational, concise, and in plain text without Markdown formatting. Each message is prefixed with its sender's name; do not prefix your replies. You may reply with several messages in a row, as a person texting would; separate consecutive messages with a line containing only \(messageSeparatorToken). Do not include citations, source names, or links."
         // swiftlint:enable line_length
         static let languageInstructionPrefix = "Unless asked otherwise, reply in"
         static let languageNameLocaleIdentifier = "en"

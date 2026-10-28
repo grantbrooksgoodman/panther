@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* Proprietary */
 import AppSubsystem
@@ -18,6 +19,12 @@ extension ContactPair {
     private typealias Strings = AppConstants.Strings.UserContentExtensions.ContactPair
 
     // MARK: - Properties
+
+    private static let chatGPTImageData: Data? = UIImage(
+        named: Strings.chatGPTContactImageName
+    )?.pngData()
+
+    // MARK: - Computed Properties
 
     /// The compiled number strings of the contact's phone numbers.
     var compiledNumberStrings: [String] {
@@ -75,7 +82,8 @@ extension ContactPair {
     /// Creates a contact pair that represents ChatGPT.
     ///
     /// The contact pair presents ChatGPT's account under ChatGPT's
-    /// name rather than its phone number.
+    /// name rather than its phone number, with ChatGPT's logo as
+    /// the contact image.
     ///
     /// - Parameter user: ChatGPT's user account.
     ///
@@ -87,7 +95,7 @@ extension ContactPair {
                 firstName: Strings.chatGPTContactFirstName,
                 lastName: "",
                 phoneNumbers: [user.phoneNumber],
-                imageData: nil
+                imageData: chatGPTImageData
             ),
             numberPairs: [
                 .init(

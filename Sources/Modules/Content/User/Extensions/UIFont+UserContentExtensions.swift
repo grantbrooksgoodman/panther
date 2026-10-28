@@ -18,9 +18,27 @@ extension UIFont {
         withTraits(traits: .traitBold)
     }
 
+    /// A Boolean value that indicates whether the font is bold.
+    var isBolded: Bool {
+        fontDescriptor.symbolicTraits.contains(.traitBold)
+    }
+
     /// An italic version of the font.
     var italicized: UIFont {
         withTraits(traits: .traitItalic)
+    }
+
+    /// The font with its bold trait removed, if it has one.
+    var regularWeight: UIFont {
+        guard isBolded,
+              let descriptor = fontDescriptor.withSymbolicTraits(
+                  fontDescriptor.symbolicTraits.subtracting(.traitBold)
+              ) else { return self }
+
+        return .init(
+            descriptor: descriptor,
+            size: 0
+        )
     }
 
     // MARK: - Methods

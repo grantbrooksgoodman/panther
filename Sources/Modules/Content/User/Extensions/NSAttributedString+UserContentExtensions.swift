@@ -15,6 +15,54 @@ import AppSubsystem
 
 @MainActor
 extension NSAttributedString {
+    // MARK: - Emphasizing Mentions of ChatGPT
+
+    /// Returns a copy of the attributed string with each mention of
+    /// ChatGPT emphasized in bold.
+    ///
+    /// When the current conversation does not include ChatGPT, the
+    /// attributed string is returned unchanged.
+    ///
+    /// - Returns: The attributed string with mentions emphasized.
+    func emphasizingMentionsOfChatGPT() -> NSAttributedString {
+        @Dependency(\.clientSession.entity.conversation.currentConversation) var currentConversation: Conversation?
+        guard currentConversation?.includesChatGPT == true else { return self }
+
+        let term = AppConstants.Strings.ChatGPTPrompt.mentionToken
+        let emphasized = NSMutableAttributedString(attributedString: self)
+        var searchRange = NSRange(location: 0, length: emphasized.length)
+
+        while searchRange.location < emphasized.length {
+            let range = (emphasized.string as NSString).range(
+                of: term,
+                options: .caseInsensitive,
+                range: searchRange
+            )
+
+            guard range.location != NSNotFound else { break }
+            if let font = emphasized.attribute(
+                .font,
+                at: range.location,
+                effectiveRange: nil
+            ) as? UIFont {
+                emphasized.addAttribute(
+                    .font,
+                    value: font.bolded,
+                    range: range
+                )
+            }
+
+            searchRange = NSRange(
+                location: range.upperBound,
+                length: emphasized.length - range.upperBound
+            )
+        }
+
+        return emphasized
+    }
+
+    // MARK: - Message Cell String
+
     /// Returns an attributed string styled for a message cell.
     ///
     /// - Parameters:
@@ -36,6 +84,7 @@ extension NSAttributedString {
 
         var font: UIFont = .systemFont(ofSize: Floats.messageCellStringSystemFontSize)
         if let alternateMessageService { font = alternateMessageService.textCellLabelFont }
+        font = font.regularWeight
         if italicized { font = font.italicized }
 
         return .init(

@@ -457,19 +457,19 @@ final class ContextMenuInteractionService {
 
         if alternateMessageService.isDisplayingAlternateText(for: speakingMessage) ||
             alternateMessageService.isDisplayingAudioTranscription(for: speakingMessage) {
-            speakingCell.messageLabel.attributedText = .messageCellString(
+            speakingCell.messageLabel.attributedText = NSAttributedString.messageCellString(
                 labelText,
                 foregroundColor: attributedStringForegroundColor,
                 italicized: true
-            )
+            ).emphasizingMentionsOfChatGPT()
         } else {
-            speakingCell.messageLabel.attributedText = .init(
+            speakingCell.messageLabel.attributedText = NSAttributedString(
                 string: labelText,
                 attributes: [
                     .foregroundColor: attributedStringForegroundColor,
                     .font: alternateMessageService.textCellLabelFont,
                 ] as [NSAttributedString.Key: Any]
-            )
+            ).emphasizingMentionsOfChatGPT()
         }
     }
 

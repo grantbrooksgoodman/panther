@@ -88,6 +88,7 @@ extension AppConstants.Strings {
     enum UserContentExtensions {
         enum ContactPair {
             static let chatGPTContactFirstName = "ChatGPT"
+            static let chatGPTContactImageName = "ChatGPT"
         }
 
         enum UIImage {

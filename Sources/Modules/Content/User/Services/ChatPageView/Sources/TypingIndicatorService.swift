@@ -206,9 +206,13 @@ final class TypingIndicatorService: @unchecked Sendable {
     ///
     /// The message list is reloaded and laid out first, so the
     /// section change that follows is applied to a list that matches
-    /// its data source.
+    /// its data source. The change is skipped when the service's
+    /// message list is no longer on screen, or when the list still
+    /// does not match its data source after the reload.
     @MainActor
     private func checkForTypingIndicatorChanges() {
+        guard viewController.viewIfLoaded?.window != nil else { return }
+
         let isAnotherParticipantTyping = viewController
             .currentConversation?
             .participants
@@ -219,6 +223,7 @@ final class TypingIndicatorService: @unchecked Sendable {
         chatPageViewService.reloadCollectionView()
         viewController.messagesCollectionView.layoutIfNeeded()
 
+        guard viewController.messagesCollectionView.isSynchronizedWithDataSource else { return }
         UIView.performWithoutAnimation {
             viewController.setTypingIndicatorViewHidden(
                 !isAnotherParticipantTyping,

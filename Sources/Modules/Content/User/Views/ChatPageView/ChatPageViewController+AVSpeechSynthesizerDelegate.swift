@@ -101,7 +101,7 @@ extension ChatPageViewController: @preconcurrency AVSpeechSynthesizerDelegate {
 
         attributedString.addAttribute(
             .font,
-            value: labelFont,
+            value: labelFont.regularWeight,
             range: fullRange
         )
 
@@ -111,6 +111,6 @@ extension ChatPageViewController: @preconcurrency AVSpeechSynthesizerDelegate {
             range: fullRange
         )
 
-        speakingCell.messageLabel.attributedText = attributedString
+        speakingCell.messageLabel.attributedText = attributedString.emphasizingMentionsOfChatGPT()
     }
 }

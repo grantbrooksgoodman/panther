@@ -172,7 +172,9 @@ extension CacheDomain {
     static let messageBackgroundColor = CacheDomain(
         "messageBackgroundColor"
     ) {
-        MessageBackgroundColorCache.clearCache()
+        Task { @MainActor in
+            MessageBackgroundColorCache.clearCache()
+        }
     }
 
     static let queriedContactPairs = CacheDomain(

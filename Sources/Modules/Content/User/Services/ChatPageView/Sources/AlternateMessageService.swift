@@ -46,7 +46,8 @@ final class AlternateMessageService {
 
     /// The font used to render text message cells, derived from a currently visible text message.
     ///
-    /// Falls back to the system font when no suitable visible cell is available.
+    /// The font is always regular weight. Falls back to the system font when no suitable visible
+    /// cell is available.
     var textCellLabelFont: UIFont {
         getTextCellLabelFont()
     }
@@ -171,7 +172,9 @@ final class AlternateMessageService {
             .compactMap { $0 as? TextMessageCell }
 
         var modelCell: TextMessageCell?
-        for textMessageCell in visibleTextMessageCells where !textMessageCell.messageLabel.font.isItalicized {
+        for textMessageCell in visibleTextMessageCells where
+            !textMessageCell.messageLabel.font.isBolded &&
+            !textMessageCell.messageLabel.font.isItalicized {
             guard let indexPath = viewController
                 .messagesCollectionView
                 .indexPath(for: textMessageCell),
@@ -185,7 +188,7 @@ final class AlternateMessageService {
         }
 
         guard let modelCell else { return .systemFont(ofSize: Floats.messageCellStringSystemFontSize) }
-        return modelCell.messageLabel.font
+        return modelCell.messageLabel.font.regularWeight
     }
 }
 

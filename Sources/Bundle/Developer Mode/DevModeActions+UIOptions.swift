@@ -9,6 +9,7 @@
 /* Native */
 import Foundation
 import UIKit
+import WebKit
 
 /* Proprietary */
 import AlertKit
@@ -22,7 +23,8 @@ extension DevModeAction.AppActions {
         static let uiOptionsAction: DevModeAction = {
             @Sendable
             func uiOptions() {
-                Task {
+                Task { @MainActor in
+                    @Dependency(\.uiApplication.presentedViews) var presentedViews: [UIView]
                     var actions = [
                         Breadcrumbs.manageBreadcrumbsCaptureAction,
                         triggerForcedUpdateModalAction,
@@ -31,6 +33,15 @@ extension DevModeAction.AppActions {
                             $0.title,
                             style: $0.isDestructive ? .destructive : .default,
                             effect: $0.perform
+                        )
+                    }
+
+                    if presentedViews.contains(where: { $0 is WKWebView }) {
+                        actions.append(
+                            AKAction(
+                                toggleWebViewVisibilityAction.title,
+                                effect: toggleWebViewVisibilityAction.perform
+                            )
                         )
                     }
 
@@ -56,6 +67,41 @@ extension DevModeAction.AppActions {
         }()
 
         // MARK: - Auxiliary
+
+        private static let toggleWebViewVisibilityAction: DevModeAction = {
+            @Sendable
+            func toggleWebViewVisibility() {
+                Task { @MainActor in
+                    @Dependency(\.uiApplication.presentedViews) var presentedViews: [UIView]
+                    let webViews = presentedViews.compactMap { $0 as? WKWebView }
+
+                    guard !webViews.isEmpty else { return }
+                    guard webViews.count > 1 else {
+                        return webViews[0].toggleVisibility()
+                    }
+
+                    await AKActionSheet(
+                        title: "Select Web View",
+                        message: "Select the web view whose visibility to toggle.",
+                        actions: webViews.map { webView in
+                            let webView = UncheckedSendable(webView)
+                            return AKAction(
+                                "\(webView.wrappedValue.memoryAddress) (\(webView.wrappedValue.isVisible ? "Showing" : "Hidden"))"
+                            ) {
+                                Task { @MainActor in
+                                    webView.wrappedValue.toggleVisibility()
+                                }
+                            }
+                        }
+                    ).present()
+                }
+            }
+
+            return DevModeAction(
+                title: "Toggle Web View Visibility",
+                perform: toggleWebViewVisibility
+            )
+        }()
 
         private static let triggerForcedUpdateModalAction: DevModeAction = {
             @Sendable
@@ -269,5 +315,26 @@ private extension DevModeAction.AppActions {
                 ).present(translating: [])
             }
         }
+    }
+}
+
+private extension WKWebView {
+    // MARK: - Properties
+
+    var isVisible: Bool {
+        !isHidden && alpha > 0
+    }
+
+    var memoryAddress: String {
+        String(describing: Unmanaged.passUnretained(self).toOpaque())
+    }
+
+    // MARK: - Methods
+
+    func toggleVisibility() {
+        let shouldShow = !isVisible
+        alpha = shouldShow ? 1 : 0
+        isHidden = !shouldShow
+        isUserInteractionEnabled = shouldShow
     }
 }

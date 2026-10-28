@@ -56,11 +56,11 @@ extension Message: @preconcurrency MessageType {
                 }
 
                 return .attributedText(
-                    .messageCellString(
+                    NSAttributedString.messageCellString(
                         isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized,
                         foregroundColor: attributedStringForegroundColor,
                         italicized: true
-                    )
+                    ).emphasizingMentionsOfChatGPT()
                 )
             }
 
@@ -90,11 +90,11 @@ extension Message: @preconcurrency MessageType {
         ).sanitized.trimmingBorderedWhitespace : (isDisplayingAlternateText ? alternateText : primaryText)
 
         return .attributedText(
-            .messageCellString(
+            NSAttributedString.messageCellString(
                 resolvedText.sanitized,
                 foregroundColor: attributedStringForegroundColor,
                 italicized: isConsentMessage || isDisplayingAlternateText
-            )
+            ).emphasizingMentionsOfChatGPT()
         )
     }
 
@@ -347,7 +347,7 @@ extension Message {
     }
 }
 
-/// A namespace for managing the in-memory message background color cache.
+@MainActor // A namespace for managing the in-memory message background color cache.
 enum MessageBackgroundColorCache {
     /// Removes every cached message background color.
     static func clearCache() {
@@ -355,21 +355,27 @@ enum MessageBackgroundColorCache {
     }
 }
 
+@MainActor
 private enum _MessageBackgroundColorCache {
     // MARK: - Properties
 
-    private static let cachedBackgroundColorsForMessageIDs = LockIsolated([String: UIColor]())
+    private static var cachedBackgroundColorsForMessageIDs = [String: (color: UIColor, isDarkModeColor: Bool)]()
 
     // MARK: - Methods
 
     fileprivate static func backgroundColor(
         forMessageID messageID: String
     ) -> UIColor? {
-        cachedBackgroundColorsForMessageIDs.projectedValue[messageID]
+        if let tuple = cachedBackgroundColorsForMessageIDs[messageID],
+           ThemeService.isDarkModeActive == tuple.isDarkModeColor {
+            return tuple.color
+        }
+
+        return nil
     }
 
     fileprivate static func clearCache() {
-        cachedBackgroundColorsForMessageIDs.wrappedValue = [:]
+        cachedBackgroundColorsForMessageIDs = [:]
     }
 
     /// Caches the given color for the message ID, or evicts the message ID's cached color
@@ -378,6 +384,13 @@ private enum _MessageBackgroundColorCache {
         _ backgroundColor: UIColor?,
         forMessageID messageID: String
     ) {
-        cachedBackgroundColorsForMessageIDs.projectedValue[messageID] = backgroundColor
+        guard let backgroundColor else {
+            return cachedBackgroundColorsForMessageIDs[messageID] = nil
+        }
+
+        cachedBackgroundColorsForMessageIDs[messageID] = (
+            backgroundColor,
+            ThemeService.isDarkModeActive
+        )
     }
 }

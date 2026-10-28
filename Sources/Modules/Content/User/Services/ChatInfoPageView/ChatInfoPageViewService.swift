@@ -147,6 +147,7 @@ final class ChatInfoPageViewService {
                     let contactPair: ContactPair = .chatGPT(user)
                     let cnContact = CNMutableContact()
                     cnContact.givenName = contactPair.contact.fullName
+                    cnContact.imageData = contactPair.contact.imageData
 
                     return (
                         user.id,
