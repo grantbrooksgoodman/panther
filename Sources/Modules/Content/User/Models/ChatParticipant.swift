@@ -10,6 +10,9 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 /// A participant in a conversation, prepared for display.
 ///
 /// Use ``ChatParticipant`` to combine a participant's contact information with their display

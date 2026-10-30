@@ -8,26 +8,28 @@
 
 /* Native */
 import Foundation
-import UIKit
 
 /* Proprietary */
-import AlertKit
 import AppSubsystem
 import Networking
 
 /// Use this extension to add new actions to the Developer Mode menu.
 ///
-/// Define ``DevModeAction`` instances and include them in
-/// ``AppActions/appActions`` to make them available in the Developer
-/// Mode action sheet:
+/// Define ``DevModeAction`` instances in the option enums nested in ``AppActions`` and include
+/// them in that enum's `actions` list to make them available on its page of the Developer Mode
+/// menu:
 ///
 /// ```swift
-/// let appActions: [DevModeAction] = [
-///     .init(title: "Reset Onboarding") {
-///         @Persistent(.hasSeenOnboarding) var hasSeenOnboarding: Bool?
-///         hasSeenOnboarding = nil
-///     },
-/// ]
+/// private static let resetOnboardingAction = DevModeAction(
+///     title: "Reset Onboarding",
+///     iconConfiguration: .init(
+///         backgroundColor: .orange,
+///         overlay: .symbol(name: "arrow.counterclockwise")
+///     )
+/// ) {
+///     @Persistent(.hasSeenOnboarding) var hasSeenOnboarding: Bool?
+///     hasSeenOnboarding = nil
+/// }
 /// ```
 ///
 /// - Note: Developer Mode actions are available only in pre-release builds. The subsystem
@@ -35,172 +37,33 @@ import Networking
 extension DevModeAction {
     /// The delegate that supplies app-specific actions to the
     /// Developer Mode menu.
-    struct AppActions: AppSubsystem.Delegates.DevModeAppActionDelegate {
+    struct AppActions: @MainActor AppSubsystem.Delegates.DevModeAppActionDelegate {
         // MARK: - Dependencies
 
         @Dependency(\.mainBundle) private var mainBundle: Bundle
 
         // MARK: - Properties
 
-        /// The actions to display in the Developer Mode action sheet.
+        /// The actions to display in the Developer Mode menu, sorted alphabetically by title.
+        ///
+        /// Each option group is a destination that pushes a page of its own actions. The
+        /// subsystem reads this list each time the menu is presented or refreshed, so a computed
+        /// list can reflect the app's current state.
+        @MainActor
         var appActions: [DevModeAction] {
             var actions = [
-                AppActions.DatabaseOptions.databaseOptionsAction,
-                AppActions.UIOptions.uiOptionsAction,
-                AppActions.UserOptions.userOptionsAction,
-                AppActions.dangerZoneAction,
+                DangerZone.action,
+                DatabaseOptions.action,
+                UIOptions.action,
+                UserOptions.action,
             ]
 
             if Networking.config.environment != .production,
                mainBundle.containsStagingAssets {
-                actions.insert(
-                    AppActions.stagingModeOptionsAction,
-                    at: 2
-                )
+                actions.append(StagingModeOptions.action)
             }
 
-            return actions
+            return actions.sorted { $0.title < $1.title }
         }
-
-        // MARK: - Methods
-
-        static func presentActionSheet() {
-            Task { @MainActor in
-                let instance = AppActions()
-                var actions = instance.appActions.map { devModeAction in
-                    AKAction(
-                        devModeAction.title,
-                        style: devModeAction.isDestructive ? .destructive : .default
-                    ) {
-                        devModeAction.perform()
-                    }
-                }
-
-                if !instance.appActions.isEmpty {
-                    actions.append(
-                        AKAction(
-                            "Back",
-                            style: .cancel
-                        ) {
-                            DevModeService.presentActionSheet()
-                        }
-                    )
-                }
-
-                await AKActionSheet(
-                    title: "Developer Mode Options",
-                    actions: actions
-                ).present(translating: [])
-            }
-        }
-
-        // MARK: - Top-level Actions
-
-        private static let dangerZoneAction: DevModeAction = {
-            @Sendable
-            func dangerZone() {
-                Task {
-                    @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
-
-                    var actions: [DevModeAction] = [
-                        DevModeAction.AppActions.DangerZone.destroyConversationDatabaseAction,
-                        DevModeAction.AppActions.DangerZone.resetPushTokensAction,
-                    ]
-
-                    if currentUser?.previousLanguageCodes?.isEmpty == false {
-                        actions.insert(
-                            DevModeAction.AppActions.DangerZone.clearPreviousLanguageCodesAction,
-                            at: 0
-                        )
-                    }
-
-                    if currentUser?.conversations != nil {
-                        actions.insert(
-                            DevModeAction.AppActions.DangerZone.deleteConversationsAction,
-                            at: 1
-                        )
-                    }
-
-                    await AKActionSheet(
-                        title: "Danger Zone",
-                        message: "Exercise caution when using these options.",
-                        actions: actions.map {
-                            AKAction(
-                                $0.title,
-                                style: $0.isDestructive ? .destructive : .default,
-                                effect: $0.perform
-                            )
-                        }
-                    ).present(translating: [])
-                }
-            }
-
-            return DevModeAction(
-                title: "Danger Zone",
-                isDestructive: true,
-                perform: dangerZone
-            )
-        }()
-
-        private static let stagingModeOptionsAction: DevModeAction = {
-            @Sendable
-            func stagingModeOptions() { // swiftlint:disable:next identifier_name
-                @Dependency(\.networking.conversationService.staging) var _conversationStagingService: ConversationStagingService
-                let conversationStagingService = UncheckedSendable(_conversationStagingService)
-
-                Task { @MainActor in
-                    @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
-                    @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
-
-                    @Persistent(.isInStagingMode) var isInStagingMode: Bool?
-                    let stageConversationsAction = AKAction(
-                        "Stage Conversations",
-                        isEnabled: isInStagingMode == true
-                    ) {
-                        Task { @MainActor in
-                            guard await AKConfirmationAlert(
-                                title: "Stage Conversations",
-                                message: "All conversations for the current user will be deleted and staged versions created for App Store mockup creation."
-                            ).present(translating: []) else { return }
-
-                            do throws(Exception) {
-                                try await conversationStagingService
-                                    .wrappedValue
-                                    .stageConversations()
-                            } catch {
-                                Logger.log(
-                                    error,
-                                    with: .toast
-                                )
-                            }
-                        }
-                    }
-
-                    let toggleStagingModeAction = AKAction(
-                        "\(isInStagingMode == true ? "Disable" : "Enable") Staging Mode",
-                        style: isInStagingMode == true ? .destructivePreferred : .preferred
-                    ) {
-                        @Persistent(.isInStagingMode) var isInStagingMode: Bool?
-                        isInStagingMode = isInStagingMode == true ? nil : true
-                        coreHUD.showSuccess(
-                            text: "Staging Mode \(isInStagingMode == true ? "Enabled" : "Disabled")"
-                        )
-                    }
-
-                    await AKActionSheet(
-                        title: "Staging Mode Options",
-                        actions: [
-                            currentUser == nil ? nil : stageConversationsAction,
-                            toggleStagingModeAction,
-                        ].compactMap(\.self)
-                    ).present(translating: [])
-                }
-            }
-
-            return DevModeAction(
-                title: "Staging Mode Options",
-                perform: stagingModeOptions
-            )
-        }()
     }
 }

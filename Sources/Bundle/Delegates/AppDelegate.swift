@@ -27,7 +27,7 @@ import FirebaseMessaging
 final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency MessagingDelegate, @preconcurrency UNUserNotificationCenterDelegate {
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
+    @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.firebaseMessaging) private var firebaseMessaging: Messaging
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.commonServices) private var services: CommonServices
@@ -99,7 +99,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
         _ application: UIApplication,
         didDiscardSceneSessions sceneSessions: Set<UISceneSession>
     ) {
-        try? coreUtilities.eraseTemporaryDirectory()
+        eraseTemporaryDirectoryPreservingSessionRecord()
     }
 
     // MARK: - MessagingDelegate Conformance
@@ -151,5 +151,28 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
         }
 
         return []
+    }
+
+    // MARK: - Auxiliary
+
+    private func eraseTemporaryDirectoryPreservingSessionRecord() {
+        // When the user removes the app's scene from the app switcher
+        // while the app isn't running, UIKit delivers the discard
+        // callback on the next launch, after the logger has already
+        // begun writing the session record. Erasing the directory
+        // wholesale at that point would drop the record's first entries.
+        let sessionRecordFileName = Logger
+            .sessionRecordFilePath
+            .lastPathComponent
+
+        guard let filePaths = try? fileManager.contentsOfDirectory(
+            at: fileManager.temporaryDirectory,
+            includingPropertiesForKeys: nil
+        ) else { return }
+
+        for filePath in filePaths {
+            guard filePath.lastPathComponent != sessionRecordFileName else { continue }
+            try? fileManager.removeItem(at: filePath)
+        }
     }
 }

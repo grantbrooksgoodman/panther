@@ -24,6 +24,8 @@
 		A21951122ECD8340000A6177 /* ContactSelectorPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */; };
 		A21951142ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */; };
 		A220F689301546170065B54C /* DeviceID.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220F688301546170065B54C /* DeviceID.swift */; };
+		A22AE2203091CB33004D6D64 /* LanguageModels in Frameworks */ = {isa = PBXBuildFile; productRef = A22AE21F3091CB33004D6D64 /* LanguageModels */; };
+		A22AE2223091CFBB004D6D64 /* LanguageModelLoggerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A22AE2213091CFBB004D6D64 /* LanguageModelLoggerDelegate.swift */; };
 		A23338B82ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338B72ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift */; };
 		A23338BA2ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338B92ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift */; };
 		A23338BC2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338BB2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift */; };
@@ -71,12 +73,12 @@
 		A2BE201F2F2C42420006F7AF /* FeaturePermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE201E2F2C42420006F7AF /* FeaturePermissionPageView.swift */; };
 		A2BE20212F2C42860006F7AF /* FeaturePermissionPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE20202F2C42860006F7AF /* FeaturePermissionPageReducer.swift */; };
 		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
-		A2C17F0F308EF8A300F0DA54 /* LanguageModels in Frameworks */ = {isa = PBXBuildFile; productRef = A2C17F0E308EF8A300F0DA54 /* LanguageModels */; };
 		A2C250CD2F959330002EEA53 /* SystemInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C250CC2F959330002EEA53 /* SystemInformation.swift */; };
 		A2C27C6F2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */; };
 		A2C7F4B92F55D3A100171C04 /* SchemaMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C7F4B82F55D3A100171C04 /* SchemaMigrationService.swift */; };
 		A2CF5E572F20774E0054830C /* SynchronizationRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */; };
 		A2D4F4492ED134E300642629 /* ContactSelectorPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */; };
+		A2D7C0A23A5E4F0B00C0FFEE /* DevModeActions+StagingModeOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D7C0A13A5E4F0B00C0FFEE /* DevModeActions+StagingModeOptions.swift */; };
 		A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5428199B660089DEA1 /* AppDelegate.swift */; };
 		A2DF2C5728199B660089DEA1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */; };
 		A2DF2C5B28199B670089DEA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C5A28199B670089DEA1 /* Assets.xcassets */; };
@@ -216,7 +218,6 @@
 		B92CF00F28F4DF9800870B5C /* StoredItemKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */; };
 		B92E90332CD9D84A0057A0A9 /* ContextMenuInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92E90322CD9D84A0057A0A9 /* ContextMenuInteraction.swift */; };
 		B92FC6B72D1B94AA006E91C0 /* PenPalsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92FC6B62D1B94AA006E91C0 /* PenPalsService.swift */; };
-		B92FC6BF2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92FC6BE2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift */; };
 		B9332EA52B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9332EA42B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift */; };
 		B9334E062B48E54000C667E5 /* RegionMenuReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9334E052B48E54000C667E5 /* RegionMenuReducer.swift */; };
 		B934570B2AABFC7100944602 /* LocalizedStringKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B934570A2AABFC7100944602 /* LocalizedStringKeys.swift */; };
@@ -681,8 +682,6 @@
 		B9D0D93F2B03019E00078A93 /* String+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D9202B03019E00078A93 /* String+CommonExtensions.swift */; };
 		B9D0D9442B03019E00078A93 /* NetworkServices+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D9292B03019E00078A93 /* NetworkServices+CommonNetworkingExtensions.swift */; };
 		B9D0D9462B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D92D2B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift */; };
-		B9D312572D2097F10007572A /* SquareIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D312562D2097F10007572A /* SquareIconView.swift */; };
-		B9D312592D20A2C60007572A /* SquareIconViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D312582D20A2C60007572A /* SquareIconViewConfiguration.swift */; };
 		B9D3125B2D20A3660007572A /* SquareIconViewConfiguration+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D3125A2D20A3660007572A /* SquareIconViewConfiguration+UserContentExtensions.swift */; };
 		B9D4FD872CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D4FD862CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift */; };
 		B9D5C72C2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */; };
@@ -824,6 +823,7 @@
 		A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewService.swift; sourceTree = "<group>"; };
 		A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewServiceDependency.swift; sourceTree = "<group>"; };
 		A220F688301546170065B54C /* DeviceID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceID.swift; sourceTree = "<group>"; };
+		A22AE2213091CFBB004D6D64 /* LanguageModelLoggerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageModelLoggerDelegate.swift; sourceTree = "<group>"; };
 		A23338B72ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ReactionsViewController.swift"; sourceTree = "<group>"; };
 		A23338B92ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SystemMessageCell.swift"; sourceTree = "<group>"; };
 		A23338BB2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+V26HeaderViewModifier.swift"; sourceTree = "<group>"; };
@@ -874,6 +874,7 @@
 		A2C7F4B82F55D3A100171C04 /* SchemaMigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaMigrationService.swift; sourceTree = "<group>"; };
 		A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizationRecord.swift; sourceTree = "<group>"; };
 		A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewStrings.swift; sourceTree = "<group>"; };
+		A2D7C0A13A5E4F0B00C0FFEE /* DevModeActions+StagingModeOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DevModeActions+StagingModeOptions.swift"; sourceTree = "<group>"; };
 		A2DF2C5128199B660089DEA1 /* Hello.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hello.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2DF2C5428199B660089DEA1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -1089,7 +1090,6 @@
 		B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoredItemKeys.swift; sourceTree = "<group>"; };
 		B92E90322CD9D84A0057A0A9 /* ContextMenuInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuInteraction.swift; sourceTree = "<group>"; };
 		B92FC6B62D1B94AA006E91C0 /* PenPalsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPalsService.swift; sourceTree = "<group>"; };
-		B92FC6BE2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SquareIconView.swift"; sourceTree = "<group>"; };
 		B9332EA42B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+AVSpeechSynthesizerDelegate.swift"; sourceTree = "<group>"; };
 		B9334E052B48E54000C667E5 /* RegionMenuReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionMenuReducer.swift; sourceTree = "<group>"; };
 		B934570A2AABFC7100944602 /* LocalizedStringKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedStringKeys.swift; sourceTree = "<group>"; };
@@ -1553,8 +1553,6 @@
 		B9D0D9202B03019E00078A93 /* String+CommonExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B9D0D9292B03019E00078A93 /* NetworkServices+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NetworkServices+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9D0D92D2B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DatabaseDelegate+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
-		B9D312562D2097F10007572A /* SquareIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareIconView.swift; sourceTree = "<group>"; };
-		B9D312582D20A2C60007572A /* SquareIconViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareIconViewConfiguration.swift; sourceTree = "<group>"; };
 		B9D3125A2D20A3660007572A /* SquareIconViewConfiguration+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SquareIconViewConfiguration+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B9D4FD862CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatPageView+HeaderItems.swift"; sourceTree = "<group>"; };
 		B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+RecipientBarService.swift"; sourceTree = "<group>"; };
@@ -1652,7 +1650,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A2C17F0F308EF8A300F0DA54 /* LanguageModels in Frameworks */,
+				A22AE2203091CB33004D6D64 /* LanguageModels in Frameworks */,
 				A2A180243041384200F32C30 /* Networking in Frameworks */,
 				B921F4062CCB6F34006BB149 /* FirebaseMessaging in Frameworks */,
 				B9E2E6142C72E7AF004022FE /* MessageKit in Frameworks */,
@@ -2049,6 +2047,7 @@
 			isa = PBXGroup;
 			children = (
 				A2DF2C5428199B660089DEA1 /* AppDelegate.swift */,
+				A22AE2213091CFBB004D6D64 /* LanguageModelLoggerDelegate.swift */,
 				A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */,
 			);
 			path = Delegates;
@@ -2443,6 +2442,7 @@
 				B9C5830729BECE59009DCE29 /* DevModeActions.swift */,
 				A261301C30243D28003BB03D /* DevModeActions+DatabaseOptions.swift */,
 				B97141042E442E5900A64240 /* DevModeActions+DangerZone.swift */,
+				A2D7C0A13A5E4F0B00C0FFEE /* DevModeActions+StagingModeOptions.swift */,
 				A261301E30243EEA003BB03D /* DevModeActions+UIOptions.swift */,
 				A261302030243F9D003BB03D /* DevModeActions+UserOptions.swift */,
 			);
@@ -2492,7 +2492,6 @@
 				B9464F642CAF89FE00A11842 /* QueriedContactPairCache.swift */,
 				B99880A02E2974E3002742A8 /* QueriedConversationCache.swift */,
 				B9627C642B6ED056004EE9DA /* RecordButtonCommand.swift */,
-				B9D312582D20A2C60007572A /* SquareIconViewConfiguration.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -3482,7 +3481,6 @@
 				B9DD42C32E2F12FB009A318B /* MediaItemView.swift */,
 				B986C46F2CD3235500414E57 /* ReactionsViewController.swift */,
 				B90071F22B7C2E6300BE8654 /* RecipientBarTextField.swift */,
-				B9D312562D2097F10007572A /* SquareIconView.swift */,
 				A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */,
 				B9F47AF72B58609300D86C67 /* UserInfoBadgeView.swift */,
 			);
@@ -3513,7 +3511,6 @@
 				A23338B72ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift */,
 				B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */,
 				B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */,
-				B92FC6BE2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift */,
 				A23338B92ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift */,
 				B947F2DA2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift */,
 				B918222B2B6DEE540068BDAB /* AppConstants+UserContentExtensions.swift */,
@@ -3665,7 +3662,7 @@
 				B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */,
 				A244335C2FB5407F001C810F /* PhoneNumberKit */,
 				A2A180233041384200F32C30 /* Networking */,
-				A2C17F0E308EF8A300F0DA54 /* LanguageModels */,
+				A22AE21F3091CB33004D6D64 /* LanguageModels */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3795,7 +3792,7 @@
 				B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
 				A244335B2FB5407E001C810F /* XCRemoteSwiftPackageReference "PhoneNumberKit" */,
 				A2A180223041384200F32C30 /* XCRemoteSwiftPackageReference "networking" */,
-				A2C17F0D308EF8A300F0DA54 /* XCRemoteSwiftPackageReference "language-models" */,
+				A22AE21E3091CB32004D6D64 /* XCRemoteSwiftPackageReference "language-models" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -4204,6 +4201,7 @@
 				B9332EA52B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift in Sources */,
 				B9E6D7B52B126188000BC88D /* RegionDetailService.swift in Sources */,
 				A261301F30243EEA003BB03D /* DevModeActions+UIOptions.swift in Sources */,
+				A2D7C0A23A5E4F0B00C0FFEE /* DevModeActions+StagingModeOptions.swift in Sources */,
 				B9AD41232B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift in Sources */,
 				B918222A2B6DEA450068BDAB /* UIView+UserContentExtensions.swift in Sources */,
 				B9DD42C02E2F0B7C009A318B /* ChatParticipantView.swift in Sources */,
@@ -4258,7 +4256,6 @@
 				B921F4082CCC3351006BB149 /* NetworkPaths.swift in Sources */,
 				B94262522C4622D50026CDE8 /* InviteQRCodePageView.swift in Sources */,
 				B9D4FD872CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift in Sources */,
-				B92FC6BF2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift in Sources */,
 				B90071F32B7C2E6300BE8654 /* RecipientBarTextField.swift in Sources */,
 				A276DB8B2FCF272400CACAB5 /* StagingModeDateFormatterDependency.swift in Sources */,
 				B963F1C42B23D62E0087DB83 /* Conversation.swift in Sources */,
@@ -4387,6 +4384,7 @@
 				B9B193C02B1A41800016948C /* AudioService.swift in Sources */,
 				B90249C82B573E0D00D62855 /* AppConstants+AuthCodePageView.swift in Sources */,
 				B9DEB7B22C1CDD970098DAAB /* ConnectionStatusService.swift in Sources */,
+				A22AE2223091CFBB004D6D64 /* LanguageModelLoggerDelegate.swift in Sources */,
 				B94758222BCF7A35001E4872 /* ContentPickerView.swift in Sources */,
 				B9F5609E2B69A4AF009ABDD5 /* NotificationExtensionConstants.swift in Sources */,
 				B9EC04C92B79671E00A16700 /* SettingsPageView.swift in Sources */,
@@ -4513,7 +4511,6 @@
 				B94758252BCF864D001E4872 /* ContentPicker.swift in Sources */,
 				B98C3BA12B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift in Sources */,
 				B923CAA52B758BAD0042D3E4 /* AlternateMessageService.swift in Sources */,
-				B9D312572D2097F10007572A /* SquareIconView.swift in Sources */,
 				B99195752B47C7BD00BD5BBC /* SelectLanguagePageViewStrings.swift in Sources */,
 				A25A21A42FA02C1800B670C1 /* AppConstants+ChatPageHeaderView.swift in Sources */,
 				B90BE4462BCE5FCC00966C9E /* ErrorReportingService.swift in Sources */,
@@ -4558,7 +4555,6 @@
 				A23CB3ED2ED3E5270060DFD7 /* Activity.swift in Sources */,
 				B979AA392C444E4A0082203C /* CameraPickerService.swift in Sources */,
 				B9DD42CB2E2F18F0009A318B /* ChatInfoPageViewService+ChangeMetadata.swift in Sources */,
-				B9D312592D20A2C60007572A /* SquareIconViewConfiguration.swift in Sources */,
 				B978B1992B87C84200AA007A /* RootSheets.swift in Sources */,
 				B969165F2BAE1DB400441472 /* ConversationMetadata+Serializable.swift in Sources */,
 				B9C5830829BECE59009DCE29 /* DevModeActions.swift in Sources */,
@@ -5038,6 +5034,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A22AE21E3091CB32004D6D64 /* XCRemoteSwiftPackageReference "language-models" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/grantbrooksgoodman/language-models";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		A244335B2FB5407E001C810F /* XCRemoteSwiftPackageReference "PhoneNumberKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/marmelroy/PhoneNumberKit";
@@ -5049,14 +5053,6 @@
 		A2A180223041384200F32C30 /* XCRemoteSwiftPackageReference "networking" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		A2C17F0D308EF8A300F0DA54 /* XCRemoteSwiftPackageReference "language-models" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/grantbrooksgoodman/language-models";
 			requirement = {
 				branch = main;
 				kind = branch;
@@ -5089,6 +5085,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A22AE21F3091CB33004D6D64 /* LanguageModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A22AE21E3091CB32004D6D64 /* XCRemoteSwiftPackageReference "language-models" */;
+			productName = LanguageModels;
+		};
 		A244335C2FB5407F001C810F /* PhoneNumberKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A244335B2FB5407E001C810F /* XCRemoteSwiftPackageReference "PhoneNumberKit" */;
@@ -5098,11 +5099,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A2A180223041384200F32C30 /* XCRemoteSwiftPackageReference "networking" */;
 			productName = Networking;
-		};
-		A2C17F0E308EF8A300F0DA54 /* LanguageModels */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A2C17F0D308EF8A300F0DA54 /* XCRemoteSwiftPackageReference "language-models" */;
-			productName = LanguageModels;
 		};
 		B921F4032CCB6F34006BB149 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;

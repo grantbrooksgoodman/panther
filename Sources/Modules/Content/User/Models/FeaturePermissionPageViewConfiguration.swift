@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* Proprietary */
+import AppSubsystem
+
 extension FeaturePermissionPageView {
     /// The content and actions of a feature permission page.
     ///

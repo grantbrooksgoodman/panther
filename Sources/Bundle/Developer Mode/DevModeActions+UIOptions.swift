@@ -18,55 +18,32 @@ import Networking
 
 extension DevModeAction.AppActions {
     enum UIOptions {
-        // MARK: - UI Options Action
+        // MARK: - Properties
 
-        static let uiOptionsAction: DevModeAction = {
-            @Sendable
-            func uiOptions() {
-                Task { @MainActor in
-                    @Dependency(\.uiApplication.presentedViews) var presentedViews: [UIView]
-                    var actions = [
-                        Breadcrumbs.manageBreadcrumbsCaptureAction,
-                        triggerForcedUpdateModalAction,
-                    ].map {
-                        AKAction(
-                            $0.title,
-                            style: $0.isDestructive ? .destructive : .default,
-                            effect: $0.perform
-                        )
-                    }
+        /// The destination that pushes the UI options page. Its actions reflect the app's
+        /// current state.
+        @MainActor
+        static var action: DevModeAction {
+            @Dependency(\.uiApplication.presentedViews) var presentedViews: [UIView]
 
-                    if presentedViews.contains(where: { $0 is WKWebView }) {
-                        actions.append(
-                            AKAction(
-                                toggleWebViewVisibilityAction.title,
-                                effect: toggleWebViewVisibilityAction.perform
-                            )
-                        )
-                    }
+            var actions = [
+                Breadcrumbs.action,
+                triggerForcedUpdateModalAction,
+            ]
 
-                    actions.append(
-                        AKAction(
-                            "Back",
-                            style: .cancel,
-                            effect: presentActionSheet
-                        )
-                    )
-
-                    await AKActionSheet(
-                        title: "UI Options",
-                        actions: actions
-                    ).present(translating: [])
-                }
+            if presentedViews.contains(where: { $0 is WKWebView }) {
+                actions.append(toggleWebViewVisibilityAction)
             }
 
-            return DevModeAction(
+            return .init(
                 title: "UI Options",
-                perform: uiOptions
+                iconConfiguration: .init(
+                    backgroundColor: .teal,
+                    overlay: .symbol(name: "rectangle.3.group.fill")
+                ),
+                destination: actions
             )
-        }()
-
-        // MARK: - Auxiliary
+        }
 
         private static let toggleWebViewVisibilityAction: DevModeAction = {
             @Sendable
@@ -99,6 +76,10 @@ extension DevModeAction.AppActions {
 
             return DevModeAction(
                 title: "Toggle Web View Visibility",
+                iconConfiguration: .init(
+                    backgroundColor: .indigo,
+                    overlay: .symbol(name: "eye.slash.fill")
+                ),
                 perform: toggleWebViewVisibility
             )
         }()
@@ -111,6 +92,10 @@ extension DevModeAction.AppActions {
 
             return DevModeAction(
                 title: "Trigger Forced Update Modal",
+                iconConfiguration: .init(
+                    backgroundColor: .purple,
+                    overlay: .symbol(name: "arrow.down.app.fill")
+                ),
                 perform: triggerForcedUpdateModal
             )
         }()
@@ -119,52 +104,52 @@ extension DevModeAction.AppActions {
 
 private extension DevModeAction.AppActions {
     enum Breadcrumbs {
-        // MARK: - Manage Breadcrumbs Capture Action
+        // MARK: - Properties
 
-        static let manageBreadcrumbsCaptureAction: DevModeAction = {
-            @Sendable
-            func manageBreadcrumbsCapture() {
-                Task { @MainActor in
-                    @Dependency(\.commonServices.metadata) var metadataService: MetadataService
-                    @Dependency(\.uiApplication) var uiApplication: UIApplication
-                    @Dependency(\.uiPasteboard) var uiPasteboard: UIPasteboard
+        static let action: DevModeAction = .init(
+            title: "Manage Breadcrumbs Capture",
+            iconConfiguration: .init(
+                backgroundColor: .orange,
+                overlay: .symbol(name: "camera.fill")
+            ),
+            destination: [
+                clearCaptureHistoryAction,
+                openHostedDirectoryAction,
+                setCaptureFrequencyAction,
+            ]
+        )
 
-                    let clearBreadcrumbsCaptureHistoryAction: AKAction = .init(
-                        "Clear Capture History",
-                        style: .destructive,
-                        effect: Breadcrumbs.presentClearBreadcrumbsCaptureHistoryActionSheet
-                    )
+        private static let clearCaptureHistoryAction: DevModeAction = .init(
+            title: "Clear Capture History",
+            iconConfiguration: .init(
+                backgroundColor: .red,
+                overlay: .symbol(name: "clock.badge.xmark")
+            ),
+            isDestructive: true,
+            perform: presentClearCaptureHistoryActionSheet
+        )
 
-                    let openHostedBreadcrumbsDirectoryAction: AKAction = .init(
-                        "Open Hosted Directory",
-                        effect: Breadcrumbs.openHostedBreadcrumbsDirectory
-                    )
+        private static let openHostedDirectoryAction: DevModeAction = .init(
+            title: "Open Hosted Directory",
+            iconConfiguration: .init(
+                backgroundColor: .brown,
+                overlay: .symbol(name: "folder.fill")
+            ),
+            perform: openHostedDirectory
+        )
 
-                    let setBreadcrumbsCaptureFrequencyAction: AKAction = .init(
-                        "Set Capture Frequency",
-                        effect: Breadcrumbs.presentBreadcrumbsCaptureFrequencyTextInputAlert
-                    )
-
-                    await AKActionSheet(
-                        title: "Manage Hosted Breadcrumbs Capture",
-                        actions: [
-                            openHostedBreadcrumbsDirectoryAction,
-                            clearBreadcrumbsCaptureHistoryAction,
-                            setBreadcrumbsCaptureFrequencyAction,
-                        ]
-                    ).present(translating: [])
-                }
-            }
-
-            return DevModeAction(
-                title: "Manage Breadcrumbs Capture",
-                perform: manageBreadcrumbsCapture
-            )
-        }()
+        private static let setCaptureFrequencyAction: DevModeAction = .init(
+            title: "Set Capture Frequency",
+            iconConfiguration: .init(
+                backgroundColor: .mint,
+                overlay: .symbol(name: "metronome.fill")
+            ),
+            perform: presentCaptureFrequencyTextInputAlert
+        )
 
         // MARK: - Auxiliary
 
-        private static func openHostedBreadcrumbsDirectory() {
+        private static func openHostedDirectory() {
             Task { @MainActor in
                 @Dependency(\.build) var build: Build
                 @Dependency(\.commonServices.metadata) var metadataService: MetadataService
@@ -184,7 +169,7 @@ private extension DevModeAction.AppActions {
             }
         }
 
-        private static func presentBreadcrumbsCaptureFrequencyTextInputAlert() {
+        private static func presentCaptureFrequencyTextInputAlert() {
             Task { @MainActor in
                 @Dependency(\.commonServices.breadcrumbsCapture) var breadcrumbsCaptureService: BreadcrumbsCaptureService
                 @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
@@ -193,7 +178,7 @@ private extension DevModeAction.AppActions {
                 func presentTryAgainAlert() async {
                     let tryAgainAction: AKAction = .init(
                         "Try Again",
-                        effect: presentBreadcrumbsCaptureFrequencyTextInputAlert
+                        effect: presentCaptureFrequencyTextInputAlert
                     )
 
                     await AKAlert(
@@ -245,7 +230,7 @@ private extension DevModeAction.AppActions {
             }
         }
 
-        private static func presentClearBreadcrumbsCaptureHistoryActionSheet() {
+        private static func presentClearCaptureHistoryActionSheet() {
             Task {
                 @Sendable
                 func clearRemoteCaptureHistory() {

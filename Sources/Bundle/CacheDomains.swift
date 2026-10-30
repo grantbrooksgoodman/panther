@@ -66,7 +66,6 @@ extension CacheDomain {
                 .readReceipt,
                 .regionDetailService,
                 .settingsPageViewService,
-                .squareIconImage,
                 .textToSpeechService,
                 .transcriptionService,
                 .userArchive,
@@ -213,12 +212,6 @@ extension CacheDomain {
             @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
             settingsPageViewService.clearCache()
         }
-    }
-
-    static let squareIconImage = CacheDomain(
-        "squareIconImage"
-    ) {
-        SquareIconImageCache.clearCache()
     }
 
     static let textToSpeechService = CacheDomain(

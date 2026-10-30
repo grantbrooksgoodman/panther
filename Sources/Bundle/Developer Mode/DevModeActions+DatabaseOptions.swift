@@ -16,47 +16,22 @@ import Networking
 
 extension DevModeAction.AppActions {
     enum DatabaseOptions {
-        // MARK: - Database Options Action
+        // MARK: - Properties
 
-        static let databaseOptionsAction: DevModeAction = {
-            @Sendable
-            func databaseOptions() {
-                Task {
-                    var actions = [
-                        migrateDatabaseAction,
-                        RollbackOptions.rollbackOptionsAction,
-                        validateDatabaseIntegrityAction,
-                    ].map {
-                        AKAction(
-                            $0.title,
-                            style: $0.isDestructive ? .destructive : .default,
-                            effect: $0.perform
-                        )
-                    }
-
-                    actions.append(
-                        AKAction(
-                            "Back",
-                            style: .cancel,
-                            effect: presentActionSheet
-                        )
-                    )
-
-                    await AKActionSheet(
-                        title: "Database Options",
-                        message: "Actions apply to the \(Networking.config.environment.description.uppercased()) environment.",
-                        actions: actions
-                    ).present(translating: [])
-                }
-            }
-
-            return DevModeAction(
-                title: "Database Options",
-                perform: databaseOptions
-            )
-        }()
-
-        // MARK: - Auxiliary
+        /// The destination that pushes the database options page. Its actions apply to the
+        /// current networking environment.
+        static let action: DevModeAction = .init(
+            title: "Database Options",
+            iconConfiguration: .init(
+                backgroundColor: .blue,
+                overlay: .symbol(name: "cylinder.fill")
+            ),
+            destination: [
+                migrateDatabaseAction,
+                RollbackOptions.action,
+                validateDatabaseIntegrityAction,
+            ]
+        )
 
         private static let migrateDatabaseAction: DevModeAction = {
             @Sendable
@@ -88,6 +63,10 @@ extension DevModeAction.AppActions {
 
             return DevModeAction(
                 title: "Migrate Database",
+                iconConfiguration: .init(
+                    backgroundColor: .cyan,
+                    overlay: .symbol(name: "arrow.triangle.2.circlepath")
+                ),
                 perform: migrateDatabase
             )
         }()
@@ -119,6 +98,10 @@ extension DevModeAction.AppActions {
 
             return DevModeAction(
                 title: "Validate Database Integrity",
+                iconConfiguration: .init(
+                    backgroundColor: .green,
+                    overlay: .symbol(name: "checkmark.shield.fill")
+                ),
                 perform: validateDatabaseIntegrity
             )
         }()
@@ -127,106 +110,109 @@ extension DevModeAction.AppActions {
 
 private extension DevModeAction.AppActions {
     enum RollbackOptions {
-        // MARK: - Rollback Options Action
+        // MARK: - Properties
 
-        static let rollbackOptionsAction: DevModeAction = {
+        static let action: DevModeAction = .init(
+            title: "Rollback Options",
+            iconConfiguration: .init(
+                backgroundColor: .orange,
+                overlay: .symbol(name: "clock.arrow.circlepath")
+            ),
+            destination: [
+                captureSnapshotAction,
+                rollbackToLatestSnapshotAction,
+            ]
+        )
+
+        private static let captureSnapshotAction: DevModeAction = {
             @Sendable
-            func rollbackOptions() {
+            func captureSnapshot() {
                 Task {
-                    let captureSnapshotAction = AKAction(
-                        "Capture Snapshot",
-                        effect: captureSnapshot
-                    )
+                    @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+                    @Dependency(\.rollbackService) var rollbackService: RollbackService
 
-                    let rollbackToLatestSnapshotAction = AKAction(
-                        "Rollback to Latest Snapshot",
-                        style: .destructive,
-                        effect: rollbackToLatestSnapshot
-                    )
+                    coreHUD.showProgress(isModal: true)
+                    defer { coreHUD.hide() }
 
-                    await AKActionSheet(
-                        title: "Rollback Options",
-                        message: "Actions apply to the \(Networking.config.environment.description.uppercased()) environment.",
-                        actions: [
-                            captureSnapshotAction,
-                            rollbackToLatestSnapshotAction,
-                        ]
-                    ).present(translating: [])
+                    do throws(Exception) {
+                        try await rollbackService.captureSnapshot(
+                            of: Networking.config.environment
+                        )
+
+                        coreHUD.hide()
+                        Task.delayed(by: .seconds(1)) { @MainActor in
+                            @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+                            coreHUD.flash(image: .success)
+                        }
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
+                    }
                 }
             }
 
             return DevModeAction(
-                title: "Rollback Options",
-                perform: rollbackOptions
+                title: "Capture Snapshot",
+                iconConfiguration: .init(
+                    backgroundColor: .cyan,
+                    overlay: .symbol(name: "externaldrive.fill.badge.plus")
+                ),
+                perform: captureSnapshot
             )
         }()
 
-        // MARK: - Auxiliary
+        private static let rollbackToLatestSnapshotAction: DevModeAction = {
+            @Sendable
+            func rollbackToLatestSnapshot() {
+                Task {
+                    @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+                    @Dependency(\.rollbackService) var rollbackService: RollbackService
+                    @Dependency(\.clientSession.entity.user) var userSession: UserSessionService
 
-        private static func captureSnapshot() {
-            Task {
-                @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
-                @Dependency(\.rollbackService) var rollbackService: RollbackService
+                    guard await AKConfirmationAlert(
+                        title: "Rollback to Latest Snapshot", // swiftlint:disable:next line_length
+                        message: "The \(Networking.config.environment.description.uppercased()) environment will be rolled back to its latest snapshot.\n\nThis operation cannot be undone.",
+                        confirmButtonStyle: .destructivePreferred
+                    ).present(translating: []) else { return }
 
-                coreHUD.showProgress(isModal: true)
-                defer { coreHUD.hide() }
+                    coreHUD.showProgress(isModal: true)
+                    defer { coreHUD.hide() }
 
-                do throws(Exception) {
-                    try await rollbackService.captureSnapshot(
-                        of: Networking.config.environment
-                    )
+                    do throws(Exception) {
+                        userSession.stopObservingCurrentUserChanges()
+                        try await rollbackService.rollbackToLatestSnapshot(
+                            in: Networking.config.environment
+                        )
 
-                    coreHUD.hide()
-                    Task.delayed(by: .seconds(1)) { @MainActor in
-                        @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
-                        coreHUD.flash(image: .success)
-                    }
-                } catch {
-                    Logger.log(
-                        error,
-                        with: .toast
-                    )
-                }
-            }
-        }
-
-        private static func rollbackToLatestSnapshot() {
-            Task {
-                @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
-                @Dependency(\.rollbackService) var rollbackService: RollbackService
-                @Dependency(\.clientSession.entity.user) var userSession: UserSessionService
-
-                guard await AKConfirmationAlert(
-                    title: "Rollback to Latest Snapshot", // swiftlint:disable:next line_length
-                    message: "The \(Networking.config.environment.description.uppercased()) environment will be rolled back to its latest snapshot.\n\nThis operation cannot be undone.",
-                    confirmButtonStyle: .destructivePreferred
-                ).present(translating: []) else { return }
-
-                coreHUD.showProgress(isModal: true)
-                defer { coreHUD.hide() }
-
-                do throws(Exception) {
-                    userSession.stopObservingCurrentUserChanges()
-                    try await rollbackService.rollbackToLatestSnapshot(
-                        in: Networking.config.environment
-                    )
-
-                    coreHUD.hide()
-                    Task.delayed(by: .seconds(1)) { @MainActor in
-                        @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
-                        coreHUD.flash(image: .success)
-                        Application.reset(
-                            preserveCurrentUserID: true,
-                            onCompletion: .navigateToSplash
+                        coreHUD.hide()
+                        Task.delayed(by: .seconds(1)) { @MainActor in
+                            @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+                            coreHUD.flash(image: .success)
+                            Application.reset(
+                                preserveCurrentUserID: true,
+                                onCompletion: .navigateToSplash
+                            )
+                        }
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
                         )
                     }
-                } catch {
-                    Logger.log(
-                        error,
-                        with: .toast
-                    )
                 }
             }
-        }
+
+            return DevModeAction(
+                title: "Rollback to Latest Snapshot",
+                iconConfiguration: .init(
+                    backgroundColor: .orange,
+                    overlay: .symbol(name: "arrow.uturn.backward.circle.fill")
+                ),
+                isDestructive: true,
+                perform: rollbackToLatestSnapshot
+            )
+        }()
     }
 }

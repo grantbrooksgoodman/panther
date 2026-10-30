@@ -61,12 +61,7 @@ extension DevModeAction.AppActions {
             }
         }
 
-        // MARK: - Actions
-
-        static let clearPreviousLanguageCodesAction: DevModeAction = .init(
-            title: Action.clearPreviousLanguageCodes.confirmationAlertTitle,
-            isDestructive: true
-        ) { performAction(.clearPreviousLanguageCodes) }
+        // MARK: - Properties
 
         static let deleteConversationsAction: DevModeAction = {
             @Sendable
@@ -177,123 +172,178 @@ extension DevModeAction.AppActions {
 
             return DevModeAction(
                 title: "Delete Conversations",
+                iconConfiguration: .init(
+                    backgroundColor: .red,
+                    overlay: .symbol(name: "bubble.left.and.bubble.right.fill")
+                ),
                 isDestructive: true,
                 perform: deleteConversations
             )
         }()
 
-        static let destroyConversationDatabaseAction: DevModeAction = .init(
+        /// The destination that pushes the danger zone page.
+        @MainActor
+        static var action: DevModeAction {
+            .init(
+                title: "Danger Zone",
+                iconConfiguration: .init(
+                    backgroundColor: .red,
+                    overlay: .symbol(name: "exclamationmark.triangle.fill")
+                ),
+                isDestructive: true,
+                destination: actions
+            )
+        }
+
+        private static let clearPreviousLanguageCodesAction: DevModeAction = .init(
+            title: Action.clearPreviousLanguageCodes.confirmationAlertTitle,
+            iconConfiguration: .init(
+                backgroundColor: .orange,
+                overlay: .symbol(name: "character.book.closed.fill")
+            ),
+            isDestructive: true
+        ) { performAction(.clearPreviousLanguageCodes) }
+
+        private static let destroyConversationDatabaseAction: DevModeAction = .init(
             title: Action.destroyConversationDatabase.confirmationAlertTitle,
+            iconConfiguration: .init(
+                backgroundColor: .red,
+                overlay: .symbol(name: "flame.fill")
+            ),
             isDestructive: true
         ) { performAction(.destroyConversationDatabase) }
 
-        static let resetPushTokensAction: DevModeAction = .init(
+        private static let resetPushTokensAction: DevModeAction = .init(
             title: Action.resetPushTokens.confirmationAlertTitle,
+            iconConfiguration: .init(
+                backgroundColor: .orange,
+                overlay: .symbol(name: "bell.slash.fill")
+            ),
             isDestructive: true
         ) { performAction(.resetPushTokens) }
 
-        // MARK: - Auxiliary
+        @MainActor
+        private static var actions: [DevModeAction] {
+            @Dependency(\.clientSession.entity.user.currentUser) var currentUser: User?
 
-        private static func performAction(_ action: Action) {
-            Task {
-                do throws(Exception) {
-                    try await _performAction(action)
-                } catch {
-                    Logger.log(
-                        error,
-                        with: .toast
-                    )
-                }
+            var actions = [
+                destroyConversationDatabaseAction,
+                resetPushTokensAction,
+            ]
+
+            if currentUser?.previousLanguageCodes?.isEmpty == false {
+                actions.append(clearPreviousLanguageCodesAction)
+            }
+
+            if currentUser?.conversations != nil {
+                actions.append(deleteConversationsAction)
+            }
+
+            return actions
+        }
+    }
+}
+
+private extension DevModeAction.AppActions.DangerZone {
+    private static func performAction(_ action: Action) {
+        Task {
+            do throws(Exception) {
+                try await _performAction(action)
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
+            }
+        }
+    }
+
+    private static func _performAction(_ action: Action) async throws(Exception) {
+        @Dependency(\.coreKit) var core: CoreKit
+        @Dependency(\.clientSession.entity.user) var userSession: UserSessionService
+
+        func showSuccessAndReset() {
+            core.hud.flash(image: .success)
+            Task.delayed(by: .seconds(1)) { @MainActor in
+                Application.reset(
+                    preserveCurrentUserID: true,
+                    onCompletion: .navigateToSplash
+                )
             }
         }
 
-        private static func _performAction(_ action: Action) async throws(Exception) {
-            @Dependency(\.coreKit) var core: CoreKit
-            @Dependency(\.clientSession.entity.user) var userSession: UserSessionService
+        guard await AKConfirmationAlert(
+            title: action.confirmationAlertTitle,
+            message: action.confirmationAlertMessage,
+            confirmButtonStyle: .destructivePreferred
+        ).present(translating: []) else { return }
 
-            func showSuccessAndReset() {
-                core.hud.flash(image: .success)
-                Task.delayed(by: .seconds(1)) { @MainActor in
-                    Application.reset(
-                        preserveCurrentUserID: true,
-                        onCompletion: .navigateToSplash
-                    )
-                }
-            }
+        switch action {
+        case .clearPreviousLanguageCodes:
+            try await core.utils.clearPreviousLanguageCodes()
+            core.hud.flash(
+                "Cleared Previous Language Codes",
+                image: .success
+            )
 
+        case .deleteConversationsInvisibleToCurrentUser:
+            try await core.utils.deleteConversations(
+                .notVisibleForCurrentUser
+            )
+
+            showSuccessAndReset()
+
+        case .deleteCurrentUserConversations:
+            try await core.utils.deleteConversations(
+                .allForCurrentUser
+            )
+
+            showSuccessAndReset()
+
+        case .deleteGroupChatsWithoutNameOrPhoto:
+            try await core.utils.deleteConversations(
+                .groupChatsWithoutNameOrPhoto
+            )
+
+            showSuccessAndReset()
+
+        case .deleteMRCConversations:
+            try await core.utils.deleteConversations(
+                .messageRecipientConsentEnabled
+            )
+
+            showSuccessAndReset()
+
+        case .deleteOneToOneConversationsWithFewerThanFiveMessages:
+            try await core.utils.deleteConversations(
+                .oneToOneAndFewerThanFiveMessages
+            )
+
+            showSuccessAndReset()
+
+        case .deletePenPalsConversations:
+            try await core.utils.deleteConversations(
+                .penPals
+            )
+
+            showSuccessAndReset()
+
+        case .destroyConversationDatabase:
             guard await AKConfirmationAlert(
-                title: action.confirmationAlertTitle,
-                message: action.confirmationAlertMessage,
+                title: "Are you sure?",
+                message: "ALL CONVERSATIONS FOR ALL USERS WILL BE DELETED!",
                 confirmButtonStyle: .destructivePreferred
             ).present(translating: []) else { return }
 
-            switch action {
-            case .clearPreviousLanguageCodes:
-                try await core.utils.clearPreviousLanguageCodes()
-                core.hud.flash(
-                    "Cleared Previous Language Codes",
-                    image: .success
-                )
+            try await core.utils.destroyConversationDatabase()
+            showSuccessAndReset()
 
-            case .deleteConversationsInvisibleToCurrentUser:
-                try await core.utils.deleteConversations(
-                    .notVisibleForCurrentUser
-                )
-
-                showSuccessAndReset()
-
-            case .deleteCurrentUserConversations:
-                try await core.utils.deleteConversations(
-                    .allForCurrentUser
-                )
-
-                showSuccessAndReset()
-
-            case .deleteGroupChatsWithoutNameOrPhoto:
-                try await core.utils.deleteConversations(
-                    .groupChatsWithoutNameOrPhoto
-                )
-
-                showSuccessAndReset()
-
-            case .deleteMRCConversations:
-                try await core.utils.deleteConversations(
-                    .messageRecipientConsentEnabled
-                )
-
-                showSuccessAndReset()
-
-            case .deleteOneToOneConversationsWithFewerThanFiveMessages:
-                try await core.utils.deleteConversations(
-                    .oneToOneAndFewerThanFiveMessages
-                )
-
-                showSuccessAndReset()
-
-            case .deletePenPalsConversations:
-                try await core.utils.deleteConversations(
-                    .penPals
-                )
-
-                showSuccessAndReset()
-
-            case .destroyConversationDatabase:
-                guard await AKConfirmationAlert(
-                    title: "Are you sure?",
-                    message: "ALL CONVERSATIONS FOR ALL USERS WILL BE DELETED!",
-                    confirmButtonStyle: .destructivePreferred
-                ).present(translating: []) else { return }
-
-                try await core.utils.destroyConversationDatabase()
-                showSuccessAndReset()
-
-            case .resetPushTokens:
-                try await core.utils.resetPushTokens()
-                core.hud.flash(
-                    "Reset Push Tokens",
-                    image: .success
-                )
-            }
+        case .resetPushTokens:
+            try await core.utils.resetPushTokens()
+            core.hud.flash(
+                "Reset Push Tokens",
+                image: .success
+            )
         }
     }
 }

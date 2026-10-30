@@ -16,55 +16,30 @@ import Networking
 
 extension DevModeAction.AppActions {
     enum UserOptions {
-        // MARK: - User Options Action
+        // MARK: - Properties
 
-        static let userOptionsAction: DevModeAction = {
-            @Sendable
-            func userOptions() {
-                Task {
-                    var devModeActions = [
-                        markMessagesUnreadAction,
-                        resetDeviceIDAction,
-                        setCurrentUserIDAction,
-                    ]
+        /// The destination that pushes the user options page. Its actions reflect the current
+        /// networking environment.
+        static let action: DevModeAction = {
+            var actions = [
+                markMessagesUnreadAction,
+                resetDeviceIDAction,
+                setCurrentUserIDAction,
+            ]
 
-                    if Networking.config.environment != .production {
-                        devModeActions.insert(
-                            createNewMessagesAction,
-                            at: 0
-                        )
-                    }
-
-                    var akActions = devModeActions.map {
-                        AKAction(
-                            $0.title,
-                            style: $0.isDestructive ? .destructive : .default,
-                            effect: $0.perform
-                        )
-                    }
-
-                    akActions.append(
-                        AKAction(
-                            "Back",
-                            style: .cancel,
-                            effect: presentActionSheet
-                        )
-                    )
-
-                    await AKActionSheet(
-                        title: "User Options",
-                        actions: akActions
-                    ).present(translating: [])
-                }
+            if Networking.config.environment != .production {
+                actions.insert(createNewMessagesAction, at: 0)
             }
 
             return DevModeAction(
                 title: "User Options",
-                perform: userOptions
+                iconConfiguration: .init(
+                    backgroundColor: .indigo,
+                    overlay: .symbol(name: "person.fill")
+                ),
+                destination: actions
             )
         }()
-
-        // MARK: - Auxiliary
 
         static let createNewMessagesAction: DevModeAction = {
             @Sendable
@@ -98,6 +73,10 @@ extension DevModeAction.AppActions {
 
             return DevModeAction(
                 title: "Create New Random Messages",
+                iconConfiguration: .init(
+                    backgroundColor: .pink,
+                    overlay: .symbol(name: "text.bubble.fill")
+                ),
                 perform: createNewMessages
             )
         }()
@@ -163,6 +142,10 @@ extension DevModeAction.AppActions {
 
             return DevModeAction(
                 title: "Mark Messages Unread",
+                iconConfiguration: .init(
+                    backgroundColor: .yellow,
+                    overlay: .symbol(name: "envelope.badge.fill")
+                ),
                 perform: markMessagesUnread
             )
         }()
@@ -198,6 +181,10 @@ extension DevModeAction.AppActions {
 
             return DevModeAction(
                 title: "Reset Device ID",
+                iconConfiguration: .init(
+                    backgroundColor: .gray,
+                    overlay: .symbol(name: "iphone")
+                ),
                 perform: resetDeviceID
             )
         }()
@@ -230,6 +217,10 @@ extension DevModeAction.AppActions {
 
             return DevModeAction(
                 title: "Set Current User ID",
+                iconConfiguration: .init(
+                    backgroundColor: .blue,
+                    overlay: .symbol(name: "person.crop.circle.fill")
+                ),
                 perform: setCurrentUserID
             )
         }()

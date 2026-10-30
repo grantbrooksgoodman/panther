@@ -12,6 +12,7 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import LanguageModels
 import Networking
 
 /* 3rd-party */
@@ -147,6 +148,12 @@ enum Application {
         } else if buildMilestone == .generalRelease {
             Networking.config.setEnvironment(.production)
         }
+
+        /* MARK: LanguageModels Setup */
+
+        LanguageModels.registerLogDelegate(LanguageModelLoggerDelegate())
+        LanguageModels.showsToastsForLogEntryLevel.wrappedValue = .error
+        LanguageModels.logLevel = .info
 
         /* MARK: Text-to-Speech Setup */
 

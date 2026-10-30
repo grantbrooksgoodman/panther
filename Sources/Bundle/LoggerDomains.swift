@@ -64,6 +64,7 @@ extension LoggerDomain {
             .Networking.auth,
             .Networking.health,
             .Networking.hostedTranslation,
+            .languageModels,
             .localization,
             .notifications,
             .outbox,
@@ -89,6 +90,7 @@ extension LoggerDomain {
     static let conversationSync: LoggerDomain = .init("conversationSync")
     static let dataIntegrity: LoggerDomain = .init("dataIntegrity")
     static let dataUsage: LoggerDomain = .init("dataUsage")
+    static let languageModels: LoggerDomain = .init("languageModels")
     static let messageStore: LoggerDomain = .init("messageStore")
     static let notifications: LoggerDomain = .init("notifications")
     static let outbox: LoggerDomain = .init("outbox")
