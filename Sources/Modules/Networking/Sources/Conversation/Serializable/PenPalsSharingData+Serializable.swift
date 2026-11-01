@@ -47,12 +47,13 @@ extension PenPalsSharingData: Serializable {
         }
 
         let components = data.components(separatedBy: ": ")
-        let userID = components[0]
-        let sharesDataWithUserIDs = components[1].components(separatedBy: ", ")
+        let sharesDataWithUserIDs = components[1]
+            .components(separatedBy: ", ")
+            .filter { !$0.isBlank && !$0.isBangQualifiedEmpty }
 
         self = .init(
-            userID: userID,
-            sharesDataWithUserIDs: sharesDataWithUserIDs.isBangQualifiedEmpty ? nil : sharesDataWithUserIDs
+            userID: components[0],
+            sharesDataWithUserIDs: sharesDataWithUserIDs.isEmpty ? nil : sharesDataWithUserIDs
         )
     }
 

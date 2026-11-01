@@ -57,7 +57,7 @@ struct SignInPageView: View {
     // MARK: - View
 
     var body: some View {
-        StatefulView(viewModel.binding(for: \.viewState)) {
+        StatefulView(.constant(viewModel.viewState)) {
             VStack {
                 Image(.hello)
                     .resizable()

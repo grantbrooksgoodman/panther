@@ -271,9 +271,11 @@ struct Conversation: Codable, EncodedHashable, Hashable {
     ///
     /// The merge runs inside a database transaction against
     /// the metadata node, so concurrent sharing updates from
-    /// other participants are never overwritten. When the
-    /// merge results in every participant sharing with every
-    /// other, the conversation is converted to a standard
+    /// other participants are never overwritten. Entries for
+    /// users who are no longer participants are pruned, and
+    /// user IDs outside the participant set are ignored. When
+    /// the merge results in every participant sharing with
+    /// every other, the conversation is converted to a standard
     /// conversation in the same transaction.
     func updatePenPalsSharingData(
         sharingWith userIDs: [String]
@@ -289,56 +291,12 @@ struct Conversation: Codable, EncodedHashable, Hashable {
         return try await update(
             \.metadata,
             applyingRaw: { currentValue in
-                typealias MetadataKey = ConversationMetadata.SerializableKey
-
-                guard var metadata = currentValue as? [String: Any],
-                      let encodedSharingData = metadata[
-                          MetadataKey.penPalsSharingData.rawValue
-                      ] as? [String] else { return currentValue }
-
-                // Parse "<userID>: <id1>, <id2>" entries.
-                var sharesByUserID = [String: Set<String>]()
-                for entry in encodedSharingData {
-                    let components = entry.components(separatedBy: ": ")
-                    guard components.count == 2 else { continue }
-                    sharesByUserID[components[0]] = Set(
-                        components[1]
-                            .components(separatedBy: ", ")
-                            .filter { !$0.isBangQualifiedEmpty }
-                    )
-                }
-
-                for participantUserID in participantUserIDs where sharesByUserID[participantUserID] == nil {
-                    sharesByUserID[participantUserID] = []
-                }
-
-                sharesByUserID[currentUserID, default: []].formUnion(userIDs)
-
-                // All participants sharing with each other
-                // converts this to a standard conversation.
-                let entryUserIDs = Set(sharesByUserID.keys)
-                let allShareWithEachOther = sharesByUserID.allSatisfy { userID, sharedUserIDs in
-                    sharedUserIDs == entryUserIDs.subtracting([userID])
-                }
-
-                if allShareWithEachOther {
-                    metadata[MetadataKey.isPenPalsConversation.rawValue] = false
-                    sharesByUserID = participantUserIDs.reduce(
-                        into: [String: Set<String>]()
-                    ) { $0[$1] = [] }
-                }
-
-                metadata[MetadataKey.penPalsSharingData.rawValue] = sharesByUserID
-                    .map { userID, sharedUserIDs in
-                        let encodedSharedUserIDs = sharedUserIDs.isEmpty
-                            ? String.bangQualifiedEmpty
-                            : sharedUserIDs.sorted().joined(separator: ", ")
-
-                        return "\(userID): \(encodedSharedUserIDs)"
-                    }
-                    .sorted()
-
-                return metadata
+                Self.mergingPenPalsSharingData(
+                    into: currentValue,
+                    currentUserID: currentUserID,
+                    participantUserIDs: participantUserIDs,
+                    userIDs: userIDs
+                )
             }
         )
     }

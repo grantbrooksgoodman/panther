@@ -43,7 +43,7 @@ struct FeaturePermissionPageView: View {
 
     var body: some View {
         StatefulView(
-            viewModel.binding(for: \.viewState),
+            .constant(viewModel.viewState),
             progressPageViewBackgroundColor: ThemeService.isDarkModeActive ? Color.groupedContentBackground : Colors.lightBackground
         ) {
             VStack {

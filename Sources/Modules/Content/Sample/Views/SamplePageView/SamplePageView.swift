@@ -27,7 +27,7 @@ struct SamplePageView: View {
     // MARK: - View
 
     var body: some View {
-        StatefulView(viewModel.binding(for: \.viewState)) {
+        StatefulView(.constant(viewModel.viewState)) {
             ThemedView {
                 VStack {
                     Text(viewModel.strings.value(for: .titleLabelText))

@@ -380,6 +380,7 @@
 		B99F13F42A280A0500B9FCE2 /* PersistentStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F13F32A280A0500B9FCE2 /* PersistentStorageKeys.swift */; };
 		B9A409262B71D333005F2489 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A409252B71D333005F2489 /* HapticsService.swift */; };
 		B9A5D8202D1C9B8600B03908 /* PenPalsSharingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A5D81F2D1C9B8600B03908 /* PenPalsSharingData.swift */; };
+		B9F1A0C72F2A000100C0FFEE /* Conversation+PenPalsSharingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F1A0C62F2A000100C0FFEE /* Conversation+PenPalsSharingExtensions.swift */; };
 		B9A5D8222D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A5D8212D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift */; };
 		B9A907342BAD3145007AD2C2 /* ChatParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A907332BAD3145007AD2C2 /* ChatParticipant.swift */; };
 		B9A907362BADFB92007AD2C2 /* ChatInfoPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A907352BADFB92007AD2C2 /* ChatInfoPageViewStrings.swift */; };
@@ -1254,6 +1255,7 @@
 		B99F13F32A280A0500B9FCE2 /* PersistentStorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentStorageKeys.swift; sourceTree = "<group>"; };
 		B9A409252B71D333005F2489 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
 		B9A5D81F2D1C9B8600B03908 /* PenPalsSharingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPalsSharingData.swift; sourceTree = "<group>"; };
+		B9F1A0C62F2A000100C0FFEE /* Conversation+PenPalsSharingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Conversation+PenPalsSharingExtensions.swift"; sourceTree = "<group>"; };
 		B9A5D8212D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PenPalsSharingData+Serializable.swift"; sourceTree = "<group>"; };
 		B9A907332BAD3145007AD2C2 /* ChatParticipant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatParticipant.swift; sourceTree = "<group>"; };
 		B9A907352BADFB92007AD2C2 /* ChatInfoPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInfoPageViewStrings.swift; sourceTree = "<group>"; };
@@ -2367,9 +2369,18 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		B9F1A0C52F2A000100C0FFEE /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				B9F1A0C62F2A000100C0FFEE /* Conversation+PenPalsSharingExtensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		B963F1BF2B23D60B0087DB83 /* Conversation */ = {
 			isa = PBXGroup;
 			children = (
+				B9F1A0C52F2A000100C0FFEE /* Extensions */,
 				B963F1C02B23D6160087DB83 /* Models */,
 				B9DCCAAB2B3601EC00532B12 /* RemotelyUpdatable */,
 				B963F1C22B23D6200087DB83 /* Serializable */,
@@ -4635,6 +4646,7 @@
 				B9E00A542C2B8C7F004E350E /* MediaMessageService.swift in Sources */,
 				B9DCCAB42B3632F900532B12 /* Message+RemotelyUpdatable.swift in Sources */,
 				B9A5D8202D1C9B8600B03908 /* PenPalsSharingData.swift in Sources */,
+				B9F1A0C72F2A000100C0FFEE /* Conversation+PenPalsSharingExtensions.swift in Sources */,
 				B9002AD72DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift in Sources */,
 				B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */,
 				A2A7A13F2F16DD3B00E09921 /* AppConstants+DataUsageView.swift in Sources */,

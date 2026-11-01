@@ -42,7 +42,7 @@ struct ChangeLanguagePageView: View {
 
     var body: some View {
         StatefulView(
-            viewModel.binding(for: \.viewState),
+            .constant(viewModel.viewState),
             progressPageViewBackgroundColor: .groupedContentBackground
         ) {
             ThemedView {

@@ -32,7 +32,7 @@ struct PermissionPageView: View {
     // MARK: - View
 
     var body: some View {
-        StatefulView(viewModel.binding(for: \.viewState)) {
+        StatefulView(.constant(viewModel.viewState)) {
             VStack {
                 InstructionView(viewModel.instructionViewStrings)
 

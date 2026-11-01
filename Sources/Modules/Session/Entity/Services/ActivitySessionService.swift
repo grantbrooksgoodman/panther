@@ -27,9 +27,11 @@ struct ActivitySessionService {
     /// Adds the user with the given identifier to the given conversation, recording the change as
     /// an activity.
     ///
-    /// In a PenPals conversation, if the added user is known to the
-    /// current user, the current user's sharing record is updated to
-    /// share their data with them.
+    /// In a PenPals conversation, the metadata change is applied
+    /// inside a database transaction, so concurrent sharing updates
+    /// from other participants are never overwritten, and if the
+    /// added user is known to the current user, the current user's
+    /// sharing record is updated to share their data with them.
     ///
     /// - Parameters:
     ///   - userID: The identifier of the user to add.
@@ -47,47 +49,44 @@ struct ActivitySessionService {
             )
         }
 
-        // swiftlint:disable:next identifier_name
-        let newMessageRecipientConsentAcknowledgementData = conversation
-            .metadata
-            .messageRecipientConsentAcknowledgementData + [
-                .init(
-                    userID: userID,
-                    consentAcknowledged: conversation.metadata.requiresConsentFromInitiator != nil ? false : true
-                ),
-            ]
-
-        var newPenPalsSharingData = conversation
-            .metadata
-            .penPalsSharingData + [.init(userID: userID)]
-
-        if conversation.metadata.isPenPalsConversation,
-           let currentUserID = User.currentUserID,
-           penPalsService.isKnownToCurrentUser(userID),
-           let currentUserIndex = newPenPalsSharingData.firstIndex(where: { $0.userID == currentUserID }) {
-            newPenPalsSharingData[currentUserIndex] = .init(
-                userID: currentUserID,
-                sharesDataWithUserIDs: (
-                    (newPenPalsSharingData[currentUserIndex].sharesDataWithUserIDs ?? []) + [userID]
-                ).unique
-            )
-        }
-
-        let newMetadata = conversation.metadata.copyWith(
-            messageRecipientConsentAcknowledgementData: newMessageRecipientConsentAcknowledgementData,
-            penPalsSharingData: newPenPalsSharingData
-        )
-
         let newActivities = ((conversation.activities ?? []) + [activity]).filter { $0 != .empty }
         let newParticipants = conversation.participants + [.init(userID: userID)]
 
-        let updatedConversation = try await conversation.updateValues(
-            with: [
-                \.activities: newActivities,
-                \.metadata: newMetadata,
-                \.participants: newParticipants,
-            ]
-        )
+        let updatedConversation: Conversation
+        if conversation.metadata.isPenPalsConversation {
+            updatedConversation = try await conversation
+                .addParticipantMetadata(
+                    forUserID: userID,
+                    sharingCurrentUserData: penPalsService.isKnownToCurrentUser(userID)
+                )
+                .updateValues(
+                    with: [
+                        \.activities: newActivities,
+                        \.participants: newParticipants,
+                    ]
+                )
+        } else {
+            // swiftlint:disable:next identifier_name
+            let newMessageRecipientConsentAcknowledgementData = conversation
+                .metadata
+                .messageRecipientConsentAcknowledgementData + [
+                    .init(
+                        userID: userID,
+                        consentAcknowledged: conversation.metadata.requiresConsentFromInitiator != nil ? false : true
+                    ),
+                ]
+
+            updatedConversation = try await conversation.updateValues(
+                with: [
+                    \.activities: newActivities,
+                    \.metadata: conversation.metadata.copyWith(
+                        messageRecipientConsentAcknowledgementData: newMessageRecipientConsentAcknowledgementData,
+                        penPalsSharingData: conversation.metadata.penPalsSharingData + [.init(userID: userID)]
+                    ),
+                    \.participants: newParticipants,
+                ]
+            )
+        }
 
         try await addUserToConversation(
             userID: userID,
@@ -117,6 +116,12 @@ struct ActivitySessionService {
     /// Removes the user with the given identifier from the given conversation, recording the change
     /// as an activity.
     ///
+    /// The removed user's identifier is stripped from the remaining
+    /// PenPals sharing records. In a PenPals conversation, the
+    /// metadata change is applied inside a database transaction, so
+    /// concurrent sharing updates from other participants are never
+    /// overwritten.
+    ///
     /// - Parameters:
     ///   - userID: The identifier of the user to remove.
     ///   - conversation: The conversation to remove the user from.
@@ -140,29 +145,42 @@ struct ActivitySessionService {
 
         let newActivities = ((conversation.activities ?? []) + [activity]).filter { $0 != .empty }
         let newParticipants = conversation.participants.filter { $0.userID != userID }
-        let newMetadata = conversation.metadata.copyWith(
-            name: newParticipants.count == 2 ? String.bangQualifiedEmpty : conversation.metadata.name,
-            messageRecipientConsentAcknowledgementData: conversation
-                .metadata
-                .messageRecipientConsentAcknowledgementData
-                .filter { $0.userID != userID },
-            penPalsSharingData: conversation
-                .metadata
-                .penPalsSharingData
-                .filter { $0.userID != userID },
-            nilImageData: newParticipants.count == 2,
-            nilRequiresConsentFromInitiator: conversation
-                .metadata
-                .requiresConsentFromInitiator == userID
-        )
 
-        let updatedConversation = try await conversation.updateValues(
-            with: [
-                \.activities: newActivities,
-                \.metadata: newMetadata,
-                \.participants: newParticipants,
-            ]
-        )
+        let updatedConversation: Conversation
+        if conversation.metadata.isPenPalsConversation {
+            updatedConversation = try await conversation
+                .removeParticipantMetadata(forUserID: userID)
+                .updateValues(
+                    with: [
+                        \.activities: newActivities,
+                        \.participants: newParticipants,
+                    ]
+                )
+        } else {
+            let newMetadata = conversation.metadata.copyWith(
+                name: newParticipants.count == 2 ? String.bangQualifiedEmpty : conversation.metadata.name,
+                messageRecipientConsentAcknowledgementData: conversation
+                    .metadata
+                    .messageRecipientConsentAcknowledgementData
+                    .filter { $0.userID != userID },
+                penPalsSharingData: conversation
+                    .metadata
+                    .penPalsSharingData
+                    .removingUser(withID: userID),
+                nilImageData: newParticipants.count == 2,
+                nilRequiresConsentFromInitiator: conversation
+                    .metadata
+                    .requiresConsentFromInitiator == userID
+            )
+
+            updatedConversation = try await conversation.updateValues(
+                with: [
+                    \.activities: newActivities,
+                    \.metadata: newMetadata,
+                    \.participants: newParticipants,
+                ]
+            )
+        }
 
         if removeFromUser {
             try await networking.conversationService.removeConversationFromUsers(
@@ -174,5 +192,17 @@ struct ActivitySessionService {
         coreUtilities.clearCaches([
             .messageBackgroundColor,
         ])
+    }
+}
+
+private extension [PenPalsSharingData] {
+    func removingUser(withID userID: String) -> [PenPalsSharingData] {
+        filter { $0.userID != userID }.map { sharingData in
+            let sharesDataWithUserIDs = (sharingData.sharesDataWithUserIDs ?? []).filter { $0 != userID }
+            return .init(
+                userID: sharingData.userID,
+                sharesDataWithUserIDs: sharesDataWithUserIDs.isEmpty ? nil : sharesDataWithUserIDs
+            )
+        }
     }
 }

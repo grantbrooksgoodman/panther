@@ -67,7 +67,7 @@ struct ConversationsPageView: View {
     // MARK: - View
 
     var body: some View {
-        StatefulView(viewModel.binding(for: \.viewState)) {
+        StatefulView(.constant(viewModel.viewState)) {
             ThemedView {
                 VStack {
                     NavigationWindow(
