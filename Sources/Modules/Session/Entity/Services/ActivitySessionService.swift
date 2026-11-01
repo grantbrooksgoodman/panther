@@ -20,11 +20,16 @@ struct ActivitySessionService {
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.commonServices.penPals) private var penPalsService: PenPalsService
 
     // MARK: - Add User to Conversation
 
     /// Adds the user with the given identifier to the given conversation, recording the change as
     /// an activity.
+    ///
+    /// In a PenPals conversation, if the added user is known to the
+    /// current user, the current user's sharing record is updated to
+    /// share their data with them.
     ///
     /// - Parameters:
     ///   - userID: The identifier of the user to add.
@@ -52,9 +57,21 @@ struct ActivitySessionService {
                 ),
             ]
 
-        let newPenPalsSharingData = conversation
+        var newPenPalsSharingData = conversation
             .metadata
             .penPalsSharingData + [.init(userID: userID)]
+
+        if conversation.metadata.isPenPalsConversation,
+           let currentUserID = User.currentUserID,
+           penPalsService.isKnownToCurrentUser(userID),
+           let currentUserIndex = newPenPalsSharingData.firstIndex(where: { $0.userID == currentUserID }) {
+            newPenPalsSharingData[currentUserIndex] = .init(
+                userID: currentUserID,
+                sharesDataWithUserIDs: (
+                    (newPenPalsSharingData[currentUserIndex].sharesDataWithUserIDs ?? []) + [userID]
+                ).unique
+            )
+        }
 
         let newMetadata = conversation.metadata.copyWith(
             messageRecipientConsentAcknowledgementData: newMessageRecipientConsentAcknowledgementData,

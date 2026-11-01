@@ -90,7 +90,8 @@ struct PenPalsService {
     /// user, this method updates the conversation's sharing data to include every known
     /// participant, unless all of them are already included.
     ///
-    /// - Note: Populates the contact pair archive if it is `nil` or empty.
+    /// - Note: Populates the contact pair archive if it is `nil` or
+    ///   empty; a populated archive is not refreshed.
     ///
     /// - Throws: An `Exception` if updating a conversation's sharing data fails.
     func updateSharingDataForKnownUsers() async throws(Exception) {
@@ -163,7 +164,8 @@ struct PenPalsService {
     /// blocked or been blocked by the current user, be known to the current user, be present in
     /// an existing conversation, or be currently selected as a recipient.
     ///
-    /// - Note: Populates the contact pair archive if it is `nil` or empty.
+    /// - Note: Populates the contact pair archive if it is `nil` or
+    ///   empty; a populated archive is not refreshed.
     ///
     /// - Returns: A randomly chosen eligible participant.
     ///

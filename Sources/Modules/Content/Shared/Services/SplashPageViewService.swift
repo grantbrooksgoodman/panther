@@ -59,6 +59,7 @@ final class SplashPageViewService: ObservableObject {
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
+    @Dependency(\.penPalsSharingSyncService) private var penPalsSharingSyncService: PenPalsSharingSyncService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiCacheInvalidationService) private var uiCacheInvalidationService: UICacheInvalidationService
 
@@ -168,6 +169,7 @@ final class SplashPageViewService: ObservableObject {
         /* MARK: Store Observation Setup */
 
         uiCacheInvalidationService.startObserving()
+        penPalsSharingSyncService.startObserving()
 
         /* MARK: Offline User Setup */
 
