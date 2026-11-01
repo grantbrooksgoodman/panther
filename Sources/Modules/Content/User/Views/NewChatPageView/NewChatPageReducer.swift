@@ -23,7 +23,8 @@ import AppSubsystem
 /// - On appearance, the page configures its toolbar – titling it, labeling the done button as
 ///   Cancel, and showing the PenPals button when the current user is a PenPals participant – and
 ///   begins animating the PenPals button.
-/// - Tapping the PenPals button adds a random PenPals participant as a recipient.
+/// - Tapping the PenPals button adds a random PenPals participant as a recipient. The button
+///   is hidden while a recipient who is not a pen pal is selected.
 /// - Once the first message is sent, the toolbar updates to reflect the now-created conversation:
 ///   its title becomes the conversation's title, the PenPals button is hidden, and the done
 ///   button is relabeled.
@@ -73,6 +74,10 @@ struct NewChatPageReducer: Reducer {
         /// An action that indicates whether the done button is enabled changed, carrying the new
         /// value.
         case isDoneToolbarButtonEnabledChanged(Bool)
+
+        /// An action that indicates whether the PenPals button is enabled changed, carrying the
+        /// new value.
+        case isPenPalsToolbarButtonEnabledChanged(Bool)
     }
 
     // MARK: - State
@@ -89,6 +94,10 @@ struct NewChatPageReducer: Reducer {
 
         /// A Boolean value that indicates whether the done button is enabled.
         var isDoneToolbarButtonEnabled = true
+
+        /// A Boolean value that indicates whether the PenPals button is enabled. Disabled while
+        /// a recipient who is not a pen pal is selected.
+        var isPenPalsToolbarButtonEnabled = true
 
         /// The page's navigation title.
         var navigationTitle = ""
@@ -122,6 +131,12 @@ struct NewChatPageReducer: Reducer {
                     .contentOffset
                     .y ?? 0
             ) > 0 ? 0.8 : 0
+        }
+
+        /// A Boolean value that indicates whether the PenPals button is shown: when the current
+        /// user is a PenPals participant and the button is enabled.
+        var showsPenPalsToolbarButton: Bool {
+            shouldShowPenPalsToolbarButton && isPenPalsToolbarButtonEnabled
         }
     }
 
@@ -200,6 +215,9 @@ struct NewChatPageReducer: Reducer {
 
         case let .isDoneToolbarButtonEnabledChanged(isDoneToolbarButtonEnabled):
             state.isDoneToolbarButtonEnabled = isDoneToolbarButtonEnabled
+
+        case let .isPenPalsToolbarButtonEnabledChanged(isPenPalsToolbarButtonEnabled):
+            state.isPenPalsToolbarButtonEnabled = isPenPalsToolbarButtonEnabled
 
         case .penPalsToolbarButtonTapped:
             return .task { @MainActor in

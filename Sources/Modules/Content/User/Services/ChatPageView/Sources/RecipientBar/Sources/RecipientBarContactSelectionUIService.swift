@@ -45,7 +45,13 @@ final class RecipientBarContactSelectionUIService {
 
     private let viewController: ChatPageViewController
 
+    @SharedState(\.isNewChatPagePenPalsToolbarButtonEnabled) private var isNewChatPagePenPalsToolbarButtonEnabled
+
     // MARK: - Computed Properties
+
+    private var hasSelectedRegularContactPairs: Bool {
+        selectedContactPairs.contains { Set($0.userIDs).isDisjoint(with: penPalsUserIDs) }
+    }
 
     private var contactViews: [UIView] {
         guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView else { return [] }
@@ -76,6 +82,8 @@ final class RecipientBarContactSelectionUIService {
         }
 
         selectedContactPairs.removeAll(where: { $0.contact.encodedHash == contactHash })
+        isNewChatPagePenPalsToolbarButtonEnabled = !hasSelectedRegularContactPairs
+
         for contactView in contactViews where contactView.identifier == contactHash {
             contactView.removeFromSuperview()
         }
@@ -112,7 +120,9 @@ final class RecipientBarContactSelectionUIService {
     ///
     /// This method has no effect when the contact pair contains a blocked user or the current
     /// user, when it is already selected, or when the maximum number of recipients has been
-    /// reached.
+    /// reached. Pen pals and other recipients cannot be mixed: once a pen pal is selected,
+    /// other recipients are refused, and once another recipient is selected, pen pals are
+    /// refused.
     ///
     /// - Parameters:
     ///   - contactPair: The contact pair to add as a recipient.
@@ -126,29 +136,21 @@ final class RecipientBarContactSelectionUIService {
         isPenPal: Bool = false
     ) {
         guard !contactPair.containsBlockedUser else {
-            Logger.log(
-                .init(
-                    "Attempted to select contact pair containing blocked user.",
-                    isReportable: false,
-                    metadata: .init(sender: self)
-                ),
-                with: .toast(style: nil, isPersistent: false)
+            return logSelectionRefusal(
+                "Attempted to select contact pair containing blocked user."
             )
-
-            return
         }
 
         guard !contactPair.containsCurrentUser else {
-            Logger.log(
-                .init(
-                    "Attempted to select contact pair containing current user.",
-                    isReportable: false,
-                    metadata: .init(sender: self)
-                ),
-                with: .toast(style: nil, isPersistent: false)
+            return logSelectionRefusal(
+                "Attempted to select contact pair containing current user."
             )
+        }
 
-            return
+        guard isPenPal ? !hasSelectedRegularContactPairs : penPalsUserIDs.isEmpty else {
+            return logSelectionRefusal(
+                "PenPals conversations cannot include other recipients."
+            )
         }
 
         guard let configService = chatPageViewService.recipientBar?.config,
@@ -227,6 +229,7 @@ final class RecipientBarContactSelectionUIService {
             penPalsUserIDs.formUnion(contactPair.userIDs)
         }
 
+        isNewChatPagePenPalsToolbarButtonEnabled = !hasSelectedRegularContactPairs
         defer { addSubview() }
         guard let furthestTrailingView = configService.firstContactView(.furthestTrailing(onSublevel: nil)) else { return }
 
@@ -367,6 +370,17 @@ final class RecipientBarContactSelectionUIService {
     @objc
     private func labelRepresentationTapGestureRecognized() {
         chatPageViewService.recipientBar?.layout.textField?.becomeFirstResponder()
+    }
+
+    private func logSelectionRefusal(_ message: String) {
+        Logger.log(
+            .init(
+                message,
+                isReportable: false,
+                metadata: .init(sender: self)
+            ),
+            with: .toast(style: nil, isPersistent: false)
+        )
     }
 
     // MARK: - View Builders

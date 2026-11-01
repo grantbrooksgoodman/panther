@@ -41,6 +41,7 @@ final class RecipientBarLayoutService {
 
     private var hasLaidOutSubviewsOnce = false
     @SharedState(\.isNewChatPageDoneToolbarButtonEnabled) private var isNewChatPageDoneToolbarButtonEnabled
+    @SharedState(\.isNewChatPagePenPalsToolbarButtonEnabled) private var isNewChatPagePenPalsToolbarButtonEnabled
     private var wasTextFieldFirstResponder = false
 
     // MARK: - Computed Properties
@@ -119,6 +120,7 @@ final class RecipientBarLayoutService {
             viewController.messagesCollectionView.contentInset.top = 0
             viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = 0
             isNewChatPageDoneToolbarButtonEnabled = true
+            isNewChatPagePenPalsToolbarButtonEnabled = true
         }
     }
 

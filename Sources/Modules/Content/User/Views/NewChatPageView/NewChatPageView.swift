@@ -59,6 +59,12 @@ struct NewChatPageView: View {
                         .dropFirst()
                 ) { .isDoneToolbarButtonEnabledChanged($0) }
                 .observing(
+                    SharedState(\.isNewChatPagePenPalsToolbarButtonEnabled)
+                        .projectedValue
+                        .changes
+                        .dropFirst()
+                ) { .isPenPalsToolbarButtonEnabledChanged($0) }
+                .observing(
                     SharedEvent(\.newChatPagePenPalsToolbarButtonAnimation)
                         .wrappedValue
                         .events
@@ -146,7 +152,7 @@ struct NewChatPageView: View {
     private func preV26Layout(_ content: some View) -> some View {
         content
             .header(
-                leftItem: viewModel.shouldShowPenPalsToolbarButton ? headerLeftItem : nil,
+                leftItem: viewModel.showsPenPalsToolbarButton ? headerLeftItem : nil,
                 headerCenterItem,
                 rightItem: headerRightItem,
                 attributes: .init(
@@ -182,7 +188,7 @@ struct NewChatPageView: View {
 
                 content
                     .toolbar {
-                        if viewModel.shouldShowPenPalsToolbarButton {
+                        if viewModel.showsPenPalsToolbarButton {
                             penPalsToolbarButton
                         }
                     }
