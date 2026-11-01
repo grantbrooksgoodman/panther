@@ -167,7 +167,7 @@ final class ReactionSessionService {
             ofReaction: reaction,
             message: message,
             conversationIDKey: conversation.id.key,
-            isPenPalsConversation: conversation.metadata.isPenPalsConversation
+            penPalsSharingData: conversation.activePenPalsSharingData
         )
     }
 

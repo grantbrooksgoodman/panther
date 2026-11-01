@@ -36,6 +36,10 @@ final class RecipientBarContactSelectionUIService {
 
     // MARK: - Properties
 
+    /// The identifiers of the users among the selected recipients
+    /// who were chosen as pen pals.
+    private(set) var penPalsUserIDs = Set<String>()
+
     /// The contact pairs currently selected as recipients.
     private(set) var selectedContactPairs = [ContactPair]()
 
@@ -67,6 +71,10 @@ final class RecipientBarContactSelectionUIService {
     ///
     /// - Parameter contactHash: The identifier of the recipient's view.
     func deselectContactPair(withViewID contactHash: String) {
+        for contactPair in selectedContactPairs where contactPair.contact.encodedHash == contactHash {
+            penPalsUserIDs.subtract(contactPair.userIDs)
+        }
+
         selectedContactPairs.removeAll(where: { $0.contact.encodedHash == contactHash })
         for contactView in contactViews where contactView.identifier == contactHash {
             contactView.removeFromSuperview()
@@ -110,9 +118,12 @@ final class RecipientBarContactSelectionUIService {
     ///   - contactPair: The contact pair to add as a recipient.
     ///   - performInputBarFix: A Boolean value that determines whether to force the input bar to
     ///     reappear after adding the recipient.
+    ///   - isPenPal: A Boolean value that indicates whether the
+    ///     recipient was chosen as a pen pal. The default is `false`.
     func selectContactPair(
         _ contactPair: ContactPair,
-        performInputBarFix: Bool = false
+        performInputBarFix: Bool = false,
+        isPenPal: Bool = false
     ) {
         guard !contactPair.containsBlockedUser else {
             Logger.log(
@@ -212,6 +223,10 @@ final class RecipientBarContactSelectionUIService {
         deselectMockContactPairs()
 
         selectedContactPairs.append(contactPair)
+        if isPenPal {
+            penPalsUserIDs.formUnion(contactPair.userIDs)
+        }
+
         defer { addSubview() }
         guard let furthestTrailingView = configService.firstContactView(.furthestTrailing(onSublevel: nil)) else { return }
 

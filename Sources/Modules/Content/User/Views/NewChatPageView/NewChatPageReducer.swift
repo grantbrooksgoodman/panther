@@ -184,7 +184,8 @@ struct NewChatPageReducer: Reducer {
                 .withUser(
                     user,
                     name: user.penPalsName
-                )
+                ),
+                isPenPal: true
             )
 
             guard recipientBarService?

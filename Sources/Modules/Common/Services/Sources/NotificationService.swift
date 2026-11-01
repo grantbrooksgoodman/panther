@@ -96,9 +96,12 @@ struct NotificationService {
     ///     titled with ChatGPT's name in place of its phone number.
     ///     The default is `nil`.
     ///   - conversationIDKey: The identifier key of the conversation containing the message.
-    ///   - isPenPalsConversation: A Boolean value that indicates whether the conversation is a
-    ///     PenPals conversation, in which case notification titles use a PenPals display
-    ///     name in place of the sender's phone number.
+    ///   - penPalsSharingData: The conversation's PenPals sharing
+    ///     records, or `nil` if the conversation is not a PenPals
+    ///     conversation. In a PenPals conversation, a recipient's
+    ///     notification title uses a PenPals display name in place of
+    ///     the sender's phone number unless the sender shares their
+    ///     data with that recipient.
     ///
     /// - Throws: An `Exception` if no sender is given and the current
     ///   user has not been set, or if delivery fails.
@@ -108,7 +111,7 @@ struct NotificationService {
         message: Message,
         from sender: User? = nil,
         conversationIDKey: String,
-        isPenPalsConversation: Bool
+        penPalsSharingData: [PenPalsSharingData]?
     ) async throws(Exception) {
         guard let sender = sender ?? clientSession.entity.user.currentUser else {
             throw Exception(
@@ -124,13 +127,23 @@ struct NotificationService {
             sender.phoneNumber.formattedString()
         }
 
+        let senderSharesDataWithUserIDs = Set(
+            penPalsSharingData?.first(where: { $0.userID == sender.id })?.sharesDataWithUserIDs ?? []
+        )
+
+        func title(for user: User) -> String {
+            guard penPalsSharingData != nil,
+                  !senderSharesDataWithUserIDs.contains(user.id) else { return senderTitle }
+            return penPalsName(for: user)
+        }
+
         guard let reaction else {
             try await users.forEachConcurrently { user throws(Exception) in
                 do throws(Exception) {
                     try await self.notify(
                         user,
                         from: sender,
-                        title: isPenPalsConversation ? self.penPalsName(for: user) : senderTitle,
+                        title: title(for: user),
                         body: self.notificationBody(
                             for: message,
                             user: user
@@ -156,7 +169,7 @@ struct NotificationService {
 
             let reactionSuffix = "\(reactedString) \(reaction.style.emojiValue)"
 
-            let titlePrefix = isPenPalsConversation ? penPalsName(for: user) : senderTitle
+            let titlePrefix = title(for: user)
             var body = notificationBody(
                 for: message,
                 user: user

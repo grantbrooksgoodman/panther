@@ -18,6 +18,15 @@ extension Conversation {
 
     private typealias MetadataKey = ConversationMetadata.SerializableKey
 
+    // MARK: - Properties
+
+    /// The PenPals sharing records in effect for the conversation,
+    /// or `nil` when the conversation is not a PenPals conversation.
+    var activePenPalsSharingData: [PenPalsSharingData]? {
+        guard metadata.isPenPalsConversation else { return nil }
+        return metadata.penPalsSharingData
+    }
+
     // MARK: - Methods
 
     /// Atomically adds the given user's consent acknowledgement and

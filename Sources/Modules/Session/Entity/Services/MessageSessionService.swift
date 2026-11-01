@@ -488,8 +488,7 @@ struct MessageSessionService {
 
         func notifyUsers(
             of message: Message,
-            conversationIDKey: String,
-            isPenPalsConversation: Bool
+            in conversation: Conversation
         ) {
             Task.background {
                 do throws(Exception) {
@@ -499,8 +498,8 @@ struct MessageSessionService {
                         },
                         message: message,
                         from: initiatingUser,
-                        conversationIDKey: conversationIDKey,
-                        isPenPalsConversation: isPenPalsConversation
+                        conversationIDKey: conversation.id.key,
+                        penPalsSharingData: conversation.activePenPalsSharingData
                     )
                 } catch {
                     Logger.log(
@@ -532,8 +531,7 @@ struct MessageSessionService {
         if let conversation = conversation.value {
             notifyUsers(
                 of: message,
-                conversationIDKey: conversation.id.key,
-                isPenPalsConversation: conversation.metadata.isPenPalsConversation
+                in: conversation
             )
 
             // Participant un-delete is merged into the
@@ -564,8 +562,7 @@ struct MessageSessionService {
 
             notifyUsers(
                 of: message,
-                conversationIDKey: createdConversation.id.key,
-                isPenPalsConversation: createdConversation.metadata.isPenPalsConversation
+                in: createdConversation
             )
 
             requestChatGPTReply(

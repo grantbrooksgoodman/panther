@@ -71,8 +71,7 @@ final class MessageDeliveryService {
     }
 
     private var isPenPalsConversation: Bool {
-        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
-        (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName)) ||
+        !(chatPageViewService.recipientBar?.contactSelectionUI.penPalsUserIDs.isEmpty ?? true) ||
             conversation?.metadata.isPenPalsConversation == true
     }
 
