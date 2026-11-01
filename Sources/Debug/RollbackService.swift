@@ -149,7 +149,7 @@ struct RollbackService {
         .reduce(
             into: [Date: String]()
         ) { partialResult, filePath in
-            let fileName = filePath.lastPathComponent
+            let fileName = filePath.fileStem
             if let date = timestampDateFormatter.date(
                 from: fileName
             ) {
@@ -244,14 +244,4 @@ extension DependencyValues {
 
 extension LoggerDomain {
     static let rollbackService = LoggerDomain("rollbackService")
-}
-
-private extension String {
-    // TODO: Audit the "?? self".
-    var lastPathComponent: String {
-        components(separatedBy: "/")
-            .last?
-            .components(separatedBy: ".")
-            .first ?? self
-    }
 }

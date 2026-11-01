@@ -554,11 +554,12 @@ struct ChatInfoPageReducer: Reducer {
             }
 
         case .penPalsSharingDataSwitchToggledOn:
-            guard let otherUser = state.conversation?.users?.first else { return .none }
+            guard let conversation = state.conversation,
+                  let otherUser = conversation.users?.first else { return .none }
             return .task {
                 let result = await viewService.presentPenPalsSharingDataConfirmationActionSheet(
                     otherUser.id,
-                    displayName: otherUser.penPalsName
+                    displayName: conversation.displayName(for: otherUser)
                 )
                 return .penPalsSharingDataConfirmationActionSheetDismissed(result)
             }

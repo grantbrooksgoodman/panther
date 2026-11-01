@@ -47,7 +47,6 @@ extension PersistentStorageKey {
     enum ContactPairArchiveServiceStorageKey: String {
         case contactPairArchive
         case lastContactSyncDate
-        case unknownContactPairArchive
     }
 
     /// The persistent storage keys scoped to ``MessageRetranslationService``.

@@ -113,11 +113,27 @@ private extension UICacheInvalidationService {
             let idKeys = pendingConversationIDKeys
             pendingConversationIDKeys = []
 
+            var affectedUserIDs = Set<String>()
+            var isMissingConversation = false
+
             for idKey in idKeys {
                 ConversationCellViewDataCache.removeValues(
                     forConversationIDKey: idKey
                 )
+
+                guard let conversation = clientSession.store.conversations[idKey] else {
+                    isMissingConversation = true
+                    continue
+                }
+
+                affectedUserIDs.formUnion(conversation.participants.map(\.userID))
             }
+
+            guard !isMissingConversation else {
+                return UserDisplayNameCache.clearCache()
+            }
+
+            UserDisplayNameCache.removeValues(forUserIDs: affectedUserIDs)
         }
 
         Task.debounced(

@@ -219,14 +219,6 @@ extension [Participant] {
 }
 
 extension [PenPalsSharingData] {
-    /// A Boolean value that indicates whether every other participant shares their PenPals data
-    /// with the current user.
-    var allShareWithCurrentUser: Bool {
-        guard let firstWithCurrentUserID else { return false }
-        return filter { $0.userID != firstWithCurrentUserID.userID }
-            .allSatisfy { Set($0.sharesDataWithUserIDs ?? []).contains(firstWithCurrentUserID.userID) }
-    }
-
     /// A Boolean value that indicates whether every participant shares their PenPals data with
     /// every other participant.
     var allShareWithEachOther: Bool {

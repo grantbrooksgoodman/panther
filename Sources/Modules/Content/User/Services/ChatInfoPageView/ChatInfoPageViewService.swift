@@ -96,12 +96,14 @@ final class ChatInfoPageViewService {
     ///
     /// Each participant combines their user record with a matching
     /// device contact, when one exists; ChatGPT appears under its name
-    /// as an unknown contact. In PenPals conversations, participants
-    /// who have not shared their data with the current user – and are
-    /// not otherwise known to them – appear under their obfuscated
-    /// PenPals names without contact information. Results outside
-    /// PenPals conversations are cached in memory per user, and
-    /// uncached participants resolve in parallel.
+    /// as an unknown contact. In a PenPals conversation, a
+    /// participant's identity is visible to the current user only if
+    /// the participant shares their data with the current user or is
+    /// known to them; participants whose identity is not visible
+    /// appear under their obfuscated PenPals names without contact
+    /// information. Results outside PenPals conversations are cached
+    /// in memory per user, and uncached participants resolve in
+    /// parallel.
     ///
     /// - Returns: The participants, sorted by display name – names beginning with a letter
     ///   first.
@@ -169,10 +171,7 @@ final class ChatInfoPageViewService {
 
                 var chatParticipant: ChatParticipant?
 
-                if !isPenPalsConversation
-                    || conversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user)
-                    || currentUserDoesNotShareDataButOtherUserDoes
-                    || penPalsService.isKnownToCurrentUser(user.id) {
+                if conversation.isIdentityVisibleToCurrentUser(user) {
                     let isPenPal = !conversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user) &&
                         !penPalsService.isKnownToCurrentUser(user.id)
 
@@ -220,10 +219,11 @@ final class ChatInfoPageViewService {
                         )
                     }
                 } else {
+                    let obfuscatedName = conversation.displayName(for: user)
                     chatParticipant = .init(
-                        displayName: user.penPalsName,
+                        displayName: obfuscatedName,
                         cnContactContainer: nil,
-                        contactPair: .withUser(user, name: user.penPalsName),
+                        contactPair: .withUser(user, name: obfuscatedName),
                         penPalsStatus: currentUserSharesData ? .currentUserSharesData : .currentUserDoesNotShareData
                     )
                 }

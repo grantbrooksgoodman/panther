@@ -15,9 +15,11 @@ import Networking
 
 /// Use ``PenPalsService`` to manage the PenPals feature.
 ///
-/// PenPals pairs the user with participants who speak other languages. A participant's
-/// identity remains obfuscated in a PenPals conversation until they share their data with the
-/// other participants.
+/// PenPals pairs the user with participants who speak other
+/// languages. In a PenPals conversation, a participant's identity is
+/// visible to the current user only if the participant shares their
+/// data with the current user or is known to them; otherwise, the
+/// participant appears under their obfuscated PenPals name.
 struct PenPalsService {
     // MARK: - Dependencies
 
@@ -182,6 +184,7 @@ struct PenPalsService {
 
         guard let randomPenPalsParticipant = users
             .filter(\.isPenPalsParticipant)
+            .filter({ !$0.deviceID.hasPrefix("and_") })
             .filter({ $0.languageCode != userSession.currentUser?.languageCode })
             .filter({ !(userSession.currentUser?.blockedUserIDs?.contains($0.id) ?? false) })
             .filter({ candidate in

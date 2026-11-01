@@ -24,7 +24,7 @@ struct LanguageModelLoggerDelegate: LanguageModelLogDelegate {
                         "Message": entry.message,
                     ],
                     metadata: .init(
-                        sender: self,
+                        sender: entry.fileName.fileStem,
                         fileName: entry.fileName,
                         function: entry.function,
                         line: entry.line
@@ -39,7 +39,7 @@ struct LanguageModelLoggerDelegate: LanguageModelLogDelegate {
                     entry.message,
                     userInfo: ["Category": entry.category],
                     metadata: .init(
-                        sender: self,
+                        sender: entry.fileName.fileStem,
                         fileName: entry.fileName,
                         function: entry.function,
                         line: entry.line
@@ -51,10 +51,10 @@ struct LanguageModelLoggerDelegate: LanguageModelLogDelegate {
         }
 
         Logger.log(
-            "[\(entry.level.rawValue.uppercased()) | \(entry.category)] \(entry.message)",
+            "[\(entry.category.uppercased())/\(entry.level.rawValue.uppercased())] \(entry.message)",
             domain: .languageModels,
             with: entry.showsToast ? .toast : nil,
-            sender: self,
+            sender: entry.fileName.fileStem,
             fileName: entry.fileName,
             function: entry.function,
             line: entry.line

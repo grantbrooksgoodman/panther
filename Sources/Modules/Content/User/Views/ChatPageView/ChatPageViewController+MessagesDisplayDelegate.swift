@@ -77,7 +77,6 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
         in messagesCollectionView: MessagesCollectionView
     ) {
         @Dependency(\.clientSession) var clientSession: ClientSession
-        @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
 
         guard let message = message as? Message,
               Application.isInPrevaricationMode || !message.isFromCurrentUser else { return }
@@ -108,7 +107,8 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
             avatarView.tintColor = penPalsIconColor
         }
 
-        guard let users = currentConversation?.users,
+        guard let currentConversation,
+              let users = currentConversation.users,
               let currentUser = clientSession.entity.user.currentUser,
               let matchingUser = (users + [currentUser])
               .first(where: {
@@ -117,8 +117,7 @@ extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
             return configureGenericAvatar()
         }
 
-        guard clientSession.entity.conversation.currentConversation?.mutuallySharedPenPalsDataBetweenCurrentUserAnd(matchingUser) == true ||
-            penPalsService.isKnownToCurrentUser(matchingUser.id) else {
+        guard currentConversation.isIdentityVisibleToCurrentUser(matchingUser) else {
             return configurePenPalsAvatar()
         }
 

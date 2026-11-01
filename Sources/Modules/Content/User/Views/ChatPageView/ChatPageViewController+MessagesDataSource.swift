@@ -245,7 +245,6 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
-        @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
         @Dependency(\.clientSession.store) var sessionStore: SessionStore
 
         guard let currentConversation,
@@ -279,17 +278,10 @@ extension ChatPageViewController: @MainActor MessagesDataSource {
         }
 
         let prefix = "\((!Application.isInPrevaricationMode && ThemeService.isAppDefaultThemeApplied) ? "   " : "")"
-        guard currentConversation.userSharesPenPalsDataWithCurrentUser(matchingUser) ||
-            penPalsService.isKnownToCurrentUser(matchingUser.id) else {
-            return .init(string: "\(prefix)\(matchingUser.penPalsName)", attributes: attributes)
-        }
-
-        let contactName = matchingUser
-            .contactPair?
-            .contact
-            .fullName ?? matchingUser.phoneNumber.formattedString()
-
-        return .init(string: "\(prefix)\(contactName)", attributes: attributes)
+        return .init(
+            string: "\(prefix)\(currentConversation.displayName(for: matchingUser))",
+            attributes: attributes
+        )
     }
 
     // MARK: - Number of Sections

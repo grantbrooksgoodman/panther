@@ -52,10 +52,13 @@ final class ConnectionStatusService {
 
         // `Reachability` is created with its default notification queue,
         // the main queue, so the observer runs on the main actor already
-        // and asserts that rather than hopping to it.
+        // and asserts that rather than hopping to it. Only this instance
+        // is observed, so notifications posted by other `Reachability`
+        // instances do not run the effects a second time.
         notificationCenter.addObserver(
             self,
-            name: .reachabilityChanged
+            name: .reachabilityChanged,
+            object: reachability.wrappedValue
         ) { _ in
             MainActor.assumeIsolated {
                 self.reachabilityDidChange()

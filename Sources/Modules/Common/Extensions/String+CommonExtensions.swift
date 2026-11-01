@@ -16,6 +16,26 @@ import Translator
 extension String {
     // MARK: - Properties
 
+    /// The last path component of the string, without its path
+    /// extension.
+    ///
+    /// Use this property to derive a file's base name from a file
+    /// system path, such as the value of `#fileID`:
+    ///
+    /// ```swift
+    /// let stem = "Panther/String+CommonExtensions.swift".fileStem
+    /// // stem == "String+CommonExtensions"
+    /// ```
+    ///
+    /// - Note: This property removes only the final path extension.
+    ///   For example, `"archive.tar.gz".fileStem` returns
+    ///   `"archive.tar"`.
+    var fileStem: String {
+        URL(
+            fileURLWithPath: self
+        ).deletingPathExtension().lastPathComponent
+    }
+
     /// A localized representation of the string, resolved from the translation archive.
     ///
     /// This property looks up an archived translation of the string targeting the system

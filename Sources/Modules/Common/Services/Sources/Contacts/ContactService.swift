@@ -61,8 +61,7 @@ final class ContactService: @unchecked Sendable {
     ///
     /// This method fetches all registered users, queries the device's contact store for
     /// contacts matching their phone numbers, and replaces the archive's contents with the
-    /// results. Users without a matching device contact are persisted separately to the unknown
-    /// contact pair archive. Related caches are cleared before the archive is repopulated.
+    /// results. Related caches are cleared before the archive is repopulated.
     ///
     /// If no device contact matches any registered user, this method returns without modifying
     /// the archive.
@@ -86,30 +85,18 @@ final class ContactService: @unchecked Sendable {
 
     private func _syncContactPairArchive() async throws(Exception) {
         do {
-            let users = try await userService.getAllUsers()
             let contactPairs = try await fetchContactPairs(
-                for: users
+                for: userService.getAllUsers()
             )
 
             coreUtilities.clearCaches([
                 .conversationCellViewData,
                 .queriedContactPairs,
+                .userDisplayName,
             ])
 
             services.contact.contactPairArchive.clearArchive()
-
-            @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
             services.contact.contactPairArchive.addValues(contactPairs)
-
-            let contactPairUserIDs = contactPairs.userIDs
-            unknownContactPairArchive = users
-                .filter { !contactPairUserIDs.contains($0.id) }
-                .map {
-                    ContactPair.withUser(
-                        $0,
-                        name: $0.displayName
-                    )
-                }
 
             Logger.log(
                 "Successfully updated contact pair archive.",

@@ -18,6 +18,7 @@ import Networking
 struct ActivitySessionService {
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Add User to Conversation
@@ -89,6 +90,9 @@ struct ActivitySessionService {
         ].joined(separator: "/")
 
         try await networking.database.commit([path: conversationID.hash])
+        coreUtilities.clearCaches([
+            .messageBackgroundColor,
+        ])
     }
 
     // MARK: - Remove User from Conversation
@@ -149,5 +153,9 @@ struct ActivitySessionService {
                 conversationIDKey: updatedConversation.id.key
             )
         }
+
+        coreUtilities.clearCaches([
+            .messageBackgroundColor,
+        ])
     }
 }

@@ -105,7 +105,8 @@ struct ConversationCellViewData: Equatable {
     ///
     /// The title comes from the conversation's name, the participants' contact names, or a
     /// participant's phone number; PenPals conversations use obfuscated PenPals names and the
-    /// PenPals icon until participants share their data. The subtitle and date describe the
+    /// PenPals icon until every other participant's identity is visible to the current user.
+    /// The subtitle and date describe the
     /// latest message or activity – with an active search query, the most recent matching
     /// message instead. The unread indicator reflects whether the current user has read the
     /// latest message from other users.
@@ -181,9 +182,9 @@ struct ConversationCellViewData: Equatable {
             thumbnailImage = conversation.metadata.image ?? thumbnailImage
         }
 
-        if conversation.metadata.isPenPalsConversation {
-            let penPalsName = otherUser?.penPalsName ?? "PenPal\((conversation.users?.count ?? 0) > 1 ? "s" : "")"
-            titleLabelText = conversation.metadata.penPalsSharingData.allShareWithCurrentUser ? titleLabelText : penPalsName
+        if conversation.metadata.isPenPalsConversation,
+           !conversation.allOtherParticipantIdentitiesVisible {
+            titleLabelText = otherUser?.penPalsName ?? "PenPal\((conversation.users?.count ?? 0) > 1 ? "s" : "")"
             thumbnailImage = SquareIconView.image(
                 .penPalsIcon(
                     backgroundColor: otherUser?.penPalsIconColor.swiftUIColor ?? .purple

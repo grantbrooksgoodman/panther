@@ -146,6 +146,7 @@
 		B903CA6A2B6C194900A238A4 /* ChatPageStateServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B903CA692B6C194900A238A4 /* ChatPageStateServiceDependency.swift */; };
 		B903CA6C2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B903CA6B2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift */; };
 		B903CA6E2B6C2DA300A238A4 /* Array+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B903CA6D2B6C2DA300A238A4 /* Array+UserContentExtensions.swift */; };
+		B9F1A0C22F2A000100C0FFEE /* Conversation+PenPalsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F1A0C12F2A000100C0FFEE /* Conversation+PenPalsExtensions.swift */; };
 		B903CA702B6C2DD500A238A4 /* Conversation+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B903CA6F2B6C2DD500A238A4 /* Conversation+UserContentExtensions.swift */; };
 		B903CA742B6C2F3500A238A4 /* InputBarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B903CA732B6C2F3500A238A4 /* InputBarService.swift */; };
 		B906C0102C4709B700F414DA /* ModerationSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B906C00F2C4709B700F414DA /* ModerationSessionService.swift */; };
@@ -946,6 +947,7 @@
 		B903CA692B6C194900A238A4 /* ChatPageStateServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageStateServiceDependency.swift; sourceTree = "<group>"; };
 		B903CA6B2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageStateServiceEffectID.swift; sourceTree = "<group>"; };
 		B903CA6D2B6C2DA300A238A4 /* Array+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B9F1A0C12F2A000100C0FFEE /* Conversation+PenPalsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Conversation+PenPalsExtensions.swift"; sourceTree = "<group>"; };
 		B903CA6F2B6C2DD500A238A4 /* Conversation+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Conversation+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B903CA732B6C2F3500A238A4 /* InputBarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarService.swift; sourceTree = "<group>"; };
 		B906C00F2C4709B700F414DA /* ModerationSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModerationSessionService.swift; sourceTree = "<group>"; };
@@ -3540,6 +3542,7 @@
 				B9931B2E2B8D8D730042E07D /* Contact+UserContentExtensions.swift */,
 				B90071EE2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift */,
 				B96EDD922B6364A100CB925B /* ContactService+UserContentExtensions.swift */,
+				B9F1A0C12F2A000100C0FFEE /* Conversation+PenPalsExtensions.swift */,
 				B903CA6F2B6C2DD500A238A4 /* Conversation+UserContentExtensions.swift */,
 				B95924872E7E0A8000A31883 /* ConversationsPageView+UserContentExtensions.swift */,
 				B9870AA72C4580D4002B1093 /* Data+UserContentExtensions.swift */,
@@ -4458,6 +4461,7 @@
 				B903CA682B6C189400A238A4 /* ChatPageStateService.swift in Sources */,
 				B903CA6E2B6C2DA300A238A4 /* Array+UserContentExtensions.swift in Sources */,
 				B93904BA2DD2977200E82C03 /* DocumentExportService.swift in Sources */,
+				B9F1A0C22F2A000100C0FFEE /* Conversation+PenPalsExtensions.swift in Sources */,
 				B903CA702B6C2DD500A238A4 /* Conversation+UserContentExtensions.swift in Sources */,
 				B99C69322C2A063F00BA373F /* BatchFailureStrategy.swift in Sources */,
 				B955F76F2B3FCE04001D74FC /* CoreKit+CommonExtensions.swift in Sources */,

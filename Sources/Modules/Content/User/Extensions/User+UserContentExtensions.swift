@@ -29,9 +29,16 @@ extension User {
 
     /// The user's display name.
     ///
-    /// Resolves to the user's obfuscated PenPals name while their identity is obfuscated, their
-    /// contact's full name when known, or their formatted phone number otherwise. Results are
-    /// cached in memory per user.
+    /// Resolves to the user's obfuscated PenPals name while their
+    /// identity is not visible to the current user in any of the
+    /// current user's visible PenPals conversations, their contact's
+    /// full name when known, or their formatted phone number
+    /// otherwise. In a PenPals conversation, a participant's identity
+    /// is visible to the current user only if the participant shares
+    /// their data with the current user or is known to them. Results
+    /// are cached in memory per user.
+    ///
+    /// - SeeAlso: ``Conversation/displayName(for:)``
     var displayName: String {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
 

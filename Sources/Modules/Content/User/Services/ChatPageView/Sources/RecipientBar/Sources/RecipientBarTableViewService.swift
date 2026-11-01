@@ -114,19 +114,11 @@ final class RecipientBarTableViewService {
                 var unknownUsers = [User]()
 
                 for conversation in visibleConversations {
-                    if conversation.metadata.isPenPalsConversation {
-                        let sharingIDs = Set(
-                            (conversation.participantsSharingPenPalsDataWithCurrentUser ?? []).map(\.userID)
-                        )
-
-                        obfuscatedUserIDs.formUnion(
-                            conversation
-                                .participants
-                                .lazy
-                                .map(\.userID)
-                                .filter { !sharingIDs.contains($0) }
-                        )
-                    }
+                    obfuscatedUserIDs.formUnion(
+                        (conversation.users ?? [])
+                            .filter { !conversation.isIdentityVisibleToCurrentUser($0) }
+                            .map(\.id)
+                    )
 
                     unknownUsers += conversation
                         .users?

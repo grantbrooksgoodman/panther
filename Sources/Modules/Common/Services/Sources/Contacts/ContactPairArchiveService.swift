@@ -63,8 +63,8 @@ final class ContactPairArchiveService {
     /// Adds the given contact pairs to the archive.
     ///
     /// Pairs already present in the archive are skipped; otherwise, any existing pair for the
-    /// same contact identifier is replaced. Adding values clears the contact image cache and
-    /// notifies observers that the archive changed.
+    /// same contact identifier is replaced. Adding values clears the contact image and user
+    /// display name caches and notifies observers that the archive changed.
     ///
     /// - Parameter contactPairs: The contact pairs to add.
     func addValues(_ contactPairs: [ContactPair]) {
@@ -91,7 +91,11 @@ final class ContactPairArchiveService {
         archive = values
         cachedContactPairsForPhoneNumbers = cachedContactPairsForPhoneNumbers?.filter { !contactPairs.contains($0.value) }
 
-        coreUtilities.clearCaches([.contactImage])
+        coreUtilities.clearCaches([
+            .contactImage,
+            .userDisplayName,
+        ])
+
         updatedContactPairArchive.send()
     }
 
@@ -99,11 +103,15 @@ final class ContactPairArchiveService {
 
     /// Removes every contact pair from the archive.
     ///
-    /// Clearing the archive also clears the contact image cache. Observers are not notified.
+    /// Clearing the archive also clears the contact image and user display name caches.
+    /// Observers are not notified.
     func clearArchive() {
         archive = []
         cachedContactPairsForPhoneNumbers = nil
-        coreUtilities.clearCaches([.contactImage])
+        coreUtilities.clearCaches([
+            .contactImage,
+            .userDisplayName,
+        ])
     }
 
     // MARK: - Retrieval
