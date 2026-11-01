@@ -17,6 +17,7 @@ extension ChatPageViewService {
 
     private enum TaskID: String {
         case chatPageReload
+        case navigationTitleRefresh
     }
 
     // MARK: - Handle Session Store Change
@@ -26,7 +27,9 @@ extension ChatPageViewService {
     ///
     /// A change is relevant when it upserts the displayed conversation, or when it upserts or
     /// removes any of the conversation's messages. Rapid successive changes are debounced into a
-    /// single reload.
+    /// single reload. When the change upserts the displayed conversation, the navigation title
+    /// is also refreshed from the conversation's latest values, unless the recipient bar is
+    /// shown.
     ///
     /// - Parameter change: The session store change to process.
     func handleSessionStoreChange(_ change: SessionStoreChange) {
@@ -48,6 +51,9 @@ extension ChatPageViewService {
 
         guard shouldReload else { return }
         debounceReloadCollectionView()
+
+        guard case .conversations = change else { return }
+        debounceRefreshNavigationTitle(for: currentConversation)
     }
 
     // MARK: - Handle Outbox Change
@@ -60,6 +66,23 @@ extension ChatPageViewService {
     }
 
     // MARK: - Auxiliary
+
+    private func debounceRefreshNavigationTitle(
+        for conversation: Conversation
+    ) {
+        Task.debounced(
+            "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.navigationTitleRefresh.rawValue)",
+            delay: .milliseconds(250)
+        ) { @MainActor [weak self] in
+            guard let self,
+                  recipientBar?.layout.recipientBarView == nil,
+                  let navigationTitle = ConversationCellViewData(
+                      conversation,
+                      useCachedValue: false
+                  )?.titleLabelText else { return }
+            setNavigationTitle(navigationTitle)
+        }
+    }
 
     private func debounceReloadCollectionView() {
         Task.debounced(

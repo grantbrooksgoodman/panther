@@ -74,6 +74,11 @@ struct ChatInfoPageView: View {
                         .wrappedValue
                         .events
                 ) { _ in .currentConversationMetadataChanged }
+                .observing(
+                    SharedEvent(\.sessionStoreDidChange)
+                        .wrappedValue
+                        .events
+                ) { .sessionStoreDidChange($0) }
         )
     }
 

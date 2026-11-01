@@ -37,9 +37,18 @@ import Networking
 /// - Changing the conversation's name or photo, adding or removing a participant, and sharing
 ///   PenPals data are performed through ``ChatInfoPageViewService``. When metadata changes, the
 ///   page reloads the chat, updates its navigation title, and notifies observers of the change.
+/// - The page observes session store changes and reloads its participant list when the current
+///   conversation is upserted, so sharing changes made by other participants appear without
+///   reopening the page.
 /// - Because the page mirrors state that lives outside it, several actions regenerate a view's
 ///   identity to force it to rebuild from the latest values.
 struct ChatInfoPageReducer: Reducer {
+    // MARK: - Types
+
+    private enum TaskID: String {
+        case getChatParticipants
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
@@ -151,6 +160,11 @@ struct ChatInfoPageReducer: Reducer {
         /// chosen image. Applies it as the conversation's photo.
         case selectedImageChanged(UIImage)
 
+        /// An action that indicates the session store changed, carrying the change. Reloads
+        /// the participant list after a short delay when the change upserts the current
+        /// conversation.
+        case sessionStoreDidChange(SessionStoreChange)
+
         /// An action that indicates the trait collection changed.
         case traitCollectionChanged
 
@@ -160,9 +174,15 @@ struct ChatInfoPageReducer: Reducer {
         /// An action that indicates a metadata update finished. Reloads the chat, updates the
         /// navigation title, and notifies observers of the change.
         ///
-        /// - Parameter togglePenPalsSharingDataSwitch: A Boolean value that indicates whether the
-        ///   PenPals data-sharing switch should appear toggled on afterward.
-        case updateMetadataReturned(togglePenPalsSharingDataSwitch: Bool = false)
+        /// - Parameters:
+        ///   - togglePenPalsSharingDataSwitch: A Boolean value that indicates whether the
+        ///     PenPals data-sharing switch should appear toggled on afterward.
+        ///   - reloadsChatParticipants: A Boolean value that indicates whether the participant
+        ///     list is reloaded afterward.
+        case updateMetadataReturned(
+            togglePenPalsSharingDataSwitch: Bool = false,
+            reloadsChatParticipants: Bool = false
+        )
 
         /// An action that indicates the user tapped a participant's info badge, carrying the
         /// user. Presents that user's info alert.
@@ -525,7 +545,8 @@ struct ChatInfoPageReducer: Reducer {
                     )
 
                     return .updateMetadataReturned(
-                        togglePenPalsSharingDataSwitch: true
+                        togglePenPalsSharingDataSwitch: true,
+                        reloadsChatParticipants: conversation.metadata.isPenPalsConversation
                     )
                 } catch {
                     return .updateMetadataFailed(error)
@@ -597,6 +618,16 @@ struct ChatInfoPageReducer: Reducer {
         case let .segmentedControlSelectionIndexChanged(segmentedControlSelectionIndex):
             state.segmentedControlSelectionIndex = segmentedControlSelectionIndex
 
+        case let .sessionStoreDidChange(change):
+            guard case let .conversations(upsertedIDKeys, _) = change,
+                  state.viewState == .loaded,
+                  let conversation = state.conversation,
+                  upsertedIDKeys.contains(conversation.id.key) else { return .none }
+            return getChatParticipantsEffect(
+                for: conversation,
+                delay: .milliseconds(250)
+            )
+
         case let .selectedImageChanged(image):
             guard let conversation = state.conversation,
                   let imageData = image.dataCompressed(toKB: 100) else {
@@ -633,9 +664,7 @@ struct ChatInfoPageReducer: Reducer {
 
             state.isChangeMetadataButtonEnabled = true
 
-        case let .updateMetadataReturned(togglePenPalsDataSharingSwitch):
-            let oldConversationIsPenPalsConversation = state.conversation?.metadata.isPenPalsConversation == true
-
+        case let .updateMetadataReturned(togglePenPalsDataSharingSwitch, reloadsChatParticipants):
             chatPageViewService.reloadCollectionView() // TODO: Audit why this didn't seem necessary before, but is now.
             currentConversationMetadataChanged.send()
 
@@ -647,16 +676,12 @@ struct ChatInfoPageReducer: Reducer {
             state.isPenPalsSharingDataSwitchToggled = togglePenPalsDataSharingSwitch
             state.viewID = UUID()
 
-            guard oldConversationIsPenPalsConversation else { return .none }
-            return .task {
-                do throws(Exception) {
-                    return try await .getChatParticipantsReturned(
-                        viewService.getChatParticipants()
-                    )
-                } catch {
-                    return .getChatParticipantsFailed(error)
-                }
-            }
+            guard reloadsChatParticipants,
+                  let conversation = state.conversation else { return .none }
+            return getChatParticipantsEffect(
+                for: conversation,
+                delay: .zero
+            )
 
         case let .userInfoBadgeTapped(user):
             guard let user else { return .none }
@@ -668,6 +693,27 @@ struct ChatInfoPageReducer: Reducer {
 
         return .none
     } // swiftlint:enable cyclomatic_complexity function_body_length
+}
+
+private extension ChatInfoPageReducer {
+    func getChatParticipantsEffect(
+        for conversation: Conversation,
+        delay: Duration
+    ) -> Effect<Action> {
+        Effect<Action>.task(delay: delay) {
+            do throws(Exception) {
+                return try await .getChatParticipantsReturned(
+                    viewService.getChatParticipants()
+                )
+            } catch {
+                return .getChatParticipantsFailed(error)
+            }
+        }
+        .cancellable(
+            id: "\(String.fromCurrentEditorContext(sender: self))/\(conversation.id.key)/\(TaskID.getChatParticipants.rawValue)",
+            cancelInFlight: true
+        )
+    }
 }
 
 private extension [TranslationOutputMap] {
