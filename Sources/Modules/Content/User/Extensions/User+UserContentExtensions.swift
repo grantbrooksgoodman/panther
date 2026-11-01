@@ -29,14 +29,15 @@ extension User {
 
     /// The user's display name.
     ///
-    /// Resolves to the user's obfuscated PenPals name while their
-    /// identity is not visible to the current user in any PenPals
-    /// conversation the current user has not deleted, their contact's
-    /// full name when known, or their formatted phone number
-    /// otherwise. In a PenPals conversation, a participant's identity
-    /// is visible to the current user only if the participant shares
-    /// their data with the current user or is known to them. Results
-    /// are cached in memory per user.
+    /// Resolves to the user's obfuscated PenPals name while they
+    /// participate in a PenPals conversation the current user has not
+    /// deleted and their identity is not visible to the current user,
+    /// their contact's full name when known, or their formatted phone
+    /// number otherwise. In a PenPals conversation, a participant's
+    /// identity is visible to the current user only if the
+    /// participant shares their data with the current user in any
+    /// PenPals conversation or is known to them. Results are cached
+    /// in memory per user.
     ///
     /// - SeeAlso: ``Conversation/displayName(for:)``
     var displayName: String {

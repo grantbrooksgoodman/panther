@@ -89,6 +89,13 @@ extension ChatPageViewService {
             "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.chatPageReload.rawValue)",
             delay: .milliseconds(250)
         ) { @MainActor [weak self] in
+            // The current conversation may have been removed from
+            // the store between scheduling and firing (e.g., deleted
+            // remotely). The chat page is being dismissed, so a
+            // reload would size stale messages against no
+            // conversation.
+            @Dependency(\.clientSession.entity.conversation.currentConversation) var currentConversation: Conversation?
+            guard currentConversation != nil else { return }
             self?.reloadCollectionView()
         }
     }

@@ -13,30 +13,15 @@ import Foundation
 import AppSubsystem
 
 extension Conversation {
-    // MARK: - Properties
-
-    /// A Boolean value that indicates whether every other
-    /// participant's identity is visible to the current user.
-    ///
-    /// In a PenPals conversation, a participant's identity is
-    /// visible to the current user only if the participant shares
-    /// their data with the current user or is known to them. Always
-    /// `true` when the conversation is not a PenPals conversation.
-    var allOtherParticipantIdentitiesVisible: Bool {
-        guard metadata.isPenPalsConversation else { return true }
-        return (users ?? []).allSatisfy { isIdentityVisibleToCurrentUser($0) }
-    }
-
-    // MARK: - Methods
-
     /// Returns the name under which the given user appears to the
     /// current user in this conversation.
     ///
     /// Resolves to the user's ``User/displayName`` if their identity
     /// is visible to the current user; otherwise, their obfuscated
     /// ``User/penPalsName``. Use this method to display a user
-    /// within a conversation; ``User/displayName`` resolves across
-    /// every PenPals conversation the current user has not deleted.
+    /// within a conversation; ``User/displayName`` applies the same
+    /// rule to any user, whether or not they participate in a given
+    /// conversation.
     ///
     /// - Parameter user: The user to query.
     ///
@@ -57,9 +42,10 @@ extension Conversation {
     ///
     /// In a PenPals conversation, a participant's identity is
     /// visible to the current user only if the participant shares
-    /// their data with the current user or is known to them. Always
-    /// `true` when the conversation is not a PenPals conversation or
-    /// the given user is not a participant.
+    /// their data with the current user in any PenPals conversation
+    /// or is known to them. Always `true` when the conversation is
+    /// not a PenPals conversation or the given user is not a
+    /// participant.
     ///
     /// - Parameter user: The user to query.
     ///
@@ -72,6 +58,7 @@ extension Conversation {
         guard metadata.isPenPalsConversation,
               participants.map(\.userID).contains(user.id) else { return true }
         return userSharesPenPalsDataWithCurrentUser(user) ||
+            penPalsService.sharesPenPalsDataWithCurrentUser(user) ||
             penPalsService.isKnownToCurrentUser(user.id)
     }
 }

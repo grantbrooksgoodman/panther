@@ -98,19 +98,26 @@ final class ChatInfoPageViewService {
     /// device contact, when one exists; ChatGPT appears under its name
     /// as an unknown contact. In a PenPals conversation, a
     /// participant's identity is visible to the current user only if
-    /// the participant shares their data with the current user or is
-    /// known to them; participants whose identity is not visible
-    /// appear under their obfuscated PenPals names without contact
-    /// information. Results outside PenPals conversations are cached
+    /// the participant shares their data with the current user in any
+    /// PenPals conversation or is known to them; participants whose
+    /// identity is not visible appear under their obfuscated PenPals
+    /// names without contact information. Results outside PenPals
+    /// conversations are cached
     /// in memory per user, and uncached participants resolve in
     /// parallel.
+    ///
+    /// - Parameter resolvesUsersIfNeeded: A Boolean value that
+    ///   indicates whether to resolve the conversation's users and
+    ///   retry once if they are missing. The default is `true`.
     ///
     /// - Returns: The participants, sorted by display name – names beginning with a letter
     ///   first.
     ///
-    /// - Throws: An `Exception` if no current conversation is set, or if participant
-    ///   resolution fails.
-    func getChatParticipants() async throws(Exception) -> [ChatParticipant] {
+    /// - Throws: An `Exception` if no current conversation is set, if the conversation's
+    ///   users cannot be resolved, or if participant resolution fails.
+    func getChatParticipants(
+        resolvesUsersIfNeeded: Bool = true
+    ) async throws(Exception) -> [ChatParticipant] {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
         guard let conversation = clientSession.entity.conversation.currentConversation else {
             throw Exception(
@@ -123,8 +130,15 @@ final class ChatInfoPageViewService {
               !users.isEmpty,
               conversation.participants.count - 1 == users.count else {
             // TODO: Audit this guard. Should never be possible under SSoT + SPoT.
+            guard resolvesUsersIfNeeded else {
+                throw Exception(
+                    "Failed to resolve conversation users.",
+                    metadata: .init(sender: self)
+                )
+            }
+
             try await conversation.resolveUsers(forceUpdate: true)
-            return try await getChatParticipants()
+            return try await getChatParticipants(resolvesUsersIfNeeded: false)
         }
 
         let isPenPalsConversation = conversation.metadata.isPenPalsConversation

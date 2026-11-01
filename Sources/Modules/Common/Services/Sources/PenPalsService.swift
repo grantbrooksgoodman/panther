@@ -18,8 +18,9 @@ import Networking
 /// PenPals pairs the user with participants who speak other
 /// languages. In a PenPals conversation, a participant's identity is
 /// visible to the current user only if the participant shares their
-/// data with the current user or is known to them; otherwise, the
-/// participant appears under their obfuscated PenPals name.
+/// data with the current user in any PenPals conversation or is
+/// known to them; otherwise, the participant appears under their
+/// obfuscated PenPals name.
 struct PenPalsService {
     // MARK: - Dependencies
 
@@ -83,11 +84,30 @@ struct PenPalsService {
     ///
     /// - Returns: `true` if the user participates in one of the
     ///   current user's PenPals conversations without sharing their
-    ///   data; otherwise, `false`.
+    ///   data with the current user in any of them; otherwise,
+    ///   `false`.
     func isObfuscatedPenPalWithCurrentUser(_ user: User) -> Bool {
-        currentUserUndeletedConversations
-            .filter(\.metadata.isPenPalsConversation)
-            .contains(where: { !$0.userSharesPenPalsDataWithCurrentUser(user) })
+        guard !currentUserPenPalsConversations(with: user).isEmpty else { return false }
+        return !sharesPenPalsDataWithCurrentUser(user)
+    }
+
+    // MARK: - Shares PenPals Data with Current User
+
+    /// Returns a Boolean value that indicates whether the given user shares their PenPals data
+    /// with the current user in any of the current user's PenPals conversations.
+    ///
+    /// Conversations the current user has deleted are not
+    /// considered; conversations containing blocked participants
+    /// are.
+    ///
+    /// - Parameter user: The user to check.
+    ///
+    /// - Returns: `true` if the user shares their data with the
+    ///   current user in at least one of the current user's PenPals
+    ///   conversations; otherwise, `false`.
+    func sharesPenPalsDataWithCurrentUser(_ user: User) -> Bool {
+        currentUserPenPalsConversations(with: user)
+            .contains(where: { $0.userSharesPenPalsDataWithCurrentUser(user) })
     }
 
     // MARK: - Update Sharing Data for Known Users
@@ -246,6 +266,12 @@ struct PenPalsService {
     }
 
     // MARK: - Auxiliary
+
+    private func currentUserPenPalsConversations(with user: User) -> [Conversation] {
+        currentUserUndeletedConversations.filter {
+            $0.metadata.isPenPalsConversation && $0.participants.map(\.userID).contains(user.id)
+        }
+    }
 
     private func currentUserConversationUserIDs(
         acrossAllConversations: Bool = false

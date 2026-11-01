@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -121,15 +123,17 @@ extension Message {
     }
 
     /// The attributed string for a system message, combining its date separator and activity
-    /// text, or `nil` if the message is not a system message.
+    /// text, or `nil` if the message is not a system message or its activity cannot be resolved
+    /// from the current conversation.
     @MainActor
     var attributedSystemString: NSAttributedString? {
         typealias Colors = AppConstants.Colors.SystemMessageCell
         typealias Floats = AppConstants.CGFloats.SystemMessageCell
 
-        guard isSystemMessage,
-              let text = systemLocalized.translation?.output,
+        guard let activity = systemActivity,
               let dateString = sentDate.chatPageMessageSeparatorAttributedDateString else { return nil }
+
+        let text = activity.description
 
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
@@ -144,17 +148,25 @@ extension Message {
             )
         )
 
+        // Only attach secondary attributes when the description
+        // contains ⌘-delimited ranges; `StringAttributes` asserts
+        // against an empty `stringRanges` array.
+        let emphasizedRanges = text
+            .matches(of: /⌘(.*?)⌘/)
+            .map { String($0.1) }
+            .filter { !$0.isEmpty }
+
         let activityString = text.sanitized.attributed(.init(
             [
                 .font: UIFont.systemFont(ofSize: Floats.activityStringSystemFontSize),
                 .foregroundColor: Colors.activityStringForeground,
             ],
-            secondaryAttributes: [.init(
+            secondaryAttributes: emphasizedRanges.isEmpty ? nil : [.init(
                 [
                     .font: UIFont.boldSystemFont(ofSize: Floats.activityStringSystemFontSize),
                     .foregroundColor: Colors.activityStringForeground,
                 ],
-                stringRanges: text.matches(of: /⌘(.*?)⌘/).map { String($0.1) }
+                stringRanges: emphasizedRanges
             )]
         ))
 
@@ -299,15 +311,23 @@ extension Message {
         isFailedOutboxMessage || isUndeliveredToChatGPT
     }
 
+    /// The current conversation's activity that this system message represents, or `nil` if the
+    /// message is not a system message or its activity is not in the current conversation (e.g.,
+    /// the conversation was removed from the store while the chat page is still displayed).
+    @MainActor
+    var systemActivity: Activity? {
+        @Dependency(\.clientSession.entity.conversation.currentConversation) var conversation: Conversation?
+        guard isSystemMessage else { return nil }
+        return conversation?
+            .activities?
+            .first(where: { id == $0.encodedHash })
+    }
+
     /// A copy of this system message hydrated with its localized activity text, or the message
-    /// itself if it is not a system message.
+    /// itself if it is not a system message or its activity cannot be resolved.
     @MainActor
     var systemLocalized: Message {
-        @Dependency(\.clientSession.entity.conversation.currentConversation) var conversation: Conversation?
-        guard isSystemMessage,
-              let activity = conversation?
-              .activities?
-              .first(where: { id == $0.encodedHash }) else { return self }
+        guard let activity = systemActivity else { return self }
         return .init(
             activity.encodedHash,
             fromAccountID: CommonConstants.systemMessageID,
@@ -394,3 +414,5 @@ private enum _MessageBackgroundColorCache {
         )
     }
 }
+
+// swiftlint:enable file_length

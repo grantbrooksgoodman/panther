@@ -17,7 +17,7 @@ import AppSubsystem
 ///
 /// In a PenPals conversation, a participant's identity is visible to
 /// the current user only if the participant shares their data with
-/// the current user or is known to them.
+/// the current user in any PenPals conversation or is known to them.
 struct PenPalsSharingData: Codable, Equatable {
     // MARK: - Properties
 

@@ -102,8 +102,7 @@ final class RecipientBarTableViewService {
 
         contactPairs = await Self.coalescer { () async -> [ContactPair] in
             await Task.detached(priority: .utility) {
-                guard !knownContactPairs.isEmpty,
-                      let visibleConversations = conversations?.filter(\.isVisibleForCurrentUser) else {
+                guard let visibleConversations = conversations?.filter(\.isVisibleForCurrentUser) else {
                     return knownContactPairs.uniquedByPhoneNumber
                 }
 
