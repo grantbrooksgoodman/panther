@@ -30,8 +30,8 @@ extension User {
     /// The user's display name.
     ///
     /// Resolves to the user's obfuscated PenPals name while their
-    /// identity is not visible to the current user in any of the
-    /// current user's visible PenPals conversations, their contact's
+    /// identity is not visible to the current user in any PenPals
+    /// conversation the current user has not deleted, their contact's
     /// full name when known, or their formatted phone number
     /// otherwise. In a PenPals conversation, a participant's identity
     /// is visible to the current user only if the participant shares

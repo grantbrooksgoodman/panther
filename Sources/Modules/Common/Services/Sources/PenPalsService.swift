@@ -38,6 +38,13 @@ struct PenPalsService {
         return contactPairArchive?.flatMap(\.userIDs).unique ?? []
     }
 
+    private var currentUserUndeletedConversations: [Conversation] {
+        userSession
+            .currentUser?
+            .conversations?
+            .filter { !($0.currentUserParticipant?.hasDeletedConversation ?? true) } ?? []
+    }
+
     @MainActor
     private var selectContactPairUserIDs: [String] {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
@@ -68,17 +75,19 @@ struct PenPalsService {
     /// Returns a Boolean value that indicates whether the given user is a PenPals participant
     /// who has not shared their data with the current user.
     ///
+    /// Conversations the current user has deleted are not
+    /// considered; conversations containing blocked participants
+    /// are.
+    ///
     /// - Parameter user: The user to check.
     ///
-    /// - Returns: `true` if the user participates in one of the current user's visible Pen
-    ///   Pals conversations without sharing their data; otherwise, `false`.
+    /// - Returns: `true` if the user participates in one of the
+    ///   current user's PenPals conversations without sharing their
+    ///   data; otherwise, `false`.
     func isObfuscatedPenPalWithCurrentUser(_ user: User) -> Bool {
-        guard let currentUser = userSession.currentUser,
-              let penPalsConversations = currentUser
-              .conversations?
-              .visibleForCurrentUser
-              .filter(\.metadata.isPenPalsConversation) else { return false }
-        return penPalsConversations.contains(where: { !$0.userSharesPenPalsDataWithCurrentUser(user) })
+        currentUserUndeletedConversations
+            .filter(\.metadata.isPenPalsConversation)
+            .contains(where: { !$0.userSharesPenPalsDataWithCurrentUser(user) })
     }
 
     // MARK: - Update Sharing Data for Known Users
@@ -162,7 +171,8 @@ struct PenPalsService {
     ///
     /// Candidates must speak a language different from the current user's, and must not have
     /// blocked or been blocked by the current user, be known to the current user, be present in
-    /// an existing conversation, or be currently selected as a recipient.
+    /// any of the current user's conversations – including deleted ones – or be currently
+    /// selected as a recipient.
     ///
     /// - Note: Populates the contact pair archive if it is `nil` or
     ///   empty; a populated archive is not refreshed.
@@ -194,7 +204,7 @@ struct PenPalsService {
                 return !(candidate.blockedUserIDs ?? []).contains(currentUserID)
             })
             .filter({ !contactPairArchiveUserIDs.contains($0.id) })
-            .filter({ !currentUserConversationUserIDs(excludePenPalsConversations: false).contains($0.id) })
+            .filter({ !currentUserConversationUserIDs(acrossAllConversations: true).contains($0.id) })
             .filter({ !selectContactPairUserIDs.contains($0.id) })
             .randomElement() else {
             throw Exception(
@@ -237,20 +247,22 @@ struct PenPalsService {
 
     // MARK: - Auxiliary
 
-    private func currentUserConversationUserIDs(excludePenPalsConversations: Bool = true) -> [String] {
-        let visibleConversations = userSession.currentUser?.conversations?.visibleForCurrentUser
+    private func currentUserConversationUserIDs(
+        acrossAllConversations: Bool = false
+    ) -> [String] {
+        guard let conversations = userSession.currentUser?.conversations else { return [] }
 
-        guard excludePenPalsConversations else {
-            return visibleConversations?
-                .flatMap { $0.users ?? [] }
-                .map(\.id)
-                .unique ?? []
+        guard !acrossAllConversations else {
+            return conversations
+                .flatMap { $0.participants.map(\.userID) }
+                .unique
         }
 
-        return visibleConversations?
+        return conversations
+            .visibleForCurrentUser
             .filter { !$0.metadata.isPenPalsConversation }
             .flatMap { $0.users ?? [] }
             .map(\.id)
-            .unique ?? []
+            .unique
     }
 }

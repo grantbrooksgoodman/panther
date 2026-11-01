@@ -244,11 +244,9 @@ struct ModerationSessionService {
         }
 
         var contactPairs = users.map { $0.contactPair ?? .withUser($0) }
-        if dataSource.conversation?.metadata.isPenPalsConversation == true || dataSource.users != nil,
-           let currentUserConversations = userSession.currentUser?.conversations?.filter({ !($0.currentUserParticipant?.hasDeletedConversation ?? true) }) {
-            for user in users where currentUserConversations.contains(where: {
-                !$0.userSharesPenPalsDataWithCurrentUser(user) && !penPalsService.isKnownToCurrentUser(user.id)
-            }) {
+        if dataSource.conversation?.metadata.isPenPalsConversation == true || dataSource.users != nil {
+            for user in users where penPalsService.isObfuscatedPenPalWithCurrentUser(user) &&
+                !penPalsService.isKnownToCurrentUser(user.id) {
                 guard let index = contactPairs.firstIndex(where: { $0.userIDs.contains(user.id) }) else { continue }
                 contactPairs[index] = .withUser(user, name: user.penPalsName)
             }

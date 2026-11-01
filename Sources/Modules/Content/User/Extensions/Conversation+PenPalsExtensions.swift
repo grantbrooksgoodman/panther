@@ -36,7 +36,7 @@ extension Conversation {
     /// is visible to the current user; otherwise, their obfuscated
     /// ``User/penPalsName``. Use this method to display a user
     /// within a conversation; ``User/displayName`` resolves across
-    /// all of the current user's visible PenPals conversations.
+    /// every PenPals conversation the current user has not deleted.
     ///
     /// - Parameter user: The user to query.
     ///

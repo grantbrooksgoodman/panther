@@ -15,8 +15,9 @@ import AppSubsystem
 /// A record of the participants a conversation participant shares their data with in a PenPals
 /// conversation.
 ///
-/// In a PenPals conversation, a participant's identity remains obfuscated to the other
-/// participants until they share their data.
+/// In a PenPals conversation, a participant's identity is visible to
+/// the current user only if the participant shares their data with
+/// the current user or is known to them.
 struct PenPalsSharingData: Codable, Equatable {
     // MARK: - Properties
 
