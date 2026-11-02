@@ -21,20 +21,20 @@ import Networking
 /// it reply to the messages the current user sends it. ChatGPT is
 /// represented by a registered user account, so a conversation with
 /// ChatGPT is stored, synchronized, and displayed like any other.
-/// ChatGPT marks the messages it answers as read and sends each reply
-/// from its account as an ordinary text message – or as several
-/// consecutive messages, as a person texting would. As with any
-/// participant, it appears as typing while it composes a reply only in
-/// a one-to-one conversation. In a group conversation, ChatGPT
-/// receives and replies to only the messages that mention it with
-/// `@chat`.
+/// ChatGPT marks the messages it receives as read before it
+/// composes a reply, and sends each reply from its account as an
+/// ordinary text message – or as several consecutive messages, as a
+/// person texting would. As with any participant, it appears as
+/// typing while it composes a reply only in a one-to-one
+/// conversation. In a group conversation, ChatGPT receives and
+/// replies to only the messages that mention it with `@chat`.
 ///
 /// A prompt that fails to submit is resubmitted automatically. When
 /// ChatGPT still fails to reply – or the app terminates while it is
 /// replying – the messages it was answering are undelivered to ChatGPT
 /// until delivery is retried with ``retryDelivery(in:)``, or until
 /// another message prompts a reply. Undelivered messages persist
-/// across launches.
+/// across launches, and appear as undelivered rather than as read.
 ///
 /// The service keeps one ChatGPT session per conversation in memory,
 /// so each reply continues the same session. A conversation begins a
@@ -267,6 +267,14 @@ final class ChatGPTService {
 
         defer { inFlightReplyMessageIDs?[conversation.id.key] = nil }
 
+        // ChatGPT reads the messages as it receives them – before it
+        // begins typing, as a person would. A message it then fails
+        // to answer appears as undelivered rather than as read.
+        await markAsRead(
+            prompt.messages,
+            in: conversation
+        )
+
         // Typing status is published in one-to-one conversations only.
         let publishesTypingStatus = conversation.participants.count == Int(Floats.typingStatusParticipantCount)
         if publishesTypingStatus {
@@ -291,11 +299,6 @@ final class ChatGPTService {
                     context?.relayedMessageIDs ?? []
                 ),
                 session: session
-            )
-
-            await markAsRead(
-                prompt.messages,
-                in: latestVersion(of: conversation)
             )
 
             for (index, reply) in replies.enumerated() {

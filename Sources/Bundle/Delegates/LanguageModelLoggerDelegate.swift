@@ -24,7 +24,7 @@ struct LanguageModelLoggerDelegate: LanguageModelLogDelegate {
                         "Message": entry.message,
                     ],
                     metadata: .init(
-                        sender: entry.fileName.fileStem,
+                        sender: entry.fileName.filePrefix,
                         fileName: entry.fileName,
                         function: entry.function,
                         line: entry.line
@@ -39,7 +39,7 @@ struct LanguageModelLoggerDelegate: LanguageModelLogDelegate {
                     entry.message,
                     userInfo: ["Category": entry.category],
                     metadata: .init(
-                        sender: entry.fileName.fileStem,
+                        sender: entry.fileName.filePrefix,
                         fileName: entry.fileName,
                         function: entry.function,
                         line: entry.line
@@ -54,7 +54,7 @@ struct LanguageModelLoggerDelegate: LanguageModelLogDelegate {
             "[\(entry.category.uppercased())/\(entry.level.rawValue.uppercased())] \(entry.message)",
             domain: .languageModels,
             with: entry.showsToast ? .toast : nil,
-            sender: entry.fileName.fileStem,
+            sender: entry.fileName.filePrefix,
             fileName: entry.fileName,
             function: entry.function,
             line: entry.line
@@ -94,5 +94,13 @@ private extension LanguageModelLogEntry {
         @Dependency(\.build.milestone) var buildMilestone: Build.Milestone
         guard buildMilestone != .generalRelease else { return false }
         return level == LanguageModels.showsToastsForLogEntryLevel.wrappedValue
+    }
+}
+
+private extension String {
+    var filePrefix: String {
+        fileStem
+            .components(separatedBy: "+")
+            .first ?? fileStem
     }
 }
