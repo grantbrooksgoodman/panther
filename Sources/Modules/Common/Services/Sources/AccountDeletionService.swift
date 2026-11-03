@@ -202,16 +202,6 @@ final class AccountDeletionService: @unchecked Sendable {
             exceptions.append(error)
         }
 
-        // Validate database integrity.
-
-        try? await Task.sleep(for: .seconds(1))
-
-        do {
-            try await networking.integrityService.repairDatabase()
-        } catch {
-            exceptions.append(error)
-        }
-
         // Delete user reference locally and on server.
 
         completionPercent = 1
@@ -228,14 +218,16 @@ final class AccountDeletionService: @unchecked Sendable {
             exceptions.append(error)
         }
 
-        // If we encountered errors, validate database integrity again.
+        // Validate database integrity once the user node is gone,
+        // so the deleted-users entry survives pruning and any
+        // lingering references to the user are reconciled.
 
-        if !exceptions.isEmpty {
-            do {
-                try await networking.integrityService.repairDatabase()
-            } catch {
-                exceptions.append(error)
-            }
+        try? await Task.sleep(for: .seconds(1))
+
+        do {
+            try await networking.integrityService.repairDatabase()
+        } catch {
+            exceptions.append(error)
         }
 
         if let exception = exceptions.compiledException {

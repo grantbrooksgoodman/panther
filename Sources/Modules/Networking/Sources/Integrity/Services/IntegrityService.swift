@@ -21,8 +21,10 @@ import Networking
 ///
 /// ``IntegrityService`` resolves a snapshot of the database into an ``IntegrityServiceSession``,
 /// then runs a series of validation and repair passes over that snapshot to prune, repair, and
-/// reconcile malformed, broken, orphaned, mismatched, and non-existent data. Each pass reports
-/// whether it changed any data, so the repair sequence can re-run until the database validates.
+/// reconcile malformed, broken, orphaned, mismatched, and non-existent data. Each pass applies
+/// the updates it commits to the snapshot, so later passes operate on the repaired data without
+/// re-fetching it, and reports whether it changed any data, so the repair sequence can re-run
+/// until the database validates.
 struct IntegrityService {
     // MARK: - Types
 
@@ -106,7 +108,7 @@ struct IntegrityService {
         _ failureStrategy: BatchFailureStrategy = .returnOnFailure,
         completion: @escaping @Sendable (Exception?) -> Void
     ) {
-        Task { @MainActor in
+        Task {
             do throws(Exception) {
                 let session = try await IntegrityServiceSession.resolve(failureStrategy)
                 Logger.log(
@@ -128,52 +130,84 @@ struct IntegrityService {
                     return
                 }
 
-                let confirmationAlert = AKConfirmationAlert(
-                    title: "!! WARNING !!", // swiftlint:disable:next line_length
-                    message: "The integrity service session failed to resolve. An attempt can be made to force resolution by accepting incomplete/malformed data.\n\nProceeding with this option may result in irreparable damage to the database. Are you sure you'd like to proceed?",
-                    cancelButtonTitle: "Abort",
-                    cancelButtonStyle: .preferred,
-                    confirmButtonTitle: "Proceed",
-                    confirmButtonStyle: .destructive
+                await presentUnsafeSessionResolutionConfirmation(
+                    for: error,
+                    completion: completion
                 )
-
-                confirmationAlert.setTitleAttributes(.init([
-                    .font: UIFont.systemFont(ofSize: 17, weight: .semibold),
-                    .foregroundColor: UIColor.red,
-                ]))
-
-                coreUI.removeOverlay()
-                let confirmed = await confirmationAlert.present()
-                guard confirmed else { return completion(error) }
-
-                let proceedAction: AKAction = .init(
-                    "Proceed with Unsafe Resolution",
-                    isEnabled: false,
-                    style: .destructivePreferred
-                ) {
-                    Task {
-                        didConfirmUnsafeSessionResolution.wrappedValue = true
-                        resolveSession(.continueOnFailure) { exception in
-                            completion(exception)
-                        }
-                    }
-                }
-
-                let cancelAction: AKAction = .init(
-                    Localized(.cancel).wrappedValue,
-                    style: .cancel
-                ) {
-                    completion(error)
-                }
-
-                let actionSheet = AKActionSheet(actions: [proceedAction, cancelAction])
-                Task.delayed(by: .seconds(5)) { @MainActor in
-                    actionSheet.enableAction(at: 0)
-                }
-
-                await actionSheet.present()
             }
         }
+    }
+
+    @MainActor
+    private func presentUnsafeSessionResolutionConfirmation(
+        for exception: Exception,
+        completion: @escaping @Sendable (Exception?) -> Void
+    ) async {
+        let confirmationAlert = AKConfirmationAlert(
+            title: "!! WARNING !!", // swiftlint:disable:next line_length
+            message: "The integrity service session failed to resolve. An attempt can be made to force resolution by accepting incomplete/malformed data.\n\nProceeding with this option may result in irreparable damage to the database. Are you sure you'd like to proceed?",
+            cancelButtonTitle: "Abort",
+            cancelButtonStyle: .preferred,
+            confirmButtonTitle: "Proceed",
+            confirmButtonStyle: .destructive
+        )
+
+        confirmationAlert.setTitleAttributes(.init([
+            .font: UIFont.systemFont(ofSize: 17, weight: .semibold),
+            .foregroundColor: UIColor.red,
+        ]))
+
+        coreUI.removeOverlay()
+        let confirmed = await confirmationAlert.present()
+        guard confirmed else { return completion(exception) }
+
+        let proceedAction: AKAction = .init(
+            "Proceed with Unsafe Resolution",
+            isEnabled: false,
+            style: .destructivePreferred
+        ) {
+            Task {
+                didConfirmUnsafeSessionResolution.wrappedValue = true
+                resolveSession(.continueOnFailure) { exception in
+                    completion(exception)
+                }
+            }
+        }
+
+        let cancelAction: AKAction = .init(
+            Localized(.cancel).wrappedValue,
+            style: .cancel
+        ) {
+            completion(exception)
+        }
+
+        let actionSheet = AKActionSheet(actions: [proceedAction, cancelAction])
+        Task.delayed(by: .seconds(5)) { @MainActor in
+            actionSheet.enableAction(at: 0)
+        }
+
+        await actionSheet.present()
+    }
+
+    // MARK: - Migrate Schema
+
+    /// Migrates the resolved snapshot's data to the current schema and applies the migration to
+    /// the snapshot.
+    ///
+    /// This method runs the schema migration against the data the session already holds, so the
+    /// database is not fetched a second time, and applies the committed updates to the snapshot so
+    /// the repair passes operate on migrated data.
+    ///
+    /// - Throws: An `Exception` if the migration fails.
+    func migrateSchema() async throws(Exception) {
+        let currentSession = session
+        let updates = try await networking.schemaMigrationService.migrateDatabase(
+            userData: currentSession.userData,
+            conversationData: currentSession.conversationData,
+            messageData: currentSession.messageData
+        )
+
+        applyToSession(updates)
     }
 
     // MARK: - Validate Repair Safety
@@ -272,9 +306,11 @@ struct IntegrityService {
     /// Repairs the given malformed conversations, or every malformed conversation if none are
     /// specified.
     ///
-    /// For each conversation, this method deletes the conversation node and its messages, and
-    /// removes the conversation's token from every user that references it – committed as a single
-    /// atomic fan-out – then marks those users' caches invalid.
+    /// This method deletes each conversation node and its messages, and removes each
+    /// conversation's token from every user that references it, committed as a single atomic
+    /// fan-out across all of the conversations – then marks those users' caches invalid in a
+    /// single update. A specified conversation that no longer exists has only its references
+    /// removed.
     ///
     /// - Parameter idKeys: The identifier keys of the conversations to repair, or `nil` to repair
     ///   every malformed conversation.
@@ -283,41 +319,18 @@ struct IntegrityService {
     ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
     ///   if none did.
     func repairMalformedConversations(_ idKeys: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
-        var exceptions = [Exception]()
-        var tookAction = false
+        let conversationIDKeys = (idKeys ?? malformedConversationIDKeys)
+            .unique
+            .filter { $0 != .bangQualifiedEmpty }
 
-        for conversationIDKey in (
-            idKeys ?? malformedConversationIDKeys
-        ).filter({ $0 != .bangQualifiedEmpty }) {
-            if idKeys != nil {
-                do {
-                    let _: [String: Any] = try await networking.database.getValues(
-                        at: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)"
-                    )
-                } catch {
-                    exceptions.append(error)
-                    continue
-                }
-            }
+        guard !conversationIDKeys.isEmpty else { return (false, nil) }
 
-            tookAction = true
-            Logger.log(
-                "Repairing malformed conversation \"\(conversationIDKey)\".",
-                domain: .dataIntegrity,
-                sender: self
-            )
+        var cacheInvalidationUserIDs = Set<String>()
+        var updates = [String: Any]()
 
-            let conversationMessageIDs: [String] = {
-                guard let dictionary = session.conversationData[conversationIDKey] as? [String: Any],
-                      let map = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String: Any] else { return [] }
-                return Array(map.keys)
-            }()
-
-            var cacheInvalidationUserIDs = [String]()
-            var updates: [String: Any] = [:]
-            for userID in usersReferencing(
-                conversationIDKey: conversationIDKey
-            ) {
+        for conversationIDKey in conversationIDKeys {
+            let referencingUserIDs = usersReferencing(conversationIDKey: conversationIDKey)
+            for userID in referencingUserIDs {
                 updates[
                     [
                         NetworkPath.users.rawValue,
@@ -326,9 +339,25 @@ struct IntegrityService {
                         conversationIDKey,
                     ].joined(separator: "/")
                 ] = NSNull()
-
-                cacheInvalidationUserIDs.append(userID)
             }
+
+            cacheInvalidationUserIDs.formUnion(referencingUserIDs)
+
+            guard session.indices.existingConversationIDs.contains(conversationIDKey) else {
+                Logger.log(
+                    "Conversation \"\(conversationIDKey)\" does not exist; removing its references only.",
+                    domain: .dataIntegrity,
+                    sender: self
+                )
+
+                continue
+            }
+
+            Logger.log(
+                "Repairing malformed conversation \"\(conversationIDKey)\".",
+                domain: .dataIntegrity,
+                sender: self
+            )
 
             updates[
                 [
@@ -337,7 +366,7 @@ struct IntegrityService {
                 ].joined(separator: "/")
             ] = NSNull()
 
-            for messageID in conversationMessageIDs {
+            for messageID in messageIDs(inConversationWithIDKey: conversationIDKey) {
                 updates[
                     [
                         NetworkPath.messages.rawValue,
@@ -345,48 +374,34 @@ struct IntegrityService {
                     ].joined(separator: "/")
                 ] = NSNull()
             }
-
-            do {
-                try await networking.database.commit(updates)
-            } catch {
-                exceptions.append(error)
-            }
-
-            await withTaskGroup(
-                of: Exception?.self
-            ) { taskGroup in
-                for userID in cacheInvalidationUserIDs {
-                    taskGroup.addTask {
-                        do throws(Exception) {
-                            try await self.remoteCacheService.setCacheStatus(
-                                .invalid,
-                                userID: userID
-                            )
-                        } catch {
-                            return error
-                        }
-
-                        return nil
-                    }
-                }
-
-                for await exception in taskGroup {
-                    if let exception {
-                        exceptions.append(exception)
-                    }
-                }
-            }
         }
 
-        return (tookAction, exceptions.compiledException)
+        guard !updates.isEmpty else { return (false, nil) }
+        var exceptions = [Exception]()
+
+        do {
+            try await commit(updates)
+        } catch {
+            exceptions.append(error)
+        }
+
+        do {
+            try await invalidateCaches(for: cacheInvalidationUserIDs)
+        } catch {
+            exceptions.append(error)
+        }
+
+        return (true, exceptions.compiledException)
     }
 
     /// Repairs the given malformed messages, or every malformed message if none are specified.
     ///
-    /// For each message, this method resets the hash of every conversation that references it and
-    /// removes the message from that conversation's index – or, when the message is the
-    /// conversation's only message, repairs the entire conversation. It then deletes the message
-    /// nodes.
+    /// For each message, this method removes it from the index of every conversation that
+    /// references it and resets that conversation's hash – or, when the conversation references no
+    /// other message that is not also being repaired, repairs the entire conversation. All index
+    /// and hash updates are committed as a single atomic fan-out, and the affected users' caches
+    /// are marked invalid in a single update, before the message nodes and their content are
+    /// deleted.
     ///
     /// - Parameter messageIDs: The identifier keys of the messages to repair, or `nil` to repair
     ///   every malformed message.
@@ -395,22 +410,19 @@ struct IntegrityService {
     ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
     ///   if none did.
     func repairMalformedMessages(_ messageIDs: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
+        let messageIDs = (messageIDs ?? malformedMessageIDs)
+            .unique
+            .filter { $0 != .bangQualifiedEmpty }
+
+        guard !messageIDs.isEmpty else { return (false, nil) }
+
+        let messageIDSet = Set(messageIDs)
+        var cacheInvalidationUserIDs = Set<String>()
+        var conversationIDKeysToRepair = [String]()
         var exceptions = [Exception]()
-        var tookAction = false
+        var updates = [String: Any]()
 
-        for messageID in (messageIDs ?? malformedMessageIDs).filter({ $0 != .bangQualifiedEmpty }) {
-            if messageIDs != nil {
-                do {
-                    let _: [String: Any] = try await networking.database.getValues(
-                        at: "\(NetworkPath.messages.rawValue)/\(messageID)"
-                    )
-                } catch {
-                    exceptions.append(error)
-                    continue
-                }
-            }
-
-            tookAction = true
+        for messageID in messageIDs {
             Logger.log(
                 "Repairing malformed message \"\(messageID)\".",
                 domain: .dataIntegrity,
@@ -418,61 +430,60 @@ struct IntegrityService {
             )
 
             for conversationIDKey in conversationsReferencing(messageID: messageID) {
-                do throws(Exception) {
-                    try await resetHash(
-                        conversationIDKey: conversationIDKey
-                    )
-                } catch {
-                    exceptions.append(error)
-                }
+                guard let dictionary = session.conversationData[conversationIDKey] as? [String: Any],
+                      let map = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String: Any] else { continue }
 
-                guard let dictionary = session.conversationData[conversationIDKey] as? [String: Any] else { continue }
-
-                let rawMessages = dictionary[Conversation.SerializableKey.messages.rawValue]
-                let messagesPath = [
-                    NetworkPath.conversations.rawValue,
-                    conversationIDKey,
-                    Conversation.SerializableKey.messages.rawValue,
-                ].joined(separator: "/")
-
-                guard let map = rawMessages as? [String: Any] else { continue }
-                guard map.keys.contains(where: { $0 != messageID }) else {
-                    if let exception = await repairMalformedConversations([conversationIDKey]).exception {
-                        exceptions.append(exception)
-                    }
-
+                // A conversation left with no messages is repaired whole.
+                guard map.keys.contains(where: { !messageIDSet.contains($0) }) else {
+                    conversationIDKeysToRepair.append(conversationIDKey)
                     continue
                 }
 
-                do {
-                    try await networking.database.setValue(
-                        NSNull(),
-                        forKey: "\(messagesPath)/\(messageID)"
-                    )
-                } catch {
-                    exceptions.append(error)
-                }
-            }
-        }
+                updates[
+                    [
+                        NetworkPath.conversations.rawValue,
+                        conversationIDKey,
+                        Conversation.SerializableKey.messages.rawValue,
+                        messageID,
+                    ].joined(separator: "/")
+                ] = NSNull()
 
-        if tookAction {
-            do {
-                try await networking.messageService.deleteMessages(
-                    ids: messageIDs ?? malformedMessageIDs,
-                    failureStrategy: .continueOnFailure
+                let hashReset = hashResetUpdates(conversationIDKey: conversationIDKey)
+                updates.merge(
+                    hashReset.updates,
+                    uniquingKeysWith: { _, new in new }
                 )
-            } catch {
-                exceptions.append(error)
+
+                cacheInvalidationUserIDs.formUnion(hashReset.userIDs)
             }
         }
 
-        return (tookAction, exceptions.compiledException)
+        do {
+            try await commit(updates)
+        } catch {
+            exceptions.append(error)
+        }
+
+        do {
+            try await invalidateCaches(for: cacheInvalidationUserIDs)
+        } catch {
+            exceptions.append(error)
+        }
+
+        if !conversationIDKeysToRepair.isEmpty,
+           let exception = await repairMalformedConversations(conversationIDKeysToRepair).exception {
+            exceptions.append(exception)
+        }
+
+        await deleteMessages(ids: messageIDs) { exceptions.append($0) }
+        return (true, exceptions.compiledException)
     }
 
     /// Repairs the given malformed users, or every malformed user if none are specified.
     ///
-    /// For each user, this method repairs every conversation the user references and then deletes
-    /// the user node.
+    /// This method repairs every conversation the users reference in a single pass, then deletes
+    /// the user nodes in a single atomic fan-out. A specified user that no longer exists is
+    /// skipped.
     ///
     /// - Parameter userIDs: The identifier keys of the users to repair, or `nil` to repair every
     ///   malformed user.
@@ -481,65 +492,62 @@ struct IntegrityService {
     ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
     ///   if none did.
     func repairMalformedUsers(_ userIDs: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
-        var exceptions = [Exception]()
-        var tookAction = false
+        let userIDs = (userIDs ?? malformedUserIDs)
+            .unique
+            .filter { $0 != .bangQualifiedEmpty }
 
-        for userID in (userIDs ?? malformedUserIDs).filter({ $0 != .bangQualifiedEmpty }) {
-            tookAction = true
+        guard !userIDs.isEmpty else { return (false, nil) }
+
+        var conversationIDKeys = [String]()
+        var exceptions = [Exception]()
+        var updates = [String: Any]()
+
+        for userID in userIDs {
+            guard session.indices.existingUserIDs.contains(userID) else {
+                Logger.log(
+                    "User \"\(userID)\" does not exist; skipping repair.",
+                    domain: .dataIntegrity,
+                    sender: self
+                )
+
+                continue
+            }
+
             Logger.log(
                 "Repairing malformed user \"\(userID)\".",
                 domain: .dataIntegrity,
                 sender: self
             )
 
-            if userIDs != nil {
-                do {
-                    let _: [String: Any] = try await networking.database.getValues(
-                        at: "\(NetworkPath.users.rawValue)/\(userID)"
-                    )
-                } catch {
-                    exceptions.append(error)
-                    continue
-                }
-            }
+            updates[
+                [
+                    NetworkPath.users.rawValue,
+                    userID,
+                ].joined(separator: "/")
+            ] = NSNull()
 
-            // FIXME: Audit this change.
-            guard let dictionary = session.userData[userID] as? [String: Any] else {
-                do {
-                    try await networking.database.setValue(
-                        NSNull(),
-                        forKey: "\(NetworkPath.users.rawValue)/\(userID)"
-                    )
-                } catch {
-                    exceptions.append(error)
-                }
+            // A node that is not a dictionary carries no
+            // conversation references to repair.
+            guard let dictionary = session.userData[userID] as? [String: Any],
+                  let map = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String: Any] else { continue }
 
-                continue
-            }
-
-            let conversationIDKeys: [String] = if let map = dictionary[
-                User.SerializableKey.conversationIDs.rawValue
-            ] as? [String: Any] {
-                Array(map.keys)
-            } else {
-                []
-            }
-
-            if let exception = await repairMalformedConversations(conversationIDKeys).exception {
-                exceptions.append(exception)
-            }
-
-            do {
-                try await networking.database.setValue(
-                    NSNull(),
-                    forKey: "\(NetworkPath.users.rawValue)/\(userID)"
-                )
-            } catch {
-                exceptions.append(error)
-            }
+            conversationIDKeys.append(contentsOf: map.keys)
         }
 
-        return (tookAction, exceptions.compiledException)
+        guard !updates.isEmpty else { return (false, nil) }
+
+        if !conversationIDKeys.isEmpty,
+           let exception = await repairMalformedConversations(conversationIDKeys.unique).exception {
+            exceptions.append(exception)
+        }
+
+        do {
+            try await commit(updates)
+        } catch {
+            exceptions.append(error)
+        }
+
+        return (true, exceptions.compiledException)
     }
 
     // MARK: - Broken Data
@@ -554,9 +562,6 @@ struct IntegrityService {
     ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
     ///   if none did.
     func resolveBrokenConversationChain() async -> (tookAction: Bool, exception: Exception?) {
-        var exceptions = [Exception]()
-        var tookAction = false
-
         var updates = [String: Any]()
 
         for (userID, value) in session.userData {
@@ -564,7 +569,7 @@ struct IntegrityService {
                   let map = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String: String] else { continue }
 
             let invalidKeys = map.keys.filter {
-                !session.conversationData.keys.contains($0)
+                !session.indices.existingConversationIDs.contains($0)
             }
 
             for key in invalidKeys {
@@ -577,19 +582,17 @@ struct IntegrityService {
 
                 updates[path] = NSNull()
             }
-
-            if !invalidKeys.isEmpty { tookAction = true }
         }
 
-        if !updates.isEmpty {
-            do {
-                try await networking.database.commit(updates)
-            } catch {
-                exceptions.append(error)
-            }
+        guard !updates.isEmpty else { return (false, nil) }
+
+        do {
+            try await commit(updates)
+        } catch {
+            return (true, error)
         }
 
-        return (tookAction, exceptions.compiledException)
+        return (true, nil)
     }
 
     /// Removes references to messages that no longer exist from every conversation's message
@@ -603,7 +606,7 @@ struct IntegrityService {
     ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
     ///   if none did.
     func resolveBrokenMessageChain() async -> (tookAction: Bool, exception: Exception?) {
-        var conversationsToRepair = [String]()
+        var conversationIDKeysToRepair = [String]()
         var exceptions = [Exception]()
         var updates = [String: Any]()
 
@@ -623,7 +626,7 @@ struct IntegrityService {
 
             guard !invalidKeys.isEmpty else { continue }
             guard map.count != invalidKeys.count else {
-                conversationsToRepair.append(conversationIDKey)
+                conversationIDKeysToRepair.append(conversationIDKey)
                 continue
             }
 
@@ -632,20 +635,17 @@ struct IntegrityService {
             }
         }
 
-        let tookAction = !updates.isEmpty || !conversationsToRepair.isEmpty
+        let tookAction = !updates.isEmpty || !conversationIDKeysToRepair.isEmpty
 
-        if !updates.isEmpty {
-            do {
-                try await networking.database.commit(updates)
-            } catch {
-                exceptions.append(error)
-            }
+        do {
+            try await commit(updates)
+        } catch {
+            exceptions.append(error)
         }
 
-        for conversationIDKey in conversationsToRepair {
-            if let exception = await repairMalformedConversations([conversationIDKey]).exception {
-                exceptions.append(exception)
-            }
+        if !conversationIDKeysToRepair.isEmpty,
+           let exception = await repairMalformedConversations(conversationIDKeysToRepair).exception {
+            exceptions.append(exception)
         }
 
         return (tookAction, exceptions.compiledException)
@@ -662,10 +662,9 @@ struct IntegrityService {
     ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
     ///   if none did.
     func resolveMismatchedParticipants() async -> (tookAction: Bool, exception: Exception?) {
+        var conversationIDKeysToRepair = [String]()
         var exceptions = [Exception]()
-        var malformedConversationIDKeys = [String]()
-        var missingConversationIDsForUserIDs = [String: [String]]()
-        var tookAction = false
+        var updates = [String: Any]()
 
         for (key, value) in session.conversationData {
             guard let dictionary = value as? [String: Any],
@@ -677,46 +676,34 @@ struct IntegrityService {
             let usersNotReferencing = participantUserIDs.filter { !usersReferencing.contains($0) }
             let orphaningRatio = Float(usersNotReferencing.count) / Float(participantUserIDs.count)
 
-            if orphaningRatio >= 0.5 {
-                malformedConversationIDKeys.append(key)
-            } else {
-                for userID in usersNotReferencing {
-                    missingConversationIDsForUserIDs[userID, default: []].append("\(key) | !")
-                }
+            guard orphaningRatio < 0.5 else {
+                conversationIDKeysToRepair.append(key)
+                continue
+            }
+
+            for userID in usersNotReferencing {
+                let path = [
+                    NetworkPath.users.rawValue,
+                    userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                    key,
+                ].joined(separator: "/")
+
+                updates[path] = String.bangQualifiedEmpty
             }
         }
 
-        for conversationIDKey in malformedConversationIDKeys {
-            tookAction = true
-            if let exception = await repairMalformedConversations([conversationIDKey]).exception {
-                exceptions.append(exception)
-            }
+        let tookAction = !updates.isEmpty || !conversationIDKeysToRepair.isEmpty
+
+        if !conversationIDKeysToRepair.isEmpty,
+           let exception = await repairMalformedConversations(conversationIDKeysToRepair).exception {
+            exceptions.append(exception)
         }
 
-        if !missingConversationIDsForUserIDs.isEmpty {
-            tookAction = true
-
-            var updates = [String: Any]()
-            for (userID, missingConversationIDs) in missingConversationIDsForUserIDs {
-                for idString in missingConversationIDs {
-                    let key = idString.components(separatedBy: " | ").first ?? idString
-                    let hash = idString.components(separatedBy: " | ").last ?? "!"
-                    let path = [
-                        NetworkPath.users.rawValue,
-                        userID,
-                        User.SerializableKey.conversationIDs.rawValue,
-                        key,
-                    ].joined(separator: "/")
-
-                    updates[path] = hash
-                }
-            }
-
-            do {
-                try await networking.database.commit(updates)
-            } catch {
-                exceptions.append(error)
-            }
+        do {
+            try await commit(updates)
+        } catch {
+            exceptions.append(error)
         }
 
         return (tookAction, exceptions.compiledException)
@@ -822,7 +809,7 @@ struct IntegrityService {
             if !updates.isEmpty {
                 tookAction = true
                 do throws(Exception) {
-                    try await networking.database.commit(updates)
+                    try await commit(updates)
                 } catch {
                     exceptions.append(error)
                 }
@@ -917,7 +904,12 @@ struct IntegrityService {
             return (false, exceptions.compiledException)
         }
 
-        return await repairMalformedMessages(malformedMessageIDs)
+        let repairMalformedMessagesResult = await repairMalformedMessages(malformedMessageIDs)
+        if let exception = repairMalformedMessagesResult.exception {
+            exceptions.append(exception)
+        }
+
+        return (repairMalformedMessagesResult.tookAction, exceptions.compiledException)
     }
 
     /// Repairs conversations that list participants who no longer exist.
@@ -935,14 +927,13 @@ struct IntegrityService {
                   let participantMap = dictionary[Conversation.SerializableKey.participants.rawValue] as? [String: Any] else { continue }
 
             let participantUserIDs = Array(participantMap.keys)
-            guard participantUserIDs.contains(where: { !session.userData.keys.contains($0) }) else { continue }
+            guard participantUserIDs.contains(where: { !session.indices.existingUserIDs.contains($0) }) else { continue }
 
             malformedConversationIDKeys.append(key)
         }
 
         guard !malformedConversationIDKeys.isEmpty else { return (false, nil) }
-        let repairMalformedConversationsResult = await repairMalformedConversations(malformedConversationIDKeys)
-        return (true, repairMalformedConversationsResult.exception)
+        return await repairMalformedConversations(malformedConversationIDKeys)
     }
 
     /// Repairs messages that reference translations which are missing or undecodable.
@@ -995,17 +986,15 @@ struct IntegrityService {
         guard !malformedMessageIDs.isEmpty else { return (false, nil) }
         var exceptions = [Exception]()
 
-        if !malformedTranslationPaths.isEmpty {
-            var updates: [String: Any] = [:]
-            for path in malformedTranslationPaths {
-                updates[path] = NSNull()
-            }
+        var updates: [String: Any] = [:]
+        for path in malformedTranslationPaths {
+            updates[path] = NSNull()
+        }
 
-            do {
-                try await networking.database.commit(updates)
-            } catch {
-                exceptions.append(error)
-            }
+        do {
+            try await commit(updates)
+        } catch {
+            exceptions.append(error)
         }
 
         let repairMalformedMessagesResult = await repairMalformedMessages(malformedMessageIDs)
@@ -1095,7 +1084,6 @@ struct IntegrityService {
     ///   whose second element is an ``Exception`` describing any failures that occurred, or `nil`
     ///   if none did.
     func resolveOrphanedMessages() async -> (tookAction: Bool, exception: Exception?) {
-        var tookAction = false
         var orphanedMessageIDs = [String]()
 
         for messageID in session.indices.existingMessageIDs where session.indices.conversationsByMessageID[messageID]?.isEmpty ?? true {
@@ -1103,18 +1091,10 @@ struct IntegrityService {
         }
 
         guard !orphanedMessageIDs.isEmpty else { return (false, nil) }
-        tookAction = true
 
-        do {
-            try await networking.messageService.deleteMessages(
-                ids: orphanedMessageIDs,
-                failureStrategy: .continueOnFailure
-            )
-        } catch {
-            return (tookAction, error)
-        }
-
-        return (tookAction, nil)
+        var exceptions = [Exception]()
+        await deleteMessages(ids: orphanedMessageIDs) { exceptions.append($0) }
+        return (true, exceptions.compiledException)
     }
 
     // MARK: - Computed Property Getters
@@ -1188,16 +1168,56 @@ struct IntegrityService {
 
     // MARK: - Auxiliary
 
+    private func applyToSession(_ updates: [String: Any]) {
+        guard !updates.isEmpty else { return }
+        _session.wrappedValue = _session.wrappedValue?.applying(updates)
+    }
+
+    /// Commits the fan-out atomically and applies it to the snapshot, so later passes see the
+    /// repaired data.
+    private func commit(_ updates: [String: Any]) async throws(Exception) {
+        guard !updates.isEmpty else { return }
+        try await networking.database.commit(updates)
+        applyToSession(updates)
+    }
+
     /// In practice, only one conversation should ever reference a given message.
     private func conversationsReferencing(messageID: String) -> Set<String> {
         session.indices.conversationsByMessageID[messageID] ?? []
     }
 
-    private func resetHash(
+    /// Deletes the message nodes and their content, then removes them from the snapshot.
+    private func deleteMessages(
+        ids messageIDs: [String],
+        onException: (Exception) -> Void
+    ) async {
+        do {
+            try await networking.messageService.deleteMessages(
+                ids: messageIDs,
+                failureStrategy: .continueOnFailure
+            )
+        } catch {
+            onException(error)
+        }
+
+        applyToSession(messageIDs.reduce(into: [String: Any]()) { updates, messageID in
+            updates[
+                [
+                    NetworkPath.messages.rawValue,
+                    messageID,
+                ].joined(separator: "/")
+            ] = NSNull()
+        })
+    }
+
+    /// Resets the conversation's hash token and every referencing user's token for it; the caller
+    /// merges the entries into its own fan-out and invalidates the users' caches.
+    private func hashResetUpdates(
         conversationIDKey: String
-    ) async throws(Exception) {
-        var cacheInvalidationUserIDs = [String]()
+    ) -> (updates: [String: Any], userIDs: Set<String>) {
         var updates: [String: Any] = [:]
+        var userIDs = Set<String>()
+
         for userID in usersReferencing(
             conversationIDKey: conversationIDKey
         ) {
@@ -1215,7 +1235,7 @@ struct IntegrityService {
                 ].joined(separator: "/")
             ] = String.bangQualifiedEmpty
 
-            cacheInvalidationUserIDs.append(userID)
+            userIDs.insert(userID)
         }
 
         updates[
@@ -1226,42 +1246,25 @@ struct IntegrityService {
             ].joined(separator: "/")
         ] = String.bangQualifiedEmpty
 
-        var exceptions = [Exception]()
+        return (updates, userIDs)
+    }
 
-        do {
-            try await networking.database.commit(updates)
-        } catch {
-            exceptions.append(error)
-        }
+    private func invalidateCaches(
+        for userIDs: Set<String>
+    ) async throws(Exception) {
+        guard !userIDs.isEmpty else { return }
+        try await remoteCacheService.setCacheStatus(
+            .invalid,
+            userIDs: userIDs.sorted()
+        )
+    }
 
-        await withTaskGroup(
-            of: Exception?.self
-        ) { taskGroup in
-            for userID in cacheInvalidationUserIDs {
-                taskGroup.addTask {
-                    do throws(Exception) {
-                        try await self.remoteCacheService.setCacheStatus(
-                            .invalid,
-                            userID: userID
-                        )
-                    } catch {
-                        return error
-                    }
-
-                    return nil
-                }
-            }
-
-            for await exception in taskGroup {
-                if let exception {
-                    exceptions.append(exception)
-                }
-            }
-        }
-
-        if let exception = exceptions.compiledException {
-            throw exception
-        }
+    private func messageIDs(
+        inConversationWithIDKey conversationIDKey: String
+    ) -> [String] {
+        guard let dictionary = session.conversationData[conversationIDKey] as? [String: Any],
+              let map = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String: Any] else { return [] }
+        return Array(map.keys)
     }
 
     private func usersReferencing(conversationIDKey: String) -> Set<String> {

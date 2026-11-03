@@ -62,10 +62,10 @@ extension CoreKit.Utilities {
     /// Deletes the current user's conversations matching the given granularity.
     ///
     /// This method resolves the current user's conversations and messages, computes the set of
-    /// conversation identifiers matching the granularity, and deletes each one by routing it
-    /// through the network integrity service's malformed-conversation repair procedure. While the
-    /// operation runs, an activity indicator overlay is displayed and all database and storage
-    /// caching is disabled.
+    /// conversation identifiers matching the granularity, and deletes them in one pass by routing
+    /// them through the network integrity service's malformed-conversation repair procedure.
+    /// While the operation runs, an activity indicator overlay is displayed and all database and
+    /// storage caching is disabled.
     ///
     /// - Parameter granularity: The set of conversations to delete.
     ///
@@ -95,8 +95,8 @@ extension CoreKit.Utilities {
 
         switch granularity {
         case .allForCurrentUser:
-            conversationIDKeys = currentUser?.conversationIDs?.map(\.key)
-            conversationIDKeys?.append(contentsOf: ignoredConversationIDKeys)
+            guard let currentUser else { break }
+            conversationIDKeys = (currentUser.conversationIDs?.map(\.key) ?? []) + ignoredConversationIDKeys
 
         case .groupChatsWithoutNameOrPhoto:
             conversationIDKeys = currentUser?.conversations?.filter {
@@ -157,21 +157,18 @@ extension CoreKit.Utilities {
 
         clientSession.entity.user.stopObservingCurrentUserChanges()
 
-        var exceptions = [Exception]()
-        for conversationIDKey in conversationIDKeys.unique {
-            CoreDatabaseStore.clearStore()
-            try await networking.integrityService.resolveSession()
+        // One snapshot serves every deletion: each conversation's
+        // repair reads only its own entry and the users that
+        // reference it.
+        CoreDatabaseStore.clearStore()
+        try await networking.integrityService.resolveSession()
 
-            if let exception = await networking
-                .integrityService
-                .repairMalformedConversations([conversationIDKey])
-                .exception {
-                exceptions.append(exception)
-            }
+        if let exception = await networking
+            .integrityService
+            .repairMalformedConversations(conversationIDKeys.unique)
+            .exception {
+            throw exception
         }
-
-        guard let exception = exceptions.compiledException else { return }
-        throw exception
     }
 
     /// Deletes every conversation and message from the remote database and storage.

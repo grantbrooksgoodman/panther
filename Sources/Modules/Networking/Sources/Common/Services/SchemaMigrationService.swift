@@ -75,20 +75,16 @@ struct SchemaMigrationService {
 
     // MARK: - Migrate Database
 
-    /// Reads every user, conversation, and message node,
-    /// converts legacy array-format fields to keyed maps,
-    /// backfills required user fields introduced by later
-    /// schema versions, recomputes version tokens, persists
-    /// `imageHash` where absent, and rewrites legacy media
-    /// `contentType` values to the explicit-extension
-    /// format. All changes are committed atomically.
+    /// Reads every user, conversation, and message node and
+    /// migrates them to the current schema.
+    ///
+    /// This method fetches the database and delegates to
+    /// ``migrateDatabase(userData:conversationData:messageData:)``.
+    ///
+    /// - Throws: An `Exception` if the realtime connection is
+    ///   not established, the data cannot be fetched, or the
+    ///   migration fails.
     func migrateDatabase() async throws(Exception) {
-        Logger.log(
-            "Starting full database schema migration.",
-            domain: .schemaMigration,
-            sender: self
-        )
-
         // Refuse to repair unless the realtime connection is established.
         guard await database.awaitRealtimeConnection(
             timeout: .seconds(15)
@@ -122,6 +118,48 @@ struct SchemaMigrationService {
             throw error
         }
 
+        _ = try await migrateDatabase(
+            userData: userData,
+            conversationData: conversationData,
+            messageData: messageData
+        )
+    }
+
+    /// Migrates the given user, conversation, and message data
+    /// to the current schema and returns the committed updates.
+    ///
+    /// This method converts legacy array-format fields to keyed
+    /// maps, backfills required user fields introduced by later
+    /// schema versions, recomputes version tokens, persists
+    /// `imageHash` where absent, and rewrites legacy media
+    /// `contentType` values to the explicit-extension format.
+    /// All changes are committed atomically. Use the returned
+    /// updates to bring a snapshot of the given data up to date
+    /// without fetching the database again.
+    ///
+    /// - Parameters:
+    ///   - userData: The raw user data, keyed by user identifier.
+    ///   - conversationData: The raw conversation data, keyed by
+    ///     conversation identifier key.
+    ///   - messageData: The raw message data, keyed by message
+    ///     identifier.
+    ///
+    /// - Returns: The fan-out updates that were committed, keyed
+    ///   by path, or an empty dictionary if the data was already
+    ///   migrated.
+    ///
+    /// - Throws: An `Exception` if the commit fails.
+    func migrateDatabase(
+        userData: [String: Any],
+        conversationData: [String: Any],
+        messageData: [String: Any]
+    ) async throws(Exception) -> [String: Any] {
+        Logger.log(
+            "Starting full database schema migration.",
+            domain: .schemaMigration,
+            sender: self
+        )
+
         var updates = [String: Any]()
 
         let userResult = migrateUsers(userData)
@@ -149,7 +187,7 @@ struct SchemaMigrationService {
                 sender: self
             )
 
-            return
+            return [:]
         }
 
         Logger.log(
@@ -169,6 +207,8 @@ struct SchemaMigrationService {
             domain: .schemaMigration,
             sender: self
         )
+
+        return reconciledUpdates
     }
 
     // MARK: - User Migration

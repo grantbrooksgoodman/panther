@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 
@@ -287,7 +289,85 @@ struct IntegrityServiceSession: @unchecked Sendable {
         )
     } // swiftlint:enable function_body_length
 
+    // MARK: - Apply Updates
+
+    /// Returns a copy of the snapshot with the given fan-out updates applied.
+    ///
+    /// Use this method to keep the snapshot current after committing a repair, so later passes
+    /// operate on the repaired data without re-fetching it. Each key is a slash-separated path
+    /// relative to the active environment, as passed to `DatabaseDelegate.commit(_:)`, and an
+    /// `NSNull` value removes the entry at its path. Paths outside the conversation, message,
+    /// translation, and user trees are ignored, as are paths that name a tree without an entry.
+    ///
+    /// - Parameter updates: The fan-out updates to apply, keyed by path.
+    ///
+    /// - Returns: The updated snapshot.
+    func applying(_ updates: [String: Any]) -> IntegrityServiceSession {
+        var updatedConversationData = conversationData
+        var updatedMessageData = messageData
+        var updatedTranslationData: [String: Any] = translationData
+        var updatedUserData = userData
+
+        for (path, value) in updates {
+            var components = path.components(separatedBy: "/").filter { !$0.isEmpty }
+            guard components.count > 1 else { continue }
+            let tree = components.removeFirst()
+
+            switch tree {
+            case NetworkPath.conversations.rawValue:
+                Self.apply(value, at: components, to: &updatedConversationData)
+            case NetworkPath.messages.rawValue:
+                Self.apply(value, at: components, to: &updatedMessageData)
+            case NetworkPath.translations.rawValue:
+                Self.apply(value, at: components, to: &updatedTranslationData)
+            case NetworkPath.users.rawValue:
+                Self.apply(value, at: components, to: &updatedUserData)
+            default:
+                continue
+            }
+        }
+
+        return .init(
+            conversationData: updatedConversationData,
+            messageData: updatedMessageData,
+            translationData: updatedTranslationData.compactMapValues { $0 as? [String: Any] },
+            userData: updatedUserData
+        )
+    }
+
     // MARK: - Auxiliary
+
+    /// Mirrors the database, which drops a node once its last child is removed.
+    private static func apply(
+        _ value: Any,
+        at components: [String],
+        to dictionary: inout [String: Any]
+    ) {
+        guard let key = components.first else { return }
+
+        guard components.count > 1 else {
+            if value is NSNull {
+                dictionary.removeValue(forKey: key)
+            } else {
+                dictionary[key] = value
+            }
+
+            return
+        }
+
+        var child = (dictionary[key] as? [String: Any]) ?? [:]
+        apply(
+            value,
+            at: Array(components.dropFirst()),
+            to: &child
+        )
+
+        if child.isEmpty {
+            dictionary.removeValue(forKey: key)
+        } else {
+            dictionary[key] = child
+        }
+    }
 
     private static func fetchDatabaseValues(
         at path: String
@@ -341,3 +421,5 @@ struct IntegrityServiceSession: @unchecked Sendable {
         )
     }
 }
+
+// swiftlint:enable file_length type_body_length

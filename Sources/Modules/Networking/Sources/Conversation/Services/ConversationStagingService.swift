@@ -46,10 +46,13 @@ struct ConversationStagingService {
 
     /// Stages a set of sample conversations for the current user.
     ///
-    /// This method deletes the current user's existing conversations and replaces them with
-    /// predefined sample conversations. It is available outside the production environment only.
+    /// This method deletes the current user's existing conversations
+    /// and replaces them with predefined sample conversations. It is
+    /// available outside the production environment only.
     ///
-    /// - Throws: An `Exception` if called in the production environment, or if staging fails.
+    /// - Throws: An `Exception` if called in the production
+    ///   environment, if the existing conversations cannot be
+    ///   deleted, or if staging fails.
     @MainActor // swiftlint:disable:next function_body_length
     func stageConversations() async throws(Exception) {
         guard isOnProperEnvironment else {
@@ -61,7 +64,7 @@ struct ConversationStagingService {
 
         do throws(Exception) {
             userSession.stopObservingCurrentUserChanges()
-            try? await core.utils.deleteConversations(.allForCurrentUser)
+            try await core.utils.deleteConversations(.allForCurrentUser)
 
             core.ui.addOverlay(
                 alpha: 0.5,
@@ -71,15 +74,6 @@ struct ConversationStagingService {
             let users = try await resolveStagedUsers()
             sessionStore.clearConversationArchive()
             ConversationCellViewDataCache.clearCache()
-
-            try await networking.database.setValue(
-                [String].bangQualifiedEmpty,
-                forKey: [
-                    NetworkPath.users.rawValue,
-                    users.mainUser.id,
-                    User.SerializableKey.conversationIDs.rawValue,
-                ].joined(separator: "/")
-            )
 
             // Compute dates.
 
@@ -156,9 +150,9 @@ struct ConversationStagingService {
                 sentDate: dateJan24
             )
 
-            try await markAsRead(
-                conversation: zhangConversation,
-                forUserID: users.mainUser.id
+            try await zhangConversation.updateReadDate(
+                for: zhangConversation.messages ?? [],
+                userID: users.mainUser.id
             )
 
             // 2. Vacation Planning – text, 6/29/25.
@@ -195,9 +189,9 @@ struct ConversationStagingService {
                 sentDate: dateYesterday
             )
 
-            try await markAsRead(
-                conversation: peterConversation,
-                forUserID: users.mainUser.id
+            try await peterConversation.updateReadDate(
+                for: peterConversation.messages ?? [],
+                userID: users.mainUser.id
             )
 
             // 4. Mario Rossi + 2 – text, 9:36 AM.
@@ -215,9 +209,9 @@ struct ConversationStagingService {
                 ]
             )
 
-            try await markAsRead(
-                conversation: marioConversation,
-                forUserID: users.mainUser.id
+            try await marioConversation.updateReadDate(
+                for: marioConversation.messages ?? [],
+                userID: users.mainUser.id
             )
 
             // 5. Juan Pérez – audio, 9:41 AM, unread.
@@ -276,14 +270,61 @@ struct ConversationStagingService {
 
     // MARK: - Auxiliary
 
-    private func addAudioMessage(
+    private func addTextMessage(
+        text: String,
+        from senderUser: User,
+        allParticipants: [User],
+        in conversation: Conversation,
+        sentDate: Date,
+        forcedOutputs: [String: String] = [:]
+    ) async throws(Exception) -> (conversation: Conversation, message: Message) {
+        let translations = try await translateText(
+            text,
+            from: senderUser,
+            toUsers: allParticipants.filter { $0.id != senderUser.id },
+            forcedOutputs: forcedOutputs
+        )
+
+        let message = try await networking.messageService.buildMessage(
+            fromAccountID: senderUser.id,
+            richContent: nil,
+            sentDate: sentDate,
+            translations: translations
+        )
+
+        let updatedConversation = try await append(
+            message,
+            to: conversation
+        )
+
+        return (updatedConversation, message)
+    }
+
+    private func append(
+        _ message: Message,
+        to conversation: Conversation
+    ) async throws(Exception) -> Conversation {
+        // The message fan-out commits the message node, its index
+        // entry, the hash tokens, and any pending archive entries
+        // atomically.
+        var messages = conversation.messages ?? []
+        messages.append(message)
+
+        return try await conversation.update(
+            \.messages,
+            to: messages
+        )
+    }
+
+    private func buildAudioMessage(
+        text: String,
+        audioResourceName: String,
         from senderUser: User,
         to recipientUser: User,
-        inConversationWithIDKey conversationIDKey: String,
         sentDate: Date
     ) async throws(Exception) -> Message {
         guard let audioURL = mainBundle.url(
-            forResource: "audio2",
+            forResource: audioResourceName,
             withExtension: "m4a"
         ),
             let audioData = try? Data(contentsOf: audioURL) else {
@@ -294,12 +335,15 @@ struct ConversationStagingService {
         }
 
         let translation = try await networking.hostedTranslation.translate(
-            .init("Thanks!"),
+            .init(text),
             with: .init(
                 from: senderUser.languageCode,
                 to: recipientUser.languageCode
-            )
+            ),
+            archive: .deferred
         )
+
+        await recordPendingArchiveEntry(for: translation)
 
         let uniqueID = UUID().uuidString
         let inputURL = fileManager.documentsDirectoryURL.appending(
@@ -344,92 +388,27 @@ struct ConversationStagingService {
             translatedDirectoryPath: translatedDirectoryPath
         )
 
-        let message = try await networking.messageService.createMessage(
+        return try await networking.messageService.buildMessage(
             fromAccountID: senderUser.id,
             richContent: .audio([audioComponent]),
             sentDate: sentDate,
             translations: [translation]
         )
-
-        try await appendMessageID(
-            message.id,
-            toConversationWithIDKey: conversationIDKey
-        )
-
-        return message
     }
 
-    private func addTextMessage(
-        text: String,
-        from senderUser: User,
-        allParticipants: [User],
-        inConversationWithIDKey conversationIDKey: String,
-        sentDate: Date,
-        forcedOutputs: [String: String] = [:]
-    ) async throws(Exception) -> Message {
-        let translations = try await translateText(
-            text,
-            from: senderUser,
-            toUsers: allParticipants.filter { $0.id != senderUser.id },
-            forcedOutputs: forcedOutputs
-        )
+    @MainActor
+    private func recordPendingArchiveEntry(
+        for translation: Translation
+    ) {
+        // The entry waits until the message commit that carries
+        // it drains it into its payload.
+        guard let archiveEntry = networking.hostedTranslation.hostedArchiveEntry(
+            for: translation
+        ) else { return }
 
-        let message = try await networking.messageService.createMessage(
-            fromAccountID: senderUser.id,
-            richContent: nil,
-            sentDate: sentDate,
-            translations: translations
-        )
-
-        try await appendMessageID(
-            message.id,
-            toConversationWithIDKey: conversationIDKey
-        )
-
-        return message
-    }
-
-    private func appendMessageID(
-        _ messageID: String,
-        toConversationWithIDKey conversationIDKey: String
-    ) async throws(Exception) {
-        try await networking.database.runTransaction(
-            at: [
-                NetworkPath.conversations.rawValue,
-                conversationIDKey,
-                Conversation.SerializableKey.messages.rawValue,
-            ].joined(separator: "/")
-        ) { currentValue in
-            var messageIDs = (currentValue as? [String]) ?? []
-            messageIDs.append(messageID)
-            return messageIDs
-        }
-    }
-
-    private func archiveTranslation(
-        _ translation: Translation
-    ) async throws(Exception) {
-        guard let referenceValue = translation.reference.type.value else { return }
-
-        try await networking.database.updateChildValues(
-            forKey: "\(NetworkPath.translations.rawValue)/\(translation.languagePair.string)",
-            with: [translation.reference.type.key: referenceValue]
-        )
-    }
-
-    private func markAsRead(
-        conversation: Conversation,
-        forUserID userID: String
-    ) async throws(Exception) {
-        guard let message = conversation.messages?.first else { return }
-        _ = try await message.update(
-            \.readReceipts,
-            to: [
-                ReadReceipt(
-                    userID: userID,
-                    readDate: message.sentDate
-                ),
-            ]
+        PendingTranslationArchive.record(
+            archiveEntry,
+            for: translation.reference.hostingKey
         )
     }
 
@@ -448,19 +427,27 @@ struct ConversationStagingService {
             internalFormattedString: nil
         )
 
-        if await networking.userService.accountExists(
+        let user: User = if await networking.userService.accountExists(
             for: phoneNumber
         ) {
-            return try await networking.userService.getUser(
+            try await networking.userService.getUser(
                 phoneNumber: phoneNumber
+            )
+        } else {
+            try await networking.userService.createUser(
+                id: id,
+                languageCode: languageCode,
+                phoneNumber: phoneNumber,
+                pushTokens: nil
             )
         }
 
-        return try await networking.userService.createUser(
-            id: id,
-            languageCode: languageCode,
-            phoneNumber: phoneNumber,
-            pushTokens: nil
+        // Staged users never sign in; leave their device
+        // unresolved rather than claiming the current device.
+        guard user.deviceID != .bangQualifiedEmpty else { return user }
+        return try await user.update(
+            \.deviceID,
+            to: .bangQualifiedEmpty
         )
     }
 
@@ -537,7 +524,7 @@ struct ConversationStagingService {
         ]
 
         // Create conversation with Juan's first message.
-        let conversation = try await stageTextConversation(
+        var conversation = try await stageTextConversation(
             text: "\u{00BF}C\u{00F3}mo puedo hacer que mis amigos empiecen a usar esta aplicaci\u{00F3}n?",
             from: users.juanPerez,
             to: [users.mainUser],
@@ -547,71 +534,78 @@ struct ConversationStagingService {
             ]
         )
 
+        guard let juanMessage1 = conversation.messages?.first else {
+            throw Exception(
+                "Failed to resolve first message.",
+                metadata: .init(sender: self)
+            )
+        }
+
         // Add remaining messages.
-        _ = try await addTextMessage(
+        conversation = try await addTextMessage(
             text: StagedText.appStoreDownload.text(
                 for: users.mainUser.languageCode
             ),
             from: users.mainUser,
             allParticipants: participants,
-            inConversationWithIDKey: conversation.id.key,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(10)
-        )
+        ).conversation
 
-        let juanMessage2 = try await addTextMessage(
+        let juanReply2 = try await addTextMessage(
             text: "\u{00BF}Entonces no tienen que registrarse con un correo electr\u{00F3}nico y una contrase\u{00F1}a?",
             from: users.juanPerez,
             allParticipants: participants,
-            inConversationWithIDKey: conversation.id.key,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(20),
             forcedOutputs: [
                 "en": "So they don\u{2019}t have to sign up with an e-mail and password?",
             ]
         )
 
-        _ = try await addTextMessage(
+        conversation = juanReply2.conversation
+        conversation = try await addTextMessage(
             text: StagedText.appStoreVerify.text(
                 for: users.mainUser.languageCode
             ),
             from: users.mainUser,
             allParticipants: participants,
-            inConversationWithIDKey: conversation.id.key,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(30)
-        )
+        ).conversation
 
-        let juanMessage3 = try await addTextMessage(
+        let juanReply3 = try await addTextMessage(
             text: "Guau, esto es incre\u{00ED}ble.",
             from: users.juanPerez,
             allParticipants: participants,
-            inConversationWithIDKey: conversation.id.key,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(40),
             forcedOutputs: [
                 "en": "Wow, this is so amazing.",
             ]
         )
 
-        _ = try await addAudioMessage(
-            from: users.mainUser,
-            to: users.juanPerez,
-            inConversationWithIDKey: conversation.id.key,
-            sentDate: sentDate.addingTimeInterval(50)
+        conversation = juanReply3.conversation
+        conversation = try await append(
+            buildAudioMessage(
+                text: "Thanks!",
+                audioResourceName: "audio2",
+                from: users.mainUser,
+                to: users.juanPerez,
+                sentDate: sentDate.addingTimeInterval(50)
+            ),
+            to: conversation
         )
 
         // Mark Juan's messages as read.
-        guard let firstMessage = conversation.messages?.first else { return }
-        for message in [
-            firstMessage,
-            juanMessage2,
-            juanMessage3,
-        ] {
-            _ = try await message.update(
-                \.readReceipts,
-                to: [ReadReceipt(
-                    userID: users.mainUser.id,
-                    readDate: message.sentDate
-                )]
-            )
-        }
+        try await conversation.updateReadDate(
+            for: [
+                juanMessage1,
+                juanReply2.message,
+                juanReply3.message,
+            ],
+            userID: users.mainUser.id
+        )
     }
 
     private func stageAudioConversation(
@@ -619,72 +613,12 @@ struct ConversationStagingService {
         to recipientUser: User,
         sentDate: Date
     ) async throws(Exception) {
-        guard let audioURL = mainBundle.url(
-            forResource: "audio",
-            withExtension: "m4a"
-        ),
-            let audioData = try? Data(contentsOf: audioURL) else {
-            throw Exception(
-                "Failed to resolve required values.",
-                metadata: .init(sender: self)
-            )
-        }
-
-        let translation = try await networking.hostedTranslation.translate(
-            .init("Hola, \u{00BF}c\u{00F3}mo est\u{00E1}s?"),
-            with: .init(
-                from: senderUser.languageCode,
-                to: recipientUser.languageCode
-            )
-        )
-
-        let inputURL = fileManager.documentsDirectoryURL.appending(
-            path: "staged_audio_input.m4a"
-        )
-
-        try fileManager.createFile(
-            atPath: inputURL,
-            data: audioData
-        )
-
-        let outputFileName = "\(recipientUser.languageCode)-output"
-        let outputURL = fileManager.documentsDirectoryURL.appending(
-            path: "\(outputFileName).m4a"
-        )
-
-        try fileManager.createFile(
-            atPath: outputURL,
-            data: audioData
-        )
-
-        let inputFile = AudioFile(
-            inputURL,
-            name: "staged_audio_input",
-            fileExtension: .m4a,
-            contentDuration: 0
-        )
-
-        let outputFile = AudioFile(
-            outputURL,
-            name: outputFileName,
-            fileExtension: .m4a,
-            contentDuration: 0
-        )
-
-        let translatedDirectoryPath = "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
-
-        let audioComponent = AudioMessageReference(
-            translation: translation,
-            original: inputFile,
-            translated: outputFile,
-            translatedDirectoryPath: translatedDirectoryPath
-        )
-
-        let message = try await networking.messageService.createMessage(
-            fromAccountID: senderUser.id,
-            richContent: .audio([audioComponent]),
-            sentDate: sentDate,
-            translations: [translation]
+        let message = try await buildAudioMessage(
+            text: "Hola, \u{00BF}c\u{00F3}mo est\u{00E1}s?",
+            audioResourceName: "audio",
+            from: senderUser,
+            to: recipientUser,
+            sentDate: sentDate
         )
 
         _ = try await networking.conversationService.createConversation(
@@ -731,7 +665,7 @@ struct ConversationStagingService {
         }
 
         // Create image message from main user.
-        let imageMessage = try await networking.messageService.createMessage(
+        let imageMessage = try await networking.messageService.buildMessage(
             fromAccountID: users.mainUser.id,
             richContent: .media(mediaFile),
             sentDate: sentDate,
@@ -748,89 +682,75 @@ struct ConversationStagingService {
             users.zhangShan,
         ]
 
-        let conversation = try await networking.conversationService.createConversation(
+        var conversation = try await networking.conversationService.createConversation(
             firstMessage: imageMessage,
             isPenPalsConversation: false,
             participants: participants.map { Participant(userID: $0.id) }
         )
 
         // Add text messages.
-        _ = try await addTextMessage(
+        conversation = try await addTextMessage(
             text: StagedText.beachDayCheckOut.text(
                 for: users.mainUser.languageCode
             ),
             from: users.mainUser,
             allParticipants: participants,
-            inConversationWithIDKey: conversation.id.key,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(10)
-        )
+        ).conversation
 
-        let zhangMessage = try await addTextMessage(
+        let zhangReply = try await addTextMessage(
             text: "我们在路上了！",
             from: users.zhangShan,
             allParticipants: participants,
-            inConversationWithIDKey: conversation.id.key,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(20),
             forcedOutputs: [
                 "en": "We\u{2019}re on the way!",
             ]
         )
 
-        let marioMessage = try await addTextMessage(
+        conversation = zhangReply.conversation
+        let marioReply = try await addTextMessage(
             text: "Qualcuno vuole unirsi alla partita di pallavolo?",
             from: users.marioRossi,
             allParticipants: participants,
-            inConversationWithIDKey: conversation.id.key,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(30),
             forcedOutputs: [
                 "en": "Anyone else want to get in on that volleyball game?",
             ]
         )
 
-        let juanMessage = try await addTextMessage(
+        conversation = marioReply.conversation
+        let juanReply = try await addTextMessage(
             text: "\u{00A1}Parece divertido! \u{1F929}",
             from: users.juanPerez,
             allParticipants: participants,
-            inConversationWithIDKey: conversation.id.key,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(40),
             forcedOutputs: [
                 "en": "Looks like fun! \u{1F929}",
             ]
         )
 
-        _ = try await addTextMessage(
+        conversation = juanReply.conversation
+        conversation = try await addTextMessage(
             text: StagedText.beachDayTable.text(
                 for: users.mainUser.languageCode
             ),
             from: users.mainUser,
             allParticipants: participants,
-            inConversationWithIDKey: conversation.id.key,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(50)
-        )
-
-        // Mark messages from other users as read.
-        for message in [
-            juanMessage,
-            marioMessage,
-            zhangMessage,
-        ] {
-            _ = try await message.update(
-                \.readReceipts,
-                to: [
-                    ReadReceipt(
-                        userID: users.mainUser.id,
-                        readDate: message.sentDate
-                    ),
-                ]
-            )
-        }
+        ).conversation
 
         // Add heart reactions to Mario's volleyball message.
-        _ = try await conversation.update(
+        conversation = try await conversation.update(
             \.reactionMetadata,
             to: [
                 ReactionMetadata(
-                    messageID: marioMessage.id,
+                    messageID: marioReply.message.id,
                     reactions: [
                         Reaction(.love, userID: users.mainUser.id),
                         Reaction(.love, userID: users.juanPerez.id),
@@ -856,12 +776,22 @@ struct ConversationStagingService {
             )
         }
 
-        _ = try await conversation.update(
+        conversation = try await conversation.update(
             \.metadata,
             to: conversation.metadata.copyWith(
                 name: "Beach Day \u{1F60E}\u{1F3D6}\u{FE0F}",
                 imageData: conversationImageData
             )
+        )
+
+        // Mark messages from other users as read.
+        try await conversation.updateReadDate(
+            for: [
+                juanReply.message,
+                marioReply.message,
+                zhangReply.message,
+            ],
+            userID: users.mainUser.id
         )
     }
 
@@ -897,7 +827,7 @@ struct ConversationStagingService {
             )
         }
 
-        let message = try await networking.messageService.createMessage(
+        let message = try await networking.messageService.buildMessage(
             fromAccountID: senderUser.id,
             richContent: .media(mediaFile),
             sentDate: sentDate,
@@ -939,11 +869,11 @@ struct ConversationStagingService {
         )
 
         // Add Zhang Shan's reply.
-        let zhangMessage = try await addTextMessage(
+        let zhangReply = try await addTextMessage(
             text: "那些照片太酷了！我们国家没有这些。",
             from: users.zhangShan,
             allParticipants: participants,
-            inConversationWithIDKey: conversation.id.key,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(10),
             forcedOutputs: [
                 "en": "Those pictures are so cool! We don\u{2019}t have that in our country.",
@@ -951,14 +881,9 @@ struct ConversationStagingService {
         )
 
         // Mark Zhang's message as read.
-        _ = try await zhangMessage.update(
-            \.readReceipts,
-            to: [
-                ReadReceipt(
-                    userID: users.mainUser.id,
-                    readDate: zhangMessage.sentDate
-                ),
-            ]
+        try await zhangReply.conversation.updateReadDate(
+            for: [zhangReply.message],
+            userID: users.mainUser.id
         )
     }
 
@@ -977,7 +902,7 @@ struct ConversationStagingService {
             forcedOutputs: forcedOutputs
         )
 
-        let message = try await networking.messageService.createMessage(
+        let message = try await networking.messageService.buildMessage(
             fromAccountID: senderUser.id,
             richContent: nil,
             sentDate: sentDate,
@@ -1006,7 +931,7 @@ struct ConversationStagingService {
         ]
 
         // Create conversation with mainUser's greeting.
-        let conversation = try await stageTextConversation(
+        var conversation = try await stageTextConversation(
             text: StagedText.viewOriginalGreeting.text(
                 for: users.mainUser.languageCode
             ),
@@ -1015,16 +940,14 @@ struct ConversationStagingService {
             sentDate: sentDate
         )
 
-        let conversationIDKey = conversation.id.key
-
         // Add partner's reply in their language, with a forced translation for mainUser.
-        let incomingMessage = try await addTextMessage(
+        let incomingReply = try await addTextMessage(
             text: StagedText.viewOriginalIncoming.text(
                 for: partner.languageCode
             ),
             from: partner,
             allParticipants: participants,
-            inConversationWithIDKey: conversationIDKey,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(10),
             forcedOutputs: [
                 users.mainUser.languageCode: StagedText.viewOriginalIncoming.text(
@@ -1034,25 +957,21 @@ struct ConversationStagingService {
         )
 
         // Add mainUser's final reply.
-        _ = try await addTextMessage(
+        conversation = incomingReply.conversation
+        conversation = try await addTextMessage(
             text: StagedText.viewOriginalMeantime.text(
                 for: users.mainUser.languageCode
             ),
             from: users.mainUser,
             allParticipants: participants,
-            inConversationWithIDKey: conversationIDKey,
+            in: conversation,
             sentDate: sentDate.addingTimeInterval(20)
-        )
+        ).conversation
 
         // Mark partner's message as read.
-        _ = try await incomingMessage.update(
-            \.readReceipts,
-            to: [
-                ReadReceipt(
-                    userID: users.mainUser.id,
-                    readDate: incomingMessage.sentDate
-                ),
-            ]
+        try await conversation.updateReadDate(
+            for: [incomingReply.message],
+            userID: users.mainUser.id
         )
     }
 
@@ -1063,27 +982,27 @@ struct ConversationStagingService {
         forcedOutputs: [String: String] = [:]
     ) async throws(Exception) -> [Translation] {
         try await recipientUsers.map(\.languageCode).unique.parallelMap { languageCode in
-            if let forcedOutput = forcedOutputs[languageCode] {
-                let translation = Translation(
+            let languagePair = LanguagePair(
+                from: senderUser.languageCode,
+                to: languageCode
+            )
+
+            let translation: Translation = if let forcedOutput = forcedOutputs[languageCode] {
+                .init(
                     input: .init(text),
                     output: forcedOutput,
-                    languagePair: .init(
-                        from: senderUser.languageCode,
-                        to: languageCode
-                    )
+                    languagePair: languagePair
                 )
-
-                try await archiveTranslation(translation)
-                return translation
+            } else {
+                try await networking.hostedTranslation.translate(
+                    .init(text),
+                    with: languagePair,
+                    archive: .deferred
+                )
             }
 
-            return try await networking.hostedTranslation.translate(
-                .init(text),
-                with: .init(
-                    from: senderUser.languageCode,
-                    to: languageCode
-                )
-            )
+            await recordPendingArchiveEntry(for: translation)
+            return translation
         }
     }
 }

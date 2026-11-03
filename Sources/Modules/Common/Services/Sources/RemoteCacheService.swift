@@ -56,13 +56,37 @@ struct RemoteCacheService {
         _ cacheStatus: RemoteCacheStatus,
         userID: String
     ) async throws(Exception) {
+        try await setCacheStatus(
+            cacheStatus,
+            userIDs: [userID]
+        )
+    }
+
+    /// Sets the remote cache status for the given users.
+    ///
+    /// The hosted invalidated caches list is modified atomically, in a single update: setting
+    /// ``RemoteCacheStatus/invalid`` adds the users to the list, and setting
+    /// ``RemoteCacheStatus/valid`` removes them. Passing no users has no effect.
+    ///
+    /// - Parameters:
+    ///   - cacheStatus: The status to set.
+    ///   - userIDs: The IDs of the users whose status to set.
+    ///
+    /// - Throws: An `Exception` if the update fails.
+    func setCacheStatus(
+        _ cacheStatus: RemoteCacheStatus,
+        userIDs: [String]
+    ) async throws(Exception) {
+        guard !userIDs.isEmpty else { return }
+        let userIDSet = Set(userIDs)
+
         try await networking.database.runTransaction(
             at: NetworkPath.invalidatedCaches.rawValue
         ) { currentValue in
             var ids = (currentValue as? [String]) ?? []
             switch cacheStatus {
-            case .invalid: ids.append(userID)
-            case .valid: ids.removeAll(where: { $0 == userID })
+            case .invalid: ids.append(contentsOf: userIDs)
+            case .valid: ids.removeAll(where: { userIDSet.contains($0) })
             }
 
             return ids.unique

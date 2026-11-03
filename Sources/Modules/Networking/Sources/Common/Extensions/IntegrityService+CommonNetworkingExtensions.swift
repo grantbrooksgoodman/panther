@@ -6,7 +6,7 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable cyclomatic_complexity function_body_length
+// swiftlint:disable function_body_length
 
 /* Native */
 import Foundation
@@ -17,32 +17,68 @@ import AppSubsystem
 import Networking
 
 extension IntegrityService {
-    /// Validates and repairs the hosted database, re-running from the start whenever a repair is
-    /// applied, until the data validates.
+    // MARK: - Types
+
+    private struct RepairPass {
+        /* MARK: Properties */
+
+        fileprivate let name: String
+        fileprivate let run: () async -> (tookAction: Bool, exception: Exception?)
+
+        /* MARK: Init */
+
+        fileprivate init(
+            _ name: String,
+            run: @escaping () async -> (tookAction: Bool, exception: Exception?)
+        ) {
+            self.name = name
+            self.run = run
+        }
+    }
+
+    private struct SweepResult {
+        /* MARK: Properties */
+
+        fileprivate let completedProgressUpdateSteps: Int
+        fileprivate let exceptions: [Exception]
+        fileprivate let methodsUsedForRepair: [String]
+
+        /* MARK: Computed Properties */
+
+        fileprivate var tookAction: Bool {
+            !methodsUsedForRepair.isEmpty
+        }
+    }
+
+    // MARK: - Properties
+
+    /// The number of progress steps a single sweep reports: safety validation, the two pruning
+    /// passes, and each repair pass.
+    private static let progressUpdateStepsPerSweep = 15
+
+    /// The number of sweeps after which a repair that keeps changing data is abandoned.
+    private static let maximumSweepCount = 5
+
+    // MARK: - Repair Database
+
+    /// Validates and repairs the hosted database, sweeping through every repair pass and then
+    /// re-validating against fresh data until it validates.
     ///
-    /// On its first run, this method clears the temporary directory, captures a rollback
-    /// snapshot, and migrates the database to the current schema. It then runs a sequence of
+    /// On its first sweep, this method clears the temporary directory, resolves a snapshot of the
+    /// database, and migrates that snapshot to the current schema. It then runs a sequence of
     /// validation and repair passes – pruning deleted users and invalidated caches, and repairing
-    /// malformed, broken, orphaned, mismatched, and non-existent data. Whenever a pass makes a
-    /// change, the method restarts the entire sequence so that later passes operate on the
-    /// repaired data.
+    /// malformed, broken, orphaned, mismatched, and non-existent data. Each pass applies the
+    /// updates it commits to the snapshot, so later passes in the same sweep operate on the
+    /// repaired data. Whenever a sweep makes a change, the method resolves a fresh snapshot and
+    /// sweeps again to confirm the database validates.
     ///
-    /// - Parameters:
-    ///   - exceptions: The exceptions accumulated across previous runs. Pass `nil` to begin a new
-    ///     repair.
-    ///   - methodsUsedForRepair: The names of the repair passes applied across previous runs. Pass
-    ///     `nil` to begin a new repair.
-    ///   - isFirstRun: A Boolean value that indicates whether this is the first run of the repair
-    ///     sequence.
-    ///   - onProgressUpdate: A closure called with the repair progress, from `0` to `1`, as each
-    ///     pass completes.
+    /// - Parameter onProgressUpdate: A closure called with the repair progress, from `0` to `1`,
+    ///   as each pass completes. Progress does not restart when an additional sweep is needed.
     ///
-    /// - Throws: An `Exception` if the app must be updated before the database can be repaired, or
-    ///   if any repair pass fails.
+    /// - Throws: An `Exception` if the app must be updated before the database can be repaired, if
+    ///   the database still needs repair after the maximum number of sweeps, or if any repair pass
+    ///   fails.
     func repairDatabase(
-        _ exceptions: [Exception]? = nil,
-        _ methodsUsedForRepair: [String]? = nil,
-        isFirstRun: Bool = true,
         onProgressUpdate: (@MainActor @Sendable (Double) -> Void)? = nil
     ) async throws(Exception) {
         @Dependency(\.alertKitConfig) var alertKitConfig: AlertKit.Config
@@ -52,23 +88,14 @@ extension IntegrityService {
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.rollbackService) var rollbackService: RollbackService
 
-        if isFirstRun {
-            // Refuse to repair unless the realtime connection is established.
-            guard await networking.database.awaitRealtimeConnection(
-                timeout: .seconds(15)
-            ) else {
-                throw Exception( // swiftlint:disable:next line_length
-                    "Aborting database repair: the realtime connection is not established. Repair must read authoritative server data and must never act on a cached snapshot.",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            do {
-                try coreUtilities.eraseTemporaryDirectory()
-                try await networking.schemaMigrationService.migrateDatabase()
-            } catch {
-                Logger.log(error)
-            }
+        // Refuse to repair unless the realtime connection is established.
+        guard await networking.database.awaitRealtimeConnection(
+            timeout: .seconds(15)
+        ) else {
+            throw Exception( // swiftlint:disable:next line_length
+                "Aborting database repair: the realtime connection is not established. Repair must read authoritative server data and must never act on a cached snapshot.",
+                metadata: .init(sender: self)
+            )
         }
 
         // Revalidate first so the version gate is never evaluated
@@ -88,232 +115,75 @@ extension IntegrityService {
             )
         }
 
+        do {
+            try coreUtilities.eraseTemporaryDirectory()
+        } catch {
+            Logger.log(error)
+        }
+
         CoreDatabaseStore.clearStore()
         networking.storage.clearStore()
 
         networking.database.setGlobalCacheStrategy(.disregardCache)
         networking.storage.setGlobalCacheStrategy(.disregardCache)
 
-        var exceptions = exceptions ?? .init()
-        var methodsUsedForRepair = methodsUsedForRepair ?? .init()
-
-        // Keep in sync with the number of `reportProgressUpdate` calls below.
-        let progressUpdateStepCount = 15
-        var completedProgressUpdateSteps = 0
-        func reportProgressUpdate() async {
-            completedProgressUpdateSteps += 1
-            await onProgressUpdate?(
-                Double(completedProgressUpdateSteps) / Double(progressUpdateStepCount)
-            )
-        }
-
-        // Resolve Integrity Service Session
-
-        do {
-            try await resolveSession()
-        } catch {
-            throw error
-        }
-
-        try validateRepairSafety()
-        await reportProgressUpdate()
-
-        // Prune Deleted Users & Invalidated Caches
-
-        do { try await pruneDeletedUsers() } catch { exceptions.append(error) }
-        await reportProgressUpdate()
-
-        do { try await pruneInvalidatedCaches() } catch { exceptions.append(error) }
-        await reportProgressUpdate()
-
-        // Repair Malformed Data
-
-        let repairMalformedMessagesResult = await repairMalformedMessages()
-        if let exception = repairMalformedMessagesResult.exception { exceptions.append(exception) }
-        if repairMalformedMessagesResult.tookAction {
-            methodsUsedForRepair.append("repairMalformedMessages")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
-        let repairMalformedConversationsResult = await repairMalformedConversations()
-        if let exception = repairMalformedConversationsResult.exception { exceptions.append(exception) }
-        if repairMalformedConversationsResult.tookAction {
-            methodsUsedForRepair.append("repairMalformedConversations")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
-        let repairMalformedUsersResult = await repairMalformedUsers()
-        if let exception = repairMalformedUsersResult.exception { exceptions.append(exception) }
-        if repairMalformedUsersResult.tookAction {
-            methodsUsedForRepair.append("repairMalformedUsers")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
-        // Repair Broken Data
-
-        let resolveBrokenConversationChainResult = await resolveBrokenConversationChain()
-        if let exception = resolveBrokenConversationChainResult.exception { exceptions.append(exception) }
-        if resolveBrokenConversationChainResult.tookAction {
-            methodsUsedForRepair.append("resolveBrokenConversationChain")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
-        let resolveBrokenMessageChainResult = await resolveBrokenMessageChain()
-        if let exception = resolveBrokenMessageChainResult.exception { exceptions.append(exception) }
-        if resolveBrokenMessageChainResult.tookAction {
-            methodsUsedForRepair.append("resolveBrokenMessageChain")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
-        let resolveMismatchedParticipantsResult = await resolveMismatchedParticipants()
-        if let exception = resolveMismatchedParticipantsResult.exception { exceptions.append(exception) }
-        if resolveMismatchedParticipantsResult.tookAction {
-            methodsUsedForRepair.append("resolveMismatchedParticipants")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
-        let resolveNoAudioComponentMessagesResult = await resolveNoAudioComponentMessages()
-        if let exception = resolveNoAudioComponentMessagesResult.exception { exceptions.append(exception) }
-        if resolveNoAudioComponentMessagesResult.tookAction {
-            methodsUsedForRepair.append("resolveNoAudioComponentMessages")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
-        let resolveNoMediaComponentMessagesResult = await resolveNoMediaComponentMessages()
-        if let exception = resolveNoMediaComponentMessagesResult.exception { exceptions.append(exception) }
-        if resolveNoMediaComponentMessagesResult.tookAction {
-            methodsUsedForRepair.append("resolveNoMediaComponentMessages")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
-        let resolveNonExistentParticipantsResult = await resolveNonExistentParticipants()
-        if let exception = resolveNonExistentParticipantsResult.exception { exceptions.append(exception) }
-        if resolveNonExistentParticipantsResult.tookAction {
-            methodsUsedForRepair.append("resolveNonExistentParticipants")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
-        let resolveNonExistentTranslationsResult = await resolveNonExistentTranslations()
-        if let exception = resolveNonExistentTranslationsResult.exception { exceptions.append(exception) }
-        if resolveNonExistentTranslationsResult.tookAction {
-            methodsUsedForRepair.append("resolveNonExistentTranslations")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
-        let resolveOrphanedMediaResult = await resolveOrphanedMedia()
-        if let exception = resolveOrphanedMediaResult.exception { exceptions.append(exception) }
-        if resolveOrphanedMediaResult.tookAction {
-            methodsUsedForRepair.append("resolveOrphanedMedia")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
-        let resolveOrphanedMessagesResult = await resolveOrphanedMessages()
-        if let exception = resolveOrphanedMessagesResult.exception { exceptions.append(exception) }
-        if resolveOrphanedMessagesResult.tookAction {
-            methodsUsedForRepair.append("resolveOrphanedMessages")
-            return try await repairDatabase(
-                exceptions,
-                methodsUsedForRepair,
-                isFirstRun: false,
-                onProgressUpdate: onProgressUpdate
-            )
-        }
-
-        await reportProgressUpdate()
-
         defer {
             networking.database.setGlobalCacheStrategy(nil)
             networking.storage.setGlobalCacheStrategy(nil)
+        }
 
-            let rollbackService = UncheckedSendable(rollbackService)
-            Task {
-                do throws(Exception) {
-                    try await rollbackService
-                        .wrappedValue
-                        .captureSnapshot()
+        var completedProgressUpdateSteps = 0
+        var exceptions = [Exception]()
+        var methodsUsedForRepair = [String]()
+        var sweepCount = 0
+
+        repeat {
+            sweepCount += 1
+            guard sweepCount <= Self.maximumSweepCount else {
+                throw Exception(
+                    "Database still needs repair after \(Self.maximumSweepCount) sweeps; aborting.",
+                    userInfo: ["MethodsUsedForRepair": methodsUsedForRepair],
+                    metadata: .init(sender: self)
+                )
+            }
+
+            // Each sweep validates against authoritative data: the
+            // first resolves and migrates the snapshot, and later
+            // sweeps confirm the previous sweep's repairs.
+            try await resolveSession()
+
+            if sweepCount == 1 {
+                do {
+                    try await migrateSchema()
                 } catch {
-                    Logger.log(
-                        error,
-                        domain: .dataIntegrity
-                    )
+                    Logger.log(error)
                 }
+            }
+
+            let sweepResult = try await sweep(
+                sweepCount: sweepCount,
+                startingProgressUpdateSteps: completedProgressUpdateSteps,
+                onProgressUpdate: onProgressUpdate
+            )
+
+            completedProgressUpdateSteps = sweepResult.completedProgressUpdateSteps
+            exceptions.append(contentsOf: sweepResult.exceptions)
+            methodsUsedForRepair.append(contentsOf: sweepResult.methodsUsedForRepair)
+
+            guard sweepResult.tookAction else { break }
+        } while true
+
+        let sendableRollbackService = UncheckedSendable(rollbackService)
+        Task {
+            do throws(Exception) {
+                try await sendableRollbackService
+                    .wrappedValue
+                    .captureSnapshot()
+            } catch {
+                Logger.log(
+                    error,
+                    domain: .dataIntegrity
+                )
             }
         }
 
@@ -371,6 +241,75 @@ extension IntegrityService {
             throw exception
         }
     }
+
+    // MARK: - Auxiliary
+
+    /// Runs every validation and repair pass once over the current snapshot. Progress accumulates
+    /// across sweeps so a confirming sweep continues from where the previous one ended.
+    private func sweep(
+        sweepCount: Int,
+        startingProgressUpdateSteps: Int,
+        onProgressUpdate: (@MainActor @Sendable (Double) -> Void)?
+    ) async throws(Exception) -> SweepResult {
+        var completedProgressUpdateSteps = startingProgressUpdateSteps
+        var exceptions = [Exception]()
+        var methodsUsedForRepair = [String]()
+
+        func reportProgressUpdate() async {
+            completedProgressUpdateSteps += 1
+            await onProgressUpdate?(
+                Double(completedProgressUpdateSteps) / Double(Self.progressUpdateStepsPerSweep * sweepCount)
+            )
+        }
+
+        try validateRepairSafety()
+        await reportProgressUpdate()
+
+        // Prune Deleted Users & Invalidated Caches
+
+        do { try await pruneDeletedUsers() } catch { exceptions.append(error) }
+        await reportProgressUpdate()
+
+        do { try await pruneInvalidatedCaches() } catch { exceptions.append(error) }
+        await reportProgressUpdate()
+
+        // Repair Malformed, Broken, Orphaned, Mismatched & Non-Existent Data
+
+        let passes: [RepairPass] = [
+            .init("repairMalformedMessages") { await repairMalformedMessages() },
+            .init("repairMalformedConversations") { await repairMalformedConversations() },
+            .init("repairMalformedUsers") { await repairMalformedUsers() },
+            .init("resolveBrokenConversationChain") { await resolveBrokenConversationChain() },
+            .init("resolveBrokenMessageChain") { await resolveBrokenMessageChain() },
+            .init("resolveMismatchedParticipants") { await resolveMismatchedParticipants() },
+            .init("resolveNoAudioComponentMessages") { await resolveNoAudioComponentMessages() },
+            .init("resolveNoMediaComponentMessages") { await resolveNoMediaComponentMessages() },
+            .init("resolveNonExistentParticipants") { await resolveNonExistentParticipants() },
+            .init("resolveNonExistentTranslations") { await resolveNonExistentTranslations() },
+            .init("resolveOrphanedMedia") { await resolveOrphanedMedia() },
+            .init("resolveOrphanedMessages") { await resolveOrphanedMessages() },
+        ]
+
+        for pass in passes {
+            let result = await pass.run()
+
+            if let exception = result.exception {
+                exceptions.append(exception)
+            }
+
+            if result.tookAction {
+                methodsUsedForRepair.append(pass.name)
+            }
+
+            await reportProgressUpdate()
+        }
+
+        return .init(
+            completedProgressUpdateSteps: completedProgressUpdateSteps,
+            exceptions: exceptions,
+            methodsUsedForRepair: methodsUsedForRepair
+        )
+    }
 }
 
-// swiftlint:enable cyclomatic_complexity function_body_length
+// swiftlint:enable function_body_length
