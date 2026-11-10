@@ -18,6 +18,8 @@ extension PersistentStorageKey {
         case buildMilestoneString
         case hasRunOnce
         case isInStagingMode
+        case stagedMainUserID
+        case stagedTwinLanguageCode
     }
 
     /// The persistent storage keys scoped to ``AIEnhancedTranslationService``.

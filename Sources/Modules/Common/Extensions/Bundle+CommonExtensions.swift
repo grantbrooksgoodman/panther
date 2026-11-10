@@ -15,7 +15,7 @@ extension Bundle {
     ///
     /// Staging mode requires two audio files, two images, and a video to be present in the
     /// bundle. This property is `false` if any of these resources is missing.
-    var containsStagingAssets: Bool {
+    static let containsStagingAssets = {
         let requiredResources = [
             "audio": "m4a",
             "audio2": "m4a",
@@ -25,12 +25,12 @@ extension Bundle {
         ]
 
         for resource in requiredResources {
-            guard url(
+            guard Bundle.main.url(
                 forResource: resource.key,
                 withExtension: resource.value
             ) != nil else { return false }
         }
 
         return true
-    }
+    }()
 }

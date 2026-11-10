@@ -20,5 +20,9 @@ extension AppConstants.CGFloats {
             static let submissionRetryCountMaximum: CGFloat = 5
             static let submissionRetryDelayMilliseconds: CGFloat = 1000
         }
+
+        enum String {
+            static let regionalIndicatorSymbolLetterABase: UInt32 = 0x1F1E6
+        }
     }
 }

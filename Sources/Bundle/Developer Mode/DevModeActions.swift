@@ -38,10 +38,6 @@ extension DevModeAction {
     /// The delegate that supplies app-specific actions to the
     /// Developer Mode menu.
     struct AppActions: @MainActor AppSubsystem.Delegates.DevModeAppActionDelegate {
-        // MARK: - Dependencies
-
-        @Dependency(\.mainBundle) private var mainBundle: Bundle
-
         // MARK: - Properties
 
         /// The actions to display in the Developer Mode menu, sorted alphabetically by title.
@@ -59,7 +55,7 @@ extension DevModeAction {
             ]
 
             if Networking.config.environment != .production,
-               mainBundle.containsStagingAssets {
+               Bundle.containsStagingAssets {
                 actions.append(StagingModeOptions.action)
             }
 

@@ -64,10 +64,15 @@ extension CoreKit.Utilities {
     /// This method resolves the current user's conversations and messages, computes the set of
     /// conversation identifiers matching the granularity, and deletes them in one pass by routing
     /// them through the network integrity service's malformed-conversation repair procedure.
-    /// While the operation runs, an activity indicator overlay is displayed and all database and
-    /// storage caching is disabled.
+    /// While the operation runs, all database and storage caching is disabled, and an activity
+    /// indicator overlay is displayed unless the caller manages its own.
     ///
-    /// - Parameter granularity: The set of conversations to delete.
+    /// - Parameters:
+    ///   - granularity: The set of conversations to delete.
+    ///   - showsOverlay: A Boolean value that indicates whether to display an activity indicator
+    ///     overlay for the duration of the operation. Pass `false` when an overlay is already
+    ///     displayed, because removing this method's overlay removes every overlay on the window.
+    ///     The default is `true`.
     ///
     /// - Important: This method stops current-user change observation and does not restart it.
     ///
@@ -75,7 +80,8 @@ extension CoreKit.Utilities {
     ///   deletion fails for any conversation.
     @MainActor
     func deleteConversations(
-        _ granularity: ConversationDeletionGranularity
+        _ granularity: ConversationDeletionGranularity,
+        showsOverlay: Bool = true
     ) async throws(Exception) {
         @Dependency(\.clientSession) var clientSession: ClientSession
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
@@ -144,13 +150,17 @@ extension CoreKit.Utilities {
         defer {
             networking.database.setGlobalCacheStrategy(nil)
             networking.storage.setGlobalCacheStrategy(nil)
-            coreUI.removeOverlay()
+            if showsOverlay {
+                coreUI.removeOverlay()
+            }
         }
 
-        coreUI.addOverlay(
-            alpha: 0.5,
-            activityIndicator: .largeWhite
-        )
+        if showsOverlay {
+            coreUI.addOverlay(
+                alpha: 0.5,
+                activityIndicator: .largeWhite
+            )
+        }
 
         networking.database.setGlobalCacheStrategy(.disregardCache)
         networking.storage.setGlobalCacheStrategy(.disregardCache)

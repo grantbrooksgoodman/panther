@@ -41,9 +41,8 @@ enum Application {
     // MARK: - Computed Properties
 
     static var isInStagingMode: Bool {
-        @Dependency(\.mainBundle) var mainBundle: Bundle
         @Persistent(.isInStagingMode) var persistedValue: Bool?
-        guard mainBundle.containsStagingAssets else {
+        guard Bundle.containsStagingAssets else {
             persistedValue = nil
             return false
         }

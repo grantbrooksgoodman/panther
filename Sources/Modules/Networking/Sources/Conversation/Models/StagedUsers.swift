@@ -26,6 +26,10 @@ struct StagedUsers {
     /// The predefined user representing the current user in staged conversations.
     let mainUser: User
 
+    /// The twin participant speaking the main user's language, or `nil` if a predefined
+    /// participant already speaks it.
+    let languageTwin: User?
+
     /// A predefined participant used to stage sample conversations.
     let marioRossi: User
 

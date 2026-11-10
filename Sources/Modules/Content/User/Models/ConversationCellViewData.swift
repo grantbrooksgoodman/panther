@@ -357,10 +357,15 @@ private enum _ConversationCellViewDataCache {
 }
 
 private extension ConversationCellViewData {
+    @MainActor
     static func penPalsTitleLabelText(
         for conversation: Conversation,
         users: [User]
     ) -> String {
+        // Staged screenshots show the generic title regardless
+        // of which pen pals have revealed their identities.
+        guard !Application.isInStagingMode else { return "PenPals" }
+
         if users.count == 1,
            let otherUser = users.first {
             return conversation.displayName(for: otherUser)

@@ -14,7 +14,33 @@ import AppSubsystem
 import Translator
 
 extension String {
+    // MARK: - Constants Accessors
+
+    private typealias Floats = AppConstants.CGFloats.CommonExtensions.String
+
     // MARK: - Properties
+
+    /// The emoji flag for the string interpreted as an ISO 3166-1 alpha-2 region code, or `nil`.
+    ///
+    /// Each letter of the code maps to its Unicode regional indicator symbol, and the resulting
+    /// pair renders as that region's flag. Returns `nil` unless the string consists of exactly two
+    /// ASCII letters; case is ignored.
+    ///
+    /// ```swift
+    /// "ua".emojiFlag // "🇺🇦"
+    /// ```
+    var emojiFlag: String? {
+        let letters = uppercased().unicodeScalars
+        guard letters.count == 2,
+              letters.allSatisfy({ ("A" ... "Z").contains($0) }) else { return nil }
+
+        let letterABase = UnicodeScalar("A").value
+        let symbols = letters.compactMap {
+            UnicodeScalar(Floats.regionalIndicatorSymbolLetterABase + ($0.value - letterABase))
+        }
+
+        return String(String.UnicodeScalarView(symbols))
+    }
 
     /// The last path component of the string, without its path
     /// extension.

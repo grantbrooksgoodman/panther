@@ -20,7 +20,10 @@ import AppSubsystem
 ///
 /// The picker's behavior contract:
 ///
-/// - On appearance, the list scrolls to the currently selected region after a brief delay.
+/// - On appearance, the list scrolls to the currently selected region
+///   after a brief delay. The scroll runs once per presentation, and
+///   only while the search query is blank; changing the query cancels
+///   a pending scroll.
 /// - The list displays the regions whose titles match the search query, or a no results message
 ///   when none match.
 /// - Selecting a region writes its code to the selection binding, then dismisses the picker
@@ -47,12 +50,19 @@ struct RegionMenuReducer: Reducer {
         /// brief delay.
         case isPresentedChanged(Bool)
 
-        /// An action that indicates the region list appeared, carrying the proxy used to scroll
-        /// to the current selection.
+        /// An action that indicates the region list appeared, carrying
+        /// the proxy used to scroll to the current selection. Triggers
+        /// ``runScrollToSelectedRegionEffect(proxy:)`` after a brief
+        /// delay.
         case listViewAppeared(proxy: ScrollViewProxy)
 
         /// An action that applies the given presentation state to the presentation binding.
         case runIsPresentedEffect(Bool)
+
+        /// An action that scrolls the region list to the current
+        /// selection using the given proxy, if the search query is
+        /// blank and the selection is among the displayed regions.
+        case runScrollToSelectedRegionEffect(proxy: ScrollViewProxy)
 
         /// An action that indicates the search query changed, carrying the new value.
         case searchQueryChanged(String)
@@ -66,6 +76,12 @@ struct RegionMenuReducer: Reducer {
 
     /// The state of the region picker.
     struct State: Equatable {
+        /* MARK: Types */
+
+        fileprivate enum TaskID {
+            case scrollToSelectedRegion
+        }
+
         /* MARK: Properties */
 
         /// A binding to a Boolean value that indicates whether the picker is presented. Writing
@@ -78,6 +94,7 @@ struct RegionMenuReducer: Reducer {
         /// The search query the user has entered.
         var searchQuery = ""
 
+        fileprivate var hasScrolledToSelectedRegion = false
         fileprivate var selectedRegionCode: Binding<String>
 
         /* MARK: Computed Properties */
@@ -128,12 +145,14 @@ struct RegionMenuReducer: Reducer {
             right: State
         ) -> Bool {
             let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
+            let sameHasScrolledToSelectedRegion = left.hasScrolledToSelectedRegion == right.hasScrolledToSelectedRegion
             let sameHeaderLabelText = left.headerLabelText == right.headerLabelText
             let sameNoResultsLabelText = left.noResultsLabelText == right.noResultsLabelText
             let sameSearchQuery = left.searchQuery == right.searchQuery
             let sameSelectedRegionCode = left.selectedRegionCode.wrappedValue == right.selectedRegionCode.wrappedValue
 
             guard sameIsPresented,
+                  sameHasScrolledToSelectedRegion,
                   sameHeaderLabelText,
                   sameNoResultsLabelText,
                   sameSearchQuery,
@@ -163,23 +182,31 @@ struct RegionMenuReducer: Reducer {
             }
 
         case let .listViewAppeared(proxy: proxy):
-            let selectedRegionCode = state.selectedRegionCode.wrappedValue
-            let selectedRegionTitle = state.selectedRegionTitle
-
-            Task.delayed(by: .milliseconds(.init(Floats.delayMilliseconds))) { @MainActor in
-                withAnimation {
-                    proxy.scrollTo(selectedRegionTitle ?? selectedRegionCode, anchor: .top)
-                }
-
-                guard UIApplication.isFullyV26Compatible else { return }
-                showCurrentSelection()
-            }
+            guard !state.hasScrolledToSelectedRegion else { return .none }
+            let action = Action.runScrollToSelectedRegionEffect(proxy: proxy)
+            return .task(delay: .milliseconds(.init(Floats.delayMilliseconds))) {
+                action
+            }.cancellable(id: State.TaskID.scrollToSelectedRegion)
 
         case let .runIsPresentedEffect(isPresented):
             state.isPresented.wrappedValue = isPresented
 
+        case let .runScrollToSelectedRegionEffect(proxy: proxy):
+            guard state.searchQuery.isBlank,
+                  let selectedRegionTitle = state.selectedRegionTitle,
+                  state.queriedRegionTitles?.contains(selectedRegionTitle) == true else { return .none }
+
+            state.hasScrolledToSelectedRegion = true
+            withAnimation {
+                proxy.scrollTo(selectedRegionTitle, anchor: .top)
+            }
+
+            guard UIApplication.isFullyV26Compatible else { return .none }
+            showCurrentSelection()
+
         case let .searchQueryChanged(searchQuery):
             state.searchQuery = searchQuery
+            return .cancel(id: State.TaskID.scrollToSelectedRegion)
 
         case let .selectedRegionTitleChanged(selectedRegionTitle):
             state.selectedRegionCode.wrappedValue = regionDetailService.regionCode(by: .regionTitle(selectedRegionTitle)) ?? ""

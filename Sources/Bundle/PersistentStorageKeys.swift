@@ -31,6 +31,8 @@ extension PersistentStorageKey {
             .application(.buildMilestoneString),
             .application(.hasRunOnce),
             .application(.isInStagingMode),
+            .application(.stagedMainUserID),
+            .application(.stagedTwinLanguageCode),
             .breadcrumbsCaptureService(.breadcrumbsCaptureHistory),
             .networking(.isNetworkActivityIndicatorEnabled),
             .networking(.networkEnvironment),

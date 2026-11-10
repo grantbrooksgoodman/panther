@@ -25,6 +25,9 @@ struct RollbackService {
 
     fileprivate static let shared = RollbackService()
 
+    /// The age the latest snapshot must reach before a new one is captured.
+    private static let minimumCaptureInterval: TimeInterval = 600
+
     // MARK: - Init
 
     private init() {}
@@ -35,36 +38,41 @@ struct RollbackService {
         of environment: NetworkEnvironment = Networking.config.environment
     ) async throws(Exception) {
         let snapshots = try await listSnapshots(of: environment)
-        guard let latestKey = Array(snapshots.keys).sorted().last,
-              let snapshotFileName = snapshots[latestKey] else {
-            throw Exception(
-                "Failed to resolve latest snapshot.",
-                metadata: .init(sender: self)
+        let latestSnapshotDate = snapshots.keys.sorted().last
+
+        // Check recency before downloading the latest snapshot or
+        // serializing the live database, which are the costly steps.
+        if let latestSnapshotDate,
+           Date.now.timeIntervalSince(latestSnapshotDate) < Self.minimumCaptureInterval {
+            return Logger.log(
+                "Skipping capture – latest snapshot is within the minimum capture interval.",
+                domain: .rollbackService,
+                sender: self
             )
         }
 
-        let latestSnapshotData: Data?
-        do {
-            latestSnapshotData = try await JSONSerialization.data(
-                withJSONObject: retrieveSnapshot(
-                    fileName: snapshotFileName,
-                    environment: environment
-                ),
-                options: [
-                    .prettyPrinted,
-                    .sortedKeys,
-                ]
-            )
-        } catch let exception as Exception {
-            Logger.log(exception)
-            latestSnapshotData = nil
-        } catch {
-            Logger.log(.init(
-                error,
-                metadata: .init(sender: self)
-            ))
-
-            latestSnapshotData = nil
+        var latestSnapshotData: Data?
+        if let latestSnapshotDate,
+           let snapshotFileName = snapshots[latestSnapshotDate] {
+            do {
+                latestSnapshotData = try await JSONSerialization.data(
+                    withJSONObject: retrieveSnapshot(
+                        fileName: snapshotFileName,
+                        environment: environment
+                    ),
+                    options: [
+                        .prettyPrinted,
+                        .sortedKeys,
+                    ]
+                )
+            } catch let exception as Exception {
+                Logger.log(exception)
+            } catch {
+                Logger.log(.init(
+                    error,
+                    metadata: .init(sender: self)
+                ))
+            }
         }
 
         let preparedData = try await prepareJSONData(for: environment)

@@ -29,6 +29,13 @@ struct ConversationStagingService {
     @Dependency(\.clientSession.store) private var sessionStore: SessionStore
     @Dependency(\.clientSession.entity.user) private var userSession: UserSessionService
 
+    // MARK: - Properties
+
+    @LockIsolated private var localizedTextCache: [String: [StagedText: String]] = [:]
+    @Persistent(.stagedMainUserID) private var stagedMainUserID: String?
+    @Persistent(.stagedTwinLanguageCode) private var stagedTwinLanguageCode: String?
+    private let stagedUserService: StagedUserService = .shared
+
     // MARK: - Computed Properties
 
     /// The shared conversation staging service.
@@ -64,14 +71,18 @@ struct ConversationStagingService {
 
         do throws(Exception) {
             userSession.stopObservingCurrentUserChanges()
-            try await core.utils.deleteConversations(.allForCurrentUser)
-
             core.ui.addOverlay(
                 alpha: 0.5,
                 activityIndicator: .largeWhite
             )
 
+            // Resolve staged users before deleting anything, so a
+            // resolution failure aborts without data loss.
             let users = try await resolveStagedUsers()
+            try await core.utils.deleteConversations(
+                .allForCurrentUser,
+                showsOverlay: false
+            )
             sessionStore.clearConversationArchive()
             ConversationCellViewDataCache.clearCache()
 
@@ -138,121 +149,140 @@ struct ConversationStagingService {
                 )
             }
 
-            // Stage conversations from oldest to newest.
+            // Translate every staged text up front, concurrently,
+            // so the conversations below never wait on translation.
+            try await prefetchLocalizedTexts(for: users)
 
-            // 1. Zhang Shan – image, 1/24/25.
-            let zhangConversation = try await stageMediaConversation(
-                mediaData: imageData,
-                mediaFileExtension: .image(.jpeg),
-                mediaFileName: "staged_image",
-                from: users.zhangShan,
-                to: users.mainUser,
-                sentDate: dateJan24
-            )
+            // Stage conversations concurrently. Each writes only
+            // its own conversation paths and per-conversation user
+            // entries, so none can clobber another.
+            let stagers: [() async throws(Exception) -> Void] = [
+                // 1. Zhang Shan – image, 1/24/25.
+                { () throws(Exception) in
+                    let conversation = try await stageMediaConversation(
+                        mediaData: imageData,
+                        mediaFileExtension: .image(.jpeg),
+                        mediaFileName: "staged_image",
+                        from: users.zhangShan,
+                        to: users.mainUser,
+                        sentDate: dateJan24
+                    )
 
-            try await zhangConversation.updateReadDate(
-                for: zhangConversation.messages ?? [],
-                userID: users.mainUser.id
-            )
+                    try await conversation.updateReadDate(
+                        for: conversation.messages ?? [],
+                        userID: users.mainUser.id
+                    )
+                },
+                // 2. Vacation Planning – text, 6/29/25.
+                { () throws(Exception) in
+                    let conversation = try await stageTextConversation(
+                        .vacationPlanning,
+                        from: users.mainUser,
+                        to: [
+                            users.erikaMustermann,
+                            users.johnAppleseed,
+                            users.juanPerez,
+                            users.marioRossi,
+                        ],
+                        sentDate: dateJun29
+                    )
 
-            // 2. Vacation Planning – text, 6/29/25.
-            let vacationConversation = try await stageTextConversation(
-                text: StagedText.vacationPlanning.text(
-                    for: users.mainUser.languageCode
-                ),
-                from: users.mainUser,
-                to: [
-                    users.erikaMustermann,
-                    users.johnAppleseed,
-                    users.juanPerez,
-                    users.marioRossi,
-                ],
-                sentDate: dateJun29
-            )
+                    _ = try await conversation.update(
+                        \.metadata,
+                        to: conversation.metadata.copyWith(
+                            name: "Vacation Planning",
+                            imageData: conversationPhotoData
+                        )
+                    )
+                },
+                // 3. Peter Ivanov – video, Yesterday.
+                { () throws(Exception) in
+                    let conversation = try await stageMediaConversation(
+                        mediaData: videoData,
+                        mediaFileExtension: .video(.mp4),
+                        mediaFileName: "staged_video",
+                        thumbnailData: imageData,
+                        from: users.peterIvanov,
+                        to: users.mainUser,
+                        sentDate: dateYesterday
+                    )
 
-            _ = try await vacationConversation.update(
-                \.metadata,
-                to: vacationConversation.metadata.copyWith(
-                    name: "Vacation Planning",
-                    imageData: conversationPhotoData
-                )
-            )
+                    try await conversation.updateReadDate(
+                        for: conversation.messages ?? [],
+                        userID: users.mainUser.id
+                    )
+                },
+                // 4. Mario Rossi + 2 – text, 9:36 AM.
+                { () throws(Exception) in
+                    let conversation = try await stageTextConversation(
+                        text: "La partita inizia alle 18:00. Ci vediamo!",
+                        from: users.marioRossi,
+                        to: [
+                            users.mainUser,
+                            users.johnAppleseed,
+                            users.zhangShan,
+                        ],
+                        sentDate: date936AM,
+                        forcedOutputs: [
+                            "en": "The game starts at 6pm. See you then!",
+                        ]
+                    )
 
-            // 3. Peter Ivanov – video, Yesterday.
-            let peterConversation = try await stageMediaConversation(
-                mediaData: videoData,
-                mediaFileExtension: .video(.mp4),
-                mediaFileName: "staged_video",
-                thumbnailData: imageData,
-                from: users.peterIvanov,
-                to: users.mainUser,
-                sentDate: dateYesterday
-            )
+                    try await conversation.updateReadDate(
+                        for: conversation.messages ?? [],
+                        userID: users.mainUser.id
+                    )
+                },
+                // 5. Juan Pérez – audio, 9:41 AM, unread.
+                { () throws(Exception) in
+                    try await stageAudioConversation(
+                        from: users.juanPerez,
+                        to: users.mainUser,
+                        sentDate: date941AM
+                    )
+                },
+                // 6. Beach Day – group with image + text, 9:41 AM.
+                { () throws(Exception) in
+                    try await stageBeachDayConversation(
+                        users: users,
+                        sentDate: date941AM
+                    )
+                },
+                // 7. App Store – 1:1 text + audio, 9:41 AM.
+                { () throws(Exception) in
+                    try await stageAppStoreConversation(
+                        users: users,
+                        sentDate: date941AM
+                    )
+                },
+                // 8. View Original – 1:1 text, 9:41 AM.
+                { () throws(Exception) in
+                    try await stageViewOriginalConversation(
+                        users: users,
+                        sentDate: date941AM
+                    )
+                },
+                // 9. PenPals – group text, Yesterday.
+                { () throws(Exception) in
+                    try await stagePenPalsConversation(
+                        users: users,
+                        sentDate: dateYesterday
+                    )
+                },
+            ]
 
-            try await peterConversation.updateReadDate(
-                for: peterConversation.messages ?? [],
-                userID: users.mainUser.id
-            )
+            try await stagers.forEachConcurrently { @Sendable stager throws(Exception) in try await stager() }
 
-            // 4. Mario Rossi + 2 – text, 9:36 AM.
-            let marioConversation = try await stageTextConversation(
-                text: "La partita inizia alle 18:00. Ci vediamo!",
-                from: users.marioRossi,
-                to: [
-                    users.mainUser,
-                    users.johnAppleseed,
-                    users.zhangShan,
-                ],
-                sentDate: date936AM,
-                forcedOutputs: [
-                    "en": "The game starts at 6pm. See you then!",
-                ]
-            )
-
-            try await marioConversation.updateReadDate(
-                for: marioConversation.messages ?? [],
-                userID: users.mainUser.id
-            )
-
-            // 5. Juan Pérez – audio, 9:41 AM, unread.
-            try await stageAudioConversation(
-                from: users.juanPerez,
-                to: users.mainUser,
-                sentDate: date941AM
-            )
-
-            // 6. Beach Day – group with image + text, 9:41 AM.
-            try await stageBeachDayConversation(
-                users: users,
-                sentDate: date941AM
-            )
-
-            // 7. App Store – 1:1 text + audio, 9:41 AM.
-            try await stageAppStoreConversation(
-                users: users,
-                sentDate: date941AM
-            )
-
-            // 8. View Original – 1:1 text, 9:41 AM.
-            try await stageViewOriginalConversation(
-                users: users,
-                sentDate: date941AM
-            )
-
-            // 9. PenPals – group text, Yesterday.
-            try await stagePenPalsConversation(
-                users: users,
-                sentDate: dateYesterday
-            )
-
-            // Reload app with newly staged conversations.
+            // Reload app with newly staged conversations. The splash
+            // page presents on a later run loop pass, so the overlay
+            // lifts only once it is on screen.
             Application.reset(
                 preserveCurrentUserID: true,
                 onCompletion: .navigateToSplash
             )
 
-            core.ui.removeOverlay()
             Task.delayed(by: .seconds(1)) { @MainActor in
+                core.ui.removeOverlay()
                 Logger.log(
                     "Staged 9 conversations.",
                     with: .toastInPrerelease(
@@ -269,6 +299,26 @@ struct ConversationStagingService {
     }
 
     // MARK: - Auxiliary
+
+    private func addTextMessage(
+        _ stagedText: StagedText,
+        from senderUser: User,
+        allParticipants: [User],
+        in conversation: Conversation,
+        sentDate: Date
+    ) async throws(Exception) -> (conversation: Conversation, message: Message) {
+        try await addTextMessage(
+            text: localizedText(
+                stagedText,
+                for: senderUser
+            ),
+            from: senderUser,
+            allParticipants: allParticipants,
+            in: conversation,
+            sentDate: sentDate,
+            forcedOutputs: ["en": stagedText.englishText]
+        )
+    }
 
     private func addTextMessage(
         text: String,
@@ -396,6 +446,53 @@ struct ConversationStagingService {
         )
     }
 
+    private func localizedText(
+        _ stagedText: StagedText,
+        for senderUser: User
+    ) async throws(Exception) -> String {
+        // English is canonical; every other language is machine-translated
+        // from it, with the English-facing output forced back to the
+        // canonical text by the caller.
+        let languageCode = senderUser.languageCode
+        guard languageCode != "en" else { return stagedText.englishText }
+
+        if let cachedText = $localizedTextCache.withValue({ $0[languageCode]?[stagedText] }) {
+            return cachedText
+        }
+
+        let text = try await networking.hostedTranslation.translate(
+            .init(stagedText.englishText),
+            with: .init(
+                from: "en",
+                to: languageCode
+            ),
+            enhance: .init(
+                additionalContext: "You are translating a casual text message between friends."
+            )
+        ).output
+
+        $localizedTextCache.withValue { $0[languageCode, default: [:]][stagedText] = text }
+        return text
+    }
+
+    private func prefetchLocalizedTexts(
+        for users: StagedUsers
+    ) async throws(Exception) {
+        $localizedTextCache.withValue { $0 = [:] }
+
+        // Every case may be sent by the main user; the view-original
+        // partner additionally sends their incoming reply.
+        var requests = StagedText.allCases.map { ($0, users.mainUser) }
+        requests.append((.viewOriginalIncoming, viewOriginalPartner(for: users)))
+
+        try await requests.forEachConcurrently { request throws(Exception) in
+            _ = try await localizedText(
+                request.0,
+                for: request.1
+            )
+        }
+    }
+
     @MainActor
     private func recordPendingArchiveEntry(
         for translation: Translation
@@ -413,42 +510,9 @@ struct ConversationStagingService {
     }
 
     private func resolveOrCreateUser(
-        id: String,
-        callingCode: String,
-        languageCode: String,
-        nationalNumber: String,
-        regionCode: String
+        _ identity: StagedUserIdentity
     ) async throws(Exception) -> User {
-        let phoneNumber = PhoneNumber(
-            callingCode: callingCode,
-            nationalNumberString: nationalNumber,
-            regionCode: regionCode,
-            label: nil,
-            internalFormattedString: nil
-        )
-
-        let user: User = if await networking.userService.accountExists(
-            for: phoneNumber
-        ) {
-            try await networking.userService.getUser(
-                phoneNumber: phoneNumber
-            )
-        } else {
-            try await networking.userService.createUser(
-                id: id,
-                languageCode: languageCode,
-                phoneNumber: phoneNumber,
-                pushTokens: nil
-            )
-        }
-
-        // Staged users never sign in; leave their device
-        // unresolved rather than claiming the current device.
-        guard user.deviceID != .bangQualifiedEmpty else { return user }
-        return try await user.update(
-            \.deviceID,
-            to: .bangQualifiedEmpty
-        )
+        try await stagedUserService.resolveUser(for: identity)
     }
 
     private func resolveStagedUsers() async throws(Exception) -> StagedUsers {
@@ -460,57 +524,40 @@ struct ConversationStagingService {
             )
         }
 
+        // A twin gives languages without a predefined speaker a
+        // same-language perspective on the Beach Day conversation.
+        // The main user may themselves be a staged persona; that
+        // persona then resolves to the main user, and conversations
+        // with themselves are staged as-is.
+        let twinIdentity: StagedUserIdentity? = if StagedUserIdentity.all.contains(where: {
+            $0.languageCode == currentUser.languageCode
+        }) {
+            nil
+        } else {
+            .twin(for: currentUser.languageCode)
+        }
+
+        // Remember the main user and twin so Developer Mode can
+        // switch perspective between them and the staged users.
+        stagedMainUserID = currentUser.id
+        stagedTwinLanguageCode = twinIdentity?.languageCode
+
+        let languageTwin: User? = if let twinIdentity {
+            try await resolveOrCreateUser(twinIdentity)
+        } else {
+            nil
+        }
+
         return try await .init(
-            erikaMustermann: resolveOrCreateUser(
-                id: "staged_erika_mustermann",
-                callingCode: "49",
-                languageCode: "de",
-                nationalNumber: "15123456789",
-                regionCode: "DE"
-            ),
-            jeanDupont: resolveOrCreateUser(
-                id: "staged_jean_dupont",
-                callingCode: "33",
-                languageCode: "fr",
-                nationalNumber: "612345678",
-                regionCode: "FR"
-            ),
-            johnAppleseed: resolveOrCreateUser(
-                id: "staged_john_appleseed",
-                callingCode: "1",
-                languageCode: "en",
-                nationalNumber: "5555555555",
-                regionCode: "US"
-            ),
-            juanPerez: resolveOrCreateUser(
-                id: "staged_juan_perez",
-                callingCode: "34",
-                languageCode: "es",
-                nationalNumber: "612345678",
-                regionCode: "ES"
-            ),
+            erikaMustermann: resolveOrCreateUser(.erikaMustermann),
+            jeanDupont: resolveOrCreateUser(.jeanDupont),
+            johnAppleseed: resolveOrCreateUser(.johnAppleseed),
+            juanPerez: resolveOrCreateUser(.juanPerez),
             mainUser: currentUser,
-            marioRossi: resolveOrCreateUser(
-                id: "staged_mario_rossi",
-                callingCode: "39",
-                languageCode: "it",
-                nationalNumber: "3123456789",
-                regionCode: "IT"
-            ),
-            peterIvanov: resolveOrCreateUser(
-                id: "staged_peter_ivanov",
-                callingCode: "380",
-                languageCode: "ru",
-                nationalNumber: "501234567",
-                regionCode: "UA"
-            ),
-            zhangShan: resolveOrCreateUser(
-                id: "staged_zhang_shan",
-                callingCode: "886",
-                languageCode: "zh",
-                nationalNumber: "912345678",
-                regionCode: "TW"
-            )
+            languageTwin: languageTwin,
+            marioRossi: resolveOrCreateUser(.marioRossi),
+            peterIvanov: resolveOrCreateUser(.peterIvanov),
+            zhangShan: resolveOrCreateUser(.zhangShan)
         )
     }
 
@@ -543,9 +590,7 @@ struct ConversationStagingService {
 
         // Add remaining messages.
         conversation = try await addTextMessage(
-            text: StagedText.appStoreDownload.text(
-                for: users.mainUser.languageCode
-            ),
+            .appStoreDownload,
             from: users.mainUser,
             allParticipants: participants,
             in: conversation,
@@ -565,9 +610,7 @@ struct ConversationStagingService {
 
         conversation = juanReply2.conversation
         conversation = try await addTextMessage(
-            text: StagedText.appStoreVerify.text(
-                for: users.mainUser.languageCode
-            ),
+            .appStoreVerify,
             from: users.mainUser,
             allParticipants: participants,
             in: conversation,
@@ -588,7 +631,10 @@ struct ConversationStagingService {
         conversation = juanReply3.conversation
         conversation = try await append(
             buildAudioMessage(
-                text: "Thanks!",
+                text: localizedText(
+                    .appStoreThanks,
+                    for: users.mainUser
+                ),
                 audioResourceName: "audio2",
                 from: users.mainUser,
                 to: users.juanPerez,
@@ -672,8 +718,9 @@ struct ConversationStagingService {
             translations: nil
         )
 
-        // Create group conversation.
-        let participants = [
+        // Create group conversation. The twin, when present,
+        // only observes, so it never appears in a screenshot.
+        var participants = [
             users.mainUser,
             users.erikaMustermann,
             users.jeanDupont,
@@ -681,6 +728,10 @@ struct ConversationStagingService {
             users.marioRossi,
             users.zhangShan,
         ]
+
+        if let languageTwin = users.languageTwin {
+            participants.append(languageTwin)
+        }
 
         var conversation = try await networking.conversationService.createConversation(
             firstMessage: imageMessage,
@@ -690,9 +741,7 @@ struct ConversationStagingService {
 
         // Add text messages.
         conversation = try await addTextMessage(
-            text: StagedText.beachDayCheckOut.text(
-                for: users.mainUser.languageCode
-            ),
+            .beachDayCheckOut,
             from: users.mainUser,
             allParticipants: participants,
             in: conversation,
@@ -736,9 +785,7 @@ struct ConversationStagingService {
 
         conversation = juanReply.conversation
         conversation = try await addTextMessage(
-            text: StagedText.beachDayTable.text(
-                for: users.mainUser.languageCode
-            ),
+            .beachDayTable,
             from: users.mainUser,
             allParticipants: participants,
             in: conversation,
@@ -859,9 +906,7 @@ struct ConversationStagingService {
 
         // Create PenPals conversation with mainUser's greeting.
         let conversation = try await stageTextConversation(
-            text: StagedText.penPalsGreeting.text(
-                for: users.mainUser.languageCode
-            ),
+            .penPalsGreeting,
             from: users.mainUser,
             to: participants.filter { $0.id != users.mainUser.id },
             sentDate: sentDate,
@@ -884,6 +929,26 @@ struct ConversationStagingService {
         try await zhangReply.conversation.updateReadDate(
             for: [zhangReply.message],
             userID: users.mainUser.id
+        )
+    }
+
+    private func stageTextConversation(
+        _ stagedText: StagedText,
+        from senderUser: User,
+        to recipientUsers: [User],
+        sentDate: Date,
+        isPenPalsConversation: Bool = false
+    ) async throws(Exception) -> Conversation {
+        try await stageTextConversation(
+            text: localizedText(
+                stagedText,
+                for: senderUser
+            ),
+            from: senderUser,
+            to: recipientUsers,
+            sentDate: sentDate,
+            forcedOutputs: ["en": stagedText.englishText],
+            isPenPalsConversation: isPenPalsConversation
         )
     }
 
@@ -923,8 +988,7 @@ struct ConversationStagingService {
         users: StagedUsers,
         sentDate: Date
     ) async throws(Exception) {
-        // Pair mainUser with someone who speaks a different language.
-        let partner = users.mainUser.languageCode == "en" ? users.juanPerez : users.johnAppleseed
+        let partner = viewOriginalPartner(for: users)
         let participants = [
             users.mainUser,
             partner,
@@ -932,36 +996,25 @@ struct ConversationStagingService {
 
         // Create conversation with mainUser's greeting.
         var conversation = try await stageTextConversation(
-            text: StagedText.viewOriginalGreeting.text(
-                for: users.mainUser.languageCode
-            ),
+            .viewOriginalGreeting,
             from: users.mainUser,
             to: [partner],
             sentDate: sentDate
         )
 
-        // Add partner's reply in their language, with a forced translation for mainUser.
+        // Add partner's reply in their language.
         let incomingReply = try await addTextMessage(
-            text: StagedText.viewOriginalIncoming.text(
-                for: partner.languageCode
-            ),
+            .viewOriginalIncoming,
             from: partner,
             allParticipants: participants,
             in: conversation,
-            sentDate: sentDate.addingTimeInterval(10),
-            forcedOutputs: [
-                users.mainUser.languageCode: StagedText.viewOriginalIncoming.text(
-                    for: users.mainUser.languageCode
-                ),
-            ]
+            sentDate: sentDate.addingTimeInterval(10)
         )
 
         // Add mainUser's final reply.
         conversation = incomingReply.conversation
         conversation = try await addTextMessage(
-            text: StagedText.viewOriginalMeantime.text(
-                for: users.mainUser.languageCode
-            ),
+            .viewOriginalMeantime,
             from: users.mainUser,
             allParticipants: participants,
             in: conversation,
@@ -973,6 +1026,13 @@ struct ConversationStagingService {
             for: [incomingReply.message],
             userID: users.mainUser.id
         )
+    }
+
+    /// Pairs the main user with a staged user who speaks a different language.
+    private func viewOriginalPartner(
+        for users: StagedUsers
+    ) -> User {
+        users.mainUser.languageCode == "en" ? users.juanPerez : users.johnAppleseed
     }
 
     private func translateText(
