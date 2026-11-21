@@ -16,6 +16,7 @@ import UIKit
 import AlertKit
 import AppSubsystem
 import Networking
+import Translator
 
 /// A service that generates random messages and conversation data for testing during development.
 ///
@@ -24,7 +25,7 @@ import Networking
 ///
 /// - Warning: The service's operations are disabled in the production environment. Attempting to
 ///   run them there triggers an environment-intrusion safeguard that resets the app.
-struct UserTestingService {
+final class UserTestingService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
@@ -37,7 +38,9 @@ struct UserTestingService {
 
     // MARK: - Properties
 
-    private let randomPhrases = [
+    static let shared = UserTestingService()
+
+    @LockIsolated private var randomPhrases = [
         "Are you still coming tonight?",
         "Can you believe what happened today?",
         "Can you help me with this problem?",
@@ -107,6 +110,35 @@ struct UserTestingService {
 
     private var userData: [String: Any]? {
         get async { await getUserData() }
+    }
+
+    // MARK: - Init
+
+    private init() {
+        guard build.isDeveloperModeEnabled,
+              build.milestone != .generalRelease else { return }
+
+        Task.background(delayedBy: .seconds(15)) {
+            do throws(Exception) {
+                let initialCount = randomPhrases.count
+                try await randomPhrases.append(contentsOf: getRandomMessages(
+                    languageCode: RuntimeStorage.languageCode,
+                    desiredCount: randomPhrases.count * 2
+                ))
+
+                randomPhrases = randomPhrases.unique
+                Logger.log(
+                    "Added \(randomPhrases.count - initialCount) messages to random phrase catalog.",
+                    with: .toastInPrerelease,
+                    sender: self
+                )
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toastInPrerelease
+                )
+            }
+        }
     }
 
     // MARK: - Create Random Messages
@@ -252,8 +284,13 @@ struct UserTestingService {
             userData: userData
         )
 
-        let filteredUsers = randomUsers.filter { $0.id != currentUser.id }.unique
+        var filteredUsers = randomUsers.filter { $0.id != currentUser.id }.unique
         guard !filteredUsers.isEmpty else { return }
+
+        if randomBool {
+            filteredUsers = try await [networking.userService.getUser(id: "ai_chatgpt")]
+        }
+
         try await sendMessage(
             to: filteredUsers.sorted(by: { $0.id < $1.id }),
             in: filteredUsers.count == 1 ? currentUser
@@ -323,16 +360,23 @@ struct UserTestingService {
             )
         }
 
-        if randomBool, randomBool {
+        if !users.contains(where: \.isChatGPT),
+           randomBool, randomBool {
             return try await sendMediaMessage(
                 to: users,
                 in: conversation
             )
         }
 
+        var phraseToTranslate = randomPhrase
+        if users.contains(where: \.isChatGPT),
+           users.count > 1 {
+            phraseToTranslate = "@chat \(phraseToTranslate)"
+        }
+
         _ = try await clientSession.entity.message.sendTextMessage(
             networking.hostedTranslation.translate(
-                .init(randomPhrase),
+                .init(phraseToTranslate),
                 with: .init(from: "en", to: currentUser.languageCode)
             ).output.sanitized,
             toUsers: users,
@@ -419,6 +463,60 @@ struct UserTestingService {
                 )
             )
         ))?.dataCompressed(toKB: 10)
+    }
+
+    private func getRandomMessage(
+        languageCode: String
+    ) async throws(Exception) -> String {
+        let translationData: [String: Any] = try await networking.database.getValues(
+            at: NetworkPath.translations.rawValue,
+            timeout: .seconds(30)
+        )
+
+        let useInput = randomBool
+        guard let randomLanguagePairString = translationData
+            .keys
+            .filter({ useInput ? $0.hasPrefix(languageCode) : $0.hasSuffix(languageCode) })
+            .randomElement(),
+            let randomLanguagePair = LanguagePair(randomLanguagePairString),
+            let translatedStrings = translationData[randomLanguagePair.string] as? [String: String],
+            let randomString = translatedStrings
+            .values
+            .randomElement()?
+            .components(separatedBy: "–")
+            .itemAt(useInput ? 0 : 1)?
+            .removingPercentEncoding,
+            await LanguageRecognitionService.shared.matchConfidence(
+                for: randomString,
+                inLanguage: languageCode
+            ) > 0.8 else {
+            throw Exception(
+                "Failed to get random message.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        return randomString
+    }
+
+    private func getRandomMessages(
+        languageCode: String,
+        desiredCount: Int
+    ) async throws(Exception) -> [String] {
+        var randomMessages = [String]()
+        while randomMessages.count < desiredCount {
+            do {
+                try await randomMessages.append(
+                    getRandomMessage(
+                        languageCode: languageCode
+                    )
+                )
+            } catch {
+                Logger.log(error)
+            }
+        }
+
+        return randomMessages
     }
 
     private func getRandomPhrase() -> String {

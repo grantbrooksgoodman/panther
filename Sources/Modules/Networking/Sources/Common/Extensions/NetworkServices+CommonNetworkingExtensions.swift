@@ -22,7 +22,7 @@ extension NetworkServices {
             media: .init()
         )
         static let schemaMigrationService = SchemaMigrationService.shared
-        static let userService = UserService(testing: .init())
+        static let userService = UserService(testing: .shared)
     }
 
     /// The service that manages conversations.
